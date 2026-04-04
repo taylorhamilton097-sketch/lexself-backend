@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#09090b">
+<title>LexSelf Criminal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#09090b; --s1:#111113; --s2:#18181c; --s3:#202024;
+  --b1:#28282e; --b2:#383c44;
+  --red:#e63946; --red2:#ff6070; --red-dim:#3d1217;
+  --blue:#4361ee; --blue2:#7b9cff; --blue-dim:#1a2460;
+  --gold:#f4a261; --gold2:#f9c784; --gold-dim:#5a3d1a;
+  --green:#2dc653; --green-dim:#0f3d1e;
+  --text:#eaeaf0; --text2:#8890b0; --text3:#404460;
+  --nav-h: 52px;
+  --bot-h: 64px;
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══ TOP NAV ══ */
+.topnav {
+  height: var(--nav-h);
+  background: var(--s1);
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 50;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.topnav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: .08em;
+}
+.topnav-logo span { color: var(--red); }
+.topnav-mode {
+  font-family: 'DM Mono', monospace;
+  font-size: .56rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  border: 1px solid var(--b1);
+  padding: 2px 7px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topnav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.topnav-plan {
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+  padding: 2px 7px;
+}
+.topnav-btn {
+  width: 34px; height: 34px;
+  background: none;
+  border: 1px solid var(--b1);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  transition: all .15s;
+  border-radius: 0;
+}
+.topnav-btn:hover, .topnav-btn:active { background: var(--s2); color: var(--text); }
+
+/* ══ USAGE STRIP ══ */
+.usage-strip {
+  background: var(--bg);
+  border-bottom: 1px solid var(--b1);
+  padding: 5px 16px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.usage-strip.show { display: flex; }
+.us-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.us-pips { display: flex; gap: 2px; }
+.us-pip { width: 5px; height: 5px; background: var(--b2); border-radius: 1px; }
+.us-pip.on { background: var(--red); }
+.us-pip.inf { background: var(--green); }
+.us-upgrade {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  color: var(--red);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: none;
+}
+
+/* ══ MAIN AREA ══ */
+.app-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  position: relative;
+}
+
+/* ══ PANELS ══ */
+.panel {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel.on { display: flex; }
+
+/* ══ BOTTOM NAV (mobile) ══ */
+.botnav {
+  height: calc(var(--bot-h) + var(--safe-bot));
+  padding-bottom: var(--safe-bot);
+  background: var(--s1);
+  border-top: 1px solid var(--b1);
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  transition: color .15s;
+  padding: 8px 4px;
+  position: relative;
+}
+.bn-item.on { color: var(--red); }
+.bn-item .bn-ico { font-size: 1.1rem; line-height: 1; }
+.bn-item .bn-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: .46rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  line-height: 1;
+}
+.bn-item .bn-badge {
+  position: absolute;
+  top: 6px; right: calc(50% - 16px);
+  width: 8px; height: 8px;
+  background: var(--red);
+  border-radius: 50%;
+  display: none;
+}
+.bn-item .bn-badge.show { display: block; }
+
+/* ══ SIDEBAR (desktop only) ══ */
+.sidebar {
+  width: 256px;
+  background: var(--s1);
+  border-right: 1px solid var(--b1);
+  flex-shrink: 0;
+  overflow-y: auto;
+  display: none;
+}
+.sb-sec { border-bottom: 1px solid var(--b1); }
+.sb-hdr {
+  padding: 9px 13px 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  color: var(--text3);
+}
+.sbt {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .75rem;
+  color: var(--text2);
+  transition: all .12s;
+  border-left: 2px solid transparent;
+  line-height: 1.3;
+}
+.sbt:hover, .sbt:active { background: var(--s2); color: var(--text); border-left-color: var(--b2); }
+.sbt.on { background: var(--s2); color: var(--red); border-left-color: var(--red); }
+.sbt .ico { font-size: .85rem; width: 16px; flex-shrink: 0; margin-top: 1px; }
+.sbt .lbl { flex: 1; }
+.sbt .tag {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: .5rem;
+  color: var(--text3);
+  margin-top: 1px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.sbt.on .tag { color: var(--red-dim); }
+
+/* ══ CONTENT AREA ══ */
+.content-wrap {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ══ CHARGE DRAWER (mobile) ══ */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 200;
+  display: none;
+  opacity: 0;
+  transition: opacity .25s;
+}
+.drawer-overlay.show { display: block; }
+.drawer-overlay.visible { opacity: 1; }
+
+.drawer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--s1);
+  border-top: 1px solid var(--b2);
+  z-index: 201;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.32,.72,0,1);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--safe-bot);
+}
+.drawer.open { transform: translateY(0); }
+
+.drawer-handle {
+  width: 36px; height: 4px;
+  background: var(--b2);
+  border-radius: 2px;
+  margin: 12px auto 4px;
+  flex-shrink: 0;
+}
+.drawer-title {
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--text3);
+  padding: 8px 16px 12px;
+  flex-shrink: 0;
+}
+.drawer-body { overflow-y: auto; flex: 1; }
+.drawer-sec { border-bottom: 1px solid var(--b1); }
+.drawer-sec-hdr {
+  padding: 8px 16px 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--text3);
+}
+.drawer-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .84rem;
+  text-align: left;
+  transition: background .12s;
+  border-left: 3px solid transparent;
+}
+.drawer-btn:active { background: var(--s2); }
+.drawer-btn .db-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text3);
+  display: block;
+  margin-top: 1px;
+}
+
+/* ══ UPLOAD PANEL ══ */
+.up-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.up-hero { padding: 20px 16px 16px; border-bottom: 1px solid var(--b1); }
+.up-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: .06em;
+  margin-bottom: 2px;
+}
+.up-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: .54rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+}
+
+.drop-zone {
+  margin: 14px 16px 0;
+  border: 2px dashed var(--b2);
+  background: var(--s1);
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.drop-zone.drag, .drop-zone:active { border-color: var(--red); background: var(--s2); }
+.drop-zone input {
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer;
+  width: 100%; height: 100%;
+  font-size: 16px; /* prevents iOS zoom */
+}
+.dz-ico { font-size: 1.8rem; margin-bottom: 8px; opacity: .5; }
+.dz-t { font-family: 'Source Serif 4', serif; font-size: .95rem; font-weight: 600; margin-bottom: 4px; }
+.dz-s { font-size: .76rem; color: var(--text2); line-height: 1.5; }
+.dz-lim { font-family: 'DM Mono', monospace; font-size: .52rem; color: var(--text3); margin-top: 6px; }
+
+.up-opts { margin: 12px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+.oc { background: var(--s1); border: 1px solid var(--b1); padding: 12px; }
+.ol {
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text3);
+  margin-bottom: 6px;
+  display: block;
+}
+.oi {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; /* prevents iOS zoom */
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.oi:focus { border-color: var(--red); }
+.oi::placeholder { color: var(--text3); }
+select.oi {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23404460'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+select.oi option { background: var(--s2); }
+
+.analyze-btn {
+  margin: 14px 16px 16px;
+  padding: 14px 20px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-weight: 500;
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 32px);
+  min-height: 48px;
+}
+.analyze-btn:active { background: var(--red2); }
+.analyze-btn:disabled { opacity: .35; }
+.analyze-btn .sp {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: none;
+}
+.analyze-btn.loading .sp { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.prog-wrap { margin: 0 16px 16px; display: none; }
+.prog-wrap.show { display: block; }
+.pb-outer { background: var(--s2); height: 3px; overflow: hidden; margin-bottom: 10px; }
+.pb-inner { height: 100%; background: var(--red); transition: width .4s ease; width: 0; }
+.ps-list { display: flex; flex-direction: column; gap: 6px; }
+.ps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  color: var(--text3);
+}
+.ps.done { color: var(--green); }
+.ps.act { color: var(--text); }
+.ps .pd {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--b2);
+  flex-shrink: 0;
+}
+.ps.done .pd { background: var(--green); }
+.ps.act .pd { background: var(--red); animation: blink .8s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+
+/* ══ REPORT PANEL ══ */
+.rep-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.rep-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 40px 24px;
+}
+.rep-empty-glyph {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.4rem;
+  color: var(--text3);
+  letter-spacing: .1em;
+}
+.rep-empty p { font-size: .8rem; color: var(--text3); max-width: 260px; line-height: 1.65; }
+
+.rep-hdr { padding: 16px; border-bottom: 1px solid var(--b1); }
+.rep-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: .05em;
+  margin-bottom: 3px;
+}
+.rep-charge {
+  font-family: 'DM Mono', monospace;
+  font-size: .56rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 10px;
+}
+.rep-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.rtag {
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 2px 8px;
+  border: 1px solid var(--b1);
+  color: var(--text2);
+}
+.rtag.r { border-color: var(--red-dim); color: var(--red); }
+.rtag.b { border-color: var(--blue-dim); color: var(--blue2); }
+.rtag.g { border-color: var(--gold-dim); color: var(--gold); }
+.rtag.gr { border-color: var(--green-dim); color: var(--green); }
+
+/* Report actions bar */
+.rep-actions {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--b1);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.rep-actions::-webkit-scrollbar { display: none; }
+.ra-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  background: none;
+  border: 1px solid var(--b2);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .56rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.ra-btn:active { border-color: var(--red); color: var(--red); }
+.ra-btn.primary { border-color: var(--red-dim); color: var(--red); }
+
+/* Report section tabs */
+.rep-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--b1);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
+.rep-tabs::-webkit-scrollbar { display: none; }
+.rtab {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .56rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.rtab.on { color: var(--red); border-bottom-color: var(--red); }
+
+.rsec { display: none; padding: 16px; }
+.rsec.on { display: block; }
+
+/* Finding cards */
+.fc {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  padding: 14px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--b1);
+}
+.fc.high, .fc.strong, .fc.critical { border-left-color: var(--red); }
+.fc.medium, .fc.moderate { border-left-color: var(--gold); }
+.fc.low, .fc.arguable { border-left-color: var(--blue); }
+
+.fch { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.fcb {
+  font-family: 'DM Mono', monospace;
+  font-size: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 2px 6px;
+  border: 1px solid;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.fcb.high, .fcb.strong, .fcb.critical { color: var(--red); border-color: var(--red-dim); }
+.fcb.medium, .fcb.moderate { color: var(--gold); border-color: var(--gold-dim); }
+.fcb.low, .fcb.arguable { color: var(--blue2); border-color: var(--blue-dim); }
+.fct { font-family: 'Source Serif 4', serif; font-size: .88rem; font-weight: 600; line-height: 1.3; }
+.fcd { font-size: .8rem; line-height: 1.75; color: var(--text2); margin-bottom: 6px; }
+.fcd strong { color: var(--text); font-weight: 500; }
+
+/* Mobile quote pair - stacked */
+.qp { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.qb {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 8px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: .67rem;
+  line-height: 1.6;
+  color: var(--text2);
+}
+.qbl { font-size: .5rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: 3px; display: block; }
+.qbl.cx { color: var(--red); }
+.dv {
+  background: var(--s3);
+  border-left: 2px solid var(--green);
+  padding: 7px 10px;
+  font-size: .76rem;
+  color: var(--text2);
+  margin-top: 6px;
+}
+.dv::before { content: '→ '; color: var(--green); font-family: 'DM Mono', monospace; font-size: .62rem; }
+
+.sc { background: var(--s1); border: 1px solid var(--b1); padding: 14px; margin-bottom: 10px; }
+.sr { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--red); }
+.sty { font-family: 'DM Mono', monospace; font-size: .52rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: 4px; }
+.stit { font-family: 'Source Serif 4', serif; font-size: .9rem; font-weight: 600; margin-bottom: 6px; }
+.sal { padding-left: 14px; margin: 6px 0; }
+.sal li { font-size: .78rem; color: var(--text2); margin-bottom: 3px; line-height: 1.55; }
+.cc { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.chip { font-family: 'DM Mono', monospace; font-size: .56rem; color: var(--blue2); border: 1px solid var(--blue-dim); padding: 2px 6px; }
+
+.vb { background: var(--s2); border: 1px solid var(--b1); padding: 16px; margin-bottom: 14px; }
+.vba { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: .05em; margin-bottom: 6px; }
+.vba.strong { color: var(--green); }
+.vba.viable { color: var(--gold); }
+.vba.uphill { color: var(--red); }
+.vba.insufficient { color: var(--text2); }
+
+.ia { background: var(--s2); border: 1px solid var(--red-dim); border-left: 3px solid var(--red); padding: 12px 14px; margin-bottom: 12px; }
+.iat { font-family: 'DM Mono', monospace; font-size: .56rem; text-transform: uppercase; letter-spacing: .12em; color: var(--red); margin-bottom: 8px; }
+.ial { list-style: none; padding: 0; }
+.ial li { font-size: .8rem; color: var(--text); padding: 5px 0; border-bottom: 1px solid var(--b1); display: flex; align-items: flex-start; gap: 7px; line-height: 1.5; }
+.ial li::before { content: '→'; color: var(--red); font-family: 'DM Mono', monospace; font-size: .64rem; flex-shrink: 0; margin-top: 2px; }
+.ial li:last-child { border-bottom: none; }
+
+.ab2 { background: var(--s2); border: 1px solid var(--b1); border-left: 3px solid var(--blue); padding: 12px 14px; font-size: .8rem; line-height: 1.75; color: var(--text2); margin-bottom: 12px; }
+
+.sec-title {
+  font-family: 'Source Serif 4', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stc { font-family: 'DM Mono', monospace; font-size: .54rem; padding: 2px 6px; font-weight: 400; }
+.stc.r { background: var(--red); color: #fff; }
+.stc.b { background: var(--blue); color: #fff; }
+.stc.g { background: var(--gold-dim); color: var(--gold2); }
+
+.dl-txt {
+  background: var(--bg);
+  border: 1px solid var(--b1);
+  padding: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  line-height: 1.85;
+  color: var(--text2);
+  white-space: pre-wrap;
+  margin-top: 10px;
+  word-break: break-word;
+}
+
+/* ══ CHAT PANEL ══ */
+.chat-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.ctx-bar {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--s1);
+  flex-shrink: 0;
+}
+.cx-val { font-family: 'Source Serif 4', serif; font-size: .85rem; font-style: italic; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-pill { font-family: 'DM Mono', monospace; font-size: .5rem; color: var(--blue2); border: 1px solid var(--blue-dim); padding: 2px 6px; text-transform: uppercase; flex-shrink: 0; }
+.cx-pill.none { color: var(--text3); border-color: var(--b1); }
+
+#msgs { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.msg { animation: mIn .2s ease both; }
+@keyframes mIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.mm { font-family: 'DM Mono', monospace; font-size: .5rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: 3px; }
+.msg.user .mm { color: var(--red-dim); text-align: right; }
+.mb { padding: 11px 14px; font-size: .84rem; line-height: 1.8; max-width: 100%; word-break: break-word; }
+.msg.user { align-self: flex-end; max-width: 88%; }
+.msg.user .mb { background: var(--s2); border: 1px solid var(--b2); border-right: 3px solid var(--red-dim); }
+.msg.assistant { align-self: flex-start; max-width: 100%; width: 100%; }
+.msg.assistant .mb { background: var(--s1); border: 1px solid var(--b1); border-left: 3px solid var(--blue); }
+.mb h3 { font-family: 'Source Serif 4', serif; font-size: .92rem; font-weight: 600; color: var(--blue2); margin-bottom: 6px; }
+.mb strong { color: var(--text); font-weight: 500; }
+.mb em { color: var(--gold2); font-style: italic; }
+.mb p { margin-bottom: 7px; }
+.mb p:last-child { margin-bottom: 0; }
+.mb ul, .mb ol { padding-left: 14px; margin-bottom: 7px; }
+.mb li { margin-bottom: 3px; }
+.ma { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.ma button { padding: 5px 10px; background: none; border: 1px solid var(--b1); color: var(--text3); cursor: pointer; font-family: 'DM Mono', monospace; font-size: .52rem; text-transform: uppercase; letter-spacing: .08em; min-height: 32px; }
+.ma button:active { border-color: var(--blue-dim); color: var(--blue2); }
+
+.ti { display: flex; gap: 4px; padding: 9px 13px; background: var(--s1); border: 1px solid var(--b1); border-left: 3px solid var(--blue); width: fit-content; align-self: flex-start; }
+.td { width: 4px; height: 4px; background: var(--blue-dim); border-radius: 50%; animation: tda 1.2s infinite; }
+.td:nth-child(2) { animation-delay: .2s; }
+.td:nth-child(3) { animation-delay: .4s; }
+@keyframes tda { 0%,60%,100%{opacity:.3;transform:translateY(0)} 30%{opacity:1;transform:translateY(-4px)} }
+
+/* Input area */
+.inp-area {
+  border-top: 1px solid var(--b1);
+  padding: 10px 14px;
+  background: var(--s1);
+  flex-shrink: 0;
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+}
+.inp-tools {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.inp-tools::-webkit-scrollbar { display: none; }
+.it {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  background: none;
+  border: 1px solid var(--b1);
+  color: var(--text3);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  transition: all .15s;
+  min-height: 32px;
+  white-space: nowrap;
+}
+.it:active { border-color: var(--b2); color: var(--text2); }
+.it.rec { border-color: var(--red); color: var(--red); animation: pr 1s infinite; }
+@keyframes pr { 0%,100%{opacity:1}50%{opacity:.4} }
+.vs { font-family: 'DM Mono', monospace; font-size: .54rem; color: var(--red); display: none; align-self: center; }
+.vs.on { display: block; }
+
+.inp-row { display: flex; gap: 8px; align-items: flex-end; }
+textarea#ci {
+  flex: 1;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; /* prevents iOS zoom */
+  color: var(--text);
+  resize: none;
+  outline: none;
+  min-height: 44px;
+  max-height: 120px;
+  line-height: 1.5;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+textarea#ci:focus { border-color: var(--blue); }
+textarea#ci::placeholder { color: var(--text3); }
+.send-btn {
+  padding: 10px 16px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  height: 44px;
+  min-width: 64px;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.send-btn:active { background: var(--blue2); }
+.send-btn:disabled { opacity: .35; }
+.inp-hint { font-family: 'DM Mono', monospace; font-size: .48rem; color: var(--text3); margin-top: 5px; text-align: center; letter-spacing: .05em; }
+
+/* Welcome screen */
+.wlc { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px 20px; text-align: center; gap: 10px; }
+.wg { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--red-dim); letter-spacing: .1em; }
+.wlc h2 { font-family: 'Source Serif 4', serif; font-size: 1.2rem; font-weight: 600; }
+.wlc p { font-size: .78rem; color: var(--text2); max-width: 320px; line-height: 1.65; }
+.chips2 { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 360px; margin-top: 4px; }
+.chip2 {
+  padding: 10px 14px;
+  background: none;
+  border: 1px solid var(--b2);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .78rem;
+  text-align: left;
+  transition: all .12s;
+  min-height: 44px;
+}
+.chip2:active { border-color: var(--red-dim); color: var(--red2); background: var(--s2); }
+
+/* ══ PROFILE PANEL ══ */
+.pr-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
+.ptit { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: .06em; margin-bottom: 2px; }
+.psub { font-family: 'DM Mono', monospace; font-size: .54rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text3); margin-bottom: 16px; }
+.pr-sec { margin-bottom: 16px; }
+.pr-sec-title { font-family: 'DM Mono', monospace; font-size: .58rem; text-transform: uppercase; letter-spacing: .14em; color: var(--blue2); margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--b1); }
+.fg { margin-bottom: 10px; }
+.fl { font-family: 'DM Mono', monospace; font-size: .52rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text3); margin-bottom: 4px; display: block; }
+.fi {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 10px 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; /* prevents iOS zoom */
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.fi:focus { border-color: var(--blue); }
+.fi::placeholder { color: var(--text3); }
+.fr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+select.fi {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23404460'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 26px;
+}
+select.fi option { background: var(--s2); }
+textarea.fi { min-height: 80px; resize: vertical; font-size: 16px; }
+
+.pr-save-bar {
+  padding: 12px 16px;
+  border-top: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--s1);
+  flex-shrink: 0;
+}
+.bp {
+  padding: 12px 20px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  min-height: 44px;
+}
+.bp:active { background: var(--blue2); }
+.bs {
+  padding: 12px 16px;
+  background: none;
+  color: var(--text2);
+  border: 1px solid var(--b2);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  min-height: 44px;
+}
+.bs:active { border-color: var(--text2); color: var(--text); }
+.sok { font-family: 'DM Mono', monospace; font-size: .58rem; color: var(--green); opacity: 0; transition: opacity .3s; }
+.sok.show { opacity: 1; }
+
+/* ══ AUTH OVERLAY ══ */
+.auth-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.94);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+}
+.auth-box {
+  background: var(--s1);
+  border-top: 1px solid var(--b2);
+  width: 100%;
+  padding: 28px 20px max(28px, env(safe-area-inset-bottom, 28px));
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.auth-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: .08em; text-align: center; margin-bottom: 4px; }
+.auth-logo span { color: var(--red); }
+.auth-sub { font-family: 'DM Mono', monospace; font-size: .54rem; text-transform: uppercase; letter-spacing: .14em; color: var(--text3); text-align: center; margin-bottom: 24px; }
+.auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--b1); }
+.auth-tab { flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: .6rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; min-height: 44px; }
+.auth-tab.on { color: var(--red); border-bottom-color: var(--red); }
+.auth-form { display: none; }
+.auth-form.on { display: block; }
+.auth-fg { margin-bottom: 14px; }
+.auth-lbl { font-family: 'DM Mono', monospace; font-size: .54rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text3); margin-bottom: 5px; display: block; }
+.auth-inp {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 12px 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.auth-inp:focus { border-color: var(--red); }
+.auth-inp::placeholder { color: var(--text3); }
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  font-weight: 500;
+  margin-top: 4px;
+  min-height: 48px;
+}
+.auth-btn:active { background: var(--red2); }
+.auth-btn:disabled { opacity: .4; }
+.auth-err { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--red); margin-bottom: 10px; display: none; padding: 8px 10px; background: var(--red-dim); }
+.auth-err.show { display: block; }
+.auth-footer { font-family: 'DM Mono', monospace; font-size: .54rem; color: var(--text3); text-align: center; margin-top: 14px; line-height: 1.6; }
+
+/* ══ PAYWALL ══ */
+.pw-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 900;
+  display: none;
+  align-items: flex-end;
+}
+.pw-overlay.show { display: flex; }
+.pw-box {
+  background: var(--s1);
+  border-top: 1px solid var(--b2);
+  width: 100%;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom, 20px));
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.pw-handle { width: 36px; height: 4px; background: var(--b2); border-radius: 2px; margin: 0 auto 16px; }
+.pw-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .06em; margin-bottom: 4px; }
+.pw-msg { font-size: .82rem; color: var(--text2); line-height: 1.65; margin-bottom: 20px; }
+.pw-plans { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.pw-plan {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color .15s;
+  min-height: 60px;
+}
+.pw-plan.pop { border-color: var(--red); }
+.pw-plan:active { border-color: var(--b2); background: var(--s3); }
+.pp-left { flex: 1; }
+.pp-name { font-family: 'DM Mono', monospace; font-size: .6rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text2); margin-bottom: 2px; }
+.pp-desc { font-size: .76rem; color: var(--text3); }
+.pp-price { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--text); flex-shrink: 0; }
+.pp-price.pop { color: var(--red); }
+.pw-onetime {
+  background: none;
+  border: 1px solid var(--gold-dim);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-height: 56px;
+  margin-bottom: 12px;
+}
+.pw-onetime:active { background: var(--gold-dim); }
+.pw-close { width: 100%; padding: 12px; background: none; border: 1px solid var(--b1); color: var(--text3); cursor: pointer; font-family: 'DM Mono', monospace; font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; min-height: 44px; }
+.pw-close:active { border-color: var(--text2); color: var(--text); }
+
+/* ══ PDF EXPORT SHEET ══ */
+.pdf-sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 850;
+  display: none;
+  align-items: flex-end;
+}
+.pdf-sheet-overlay.show { display: flex; }
+.pdf-sheet {
+  background: var(--s1);
+  border-top: 1px solid var(--b2);
+  width: 100%;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom, 20px));
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.pdf-handle { width: 36px; height: 4px; background: var(--b2); border-radius: 2px; margin: 0 auto 16px; }
+.pdf-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: .06em; margin-bottom: 16px; }
+.pdf-fg { margin-bottom: 12px; }
+.pdf-lbl { font-family: 'DM Mono', monospace; font-size: .52rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text3); margin-bottom: 5px; display: block; }
+.pdf-inp {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+}
+.pdf-inp:focus { border-color: var(--gold); }
+.pdf-inp::placeholder { color: var(--text3); }
+textarea.pdf-inp { min-height: 100px; resize: vertical; }
+.pdf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pdf-download-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-weight: 500;
+  margin-top: 4px;
+  min-height: 48px;
+}
+.pdf-download-btn:active { background: var(--gold2); }
+.pdf-cancel-btn {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 1px solid var(--b1);
+  color: var(--text3);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-top: 6px;
+  min-height: 44px;
+}
+.pdf-cancel-btn:active { border-color: var(--text2); color: var(--text); }
+
+/* ══ TOAST ══ */
+.toast {
+  position: fixed;
+  bottom: calc(var(--bot-h) + var(--safe-bot) + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--s3);
+  border: 1px solid var(--b2);
+  padding: 9px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem;
+  color: var(--text);
+  z-index: 999;
+  opacity: 0;
+  transition: all .25s;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b2); }
+
+/* ══ DESKTOP LAYOUT (≥768px) ══ */
+@media (min-width: 768px) {
+  .sidebar { display: flex; flex-direction: column; }
+  .botnav { display: none; }
+  .panel { position: relative; display: none; flex: 1; }
+  .panel.on { display: flex; }
+  .app-body { display: flex; flex-direction: row; }
+  .content-wrap { flex: 1; overflow: hidden; display: flex; }
+  .auth-overlay { align-items: center; justify-content: center; }
+  .auth-box { max-width: 420px; border: 1px solid var(--b2); border-top: 1px solid var(--b2); max-height: 85vh; }
+  .pw-overlay { align-items: center; justify-content: center; }
+  .pw-box { max-width: 480px; border: 1px solid var(--b2); max-height: 80vh; }
+  .pw-plans { flex-direction: row; }
+  .pdf-sheet-overlay { align-items: center; justify-content: center; }
+  .pdf-sheet { max-width: 500px; border: 1px solid var(--b2); max-height: 80vh; }
+  .qp { flex-direction: row; }
+  .chips2 { flex-direction: row; flex-wrap: wrap; max-width: 520px; }
+  .chip2 { flex: none; width: auto; padding: 7px 14px; font-size: .74rem; }
+  .toast { bottom: 24px; }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .sidebar { width: 220px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOP NAV ══ -->
+<div class="topnav">
+  <div class="topnav-logo">Lex<span>Self</span></div>
+  <div class="topnav-mode" id="modeLabel">Defence Assistant</div>
+  <div class="topnav-right">
+    <div class="topnav-plan" id="planBadge" style="display:none">FREE</div>
+    <button class="topnav-btn" onclick="openChargeDrawer()" title="Select charge module">⚖</button>
+    <button class="topnav-btn" onclick="openPdfSheet()" title="Export PDF">⬇</button>
+    <button class="topnav-btn" id="topAuthBtn" onclick="showAuthOrLogout()" title="Account">◈</button>
+  </div>
+</div>
+
+<!-- ══ USAGE STRIP ══ -->
+<div class="usage-strip" id="usageStrip">
+  <div class="us-item">
+    <span>Analysis:</span>
+    <div class="us-pips" id="aPips"></div>
+    <span id="aCnt"></span>
+  </div>
+  <div class="us-item" style="margin-left:10px">
+    <span>Chat:</span>
+    <div class="us-pips" id="cPips"></div>
+    <span id="cCnt"></span>
+  </div>
+  <button class="us-upgrade" id="upgradeBtn" onclick="openPaywall('upgrade')" style="display:none">Upgrade →</button>
+</div>
+
+<div class="app-body">
+
+  <!-- ══ SIDEBAR (desktop) ══ -->
+  <div class="sidebar">
+    <div class="sb-sec">
+      <div class="sb-hdr">Disclosure</div>
+      <button class="sbt on" onclick="showPanel('upload');sbActive(this)"><span class="ico">⬆</span><span class="lbl">Upload & Analyse<span class="tag">Crown Brief · PDF</span></span></button>
+      <button class="sbt" onclick="showPanel('report');sbActive(this)" id="sbReport"><span class="ico">📋</span><span class="lbl">Analysis Report<span class="tag">5-Pass Results</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Driving</div>
+      <button class="sbt" onclick="loadCharge('impaired');sbActive(this)"><span class="ico">🚗</span><span class="lbl">Impaired / Over 80<span class="tag">s.320.14 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('dangerousDriving');sbActive(this)"><span class="ico">🚗</span><span class="lbl">Dangerous Driving<span class="tag">s.320.13 CC</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Violence / Domestic</div>
+      <button class="sbt" onclick="loadCharge('assault');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Assault<span class="tag">s.266 CC · s.34</span></span></button>
+      <button class="sbt" onclick="loadCharge('sexualAssault');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Sexual Assault<span class="tag">s.271 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('harassment');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Criminal Harassment<span class="tag">s.264 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('threats');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Uttering Threats<span class="tag">s.264.1 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('confinement');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Forcible Confinement<span class="tag">s.279 CC</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Conditions</div>
+      <button class="sbt" onclick="loadCharge('breach');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Breach Recognizance<span class="tag">s.145 CC · R v Zora</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Property</div>
+      <button class="sbt" onclick="loadCharge('mischief');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Mischief<span class="tag">s.430 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('fraudTheft');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Fraud / Theft<span class="tag">s.380/322 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('breakEnter');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Break & Enter<span class="tag">s.348 CC</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Drugs / Weapons / Digital</div>
+      <button class="sbt" onclick="loadCharge('drugs');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Drug Offences<span class="tag">CDSA</span></span></button>
+      <button class="sbt" onclick="loadCharge('weapons');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Weapons<span class="tag">s.86-96 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('digitalOffences');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Digital / Luring<span class="tag">s.162/172.1 CC</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Other</div>
+      <button class="sbt" onclick="loadCharge('obstruction');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Obstruct Police<span class="tag">s.129 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('homicide');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Homicide<span class="tag">s.234 CC</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Charter & Procedure</div>
+      <button class="sbt" onclick="loadTopic('charter');sbActive(this)"><span class="ico">§</span><span class="lbl">Charter Rights<span class="tag">s.8 · s.9 · s.10(b)</span></span></button>
+      <button class="sbt" onclick="loadTopic('bail');sbActive(this)"><span class="ico">§</span><span class="lbl">Bail Hearing<span class="tag">s.515 · R v Antic</span></span></button>
+      <button class="sbt" onclick="loadTopic('crossex');sbActive(this)"><span class="ico">§</span><span class="lbl">Cross-Examination<span class="tag">Strategy Builder</span></span></button>
+      <button class="sbt" onclick="loadTopic('jordan');sbActive(this)"><span class="ico">§</span><span class="lbl">Jordan Delay<span class="tag">2016 SCC 27</span></span></button>
+      <button class="sbt" onclick="loadTopic('disclosure');sbActive(this)"><span class="ico">§</span><span class="lbl">Stinchcombe Request<span class="tag">Disclosure Letter</span></span></button>
+      <button class="sbt" onclick="loadTopic('sentencing');sbActive(this)"><span class="ico">§</span><span class="lbl">Sentencing<span class="tag">Gladue · Lacasse</span></span></button>
+    </div>
+  </div>
+
+  <!-- ══ CONTENT AREA ══ -->
+  <div class="content-wrap">
+
+    <!-- UPLOAD PANEL -->
+    <div class="panel on" id="panel-upload">
+      <div class="up-scroll">
+        <div class="up-hero">
+          <div class="up-title">Disclosure Analysis</div>
+          <div class="up-sub">Upload Crown Brief · Five-Pass AI Analysis</div>
+        </div>
+        <div class="drop-zone" id="dz" ondrop="onDrop(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)">
+          <input type="file" id="fileIn" accept=".pdf,application/pdf" onchange="onFileSel(event)">
+          <div class="dz-ico">📄</div>
+          <div class="dz-t" id="dzTitle">Tap to select Crown Brief PDF</div>
+          <div class="dz-s">Police disclosure, officer notes, will-says, ITO — any PDF up to 25MB</div>
+          <div class="dz-lim">⚠ Processed in memory only — not stored on server</div>
+        </div>
+        <div class="up-opts">
+          <div class="oc">
+            <label class="ol">Primary Charge</label>
+            <select class="oi" id="chargeSelect">
+              <option value="auto">Auto-Detect from Document</option>
+              <option value="impaired">Impaired / Over 80 (s.320.14)</option>
+              <option value="assault">Assault (s.266)</option>
+              <option value="sexualAssault">Sexual Assault (s.271)</option>
+              <option value="harassment">Criminal Harassment (s.264)</option>
+              <option value="threats">Uttering Threats (s.264.1)</option>
+              <option value="breach">Breach of Conditions (s.145)</option>
+              <option value="mischief">Mischief (s.430)</option>
+              <option value="fraudTheft">Fraud / Theft (s.380/322)</option>
+              <option value="breakEnter">Break and Enter (s.348)</option>
+              <option value="drugs">Drug Offences (CDSA)</option>
+              <option value="weapons">Weapons (s.86-96)</option>
+              <option value="digitalOffences">Digital / Luring</option>
+              <option value="dangerousDriving">Dangerous Driving (s.320.13)</option>
+              <option value="obstruction">Obstruct Police (s.129)</option>
+              <option value="confinement">Forcible Confinement (s.279)</option>
+              <option value="homicide">Homicide / Manslaughter</option>
+              <option value="general">Other / Unknown</option>
+            </select>
+          </div>
+          <div class="oc">
+            <label class="ol">Additional Context (optional)</label>
+            <input class="oi" id="addlCtx" type="text" placeholder="e.g. domestic context, no prior record…">
+          </div>
+        </div>
+        <button class="analyze-btn" id="aBtn" onclick="startAnalysis()" disabled>
+          <div class="sp"></div>
+          <span id="aBtnTxt">Select a PDF to Begin</span>
+        </button>
+        <div class="prog-wrap" id="pw">
+          <div class="pb-outer"><div class="pb-inner" id="pbi"></div></div>
+          <div class="ps-list">
+            <div class="ps" id="ps-extract"><div class="pd"></div><span>Extracting PDF…</span></div>
+            <div class="ps" id="ps-pass1"><div class="pd"></div><span>Pass 1 — Narrative Consistency</span></div>
+            <div class="ps" id="ps-pass2"><div class="pd"></div><span>Pass 2 — Charter Audit</span></div>
+            <div class="ps" id="ps-pass3"><div class="pd"></div><span>Pass 3 — Credibility & Motive</span></div>
+            <div class="ps" id="ps-pass4"><div class="pd"></div><span>Pass 4 — Missing Disclosure</span></div>
+            <div class="ps" id="ps-pass5"><div class="pd"></div><span>Pass 5 — Defence Strategy</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT PANEL -->
+    <div class="panel" id="panel-report">
+      <div id="repEmpty" class="rep-empty">
+        <div class="rep-empty-glyph">NO REPORT</div>
+        <p>Upload a Crown brief PDF on the Upload tab to generate your analysis.</p>
+        <button onclick="showPanel('upload')" style="margin-top:8px;padding:10px 18px;background:var(--red);color:#fff;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;min-height:44px">Upload Now →</button>
+      </div>
+      <div id="repFull" style="display:none;flex-direction:column;height:100%">
+        <div class="rep-hdr" id="repHdr"></div>
+        <div class="rep-actions">
+          <button class="ra-btn primary" onclick="openPdfSheet()">⬇ Export PDF</button>
+          <button class="ra-btn" onclick="copyReport()">⎘ Copy Report</button>
+          <button class="ra-btn" onclick="copyDisclosureLetter()">📋 Disclosure Letter</button>
+          <button class="ra-btn" onclick="showPanel('chat');loadMsg('Based on my disclosure analysis, what should I prioritise this week?')">💬 Discuss</button>
+        </div>
+        <div class="rep-tabs">
+          <button class="rtab on" onclick="showSec('rs1',this)">Strategy</button>
+          <button class="rtab" onclick="showSec('rs2',this)" id="incTab">Inconsistencies</button>
+          <button class="rtab" onclick="showSec('rs3',this)" id="charterTab">Charter</button>
+          <button class="rtab" onclick="showSec('rs4',this)">Credibility</button>
+          <button class="rtab" onclick="showSec('rs5',this)">Missing</button>
+        </div>
+        <div class="rep-scroll">
+          <div class="rsec on" id="rs1"></div>
+          <div class="rsec" id="rs2"></div>
+          <div class="rsec" id="rs3"></div>
+          <div class="rsec" id="rs4"></div>
+          <div class="rsec" id="rs5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="panel" id="panel-chat">
+      <div class="chat-wrap">
+        <div class="ctx-bar">
+          <div class="cx-val" id="ctxName">General Defence Assistant</div>
+          <div class="cx-pill none" id="ctxPill">No Case</div>
+        </div>
+        <div id="msgs">
+          <div class="wlc" id="ws">
+            <div class="wg">§ DEFENCE</div>
+            <h2>Canadian Criminal Defence</h2>
+            <p>Full Criminal Code coverage. Upload disclosure for automated analysis, or ask about any charge, right, or procedure.</p>
+            <div class="chips2">
+              <button class="chip2" onclick="qs('What are my rights when arrested in Canada?')">Rights on arrest</button>
+              <button class="chip2" onclick="qs('Explain the W(D) test.')">W(D) test</button>
+              <button class="chip2" onclick="qs('How do I challenge a breathalyzer result?')">Challenge breathalyzer</button>
+              <button class="chip2" onclick="qs('How do I prepare a bail hearing submission?')">Bail hearing</button>
+              <button class="chip2" onclick="qs('What is a Stinchcombe disclosure demand?')">Stinchcombe demand</button>
+              <button class="chip2" onclick="qs('Calculate a Jordan delay step by step.')">Jordan delay</button>
+            </div>
+          </div>
+        </div>
+        <div class="inp-area">
+          <div class="inp-tools">
+            <button class="it" id="vBtn" onclick="toggleVoice()">🎙 Voice</button>
+            <span class="vs" id="vs">● Rec</span>
+            <button class="it" onclick="qs('Draft a Charter application based on my disclosure.')">Charter App</button>
+            <button class="it" onclick="qs('Build a cross-examination outline for the complainant.')">Cross-Exam</button>
+            <button class="it" onclick="qs('Draft bail hearing submissions.')">Bail Brief</button>
+            <button class="it" onclick="qs('Write a Stinchcombe disclosure request letter to Crown.')">Disclosure Letter</button>
+          </div>
+          <div class="inp-row">
+            <textarea id="ci" placeholder="Ask about your charges, rights, or procedure…" rows="1"
+              onkeydown="hk(event)" oninput="ar(this)"></textarea>
+            <button class="send-btn" id="sBtn" onclick="sendMsg()">Send</button>
+          </div>
+          <div class="inp-hint">Not legal advice · Legal Aid Ontario 1-800-668-8258</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE PANEL -->
+    <div class="panel" id="panel-profile">
+      <div class="pr-scroll">
+        <div class="ptit">My Case</div>
+        <div class="psub">Saved locally · Auto-fills into advice and drafts</div>
+        <div class="pr-sec">
+          <div class="pr-sec-title">Personal Information</div>
+          <div class="fr">
+            <div class="fg"><label class="fl">First Name</label><input class="fi" id="pr_first" type="text" autocomplete="given-name"></div>
+            <div class="fg"><label class="fl">Last Name</label><input class="fi" id="pr_last" type="text" autocomplete="family-name"></div>
+          </div>
+          <div class="fg"><label class="fl">Date of Birth</label><input class="fi" id="pr_dob" type="date"></div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Phone</label><input class="fi" id="pr_phone" type="tel" autocomplete="tel"></div>
+            <div class="fg"><label class="fl">Email</label><input class="fi" id="pr_email" type="email" autocomplete="email"></div>
+          </div>
+        </div>
+        <div class="pr-sec">
+          <div class="pr-sec-title">Case Information</div>
+          <div class="fg"><label class="fl">Charge(s)</label><input class="fi" id="pr_charges" type="text" placeholder="e.g. Assault s.266, Breach s.145"></div>
+          <div class="fg"><label class="fl">File / Information Number</label><input class="fi" id="pr_filenum" type="text"></div>
+          <div class="fg"><label class="fl">Court</label><input class="fi" id="pr_court" type="text" placeholder="Ontario Court of Justice — Sarnia"></div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Next Date</label><input class="fi" id="pr_nextdate" type="date"></div>
+            <div class="fg"><label class="fl">Event</label><input class="fi" id="pr_nextevent" type="text" placeholder="Bail, Trial…"></div>
+          </div>
+          <div class="fg"><label class="fl">Date Charged</label><input class="fi" id="pr_chargedate" type="date"></div>
+          <div class="fg"><label class="fl">Bail Conditions</label><input class="fi" id="pr_bail" type="text" placeholder="e.g. No contact, curfew 10pm"></div>
+          <div class="fg">
+            <label class="fl">Prior Record</label>
+            <select class="fi" id="pr_record">
+              <option value="none">No prior record</option>
+              <option value="minor">Minor / Old record</option>
+              <option value="related">Related priors</option>
+              <option value="significant">Significant record</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Are you Indigenous?</label>
+            <select class="fi" id="pr_indigenous">
+              <option value="no">No</option>
+              <option value="yes">Yes — First Nations / Métis / Inuit</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Crown Counsel (if known)</label><input class="fi" id="pr_crown" type="text"></div>
+          <div class="fg"><label class="fl">My Lawyer (if any)</label><input class="fi" id="pr_lawyer" type="text"></div>
+        </div>
+        <div class="pr-sec">
+          <div class="pr-sec-title">Case Notes</div>
+          <div class="fg">
+            <label class="fl">Your version of events (for AI context only)</label>
+            <textarea class="fi" id="pr_notes" placeholder="What happened, relationship with complainant, relevant context…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="pr-save-bar">
+        <button class="bp" onclick="saveProfile()">Save Profile</button>
+        <button class="bs" onclick="clearProfile()">Clear</button>
+        <span class="sok" id="sok">✓ Saved</span>
+      </div>
+    </div>
+
+  </div><!-- /content-wrap -->
+</div><!-- /app-body -->
+
+<!-- ══ BOTTOM NAV (mobile) ══ -->
+<div class="botnav">
+  <button class="bn-item on" id="bn-upload" onclick="showPanel('upload');bnActive('upload')">
+    <div class="bn-ico">⬆</div>
+    <div class="bn-lbl">Upload</div>
+  </button>
+  <button class="bn-item" id="bn-report" onclick="showPanel('report');bnActive('report')">
+    <div class="bn-ico">📋</div>
+    <div class="bn-lbl">Report</div>
+    <div class="bn-badge" id="reportBadge"></div>
+  </button>
+  <button class="bn-item" id="bn-chat" onclick="showPanel('chat');bnActive('chat')">
+    <div class="bn-ico">⚖</div>
+    <div class="bn-lbl">Defence</div>
+  </button>
+  <button class="bn-item" id="bn-profile" onclick="showPanel('profile');bnActive('profile')">
+    <div class="bn-ico">◈</div>
+    <div class="bn-lbl">My Case</div>
+  </button>
+</div>
+
+<!-- ══ CHARGE DRAWER ══ -->
+<div class="drawer-overlay" id="drawerOv" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Select Charge Module or Topic</div>
+  <div class="drawer-body">
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Driving</div>
+      <button class="drawer-btn" onclick="loadCharge('impaired');closeDrawer()">🚗 Impaired / Over 80<span class="db-tag">s.320.14 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('dangerousDriving');closeDrawer()">🚗 Dangerous Driving<span class="db-tag">s.320.13 CC</span></button>
+    </div>
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Violence / Domestic</div>
+      <button class="drawer-btn" onclick="loadCharge('assault');closeDrawer()">⚖ Assault<span class="db-tag">s.266 CC · Self-Defence s.34</span></button>
+      <button class="drawer-btn" onclick="loadCharge('sexualAssault');closeDrawer()">⚖ Sexual Assault<span class="db-tag">s.271 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('harassment');closeDrawer()">⚖ Criminal Harassment<span class="db-tag">s.264 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('threats');closeDrawer()">⚖ Uttering Threats<span class="db-tag">s.264.1 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('confinement');closeDrawer()">⚖ Forcible Confinement<span class="db-tag">s.279 CC</span></button>
+    </div>
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Conditions</div>
+      <button class="drawer-btn" onclick="loadCharge('breach');closeDrawer()">⚖ Breach Recognizance<span class="db-tag">s.145 CC · R v Zora</span></button>
+    </div>
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Property</div>
+      <button class="drawer-btn" onclick="loadCharge('mischief');closeDrawer()">⚖ Mischief<span class="db-tag">s.430 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('fraudTheft');closeDrawer()">⚖ Fraud / Theft<span class="db-tag">s.380/322 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('breakEnter');closeDrawer()">⚖ Break & Enter<span class="db-tag">s.348 CC</span></button>
+    </div>
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Drugs / Weapons / Digital</div>
+      <button class="drawer-btn" onclick="loadCharge('drugs');closeDrawer()">⚖ Drug Offences (CDSA)</button>
+      <button class="drawer-btn" onclick="loadCharge('weapons');closeDrawer()">⚖ Weapons<span class="db-tag">s.86-96 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('digitalOffences');closeDrawer()">⚖ Digital / Luring<span class="db-tag">s.162/172.1 CC</span></button>
+    </div>
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Other Charges</div>
+      <button class="drawer-btn" onclick="loadCharge('obstruction');closeDrawer()">⚖ Obstruct Police<span class="db-tag">s.129 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('homicide');closeDrawer()">⚖ Homicide / Manslaughter<span class="db-tag">s.234 CC</span></button>
+    </div>
+    <div class="drawer-sec">
+      <div class="drawer-sec-hdr">Charter & Procedure</div>
+      <button class="drawer-btn" onclick="loadTopic('charter');closeDrawer()">§ Charter Rights — s.8, s.9, s.10(b)</button>
+      <button class="drawer-btn" onclick="loadTopic('bail');closeDrawer()">§ Bail Hearing — s.515 · R v Antic</button>
+      <button class="drawer-btn" onclick="loadTopic('crossex');closeDrawer()">§ Cross-Examination Builder</button>
+      <button class="drawer-btn" onclick="loadTopic('jordan');closeDrawer()">§ Jordan Delay — 2016 SCC 27</button>
+      <button class="drawer-btn" onclick="loadTopic('disclosure');closeDrawer()">§ Stinchcombe Disclosure Request</button>
+      <button class="drawer-btn" onclick="loadTopic('sentencing');closeDrawer()">§ Sentencing — Gladue · Lacasse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUTH OVERLAY ══ -->
+<div class="auth-overlay" id="authOv">
+  <div class="auth-box">
+    <div class="auth-logo">Lex<span>Self</span> Criminal</div>
+    <div class="auth-sub">Sign in to continue</div>
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="switchAuth('login',this)">Sign In</button>
+      <button class="auth-tab" onclick="switchAuth('register',this)">Create Account</button>
+    </div>
+    <div class="auth-form on" id="form-login">
+      <div class="auth-err" id="loginErr"></div>
+      <div class="auth-fg"><label class="auth-lbl">Email</label><input class="auth-inp" id="loginEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com"></div>
+      <div class="auth-fg"><label class="auth-lbl">Password</label><input class="auth-inp" id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    </div>
+    <div class="auth-form" id="form-register">
+      <div class="auth-err" id="regErr"></div>
+      <div class="auth-fg"><label class="auth-lbl">Full Name</label><input class="auth-inp" id="regName" type="text" autocomplete="name" placeholder="Your name"></div>
+      <div class="auth-fg"><label class="auth-lbl">Email</label><input class="auth-inp" id="regEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com"></div>
+      <div class="auth-fg"><label class="auth-lbl">Password (min 8 characters)</label><input class="auth-inp" id="regPass" type="password" autocomplete="new-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <button class="auth-btn" id="regBtn" onclick="doRegister()">Create Free Account</button>
+    </div>
+    <div class="auth-footer">Free: 1 analysis + 10 chat messages · No credit card required<br>Not legal advice</div>
+  </div>
+</div>
+
+<!-- ══ PAYWALL ══ -->
+<div class="pw-overlay" id="pwOv">
+  <div class="pw-box">
+    <div class="pw-handle"></div>
+    <div class="pw-title" id="pwTitle">Upgrade Your Plan</div>
+    <div class="pw-msg" id="pwMsg"></div>
+    <div class="pw-plans">
+      <div class="pw-plan" onclick="startCheckout('essential')">
+        <div class="pp-left"><div class="pp-name">Essential</div><div class="pp-desc">3 analyses/mo · 50 chats/day</div></div>
+        <div class="pp-price">$24.99</div>
+      </div>
+      <div class="pw-plan pop" onclick="startCheckout('complete')">
+        <div class="pp-left"><div class="pp-name">Complete</div><div class="pp-desc">Unlimited everything</div></div>
+        <div class="pp-price pop">$44.99</div>
+      </div>
+    </div>
+    <div class="pw-onetime" onclick="startCheckout('case_analysis')">
+      <div class="pp-left"><div class="pp-name" style="color:var(--gold)">Single Analysis</div><div class="pp-desc">One full report — no subscription</div></div>
+      <div class="pp-price" style="color:var(--gold);font-size:1.3rem">$49</div>
+    </div>
+    <button class="pw-close" onclick="closePw()">Not Now</button>
+  </div>
+</div>
+
+<!-- ══ PDF EXPORT SHEET ══ -->
+<div class="pdf-sheet-overlay" id="pdfSheetOv">
+  <div class="pdf-sheet">
+    <div class="pdf-handle"></div>
+    <div class="pdf-title">Export as PDF</div>
+    <div class="pdf-fg"><label class="pdf-lbl">Document Title</label><input class="pdf-inp" id="pdf_title" type="text" placeholder="e.g. Affidavit of Taylor Smith"></div>
+    <div class="pdf-fg"><label class="pdf-lbl">Form / Document Type</label><input class="pdf-inp" id="pdf_form" type="text" placeholder="e.g. Disclosure Analysis Report"></div>
+    <div class="pdf-row">
+      <div class="pdf-fg"><label class="pdf-lbl">Court File #</label><input class="pdf-inp" id="pdf_filenum" type="text"></div>
+      <div class="pdf-fg"><label class="pdf-lbl">Court</label><input class="pdf-inp" id="pdf_court" type="text"></div>
+    </div>
+    <div class="pdf-row">
+      <div class="pdf-fg"><label class="pdf-lbl">Applicant</label><input class="pdf-inp" id="pdf_applicant" type="text"></div>
+      <div class="pdf-fg"><label class="pdf-lbl">Respondent / Crown</label><input class="pdf-inp" id="pdf_respondent" type="text" placeholder="Her Majesty the King"></div>
+    </div>
+    <div class="pdf-fg">
+      <label class="pdf-lbl">Content (paste from report or type)</label>
+      <textarea class="pdf-inp" id="pdf_content" placeholder="Paste defence strategy, analysis findings, affidavit content, or any document text…"></textarea>
+    </div>
+    <div class="pdf-row">
+      <div class="pdf-fg"><label class="pdf-lbl">Your Name</label><input class="pdf-inp" id="pdf_signatory" type="text"></div>
+      <div class="pdf-fg"><label class="pdf-lbl">Date</label><input class="pdf-inp" id="pdf_date" type="date"></div>
+    </div>
+    <button class="pdf-download-btn" onclick="generatePDF()">⬇ Download PDF</button>
+    <button class="pdf-cancel-btn" onclick="closePdfSheet()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let authToken = localStorage.getItem('ls_tok') || null;
+let currentUser = null, usageState = null;
+let analysisResults = null, chatHist = [], chatBusy = false;
+let voiceRec = null, isRecording = false;
+let caseProf = {}, selFile = null;
+let currentPanel = 'upload';
+
+// ═══════════════════════════════════════════
+// CHARGE / TOPIC PROMPTS
+// ═══════════════════════════════════════════
+const CHARGE_LABELS = {
+  impaired:'Impaired / Over 80 — s.320.14',assault:'Assault — s.266',
+  sexualAssault:'Sexual Assault — s.271',harassment:'Criminal Harassment — s.264',
+  threats:'Uttering Threats — s.264.1',breach:'Breach — s.145',
+  mischief:'Mischief — s.430',fraudTheft:'Fraud / Theft — s.380/322',
+  breakEnter:'Break & Enter — s.348',drugs:'Drug Offences — CDSA',
+  weapons:'Weapons — s.86-96',digitalOffences:'Digital / Luring',
+  dangerousDriving:'Dangerous Driving — s.320.13',obstruction:'Obstruct Police — s.129',
+  confinement:'Forcible Confinement — s.279',homicide:'Homicide / Manslaughter',
+};
+const CHARGE_PROMPTS = {
+  impaired:`I am charged with impaired driving/over 80 under s.320.14 CC. Full defence: ASD challenges, 2-hour presumption rebuttal (R v St-Onge Lamoureux), R v Breault 2023 SCC 9, right to counsel timing (R v Orbanski), and every technical defence.`,
+  assault:`Charged with assault s.266 CC. Walk me through self-defence s.34 (R v Khill 2021 SCC 37), consent (R v Ewanchuk), W(D) credibility challenges, and handling a domestic fabrication scenario.`,
+  sexualAssault:`Charged with sexual assault s.271 CC. Consent (R v Barton 2019 SCC 33), delayed disclosure (R v Ghomeshi), Mills regime, s.276 application, full defence approach.`,
+  harassment:`Charged with criminal harassment s.264 CC. R v Kosikar knowledge requirement, subjective fear element, family court communications, all defences.`,
+  threats:`Charged with uttering threats s.264.1 CC. McCraw objective test, context, conditional vs absolute threats, all defences.`,
+  breach:`Charged with breach of recognizance s.145 CC. Explain R v Zora 2020 SCC 14 subjective mens rea in detail. What are my defences?`,
+  mischief:`Charged with mischief s.430 CC. Colour of right defence, wilful element, shared property in domestic situations.`,
+  fraudTheft:`Charged with fraud/theft s.380/322 CC. Deprivation element (R v Theroux), colour of right, civil dispute vs criminal fraud.`,
+  breakEnter:`Charged with break and enter s.348 CC. Breaking element, colour of right in shared home, what Crown must prove.`,
+  drugs:`Charged with drug offence under CDSA. ITO analysis (R v Morelli), search warrant challenges, entrapment (R v Mack), constructive possession, possession vs trafficking.`,
+  weapons:`Charged with weapons offence. Weapon classification, PAL/licence analysis, storage regulations, Charter s.8 challenges.`,
+  digitalOffences:`Charged with digital offence. Device search requirements (R v Fearon, R v Spencer), identity challenges, entrapment (R v Mack).`,
+  dangerousDriving:`Charged with dangerous operation s.320.13 CC. Marked departure test (R v Roy 2012 SCC 26), mental element (R v Beatty 2008 SCC 5), all defences.`,
+  obstruction:`Charged with obstruct police s.129/270 CC. Lawful execution requirement, how s.9 Charter breach defeats this charge.`,
+  confinement:`Charged with forcible confinement s.279 CC. What constitutes confinement legally, consent defence, domestic context.`,
+  homicide:`Charged with homicide/manslaughter. Self-defence (R v Khill), provocation (s.232), causation requirements. Note: this requires a lawyer.`,
+};
+const TOPIC_PROMPTS = {
+  charter:`Explain s.8 search/seizure, s.9 arbitrary detention, s.10(b) right to counsel with key cases. Walk me through a s.24(2) application using R v Grant 2009 SCC 32 three-part test. Be specific and practical.`,
+  bail:`Prepare me for a bail hearing. Explain the s.515 test, three grounds for detention, ladder principle (R v Antic 2017 SCC 27), what sureties must say. Draft me a bail submission.`,
+  crossex:`Build a comprehensive cross-examination framework for the complainant: how to use prior inconsistent statements under CEA s.9-10, how to establish motive to fabricate, specific question structures.`,
+  jordan:`Explain Jordan step by step (R v Jordan 2016 SCC 27). How to calculate the ceiling, what counts as defence vs Crown delay, transitional exceptional circumstances, how to bring a stay application.`,
+  disclosure:`Explain my Stinchcombe disclosure rights. Write me a formal disclosure request letter with legal basis for each item.`,
+  sentencing:`Explain sentencing: s.718 CC purposes, Gladue principles (R v Gladue [1999], R v Ipeelee 2012 SCC 13), parity principle, R v Lacasse 2015 SCC 64, how to prepare sentencing submissions.`,
+};
+
+// ═══════════════════════════════════════════
+// API HELPER
+// ═══════════════════════════════════════════
+async function api(method, path, body) {
+  const h = { 'Content-Type': 'application/json' };
+  if (authToken) h['Authorization'] = 'Bearer ' + authToken;
+  const r = await fetch(path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  return r.json();
+}
+
+// ═══════════════════════════════════════════
+// PANELS & NAVIGATION
+// ═══════════════════════════════════════════
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('panel-' + name).classList.add('on');
+  currentPanel = name;
+  document.getElementById('modeLabel').textContent = {
+    upload: 'Upload Disclosure',
+    report: 'Analysis Report',
+    chat: 'Defence Assistant',
+    profile: 'My Case Profile',
+  }[name] || name;
+}
+
+function bnActive(name) {
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on'));
+  document.getElementById('bn-' + name)?.classList.add('on');
+}
+
+function sbActive(btn) {
+  document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ═══════════════════════════════════════════
+// CHARGE DRAWER
+// ═══════════════════════════════════════════
+function openChargeDrawer() {
+  const ov = document.getElementById('drawerOv');
+  const dr = document.getElementById('drawer');
+  ov.classList.add('show');
+  requestAnimationFrame(() => {
+    ov.classList.add('visible');
+    dr.classList.add('open');
+  });
+}
+function closeDrawer() {
+  const ov = document.getElementById('drawerOv');
+  const dr = document.getElementById('drawer');
+  ov.classList.remove('visible');
+  dr.classList.remove('open');
+  setTimeout(() => ov.classList.remove('show'), 280);
+}
+
+function loadCharge(key) {
+  showPanel('chat');
+  bnActive('chat');
+  document.getElementById('ctxName').textContent = CHARGE_LABELS[key] || key;
+  clearChat(false);
+  if (CHARGE_PROMPTS[key]) qs(CHARGE_PROMPTS[key]);
+}
+function loadTopic(key) {
+  showPanel('chat');
+  bnActive('chat');
+  clearChat(false);
+  if (TOPIC_PROMPTS[key]) qs(TOPIC_PROMPTS[key]);
+}
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+function showAuthOrLogout() {
+  if (currentUser) {
+    if (confirm(`Sign out of ${currentUser.email}?`)) doLogout();
+  } else {
+    document.getElementById('authOv').style.display = 'flex';
+  }
+}
+function switchAuth(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('form-' + tab).classList.add('on');
+}
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  err.classList.remove('show');
+  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const d = await api('POST', '/api/auth/login', { email, password: pass });
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else { authToken = d.token; localStorage.setItem('ls_tok', d.token); currentUser = d.user; onAuthSuccess(); }
+  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const err = document.getElementById('regErr');
+  const btn = document.getElementById('regBtn');
+  err.classList.remove('show');
+  if (!name || !email || !pass) { err.textContent = 'All fields required.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const d = await api('POST', '/api/auth/register', { name, email, password: pass });
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else { authToken = d.token; localStorage.setItem('ls_tok', d.token); currentUser = d.user; onAuthSuccess(); }
+  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Create Free Account';
+}
+function doLogout() {
+  authToken = null; currentUser = null; usageState = null;
+  localStorage.removeItem('ls_tok');
+  document.getElementById('authOv').style.display = 'flex';
+  document.getElementById('usageStrip').classList.remove('show');
+  document.getElementById('planBadge').style.display = 'none';
+}
+async function onAuthSuccess() {
+  document.getElementById('authOv').style.display = 'none';
+  await refreshUsage();
+  loadStoredProfile();
+}
+async function refreshUsage() {
+  try {
+    const d = await api('GET', '/api/auth/me');
+    if (d.user) { currentUser = d.user; usageState = d.usage; renderUsage(); }
+  } catch(e) {}
+}
+function renderUsage() {
+  if (!currentUser || !usageState) return;
+  const strip = document.getElementById('usageStrip');
+  strip.classList.add('show');
+  const pb = document.getElementById('planBadge');
+  pb.textContent = usageState.planLabel || usageState.plan;
+  pb.style.display = 'block';
+
+  // Analysis pips
+  const { used: aU, limit: aL } = usageState.analysis;
+  const aPips = document.getElementById('aPips');
+  aPips.innerHTML = '';
+  if (aL === null || aL === Infinity) {
+    for(let i=0;i<3;i++){const p=document.createElement('div');p.className='us-pip inf';aPips.appendChild(p);}
+    document.getElementById('aCnt').textContent = '∞';
+  } else {
+    for(let i=0;i<Math.min(aL,5);i++){const p=document.createElement('div');p.className='us-pip'+(i<aU?' on':'');aPips.appendChild(p);}
+    document.getElementById('aCnt').textContent = `${aL-aU} left`;
+  }
+
+  // Chat pips
+  const { used: cU, limit: cL } = usageState.chat;
+  const cPips = document.getElementById('cPips');
+  cPips.innerHTML = '';
+  if (cL === null || cL === Infinity) {
+    for(let i=0;i<3;i++){const p=document.createElement('div');p.className='us-pip inf';cPips.appendChild(p);}
+    document.getElementById('cCnt').textContent = '∞';
+  } else {
+    const show = Math.min(cL, 10);
+    for(let i=0;i<show;i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,show)?' on':'');cPips.appendChild(p);}
+    document.getElementById('cCnt').textContent = `${cL-cU} left`;
+  }
+
+  document.getElementById('upgradeBtn').style.display = currentUser.plan === 'free' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════
+// PAYWALL
+// ═══════════════════════════════════════════
+function openPaywall(reason, title, msg) {
+  document.getElementById('pwTitle').textContent = title || 'Upgrade Your Plan';
+  document.getElementById('pwMsg').textContent = msg || 'Upgrade to continue using LexSelf Criminal.';
+  document.getElementById('pwOv').classList.add('show');
+}
+function closePw() { document.getElementById('pwOv').classList.remove('show'); }
+function handleLimitError(d) {
+  const msgs = {
+    free_chat_exhausted: "You've used all 10 free chat messages. Upgrade to continue.",
+    daily_chat_limit: "You've reached your 50 daily chat messages. Upgrade to Complete for unlimited.",
+    free_analysis_exhausted: "You've used your 1 free disclosure analysis. Upgrade to continue.",
+    monthly_analysis_limit: "You've used all 3 analyses this month. Upgrade to Complete for unlimited.",
+  };
+  openPaywall(d.code, 'Limit Reached', msgs[d.code] || 'Upgrade to continue.');
+}
+async function startCheckout(plan) {
+  try {
+    const d = await api('POST', '/api/billing/checkout', { plan });
+    if (d.url) window.location.href = d.url;
+    else toast('Error: ' + (d.error || 'unknown'));
+  } catch(e) { toast('Network error. Please try again.'); }
+}
+
+// ═══════════════════════════════════════════
+// FILE UPLOAD
+// ═══════════════════════════════════════════
+function onDragOver(e){e.preventDefault();document.getElementById('dz').classList.add('drag');}
+function onDragLeave(){document.getElementById('dz').classList.remove('drag');}
+function onDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')setFile(f);else toast('Please select a PDF file.');}
+function onFileSel(e){if(e.target.files[0])setFile(e.target.files[0]);}
+function setFile(f) {
+  selFile = f;
+  const mb = (f.size/1024/1024).toFixed(1);
+  document.getElementById('dzTitle').textContent = `✓ ${f.name} (${mb}MB)`;
+  document.getElementById('dz').style.borderColor = 'var(--green)';
+  document.getElementById('aBtn').disabled = false;
+  document.getElementById('aBtnTxt').textContent = '⚡ Run Five-Pass Analysis';
+}
+
+// ═══════════════════════════════════════════
+// ANALYSIS
+// ═══════════════════════════════════════════
+async function startAnalysis() {
+  if (!selFile) return;
+  const btn = document.getElementById('aBtn');
+  btn.disabled = true; btn.classList.add('loading');
+  document.getElementById('aBtnTxt').textContent = 'Analysing…';
+  document.getElementById('pw').classList.add('show');
+  document.querySelectorAll('.ps').forEach(s => s.classList.remove('done','act'));
+
+  const fd = new FormData();
+  fd.append('disclosure', selFile);
+  const cv = document.getElementById('chargeSelect').value;
+  const ctx = document.getElementById('addlCtx').value;
+  fd.append('chargeContext', (cv === 'auto' ? '' : cv) + ' ' + ctx);
+
+  const headers = {};
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+
+  try {
+    const resp = await fetch('/api/analyze', { method: 'POST', body: fd, headers });
+    if (resp.status === 402) {
+      const e = await resp.json(); handleLimitError(e);
+      btn.disabled = false; btn.classList.remove('loading');
+      document.getElementById('aBtnTxt').textContent = '⚡ Run Five-Pass Analysis';
+      return;
+    }
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.error || 'Analysis failed'); }
+
+    const reader = resp.body.getReader(), dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n'); buf = lines.pop();
+      for (const ln of lines) {
+        if (!ln.startsWith('data: ')) continue;
+        try { handleAnalysisEvent(JSON.parse(ln.slice(6))); } catch(e) {}
+      }
+    }
+  } catch(err) {
+    toast('Error: ' + err.message);
+    btn.disabled = false; btn.classList.remove('loading');
+    document.getElementById('aBtnTxt').textContent = '⚡ Run Five-Pass Analysis';
+  }
+}
+
+function handleAnalysisEvent(ev) {
+  if (ev.type === 'progress') {
+    document.getElementById('pbi').style.width = ev.percent + '%';
+    const map = {extract:'ps-extract',parse:'ps-extract',pass1:'ps-pass1',pass2:'ps-pass2',pass3:'ps-pass3',pass4:'ps-pass4',pass5:'ps-pass5'};
+    const sid = map[ev.pass];
+    if (sid) {
+      const all = ['ps-extract','ps-pass1','ps-pass2','ps-pass3','ps-pass4','ps-pass5'];
+      const idx = all.indexOf(sid);
+      all.forEach((id,i) => {
+        const el = document.getElementById(id); if (!el) return;
+        if (i < idx) { el.classList.remove('act'); el.classList.add('done'); }
+        else if (i === idx) { el.classList.remove('done'); el.classList.add('act'); el.querySelector('span').textContent = ev.message; }
+      });
+    }
+  }
+
+  if (ev.type === 'complete') {
+    analysisResults = ev.results;
+    document.querySelectorAll('.ps').forEach(s => { s.classList.remove('act'); s.classList.add('done'); });
+    document.getElementById('pbi').style.width = '100%';
+    buildReport(ev.results, ev.meta);
+    setTimeout(() => {
+      showPanel('report'); bnActive('report');
+      document.getElementById('reportBadge').classList.add('show');
+      document.getElementById('ctxPill').textContent = 'Disclosure Loaded';
+      document.getElementById('ctxPill').classList.remove('none');
+      const inc = ev.results.pass1?.inconsistencies?.length || 0;
+      const ch = ev.results.pass2?.charterIssues?.length || 0;
+      toast(`Analysis done — ${inc} inconsistencies · ${ch} Charter issues`);
+      refreshUsage();
+    }, 500);
+    const btn = document.getElementById('aBtn');
+    btn.disabled = false; btn.classList.remove('loading');
+    document.getElementById('aBtnTxt').textContent = '⚡ Re-Analyse';
+  }
+
+  if (ev.type === 'error') {
+    toast('Error: ' + ev.message);
+    const btn = document.getElementById('aBtn');
+    btn.disabled = false; btn.classList.remove('loading');
+    document.getElementById('aBtnTxt').textContent = '⚡ Run Five-Pass Analysis';
+  }
+}
+
+// ═══════════════════════════════════════════
+// REPORT
+// ═══════════════════════════════════════════
+function buildReport(r, meta) {
+  const p1=r.pass1||{}, p2=r.pass2||{}, p3=r.pass3||{}, p4=r.pass4||{}, p5=r.pass5||{};
+  const highCnt = (p1.inconsistencies||[]).filter(i=>i.severity==='HIGH').length + (p2.charterIssues||[]).filter(i=>i.severity==='STRONG').length;
+  const verdict = p5.verdictOutlook?.assessment || 'UNKNOWN';
+  const vc = verdict.toLowerCase().includes('strong')?'strong':verdict.toLowerCase().includes('viable')?'viable':verdict.toLowerCase().includes('uphill')?'uphill':'insufficient';
+  const chargeLabel = r.chargeLabel || r.chargeDetected || 'Unknown Charge';
+
+  document.getElementById('repEmpty').style.display = 'none';
+  document.getElementById('repFull').style.display = 'flex';
+  document.getElementById('incTab').textContent = `Inconsistencies (${p1.inconsistencies?.length||0})`;
+  document.getElementById('charterTab').textContent = `Charter (${p2.charterIssues?.length||0})`;
+
+  document.getElementById('repHdr').innerHTML = `
+    <div class="rep-title">Analysis Report</div>
+    <div class="rep-charge">${chargeLabel} · ${meta?.pages||'?'} pages</div>
+    <div class="rep-tags">
+      <div class="rtag r">${highCnt} High</div>
+      <div class="rtag b">${p2.charterIssues?.length||0} Charter</div>
+      <div class="rtag g">${p3.motivesToFabricate?.length||0} Motives</div>
+      <div class="rtag">${p4.missingItems?.length||0} Missing</div>
+      <div class="rtag ${vc}">${verdict}</div>
+    </div>`;
+
+  // Strategy
+  document.getElementById('rs1').innerHTML = `
+    ${p5.verdictOutlook ? `<div class="vb"><div class="vba ${vc}">${verdict}</div><div style="font-size:.8rem;color:var(--text2);line-height:1.75;margin-bottom:10px">${p5.verdictOutlook.reasoning||''}</div></div>` : ''}
+    ${p5.immediateActions?.length ? `<div class="ia"><div class="iat">⚡ Immediate Actions</div><ul class="ial">${p5.immediateActions.map(a=>`<li>${a}</li>`).join('')}</ul></div>` : ''}
+    ${p5.defenceTheory ? `<div class="sec-title">Defence Theory</div><div class="ab2">${p5.defenceTheory}</div>` : ''}
+    <div class="sec-title">Ranked Strategies <span class="stc r">${p5.prioritisedStrategies?.length||0}</span></div>
+    ${(p5.prioritisedStrategies||[]).map(s=>`<div class="sc">
+      <div class="sty"><span class="sr">${s.rank}.</span> ${s.type||''}</div>
+      <div class="stit">${s.strategy||''}</div>
+      <div class="fcd">${s.description||''}</div>
+      ${s.keyArguments?.length ? `<ul class="sal">${s.keyArguments.map(a=>`<li>${a}</li>`).join('')}</ul>` : ''}
+      <div class="cc">${(s.keyCases||[]).map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+      ${s.whatYouNeed ? `<div class="dv">${s.whatYouNeed}</div>` : ''}
+    </div>`).join('')}`;
+
+  // Inconsistencies
+  document.getElementById('rs2').innerHTML = `
+    ${p1.overallNarrativeAssessment ? `<div class="ab2">${p1.overallNarrativeAssessment}</div>` : ''}
+    ${(p1.inconsistencies||[]).map(i=>`<div class="fc ${(i.severity||'low').toLowerCase()}">
+      <div class="fch"><div class="fcb ${(i.severity||'low').toLowerCase()}">${i.severity||'LOW'}</div>
+        <div><div class="fct">${i.title||''}</div></div></div>
+      <div class="fcd">${i.description||''}</div>
+      ${i.sourceA&&i.sourceB?`<div class="qp"><div class="qb"><span class="qbl">Source A</span>${i.sourceA}</div><div class="qb"><span class="qbl cx">Contradicts</span>${i.sourceB}</div></div>`:''}
+      ${i.defenceValue?`<div class="dv">${i.defenceValue}</div>`:''}
+    </div>`).join('')}`;
+
+  // Charter
+  document.getElementById('rs3').innerHTML = `
+    ${p2.overallCharterAssessment ? `<div class="ab2">${p2.overallCharterAssessment}</div>` : ''}
+    ${(p2.charterIssues||[]).map(ci=>`<div class="fc ${(ci.severity||'arguable').toLowerCase()}">
+      <div class="fch"><div class="fcb ${(ci.severity||'arguable').toLowerCase()}">${ci.severity||'ARG'}</div>
+        <div><div class="fct">${ci.section} — ${ci.breach||''}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.5rem;color:var(--text3);margin-top:1px">Remedy: ${ci.remedy||''}</div></div></div>
+      <div class="fcd">${ci.factualBasis||''}</div>
+      <div class="cc">${ci.keyCase?`<span class="chip">${ci.keyCase}</span>`:''} ${(ci.supportingCases||[]).map(c=>`<span class="chip">${c}</span>`).join('')}</div>
+      ${ci.applicationStrategy?`<div class="dv">${ci.applicationStrategy}</div>`:''}
+    </div>`).join('')}`;
+
+  // Credibility
+  document.getElementById('rs4').innerHTML = `
+    ${p3.wDAnalysis ? `<div class="ab2"><strong>W(D) Analysis:</strong> ${p3.wDAnalysis}</div>` : ''}
+    <div class="sec-title">Credibility Issues <span class="stc">${p3.complainantCredibility?.issues?.length||0}</span></div>
+    ${(p3.complainantCredibility?.issues||[]).map(ci=>`<div class="fc medium">
+      <div class="fch"><div class="fcb medium">${ci.category||''}</div><div class="fct">${ci.description||''}</div></div>
+      ${ci.evidenceFromDisclosure?`<div class="fcd"><strong>From disclosure:</strong> ${ci.evidenceFromDisclosure}</div>`:''}
+      ${ci.crossExaminationValue?`<div class="dv">${ci.crossExaminationValue}</div>`:''}
+    </div>`).join('')}
+    <div class="sec-title" style="margin-top:14px">Motives to Fabricate <span class="stc g">${p3.motivesToFabricate?.length||0}</span></div>
+    ${(p3.motivesToFabricate||[]).map(m=>`<div class="fc high">
+      <div class="fch">${m.familyCourtNexus?`<div class="fcb high">FAMILY COURT</div>`:'<div class="fcb medium">MOTIVE</div>'}
+      <div class="fct">${m.motive||''}</div></div>
+      <div class="fcd">${m.factualSupport||''}</div>
+      ${m.howToEstablish?`<div class="dv">${m.howToEstablish}</div>`:''}
+    </div>`).join('')}`;
+
+  // Missing
+  document.getElementById('rs5').innerHTML = `
+    ${p4.overallDisclosureAssessment ? `<div class="ab2">${p4.overallDisclosureAssessment}</div>` : ''}
+    ${(p4.missingItems||[]).map(mi=>`<div class="fc ${(mi.importance||'moderate').toLowerCase()}">
+      <div class="fch"><div class="fcb ${(mi.importance||'moderate').toLowerCase()}">${mi.importance||'MOD'}</div>
+        <div><div class="fct">${mi.item||''}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.5rem;color:var(--text3);margin-top:1px">${mi.legalBasis||''}</div></div></div>
+      ${mi.howToRequest?`<div class="fcd"><strong>Request:</strong> ${mi.howToRequest}</div>`:''}
+      ${mi.ifNotProduced?`<div class="dv">${mi.ifNotProduced}</div>`:''}
+    </div>`).join('')}
+    ${p4.disclosureRequestLetter?`
+    <div class="sec-title" style="margin-top:14px">Stinchcombe Request Letter</div>
+    <button onclick="copyDisclosureLetter()" style="padding:8px 14px;background:none;border:1px solid var(--b2);color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;min-height:36px">⎘ Copy Letter</button>
+    <div class="dl-txt" id="dlTxt">${p4.disclosureRequestLetter}</div>`:''}`;
+}
+
+function showSec(id, btn) {
+  document.querySelectorAll('.rsec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+function copyReport() {
+  const el = document.getElementById('repFull');
+  if (el) { navigator.clipboard.writeText(el.innerText); toast('Report copied'); }
+}
+function copyDisclosureLetter() {
+  const el = document.getElementById('dlTxt');
+  if (el) { navigator.clipboard.writeText(el.innerText); toast('Disclosure letter copied'); }
+  else toast('No letter in this report');
+}
+function loadMsg(txt) { qs(txt); }
+
+// ═══════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════
+function openPdfSheet() {
+  const p = caseProf;
+  document.getElementById('pdf_date').value = new Date().toISOString().split('T')[0];
+  if (p.filenum) document.getElementById('pdf_filenum').value = p.filenum;
+  if (p.court) document.getElementById('pdf_court').value = p.court;
+  if (p.first) {
+    const name = `${p.first} ${p.last||''}`.trim();
+    document.getElementById('pdf_signatory').value = name;
+    document.getElementById('pdf_applicant').value = name;
+  }
+  document.getElementById('pdf_respondent').value = 'Her Majesty the King';
+  if (analysisResults?.pass5?.defenceTheory) {
+    document.getElementById('pdf_title').value = 'Disclosure Analysis Report — Defence Strategy';
+    document.getElementById('pdf_form').value = analysisResults.chargeLabel || 'Crown Disclosure Analysis';
+  }
+  document.getElementById('pdfSheetOv').classList.add('show');
+}
+function closePdfSheet() { document.getElementById('pdfSheetOv').classList.remove('show'); }
+
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+
+  const title     = document.getElementById('pdf_title').value || 'Legal Document';
+  const formType  = document.getElementById('pdf_form').value || '';
+  const fileNum   = document.getElementById('pdf_filenum').value || '';
+  const court     = document.getElementById('pdf_court').value || '';
+  const applicant = document.getElementById('pdf_applicant').value || '';
+  const respondent= document.getElementById('pdf_respondent').value || '';
+  const content   = document.getElementById('pdf_content').value || '';
+  const signatory = document.getElementById('pdf_signatory').value || '';
+  const dateVal   = document.getElementById('pdf_date').value || '';
+
+  const W=215.9, ml=18, mr=18, tw=W-ml-mr;
+  let y=18;
+
+  // Disclaimer banner
+  doc.setFillColor(45,18,22);
+  doc.rect(ml, y, tw, 7, 'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(6.5);
+  doc.setTextColor(180,80,80);
+  doc.text('NOT LEGAL ADVICE — AI-assisted document. Review carefully with a licensed Ontario lawyer before filing.',ml+2, y+4.5);
+  y += 10;
+
+  // Court header
+  doc.setDrawColor(180,60,60);
+  doc.setLineWidth(0.4);
+  doc.rect(ml, y, tw, formType ? 22 : 17);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(20,20,20);
+  doc.text('ONTARIO', W/2, y+6, { align: 'center' });
+  if (court) { doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.text(court, W/2, y+11, { align: 'center' }); }
+  if (formType) { doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.text(formType, W/2, y+16, { align: 'center' }); }
+  if (fileNum) { doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.text(`Court File No.: ${fileNum}`, W/2, y+(formType?20:14), { align: 'center' }); }
+  y += formType ? 26 : 21;
+
+  // Parties
+  if (applicant || respondent) {
+    const hw = (tw-8)/2;
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(40,40,40);
+    if (applicant) { doc.text(applicant, ml, y+5); doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.text('APPLICANT / ACCUSED', ml, y+9); }
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+    if (respondent) { doc.text(respondent, ml+hw+8, y+5); doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.text('RESPONDENT / CROWN', ml+hw+8, y+9); }
+    doc.setLineWidth(0.2); doc.setDrawColor(180,180,180); doc.line(ml, y+11, ml+tw, y+11);
+    y += 15;
+  }
+
+  // Title
+  y += 3;
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(15,15,15);
+  const titleLines = doc.splitTextToSize(title, tw);
+  doc.text(titleLines, W/2, y, { align: 'center' });
+  y += titleLines.length * 5.5 + 4;
+  doc.setLineWidth(0.6); doc.setDrawColor(180,60,60); doc.line(ml, y, ml+tw, y);
+  y += 7;
+
+  // Body content
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(20,20,20);
+  const bodyLines = content.split('\n');
+  for (const line of bodyLines) {
+    if (y > 252) { doc.addPage(); y = 18; }
+    if (line.trim() === '') { y += 3; continue; }
+    const wrapped = doc.splitTextToSize(line, tw);
+    doc.text(wrapped, ml, y);
+    y += wrapped.length * 5 + 0.5;
+  }
+
+  // Signature block
+  y += 8;
+  if (y > 240) { doc.addPage(); y = 18; }
+  doc.setLineWidth(0.2); doc.setDrawColor(160,160,160);
+  doc.line(ml, y, ml+80, y); y += 4;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(50,50,50);
+  doc.text(signatory || 'Signature', ml, y); y += 4;
+  if (dateVal) { doc.text(`Date: ${dateVal}`, ml, y); y += 10; }
+  doc.line(ml, y, ml+80, y); y += 4;
+  doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(120,120,120);
+  doc.text('Commissioner for Oaths (to be completed upon swearing)', ml, y);
+
+  // Footer
+  const total = doc.getNumberOfPages();
+  for (let i=1; i<=total; i++) {
+    doc.setPage(i);
+    doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor(150,150,150);
+    doc.text(`LexSelf Criminal · Not Legal Advice · Page ${i} of ${total}`, W/2, 277, { align: 'center' });
+  }
+
+  const filename = (title||'document').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,40) + '.pdf';
+  doc.save(filename);
+  closePdfSheet();
+  toast('PDF downloaded: ' + filename);
+}
+
+// ═══════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════
+function clearChat(reset=true) {
+  chatHist = [];
+  document.getElementById('msgs').innerHTML = '';
+  showWelcome();
+  if (reset) document.getElementById('ctxName').textContent = 'General Defence Assistant';
+}
+function showWelcome() {
+  document.getElementById('msgs').innerHTML = `<div class="wlc" id="ws"><div class="wg">§ DEFENCE</div><h2>Canadian Criminal Defence</h2><p>Full Criminal Code coverage. Upload disclosure for automated analysis, or ask about any charge, right, or procedure.</p><div class="chips2"><button class="chip2" onclick="qs('What are my rights when arrested in Canada?')">Rights on arrest</button><button class="chip2" onclick="qs('Explain the W(D) test.')">W(D) test</button><button class="chip2" onclick="qs('How do I challenge a breathalyzer result?')">Challenge breathalyzer</button><button class="chip2" onclick="qs('How do I prepare a bail hearing submission?')">Bail hearing</button><button class="chip2" onclick="qs('What is a Stinchcombe disclosure demand?')">Stinchcombe demand</button><button class="chip2" onclick="qs('Calculate a Jordan delay step by step.')">Jordan delay</button></div></div>`;
+}
+function qs(t) { document.getElementById('ws')?.remove(); document.getElementById('ci').value = t; sendMsg(); }
+function hk(e) { if (e.key==='Enter'&&!e.shiftKey&&window.innerWidth>768) { e.preventDefault(); sendMsg(); } }
+function ar(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+
+function sendMsg() {
+  const inp=document.getElementById('ci'), t=inp.value.trim();
+  if (!t||chatBusy) return;
+  document.getElementById('ws')?.remove();
+  addMsg('user',t); chatHist.push({role:'user',content:t});
+  inp.value=''; inp.style.height='auto';
+  callChat();
+}
+function addMsg(role,content) {
+  const m=document.getElementById('msgs'), d=document.createElement('div');
+  d.className=`msg ${role}`;
+  const meta=document.createElement('div'); meta.className='mm';
+  meta.textContent=role==='user'?'You':'LexSelf Criminal'; d.appendChild(meta);
+  const b=document.createElement('div'); b.className='mb';
+  b.innerHTML=fmt(content);
+  if (role==='assistant'&&content.length>80) {
+    const ma=document.createElement('div'); ma.className='ma';
+    const esc=content.replace(/\\/g,'\\\\').replace(/`/g,'\\`');
+    ma.innerHTML=`<button onclick="cp(this,\`${esc}\`)">⎘ Copy</button><button onclick="exportAsDoc(\`${esc}\`)">⬇ PDF</button>`;
+    b.appendChild(ma);
+  }
+  d.appendChild(b); m.appendChild(d); m.scrollTop=m.scrollHeight;
+}
+function fmt(t) {
+  t=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/\*(.*?)\*/g,'<em>$1</em>');
+  t=t.replace(/^### (.*?)$/gm,'<h3>$1</h3>');
+  t=t.replace(/^- (.*?)$/gm,'<li>$1</li>');
+  t=t.replace(/(<li>.*?<\/li>\n?)+/gs,m=>`<ul>${m}</ul>`);
+  t=t.replace(/\n\n/g,'</p><p>');
+  return `<p>${t}</p>`.replace(/<p><\/p>/g,'');
+}
+function cp(btn,t){navigator.clipboard.writeText(t);btn.textContent='✓';setTimeout(()=>btn.textContent='⎘ Copy',2000);}
+function exportAsDoc(content) {
+  openPdfSheet();
+  document.getElementById('pdf_content').value = content;
+  document.getElementById('pdf_title').value = 'LexSelf Defence Document';
+}
+
+function showTyping(){const m=document.getElementById('msgs'),d=document.createElement('div');d.id='typ';d.innerHTML='<div class="ti"><div class="td"></div><div class="td"></div><div class="td"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function hideTyping(){document.getElementById('typ')?.remove();}
+
+async function callChat() {
+  chatBusy=true; document.getElementById('sBtn').disabled=true; showTyping();
+  try {
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')},body:JSON.stringify({messages:chatHist,context:{analysisResults,profile:caseProf}})});
+    const d=await r.json(); hideTyping();
+    if (r.status===402){handleLimitError(d);chatHist.pop();chatBusy=false;document.getElementById('sBtn').disabled=false;return;}
+    if (d.content?.[0]){const reply=d.content[0].text;chatHist.push({role:'assistant',content:reply});addMsg('assistant',reply);if(d._usage)refreshUsage();}
+    else addMsg('assistant',d.error||'Something went wrong.');
+  } catch(e){hideTyping();addMsg('assistant','Connection error.');}
+  chatBusy=false; document.getElementById('sBtn').disabled=false;
+  document.getElementById('ci').focus();
+}
+
+// ═══════════════════════════════════════════
+// VOICE
+// ═══════════════════════════════════════════
+function toggleVoice(){
+  if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){toast('Voice requires Chrome or Safari');return;}
+  isRecording?stopVoice():startVoice();
+}
+function startVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  voiceRec=new SR();voiceRec.continuous=true;voiceRec.interimResults=true;voiceRec.lang='en-CA';
+  const inp=document.getElementById('ci');let fin=inp.value;
+  voiceRec.onresult=e=>{let int='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)fin+=e.results[i][0].transcript+' ';else int+=e.results[i][0].transcript;}inp.value=fin+int;ar(inp);};
+  voiceRec.onend=()=>{if(isRecording)stopVoice();};
+  voiceRec.onerror=()=>stopVoice();
+  voiceRec.start();isRecording=true;
+  document.getElementById('vBtn').classList.add('rec');document.getElementById('vBtn').textContent='⏹ Stop';
+  document.getElementById('vs').classList.add('on');
+}
+function stopVoice(){voiceRec?.stop();isRecording=false;document.getElementById('vBtn').classList.remove('rec');document.getElementById('vBtn').textContent='🎙 Voice';document.getElementById('vs').classList.remove('on');}
+
+// ═══════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════
+const PIDS=['first','last','dob','phone','email','charges','filenum','court','nextdate','nextevent','chargedate','bail','record','indigenous','crown','lawyer','notes'];
+function saveProfile(){
+  const p={};PIDS.forEach(k=>{const el=document.getElementById('pr_'+k);if(el)p[k]=el.value;});
+  caseProf=p;localStorage.setItem('lsc_p',JSON.stringify(p));
+  if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim();document.getElementById('ctxPill').classList.remove('none');}
+  const ok=document.getElementById('sok');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2200);
+  toast(p.indigenous==='yes'?'✓ Saved — Gladue principles applied':'Profile saved');
+}
+function clearProfile(){if(!confirm('Clear case profile?'))return;localStorage.removeItem('lsc_p');caseProf={};PIDS.forEach(k=>{const el=document.getElementById('pr_'+k);if(el)el.value='';});toast('Profile cleared');}
+function loadStoredProfile(){
+  const d=localStorage.getItem('lsc_p');if(!d)return;
+  caseProf=JSON.parse(d);PIDS.forEach(k=>{const el=document.getElementById('pr_'+k);if(el&&caseProf[k]!==undefined)el.value=caseProf[k];});
+  if(caseProf.first){document.getElementById('ctxPill').textContent=`${caseProf.first} ${caseProf.last||''}`.trim();document.getElementById('ctxPill').classList.remove('none');}
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ═══════════════════════════════════════════
+// PAYMENT SUCCESS
+// ═══════════════════════════════════════════
+if(window.location.search.includes('session_id=')){
+  toast('Payment successful — plan upgraded!');
+  refreshUsage();
+  history.replaceState({},'','/');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+(async function init() {
+  if (authToken) {
+    try {
+      const d = await api('GET', '/api/auth/me');
+      if (d.user) {
+        currentUser = d.user; usageState = d.usage;
+        document.getElementById('authOv').style.display = 'none';
+        renderUsage(); loadStoredProfile();
+      } else {
+        authToken = null; localStorage.removeItem('ls_tok');
+      }
+    } catch(e) { /* show auth */ }
+  }
+})();
+</script>
+</body>
+</html>
