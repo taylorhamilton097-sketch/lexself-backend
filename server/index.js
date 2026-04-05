@@ -6,7 +6,7 @@ const cors    = require('cors');
 const path    = require('path');
 
 const app = express();
-
+app.use(require9'cors')());
 // Stripe webhook needs raw body — mount BEFORE json middleware
 app.use('/api/billing/webhook', require('./routes/billing').webhookHandler ||
   (() => { const r = express.Router(); r.post('/', express.raw({type:'application/json'}), (req,res)=>res.json({received:true})); return r; })()

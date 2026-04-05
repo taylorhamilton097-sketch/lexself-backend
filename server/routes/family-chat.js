@@ -89,7 +89,7 @@ Flag urgent matters (safety, upcoming court dates, limitation periods) clearly.`
 router.post('/', requireAuth, async (req, res) => {
   const { messages, context } = req.body;
   const user = req.user;
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_KEY_TEST|| process.env.ANTHROPIC_API_KEY;;
 
   if (!apiKey)   return res.status(500).json({ error: 'API key not configured.' });
   if (!messages) return res.status(400).json({ error: 'No messages provided.' });
@@ -134,7 +134,7 @@ ${profile.otherParties?.length ? `Other parties: ${profile.otherParties.map(op=>
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 1500,
         system,
         messages,
