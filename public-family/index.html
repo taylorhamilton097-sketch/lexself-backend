@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a0c0a">
-<title>LexSelf Family — Ontario Family Law Assistant</title>
+<title>ClearStand Family — Ontario Family Law Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -771,13 +771,13 @@ function handleAuthBtn() {
 // ═══════════════════════════════════════════
 function openPaywall(reason, title, msg) {
   document.getElementById('pwTitle').textContent=title||'Upgrade Your Plan';
-  document.getElementById('pwMsg').textContent=msg||'Upgrade to continue using LexSelf Family.';
+  document.getElementById('pwMsg').textContent=msg||'Upgrade to continue using ClearStand Family.';
   document.getElementById('pwOv').classList.add('show');
 }
 function closePw() { document.getElementById('pwOv').classList.remove('show'); }
 function handleLimitError(d) {
   const msgs = {
-    wrong_product:`Your plan does not include LexSelf Family. Upgrade to add family law access.`,
+    wrong_product:`Your plan does not include ClearStand Family. Upgrade to add family law access.`,
     free_chat_exhausted:`You've used all 10 free chat messages. Upgrade to continue getting family law guidance.`,
     daily_chat_limit:`You've reached your 50 daily chat messages. Upgrade to Complete for unlimited.`,
   };
@@ -819,7 +819,7 @@ function addMsg(role,content) {
   const m=document.getElementById('msgs'), d=document.createElement('div');
   d.className=`msg ${role}`;
   const meta=document.createElement('div'); meta.className='mm';
-  meta.textContent=role==='user'?'You':'LexSelf Family'; d.appendChild(meta);
+  meta.textContent=role==='user'?'You':'ClearStand Family'; d.appendChild(meta);
   const b=document.createElement('div'); b.className='mb';
   b.innerHTML=fmt(content);
   if(role==='assistant'&&content.length>80) {
@@ -1060,7 +1060,7 @@ function generatePDF() {
 
   // Footer
   const total=doc.getNumberOfPages();
-  for(let i=1;i<=total;i++){doc.setPage(i);doc.setFont('helvetica','italic');doc.setFontSize(6.5);doc.setTextColor(150,150,150);doc.text(`LexSelf Family · Ontario Family Law Assistant · Not Legal Advice · Page ${i} of ${total}`,W/2,277,{align:'center'});}
+  for(let i=1;i<=total;i++){doc.setPage(i);doc.setFont('helvetica','italic');doc.setFontSize(6.5);doc.setTextColor(150,150,150);doc.text(`ClearStand Family · Ontario Family Law Assistant · Not Legal Advice · Page ${i} of ${total}`,W/2,277,{align:'center'});}
 
   const fname=(title||'document').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,40)+'.pdf';
   doc.save(fname);

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ClearStand Family Law — child custody, support calculations, separation documents and Ontario court forms for self-represented litigants.">
+<title>Family Law — ClearStand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+.page-hero {
+  background: var(--navy);
+  padding: 88px 0 72px;
+  position: relative;
+  overflow: hidden;
+}
+.page-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--blue-dim), transparent);
+}
+.page-hero-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 24px;
+  max-width: 720px;
+}
+.page-hero h1 { color: var(--white); margin-bottom: 20px; }
+.page-hero-sub {
+  font-family: var(--font-ui);
+  font-size: 1.1rem;
+  color: rgba(244,246,248,0.72);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  max-width: 580px;
+}
+.page-hero-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+.features-wrap { max-width: var(--container); margin: 0 auto; padding: 0 24px; }
+
+.fr-text h2 { margin-bottom: 16px; color: var(--navy); }
+.fr-text p {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  color: var(--text-mid);
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+.fr-visual-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* Calculator preview visual */
+.calc-preview {
+  background: var(--white-pure);
+  border: 1px solid var(--border);
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
+}
+.cp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--text-mid);
+}
+.cp-row:last-child { border-bottom: none; }
+.cp-val {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blue);
+}
+.cp-label-top {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  margin-bottom: 14px;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="site-nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Lex<span>Self</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#how-it-works">How It Works</a></li>
+      <li><a href="family.html" class="active">Family Law</a></li>
+      <li><a href="criminal.html">Criminal Defence</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="#">Sign In</a></li>
+      <li><a href="/#" class="btn nav-cta">Get Started Free</a></li>
+    </ul>
+    <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero texture">
+  <div class="page-hero-inner">
+    <span class="eyebrow light" style="margin-bottom:20px;display:block">Family Law in Ontario &amp; Beyond</span>
+    <div class="v-rule"></div>
+    <h1 class="fade-in">Your children. Your home.<br>Your future.<br>Protect all three.</h1>
+    <p class="page-hero-sub fade-in" style="transition-delay:.1s">
+      Separation, custody, and support disputes are among the most stressful experiences a person can face. ClearStand gives you the tools to navigate them clearly — without paying $400 an hour to do it.
+    </p>
+    <div class="page-hero-actions fade-in" style="transition-delay:.2s">
+      <a href="/family" class="btn btn-primary">Start Your Family Law Case</a>
+      <a href="#features" class="btn-link">See What's Included →</a>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-bar-inner">
+    <span class="trust-label">Covers:</span>
+    <span class="trust-item">Child Custody &amp; Parenting</span>
+    <span class="trust-item">Child &amp; Spousal Support</span>
+    <span class="trust-item">Property Division</span>
+    <span class="trust-item">Separation Agreements</span>
+    <span class="trust-item">All Ontario Court Forms</span>
+    <span class="trust-item">Protection Orders</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section section-white" id="features">
+  <div class="features-wrap">
+
+    <!-- Support Calculator -->
+    <div class="feature-row fade-in">
+      <div class="fr-text">
+        <span class="eyebrow">Child &amp; Spousal Support</span>
+        <div class="v-rule small"></div>
+        <h2>Know the number before anyone else in the room does.</h2>
+        <p>ClearStand's support calculator uses the current Federal Child Support Guidelines to give you an accurate, defensible estimate based on real income figures. Walk into mediation or court already knowing what a judge is likely to order — and why.</p>
+        <ul class="highlights dark">
+          <li>Based on 2025 Federal Child Support Guidelines</li>
+          <li>Accounts for shared parenting time and income splits</li>
+          <li>Outputs a clear, printable summary</li>
+        </ul>
+        <div style="margin-top:28px">
+          <a href="/family#calculator" class="btn btn-primary">Calculate Support Now</a>
+        </div>
+      </div>
+      <div class="feature-visual">
+        <div class="fr-visual-inner">
+          <div class="calc-preview">
+            <div class="cp-label-top">Support Estimate — Ontario 2025</div>
+            <div class="cp-row"><span>Payor income</span><span class="cp-val">$85,000</span></div>
+            <div class="cp-row"><span>Children</span><span class="cp-val">2</span></div>
+            <div class="cp-row"><span>Custody</span><span>Primary</span></div>
+            <div class="cp-row" style="border-top:2px solid var(--blue);margin-top:8px;padding-top:14px"><span><strong>Monthly support</strong></span><span class="cp-val" style="font-size:1.4rem">$1,202</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Analysis -->
+    <div class="feature-row reverse fade-in">
+      <div class="fr-text">
+        <span class="eyebrow">They Sent You Documents. Now What?</span>
+        <div class="v-rule small"></div>
+        <h2>Let ClearStand read what they filed — and tell you where they're wrong.</h2>
+        <p>When the other side serves you with legal documents, it can feel overwhelming. ClearStand analyzes what you've received, identifies missing information, factual inconsistencies, and procedural problems — then builds you a point-by-point response using actual case law.</p>
+        <ul class="highlights dark">
+          <li>Flags omissions and overstatements in filed documents</li>
+          <li>Suggests counterarguments grounded in Ontario and federal family law</li>
+          <li>Cross-references relevant court decisions automatically</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fr-visual-inner">
+          <svg viewBox="0 0 200 200" class="fv-icon" style="opacity:.15;width:160px" fill="none" stroke="white" stroke-width="1.5" aria-hidden="true">
+            <rect x="30" y="20" width="140" height="160" rx="4"/>
+            <line x1="50" y1="60" x2="150" y2="60"/>
+            <line x1="50" y1="80" x2="150" y2="80"/>
+            <line x1="50" y1="100" x2="120" y2="100"/>
+            <line x1="50" y1="120" x2="150" y2="120"/>
+            <circle cx="155" cy="65" r="20" fill="white" stroke="none"/>
+            <path d="M147 65l5 5 10-10" stroke="#0D1B2A" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Builder -->
+    <div class="feature-row fade-in">
+      <div class="fr-text">
+        <span class="eyebrow">Court-Ready Documents</span>
+        <div class="v-rule small"></div>
+        <h2>Your forms, filled out correctly, the first time.</h2>
+        <p>ClearStand guides you through Ontario's actual court forms in plain language. Your profile information fills in automatically. When you're done, export a completed PDF — ready to file with the court, no reformatting required.</p>
+        <ul class="highlights dark">
+          <li>Real Ontario family court forms</li>
+          <li>Auto-populated from your saved profile</li>
+          <li>Export to PDF for immediate filing</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fr-visual-inner">
+          <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:280px">
+            <div style="background:rgba(244,246,248,.08);border:1px solid rgba(244,246,248,.12);padding:12px 16px;font-family:var(--font-ui);font-size:.78rem;color:rgba(244,246,248,.6)">Form 8 — Application (General)</div>
+            <div style="background:rgba(244,246,248,.08);border:1px solid rgba(244,246,248,.12);padding:12px 16px;font-family:var(--font-ui);font-size:.78rem;color:rgba(244,246,248,.6)">Form 14A — Affidavit (Motion)</div>
+            <div style="background:rgba(244,246,248,.08);border:1px solid rgba(244,246,248,.12);padding:12px 16px;font-family:var(--font-ui);font-size:.78rem;color:rgba(244,246,248,.6)">Form 35.1 — Parenting Affidavit</div>
+            <div style="background:rgba(46,134,193,.2);border:1px solid var(--blue-dim);padding:12px 16px;font-family:var(--font-ui);font-size:.78rem;color:var(--blue-light)">Form 13 — Financial Statement</div>
+            <div style="background:rgba(244,246,248,.08);border:1px solid rgba(244,246,248,.12);padding:12px 16px;font-family:var(--font-ui);font-size:.78rem;color:rgba(244,246,248,.6)">Form 25A — Divorce Order</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case Law -->
+    <div class="feature-row reverse fade-in">
+      <div class="fr-text">
+        <span class="eyebrow">Research</span>
+        <div class="v-rule small"></div>
+        <h2>Know what judges have already decided about situations like yours.</h2>
+        <p>ClearStand connects your specific circumstances to real Canadian court decisions. Whether it's custody arrangements, property division, or support disputes — you'll know what precedents apply before you step into any room.</p>
+        <ul class="highlights dark">
+          <li>Barendregt v Grebliunas 2022 SCC 22 — relocation</li>
+          <li>Gordon v Goertz [1996] — mobility rights</li>
+          <li>Moge v Moge [1992] — spousal support</li>
+          <li>Contino v Leonelli-Contino 2005 SCC — shared custody</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fr-visual-inner">
+          <svg viewBox="0 0 200 200" class="fv-icon" style="opacity:.15;width:160px" fill="none" stroke="white" stroke-width="1.5" aria-hidden="true">
+            <path d="M40 160 L100 40 L160 160 Z"/>
+            <line x1="100" y1="40" x2="100" y2="160"/>
+            <line x1="55" y1="120" x2="145" y2="120"/>
+            <circle cx="100" cy="168" r="8"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dictation -->
+    <div class="feature-row fade-in">
+      <div class="fr-text">
+        <span class="eyebrow">Built for Real Life</span>
+        <div class="v-rule small"></div>
+        <h2>Write legal documents without writing a word.</h2>
+        <p>Managing a separation while raising children doesn't leave much time for paperwork. Use ClearStand's dictation feature to speak your submissions, affidavits, and letters aloud — and watch them take proper legal shape automatically.</p>
+        <ul class="highlights dark">
+          <li>Speak your account of events naturally</li>
+          <li>ClearStand formats into numbered affidavit paragraphs</li>
+          <li>Edit and export when ready</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fr-visual-inner">
+          <div style="text-align:center">
+            <svg viewBox="0 0 80 80" fill="none" stroke="rgba(244,246,248,0.6)" stroke-width="1.5" width="80" aria-hidden="true">
+              <rect x="28" y="10" width="24" height="36" rx="12"/>
+              <path d="M16 40c0 13.255 10.745 24 24 24s24-10.745 24-24"/>
+              <line x1="40" y1="64" x2="40" y2="76"/>
+              <line x1="28" y1="76" x2="52" y2="76"/>
+            </svg>
+            <div style="margin-top:20px;font-family:var(--font-ui);font-size:.75rem;color:rgba(244,246,248,.4);text-transform:uppercase;letter-spacing:.1em">Voice Input Active</div>
+            <div style="display:flex;justify-content:center;gap:4px;margin-top:12px">
+              <div style="width:3px;height:16px;background:var(--blue-light);border-radius:2px;animation:wave 1s ease infinite"></div>
+              <div style="width:3px;height:24px;background:var(--blue-light);border-radius:2px;animation:wave 1s ease .15s infinite"></div>
+              <div style="width:3px;height:12px;background:var(--blue-light);border-radius:2px;animation:wave 1s ease .3s infinite"></div>
+              <div style="width:3px;height:20px;background:var(--blue-light);border-radius:2px;animation:wave 1s ease .1s infinite"></div>
+              <div style="width:3px;height:16px;background:var(--blue-light);border-radius:2px;animation:wave 1s ease .25s infinite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="cta-section texture">
+  <div class="v-rule" style="margin:0 auto 32px"></div>
+  <h2 class="fade-in">You don't need a law degree to be prepared.</h2>
+  <p class="cta-body fade-in" style="transition-delay:.1s">
+    Thousands of Canadians represent themselves in family court every year. The ones who succeed come in organized, informed, and ready. ClearStand makes that possible.
+  </p>
+  <a href="/family" class="btn btn-primary fade-in" style="transition-delay:.2s;font-size:1rem;padding:16px 36px">
+    Start Your Family Law Case — Free
+  </a>
+  <p class="cta-sub fade-in" style="transition-delay:.3s">No credit card required.</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Lex<span>Self</span></div>
+        <div class="footer-tagline">Your rights. Your case. Your ground.</div>
+      </div>
+      <ul class="footer-links">
+        <li><a href="family.html">Family Law</a></li>
+        <li><a href="criminal.html">Criminal Defence</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+      </ul>
+    </div>
+    <p class="footer-disclaimer">
+      ClearStand is a legal document and research tool. It does not provide legal advice and is not a substitute for a licensed lawyer. Legal Aid Ontario: 1-800-668-8258.
+    </p>
+  </div>
+</footer>
+
+<style>
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.6); }
+}
+</style>
+
+<script>
+const toggle = document.getElementById('mobileToggle');
+const navLinks = document.getElementById('navLinks');
+toggle.addEventListener('click', () => {
+  const isOpen = navLinks.classList.toggle('open');
+  toggle.setAttribute('aria-expanded', isOpen);
+});
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+window.addEventListener('load', () => {
+  document.querySelectorAll('.page-hero .fade-in').forEach(el => el.classList.add('visible'));
+});
+</script>
+</body>
+</html>
