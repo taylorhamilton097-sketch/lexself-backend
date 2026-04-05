@@ -25,7 +25,7 @@ router.post('/', requireAuth, async (req, res) => {
   const { messages, context } = req.body;
   const user = req.user;
   const apiKey = process.env.TEST_KEY || process.env.ANTHROPIC_API_KEY;
-
+console.log('API Key present:', !!apiKey, 'Length:', apiKey ? apiKey.length : 0);
   if (!apiKey)   return res.status(500).json({ error: 'API key not configured.' });
   if (!messages) return res.status(400).json({ error: 'No messages provided.' });
 
