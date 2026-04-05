@@ -79,7 +79,8 @@ body {
   padding: 2px 7px;
 }
 .topnav-btn {
-  width: 34px; height: 34px;
+  height: 32px;
+  padding: 0 12px;
   background: none;
   border: 1px solid var(--b1);
   color: var(--text2);
@@ -87,9 +88,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .9rem;
+  font-family: 'DM Mono', monospace;
+  font-size: .54rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
   transition: all .15s;
   border-radius: 0;
+  white-space: nowrap;
 }
 .topnav-btn:hover, .topnav-btn:active { background: var(--s2); color: var(--text); }
 
@@ -1133,9 +1138,9 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
   <div class="topnav-mode" id="modeLabel">Defence Assistant</div>
   <div class="topnav-right">
     <div class="topnav-plan" id="planBadge" style="display:none">FREE</div>
-    <button class="topnav-btn" onclick="openChargeDrawer()" title="Select charge module">⚖</button>
-    <button class="topnav-btn" onclick="openPdfSheet()" title="Export PDF">⬇</button>
-    <button class="topnav-btn" id="topAuthBtn" onclick="showAuthOrLogout()" title="Account">◈</button>
+    <button class="topnav-btn" onclick="openChargeDrawer()" title="Select charge module">Charges</button>
+    <button class="topnav-btn" onclick="openPdfSheet()" title="Export PDF">Export</button>
+    <button class="topnav-btn" id="topAuthBtn" onclick="showAuthOrLogout()" title="Account">Account</button>
   </div>
 </div>
 
@@ -1151,7 +1156,7 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
     <div class="us-pips" id="cPips"></div>
     <span id="cCnt"></span>
   </div>
-  <button class="us-upgrade" id="upgradeBtn" onclick="openPaywall('upgrade')" style="display:none">Upgrade →</button>
+  <button class="us-upgrade" id="upgradeBtn" onclick="openPaywall('upgrade')" style="display:none">Upgrade</button>
 </div>
 
 <div class="app-body">
@@ -1160,51 +1165,51 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
   <div class="sidebar">
     <div class="sb-sec">
       <div class="sb-hdr">Disclosure</div>
-      <button class="sbt on" onclick="showPanel('upload');sbActive(this)"><span class="ico">⬆</span><span class="lbl">Upload & Analyse<span class="tag">Crown Brief · PDF</span></span></button>
-      <button class="sbt" onclick="showPanel('report');sbActive(this)" id="sbReport"><span class="ico">📋</span><span class="lbl">Analysis Report<span class="tag">5-Pass Results</span></span></button>
+      <button class="sbt on" onclick="showPanel('upload');sbActive(this)"><span class="lbl">Upload & Analyse<span class="tag">Crown Brief · PDF</span></span></button>
+      <button class="sbt" onclick="showPanel('report');sbActive(this)" id="sbReport"><span class="lbl">Analysis Report<span class="tag">5-Pass Results</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Driving</div>
-      <button class="sbt" onclick="loadCharge('impaired');sbActive(this)"><span class="ico">🚗</span><span class="lbl">Impaired / Over 80<span class="tag">s.320.14 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('dangerousDriving');sbActive(this)"><span class="ico">🚗</span><span class="lbl">Dangerous Driving<span class="tag">s.320.13 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('impaired');sbActive(this)"><span class="lbl">Impaired / Over 80<span class="tag">s.320.14 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('dangerousDriving');sbActive(this)"><span class="lbl">Dangerous Driving<span class="tag">s.320.13 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Violence / Domestic</div>
-      <button class="sbt" onclick="loadCharge('assault');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Assault<span class="tag">s.266 CC · s.34</span></span></button>
-      <button class="sbt" onclick="loadCharge('sexualAssault');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Sexual Assault<span class="tag">s.271 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('harassment');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Criminal Harassment<span class="tag">s.264 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('threats');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Uttering Threats<span class="tag">s.264.1 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('confinement');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Forcible Confinement<span class="tag">s.279 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('assault');sbActive(this)"><span class="lbl">Assault<span class="tag">s.266 CC · s.34</span></span></button>
+      <button class="sbt" onclick="loadCharge('sexualAssault');sbActive(this)"><span class="lbl">Sexual Assault<span class="tag">s.271 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('harassment');sbActive(this)"><span class="lbl">Criminal Harassment<span class="tag">s.264 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('threats');sbActive(this)"><span class="lbl">Uttering Threats<span class="tag">s.264.1 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('confinement');sbActive(this)"><span class="lbl">Forcible Confinement<span class="tag">s.279 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Conditions</div>
-      <button class="sbt" onclick="loadCharge('breach');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Breach Recognizance<span class="tag">s.145 CC · R v Zora</span></span></button>
+      <button class="sbt" onclick="loadCharge('breach');sbActive(this)"><span class="lbl">Breach Recognizance<span class="tag">s.145 CC · R v Zora</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Property</div>
-      <button class="sbt" onclick="loadCharge('mischief');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Mischief<span class="tag">s.430 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('fraudTheft');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Fraud / Theft<span class="tag">s.380/322 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('breakEnter');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Break & Enter<span class="tag">s.348 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('mischief');sbActive(this)"><span class="lbl">Mischief<span class="tag">s.430 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('fraudTheft');sbActive(this)"><span class="lbl">Fraud / Theft<span class="tag">s.380/322 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('breakEnter');sbActive(this)"><span class="lbl">Break & Enter<span class="tag">s.348 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Drugs / Weapons / Digital</div>
-      <button class="sbt" onclick="loadCharge('drugs');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Drug Offences<span class="tag">CDSA</span></span></button>
-      <button class="sbt" onclick="loadCharge('weapons');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Weapons<span class="tag">s.86-96 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('digitalOffences');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Digital / Luring<span class="tag">s.162/172.1 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('drugs');sbActive(this)"><span class="lbl">Drug Offences<span class="tag">CDSA</span></span></button>
+      <button class="sbt" onclick="loadCharge('weapons');sbActive(this)"><span class="lbl">Weapons<span class="tag">s.86-96 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('digitalOffences');sbActive(this)"><span class="lbl">Digital / Luring<span class="tag">s.162/172.1 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Other</div>
-      <button class="sbt" onclick="loadCharge('obstruction');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Obstruct Police<span class="tag">s.129 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('homicide');sbActive(this)"><span class="ico">⚖</span><span class="lbl">Homicide<span class="tag">s.234 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('obstruction');sbActive(this)"><span class="lbl">Obstruct Police<span class="tag">s.129 CC</span></span></button>
+      <button class="sbt" onclick="loadCharge('homicide');sbActive(this)"><span class="lbl">Homicide<span class="tag">s.234 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Charter & Procedure</div>
-      <button class="sbt" onclick="loadTopic('charter');sbActive(this)"><span class="ico">§</span><span class="lbl">Charter Rights<span class="tag">s.8 · s.9 · s.10(b)</span></span></button>
-      <button class="sbt" onclick="loadTopic('bail');sbActive(this)"><span class="ico">§</span><span class="lbl">Bail Hearing<span class="tag">s.515 · R v Antic</span></span></button>
-      <button class="sbt" onclick="loadTopic('crossex');sbActive(this)"><span class="ico">§</span><span class="lbl">Cross-Examination<span class="tag">Strategy Builder</span></span></button>
-      <button class="sbt" onclick="loadTopic('jordan');sbActive(this)"><span class="ico">§</span><span class="lbl">Jordan Delay<span class="tag">2016 SCC 27</span></span></button>
-      <button class="sbt" onclick="loadTopic('disclosure');sbActive(this)"><span class="ico">§</span><span class="lbl">Stinchcombe Request<span class="tag">Disclosure Letter</span></span></button>
-      <button class="sbt" onclick="loadTopic('sentencing');sbActive(this)"><span class="ico">§</span><span class="lbl">Sentencing<span class="tag">Gladue · Lacasse</span></span></button>
+      <button class="sbt" onclick="loadTopic('charter');sbActive(this)"><span class="ico" style="font-family:serif;font-style:normal;color:var(--text3);font-size:.7rem">§</span><span class="lbl">Charter Rights<span class="tag">s.8 · s.9 · s.10(b)</span></span></button>
+      <button class="sbt" onclick="loadTopic('bail');sbActive(this)"><span class="ico" style="font-family:serif;font-style:normal;color:var(--text3);font-size:.7rem">§</span><span class="lbl">Bail Hearing<span class="tag">s.515 · R v Antic</span></span></button>
+      <button class="sbt" onclick="loadTopic('crossex');sbActive(this)"><span class="ico" style="font-family:serif;font-style:normal;color:var(--text3);font-size:.7rem">§</span><span class="lbl">Cross-Examination<span class="tag">Strategy Builder</span></span></button>
+      <button class="sbt" onclick="loadTopic('jordan');sbActive(this)"><span class="ico" style="font-family:serif;font-style:normal;color:var(--text3);font-size:.7rem">§</span><span class="lbl">Jordan Delay<span class="tag">2016 SCC 27</span></span></button>
+      <button class="sbt" onclick="loadTopic('disclosure');sbActive(this)"><span class="ico" style="font-family:serif;font-style:normal;color:var(--text3);font-size:.7rem">§</span><span class="lbl">Stinchcombe Request<span class="tag">Disclosure Letter</span></span></button>
+      <button class="sbt" onclick="loadTopic('sentencing');sbActive(this)"><span class="ico" style="font-family:serif;font-style:normal;color:var(--text3);font-size:.7rem">§</span><span class="lbl">Sentencing<span class="tag">Gladue · Lacasse</span></span></button>
     </div>
   </div>
 
@@ -1220,7 +1225,7 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
         </div>
         <div class="drop-zone" id="dz" ondrop="onDrop(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)">
           <input type="file" id="fileIn" accept=".pdf,application/pdf" onchange="onFileSel(event)">
-          <div class="dz-ico">📄</div>
+          <div class="dz-ico" style="font-family:serif;font-size:1.4rem;color:var(--text3);letter-spacing:.1em">PDF</div>
           <div class="dz-t" id="dzTitle">Tap to select Crown Brief PDF</div>
           <div class="dz-s">Police disclosure, officer notes, will-says, ITO — any PDF up to 25MB</div>
           <div class="dz-lim">⚠ Processed in memory only — not stored on server</div>
@@ -1277,14 +1282,14 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
       <div id="repEmpty" class="rep-empty">
         <div class="rep-empty-glyph">NO REPORT</div>
         <p>Upload a Crown brief PDF on the Upload tab to generate your analysis.</p>
-        <button onclick="showPanel('upload')" style="margin-top:8px;padding:10px 18px;background:var(--red);color:#fff;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;min-height:44px">Upload Now →</button>
+        <button onclick="showPanel('upload')" style="margin-top:8px;padding:10px 18px;background:var(--red);color:#fff;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;min-height:44px">Upload Now</button>
       </div>
       <div id="repFull" style="display:none;flex-direction:column;height:100%">
         <div class="rep-hdr" id="repHdr"></div>
         <div class="rep-actions">
-          <button class="ra-btn primary" onclick="openPdfSheet()">⬇ Export PDF</button>
+          <button class="ra-btn primary" onclick="openPdfSheet()">Export PDF</button>
           <button class="ra-btn" onclick="copyReport()">⎘ Copy Report</button>
-          <button class="ra-btn" onclick="copyDisclosureLetter()">📋 Disclosure Letter</button>
+          <button class="ra-btn" onclick="copyDisclosureLetter()">Disclosure Letter</button>
           <button class="ra-btn" onclick="showPanel('chat');loadMsg('Based on my disclosure analysis, what should I prioritise this week?')">💬 Discuss</button>
         </div>
         <div class="rep-tabs">
@@ -1313,7 +1318,7 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
         </div>
         <div id="msgs">
           <div class="wlc" id="ws">
-            <div class="wg">§ DEFENCE</div>
+            <div class="wg">DEFENCE</div>
             <h2>Canadian Criminal Defence</h2>
             <p>Full Criminal Code coverage. Upload disclosure for automated analysis, or ask about any charge, right, or procedure.</p>
             <div class="chips2">
@@ -1328,7 +1333,7 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
         </div>
         <div class="inp-area">
           <div class="inp-tools">
-            <button class="it" id="vBtn" onclick="toggleVoice()">🎙 Voice</button>
+            <button class="it" id="vBtn" onclick="toggleVoice()">Voice</button>
             <span class="vs" id="vs">● Rec</span>
             <button class="it" onclick="qs('Draft a Charter application based on my disclosure.')">Charter App</button>
             <button class="it" onclick="qs('Build a cross-examination outline for the complainant.')">Cross-Exam</button>
@@ -1403,7 +1408,7 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
       <div class="pr-save-bar">
         <button class="bp" onclick="saveProfile()">Save Profile</button>
         <button class="bs" onclick="clearProfile()">Clear</button>
-        <span class="sok" id="sok">✓ Saved</span>
+        <span class="sok" id="sok">Saved</span>
       </div>
     </div>
 
@@ -1413,21 +1418,17 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
 <!-- ══ BOTTOM NAV (mobile) ══ -->
 <div class="botnav">
   <button class="bn-item on" id="bn-upload" onclick="showPanel('upload');bnActive('upload')">
-    <div class="bn-ico">⬆</div>
-    <div class="bn-lbl">Upload</div>
+    <div class="bn-lbl" style="font-size:.58rem">Upload</div>
   </button>
   <button class="bn-item" id="bn-report" onclick="showPanel('report');bnActive('report')">
-    <div class="bn-ico">📋</div>
-    <div class="bn-lbl">Report</div>
+    <div class="bn-lbl" style="font-size:.58rem">Report</div>
     <div class="bn-badge" id="reportBadge"></div>
   </button>
   <button class="bn-item" id="bn-chat" onclick="showPanel('chat');bnActive('chat')">
-    <div class="bn-ico">⚖</div>
-    <div class="bn-lbl">Defence</div>
+    <div class="bn-lbl" style="font-size:.58rem">Defence</div>
   </button>
   <button class="bn-item" id="bn-profile" onclick="showPanel('profile');bnActive('profile')">
-    <div class="bn-ico">◈</div>
-    <div class="bn-lbl">My Case</div>
+    <div class="bn-lbl" style="font-size:.58rem">My Case</div>
   </button>
 </div>
 
@@ -1439,46 +1440,46 @@ textarea.pdf-inp { min-height: 100px; resize: vertical; }
   <div class="drawer-body">
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Driving</div>
-      <button class="drawer-btn" onclick="loadCharge('impaired');closeDrawer()">🚗 Impaired / Over 80<span class="db-tag">s.320.14 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('dangerousDriving');closeDrawer()">🚗 Dangerous Driving<span class="db-tag">s.320.13 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('impaired');closeDrawer()">Impaired / Over 80<span class="db-tag">s.320.14 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('dangerousDriving');closeDrawer()">Dangerous Driving<span class="db-tag">s.320.13 CC</span></button>
     </div>
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Violence / Domestic</div>
-      <button class="drawer-btn" onclick="loadCharge('assault');closeDrawer()">⚖ Assault<span class="db-tag">s.266 CC · Self-Defence s.34</span></button>
-      <button class="drawer-btn" onclick="loadCharge('sexualAssault');closeDrawer()">⚖ Sexual Assault<span class="db-tag">s.271 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('harassment');closeDrawer()">⚖ Criminal Harassment<span class="db-tag">s.264 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('threats');closeDrawer()">⚖ Uttering Threats<span class="db-tag">s.264.1 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('confinement');closeDrawer()">⚖ Forcible Confinement<span class="db-tag">s.279 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('assault');closeDrawer()">Assault<span class="db-tag">s.266 CC · Self-Defence s.34</span></button>
+      <button class="drawer-btn" onclick="loadCharge('sexualAssault');closeDrawer()">Sexual Assault<span class="db-tag">s.271 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('harassment');closeDrawer()">Criminal Harassment<span class="db-tag">s.264 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('threats');closeDrawer()">Uttering Threats<span class="db-tag">s.264.1 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('confinement');closeDrawer()">Forcible Confinement<span class="db-tag">s.279 CC</span></button>
     </div>
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Conditions</div>
-      <button class="drawer-btn" onclick="loadCharge('breach');closeDrawer()">⚖ Breach Recognizance<span class="db-tag">s.145 CC · R v Zora</span></button>
+      <button class="drawer-btn" onclick="loadCharge('breach');closeDrawer()">Breach Recognizance<span class="db-tag">s.145 CC · R v Zora</span></button>
     </div>
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Property</div>
-      <button class="drawer-btn" onclick="loadCharge('mischief');closeDrawer()">⚖ Mischief<span class="db-tag">s.430 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('fraudTheft');closeDrawer()">⚖ Fraud / Theft<span class="db-tag">s.380/322 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('breakEnter');closeDrawer()">⚖ Break & Enter<span class="db-tag">s.348 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('mischief');closeDrawer()">Mischief<span class="db-tag">s.430 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('fraudTheft');closeDrawer()">Fraud / Theft<span class="db-tag">s.380/322 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('breakEnter');closeDrawer()">Break & Enter<span class="db-tag">s.348 CC</span></button>
     </div>
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Drugs / Weapons / Digital</div>
-      <button class="drawer-btn" onclick="loadCharge('drugs');closeDrawer()">⚖ Drug Offences (CDSA)</button>
-      <button class="drawer-btn" onclick="loadCharge('weapons');closeDrawer()">⚖ Weapons<span class="db-tag">s.86-96 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('digitalOffences');closeDrawer()">⚖ Digital / Luring<span class="db-tag">s.162/172.1 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('drugs');closeDrawer()">Drug Offences (CDSA)</button>
+      <button class="drawer-btn" onclick="loadCharge('weapons');closeDrawer()">Weapons<span class="db-tag">s.86-96 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('digitalOffences');closeDrawer()">Digital / Luring<span class="db-tag">s.162/172.1 CC</span></button>
     </div>
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Other Charges</div>
-      <button class="drawer-btn" onclick="loadCharge('obstruction');closeDrawer()">⚖ Obstruct Police<span class="db-tag">s.129 CC</span></button>
-      <button class="drawer-btn" onclick="loadCharge('homicide');closeDrawer()">⚖ Homicide / Manslaughter<span class="db-tag">s.234 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('obstruction');closeDrawer()">Obstruct Police<span class="db-tag">s.129 CC</span></button>
+      <button class="drawer-btn" onclick="loadCharge('homicide');closeDrawer()">Homicide / Manslaughter<span class="db-tag">s.234 CC</span></button>
     </div>
     <div class="drawer-sec">
       <div class="drawer-sec-hdr">Charter & Procedure</div>
-      <button class="drawer-btn" onclick="loadTopic('charter');closeDrawer()">§ Charter Rights — s.8, s.9, s.10(b)</button>
-      <button class="drawer-btn" onclick="loadTopic('bail');closeDrawer()">§ Bail Hearing — s.515 · R v Antic</button>
-      <button class="drawer-btn" onclick="loadTopic('crossex');closeDrawer()">§ Cross-Examination Builder</button>
-      <button class="drawer-btn" onclick="loadTopic('jordan');closeDrawer()">§ Jordan Delay — 2016 SCC 27</button>
+      <button class="drawer-btn" onclick="loadTopic('charter');closeDrawer()">Charter Rights — s.8, s.9, s.10(b)</button>
+      <button class="drawer-btn" onclick="loadTopic('bail');closeDrawer()">Bail Hearing — s.515 · R v Antic</button>
+      <button class="drawer-btn" onclick="loadTopic('crossex');closeDrawer()">Cross-Examination Builder</button>
+      <button class="drawer-btn" onclick="loadTopic('jordan');closeDrawer()">Jordan Delay — 2016 SCC 27</button>
       <button class="drawer-btn" onclick="loadTopic('disclosure');closeDrawer()">§ Stinchcombe Disclosure Request</button>
-      <button class="drawer-btn" onclick="loadTopic('sentencing');closeDrawer()">§ Sentencing — Gladue · Lacasse</button>
+      <button class="drawer-btn" onclick="loadTopic('sentencing');closeDrawer()">Sentencing — Gladue · Lacasse</button>
     </div>
   </div>
 </div>
@@ -2162,7 +2163,7 @@ function clearChat(reset=true) {
   if (reset) document.getElementById('ctxName').textContent = 'General Defence Assistant';
 }
 function showWelcome() {
-  document.getElementById('msgs').innerHTML = `<div class="wlc" id="ws"><div class="wg">§ DEFENCE</div><h2>Canadian Criminal Defence</h2><p>Full Criminal Code coverage. Upload disclosure for automated analysis, or ask about any charge, right, or procedure.</p><div class="chips2"><button class="chip2" onclick="qs('What are my rights when arrested in Canada?')">Rights on arrest</button><button class="chip2" onclick="qs('Explain the W(D) test.')">W(D) test</button><button class="chip2" onclick="qs('How do I challenge a breathalyzer result?')">Challenge breathalyzer</button><button class="chip2" onclick="qs('How do I prepare a bail hearing submission?')">Bail hearing</button><button class="chip2" onclick="qs('What is a Stinchcombe disclosure demand?')">Stinchcombe demand</button><button class="chip2" onclick="qs('Calculate a Jordan delay step by step.')">Jordan delay</button></div></div>`;
+  document.getElementById('msgs').innerHTML = `<div class="wlc" id="ws"><div class="wg">DEFENCE</div><h2>Canadian Criminal Defence</h2><p>Full Criminal Code coverage. Upload disclosure for automated analysis, or ask about any charge, right, or procedure.</p><div class="chips2"><button class="chip2" onclick="qs('What are my rights when arrested in Canada?')">Rights on arrest</button><button class="chip2" onclick="qs('Explain the W(D) test.')">W(D) test</button><button class="chip2" onclick="qs('How do I challenge a breathalyzer result?')">Challenge breathalyzer</button><button class="chip2" onclick="qs('How do I prepare a bail hearing submission?')">Bail hearing</button><button class="chip2" onclick="qs('What is a Stinchcombe disclosure demand?')">Stinchcombe demand</button><button class="chip2" onclick="qs('Calculate a Jordan delay step by step.')">Jordan delay</button></div></div>`;
 }
 function qs(t) { document.getElementById('ws')?.remove(); document.getElementById('ci').value = t; sendMsg(); }
 function hk(e) { if (e.key==='Enter'&&!e.shiftKey&&window.innerWidth>768) { e.preventDefault(); sendMsg(); } }
