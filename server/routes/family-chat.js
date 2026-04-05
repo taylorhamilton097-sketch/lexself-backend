@@ -61,8 +61,8 @@ console.log('API Key present:', !!apiKey, 'Length:', apiKey ? apiKey.length : 0)
     });
 
     const data = await resp.json();
-    if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message || 'API error' });
-
+console.log('Anthropic response status:', resp.status, 'Error:', JSON.stringify(data.error));
+if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message || 'API error' });
     recordUsage(user.id, 'family', 'chat');
     res.json(data);
   } catch(err) {
