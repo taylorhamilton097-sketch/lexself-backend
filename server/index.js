@@ -47,6 +47,9 @@ app.get('/api/health', (req, res) => res.json({
 // Family app at /family or on its own subdomain
 app.use('/family', express.static(path.join(__dirname, '../public-family')));
 app.get('/family/*', (req, res) => res.sendFile(path.join(__dirname, '../public-family/index.html')));
+app.get('/criminal-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/app.html')));
+app.get('/criminal-defence', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/criminal.html')));
+app.get('/family-law', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/family.html')));
 
 // Criminal app at root or /criminal
 app.use(express.static(path.join(__dirname, '../public-criminal')));
