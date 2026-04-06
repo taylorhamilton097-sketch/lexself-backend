@@ -29,7 +29,7 @@ app.use('/api/billing',        require('./routes/billing'));
 app.use('/api/family/chat',    require('./routes/family-chat'));
 
 // Criminal routes (reuse from existing criminal build or add here)
-// app.use('/api/chat',        require('./routes/criminal-chat'));
+app.use('/api/chat',        require('./routes/criminal-chat'));
 // app.use('/api/analyze',     require('./routes/analyze'));
 
 // Admin
