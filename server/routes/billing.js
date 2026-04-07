@@ -3,7 +3,14 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { getUserById, updateUserPlan, updateStripeCustomer, addOneTimePurchase, STRIPE_PRICES } = require('../db');
+const { getUserById, updateUserPlan, updateStripeCustomer, addOneTimePurchase } = require('../db');
+
+const STRIPE_PRICES = {
+  essential:     () => process.env.STRIPE_PRICE_ESSENTIAL,
+  complete:      () => process.env.STRIPE_PRICE_COMPLETE,
+  counsel:       () => process.env.STRIPE_PRICE_COUNSEL,
+  analysis_pack: () => process.env.STRIPE_PRICE_ANALYSIS_PACK,
+};
 
 let stripe;
 const getStripe = () => {
@@ -15,21 +22,17 @@ const APP_URL = () => process.env.APP_URL || 'http://localhost:3000';
 
 // Plan metadata for checkout
 const PLAN_META = {
-  // Criminal
-  criminal_essential: { priceId: () => STRIPE_PRICES.criminal_essential, plan: 'essential', products: 'criminal', label: 'LexSelf Criminal Essential' },
-  criminal_complete:  { priceId: () => STRIPE_PRICES.criminal_complete,  plan: 'complete',  products: 'criminal', label: 'LexSelf Criminal Complete' },
-  // Family
-  family_essential:   { priceId: () => STRIPE_PRICES.family_essential,   plan: 'essential', products: 'family',   label: 'LexSelf Family Essential' },
-  family_complete:    { priceId: () => STRIPE_PRICES.family_complete,     plan: 'complete',  products: 'family',   label: 'LexSelf Family Complete' },
-  // Both
-  both_essential:     { priceId: () => STRIPE_PRICES.both_essential,     plan: 'essential', products: 'both',     label: 'LexSelf Complete (Both)' },
-  both_complete:      { priceId: () => STRIPE_PRICES.both_complete,      plan: 'complete',  products: 'both',     label: 'LexSelf Unlimited (Both)' },
+  essential:          { priceId: STRIPE_PRICES.essential,  plan: 'essential', products: 'both', label: 'ClearStand Essential' },
+  complete:           { priceId: STRIPE_PRICES.complete,   plan: 'complete',  products: 'both', label: 'ClearStand Complete' },
+  counsel:            { priceId: STRIPE_PRICES.counsel,    plan: 'counsel',   products: 'both', label: 'ClearStand Counsel' },
+  // Legacy keys for backward compatibility
+  essential_criminal: { priceId: STRIPE_PRICES.essential,  plan: 'essential', products: 'criminal', label: 'ClearStand Essential' },
+  essential_family:   { priceId: STRIPE_PRICES.essential,  plan: 'essential', products: 'family',   label: 'ClearStand Essential' },
 };
 
-// One-time analysis products
+// One-time analysis pack
 const ONE_TIME = {
-  criminal_analysis: { amount: 4900, label: 'LexSelf Criminal — Single Analysis', currency: 'cad' },
-  family_analysis:   { amount: 4900, label: 'LexSelf Family — Single Analysis',   currency: 'cad' },
+  analysis_pack: { priceId: STRIPE_PRICES.analysis_pack, label: 'ClearStand Analysis Pack — 3 Analyses', currency: 'cad' },
 };
 
 // POST /api/billing/checkout
@@ -57,20 +60,15 @@ router.post('/checkout', requireAuth, async (req, res) => {
     let session;
 
     if (ONE_TIME[planKey]) {
-      // One-time payment
+      // One-time payment using Stripe Price ID
       const ot = ONE_TIME[planKey];
+      const priceId = ot.priceId();
+      if (!priceId) return res.status(500).json({ error: `Stripe price ID not set for ${planKey}.` });
       session = await s.checkout.sessions.create({
         customer: customerId,
         mode: 'payment',
         payment_method_types: ['card'],
-        line_items: [{
-          price_data: {
-            currency: ot.currency,
-            unit_amount: ot.amount,
-            product_data: { name: ot.label, description: 'One complete five-pass disclosure analysis report' },
-          },
-          quantity: 1,
-        }],
+        line_items: [{ price: priceId, quantity: 1 }],
         success_url: successUrl,
         cancel_url:  cancelUrl,
         metadata: { userId: String(user.id), product: planKey },
