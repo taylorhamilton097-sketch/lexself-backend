@@ -793,8 +793,11 @@ async function api(method, path, body) {
 
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-  document.getElementById('panel-' + name)?.classList.add('on');
-  document.getElementById('modeLabel').textContent = { chat:'Ontario Family Law', profile:'My Profile' }[name] || name;
+  const panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('on');
+  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder' };
+  document.getElementById('modeLabel').textContent = labels[name] || name;
+  if (name === 'affidavit' && document.getElementById('affMsgs') && document.getElementById('affMsgs').innerHTML === '') { setTimeout(startAffidavit, 100); }
 }
 function bnA(name) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on')); document.getElementById('bn-'+name)?.classList.add('on'); }
 function sbA(btn) { document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
@@ -1730,13 +1733,7 @@ async function stopAffVoice() {
 }
 
 // Auto-start interview when panel opens
-const _origShowPanel = showPanel;
-function showPanel(name) {
-  _origShowPanel(name);
-  if (name === 'affidavit' && document.getElementById('affMsgs').innerHTML === '') {
-    startAffidavit();
-  }
-}
+// showPanel enhanced above
 
 (async function init() {
   showWelcome();
