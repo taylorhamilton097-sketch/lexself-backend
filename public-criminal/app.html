@@ -1554,8 +1554,10 @@ async function stopCxVoice() {
     try{
       const d=await api('GET','/api/auth/me');
       if(d.user){currentUser=d.user;usageState=d.usage;document.getElementById('authOv').style.display='none';renderUsage();loadStoredProfile();}
-      else{authToken=null;localStorage.removeItem('ls_tok');}
-    }catch(e){}
+      else{authToken=null;localStorage.removeItem('ls_tok');document.getElementById('authOv').style.display='flex';}
+    }catch(e){document.getElementById('authOv').style.display='flex';}
+  } else {
+    document.getElementById('authOv').style.display='flex';
   }
 })();
 </script>
