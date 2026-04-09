@@ -101,8 +101,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 /* ── PANELS ── */
 .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
 .panel.on { display: flex; }
-#panel-people { display: none; }
-#panel-people.on { display: block; overflow-y: auto; flex: 1; }
+
 .panel-pad { padding: 20px 16px; max-width: 700px; margin: 0 auto; width: 100%; overflow-y: auto; align-self: flex-start; }
 
 /* ── UPLOAD PANEL ── */
@@ -638,9 +637,9 @@ select.fi { cursor: pointer; }
 
   <!-- PEOPLE PANEL -->
   <div id="panel-people" class="panel">
-    <div style="padding:20px 16px;width:100%;max-width:700px;margin:0 auto">
-      <div class="ptitle">People in My Case</div>
-      <div class="psub">Add everyone involved — police, witnesses, victims, co-accused · Stored locally</div>
+    <div class="upload-wrap">
+      <div class="upload-title">People in My Case</div>
+      <div class="upload-sub">Add everyone involved — police, witnesses, victims, co-accused · Stored locally</div>
 
         <!-- Add Person Form -->
         <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
