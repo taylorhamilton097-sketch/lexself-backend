@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — ClearStand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0D1B2A;--navy-mid:#162233;--navy-light:#1E3045;
+  --blue:#2E86C1;--blue-light:#3EA4E4;--blue-dim:#1A4F73;
+  --white:#F4F6F8;--border:#2A3F56;--text:#E8EDF2;--text2:#8BA3BA;--text3:#4A6680;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;}
+
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--blue-light);}
+.nav-links{display:flex;gap:24px;list-style:none;}
+.nav-links a{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);text-decoration:none;}
+.nav-links a:hover{color:var(--text);}
+.nav-cta{padding:8px 16px;background:var(--blue);color:var(--white)!important;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;text-decoration:none;transition:background .15s;}
+.nav-cta:hover{background:var(--blue-light)!important;}
+
+main{max-width:1100px;margin:0 auto;padding:64px 24px;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.16em;color:var(--blue);display:block;margin-bottom:12px;text-align:center;}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:700;color:var(--white);text-align:center;margin-bottom:12px;}
+.sub{font-family:'Inter',sans-serif;font-size:1rem;color:var(--text2);text-align:center;margin-bottom:40px;}
+
+/* Toggle */
+.toggle-wrap{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px;}
+.toggle-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);}
+.toggle-label.on{color:var(--white);}
+.toggle{position:relative;width:48px;height:26px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--navy-border,#2A3F56);border:1px solid var(--border);transition:.3s;border-radius:13px;}
+.toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;top:3px;background:var(--text3);transition:.3s;border-radius:50%;}
+.toggle input:checked + .toggle-slider{background:var(--blue-dim);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(22px);background:var(--blue-light);}
+.save-badge{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;background:rgba(46,134,193,.15);color:var(--blue-light);border:1px solid var(--blue-dim);padding:3px 8px;}
+
+/* Grid */
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border);margin-bottom:16px;}
+.tier{background:var(--navy-mid);padding:36px 24px;display:flex;flex-direction:column;position:relative;}
+.tier.featured{background:var(--navy);}
+.tier-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 12px;white-space:nowrap;}
+.tier-name{font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;margin-bottom:16px;}
+.tier-name.free{color:var(--text3);}
+.tier-name.essential{color:var(--blue);}
+.tier-name.complete{color:var(--blue);}
+.tier-name.counsel{color:var(--blue-light);}
+.tier-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--white);margin-bottom:4px;}
+.tier-price sup{font-size:1rem;vertical-align:top;margin-top:8px;font-family:'Inter',sans-serif;font-weight:400;}
+.tier-period{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:8px;}
+.tier-annual-note{font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);margin-bottom:24px;min-height:16px;}
+.tier-features{flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
+.tf{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);display:flex;align-items:flex-start;gap:6px;line-height:1.4;}
+.tf::before{content:'→';color:var(--blue);flex-shrink:0;font-size:.75rem;margin-top:1px;}
+.tf.dim::before{color:var(--text3);}
+.tf.dim{color:var(--text3);}
+.tf-section{font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-top:8px;margin-bottom:2px;}
+.tier-cta{padding:13px;background:var(--navy-light);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;text-align:center;text-decoration:none;display:block;transition:all .15s;}
+.tier-cta:hover{border-color:var(--blue);color:var(--text);}
+.tier-cta.primary{background:var(--blue);color:var(--white);border-color:var(--blue);}
+.tier-cta.primary:hover{background:var(--blue-light);}
+
+/* One-time pack */
+.pack{background:var(--navy-mid);border:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:48px;}
+.pack-left{}
+.pack-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);margin-bottom:6px;}
+.pack-price{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--white);margin-bottom:4px;}
+.pack-desc{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);}
+.pack-cta{padding:12px 24px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;white-space:nowrap;transition:all .15s;}
+.pack-cta:hover{border-color:var(--blue);color:var(--text);}
+
+/* FAQ */
+.faq{max-width:680px;margin:0 auto 64px;}
+.faq h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:32px;text-align:center;}
+.faq-item{border-bottom:1px solid var(--border);padding:16px 0;}
+.faq-q{font-family:'Inter',sans-serif;font-size:.95rem;font-weight:500;color:var(--white);margin-bottom:8px;}
+.faq-a{font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);line-height:1.65;}
+
+/* Disclaimer */
+.disclaimer{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding-bottom:48px;}
+
+footer{background:var(--navy-mid);border-top:1px solid var(--border);padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
+footer a{color:var(--text3);text-decoration:none;}
+footer a:hover{color:var(--text2);}
+
+@media(max-width:768px){
+  .pricing-grid{grid-template-columns:1fr;}
+  .tier{padding:28px 20px;}
+  .pack{flex-direction:column;align-items:flex-start;}
+  nav .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+  <ul class="nav-links">
+    <li><a href="/criminal-defence">Criminal Defence</a></li>
+    <li><a href="/family-law">Family Law</a></li>
+    <li><a href="/get-started" class="nav-cta">Get Started Free</a></li>
+  </ul>
+</nav>
+
+<main>
+  <span class="eyebrow">Pricing</span>
+  <h1>Start free. Upgrade when you're ready.</h1>
+  <p class="sub">No credit card required to start. Cancel any time. All prices in CAD.</p>
+
+  <!-- Annual toggle -->
+  <div class="toggle-wrap">
+    <span class="toggle-label on" id="lbl-monthly">Monthly</span>
+    <label class="toggle">
+      <input type="checkbox" id="annualToggle" onchange="toggleAnnual()">
+      <span class="toggle-slider"></span>
+    </label>
+    <span class="toggle-label" id="lbl-annual">Annual</span>
+    <span class="save-badge" id="save-badge" style="display:none">Save up to $510/year</span>
+  </div>
+
+  <!-- Pricing grid -->
+  <div class="pricing-grid">
+
+    <!-- Free -->
+    <div class="tier">
+      <div class="tier-name free">Free</div>
+      <div class="tier-price"><sup>$</sup>0</div>
+      <div class="tier-period">Forever free</div>
+      <div class="tier-annual-note"></div>
+      <div class="tier-features">
+        <div class="tf">1 disclosure analysis</div>
+        <div class="tf">10 chat messages</div>
+        <div class="tf">All charge modules</div>
+        <div class="tf">PDF export</div>
+        <div class="tf">No credit card required</div>
+      </div>
+      <a href="/get-started" class="tier-cta">Get Started</a>
+    </div>
+
+    <!-- Essential -->
+    <div class="tier">
+      <div class="tier-name essential">Essential</div>
+      <div class="tier-price"><sup>$</sup><span class="price-val" data-monthly="29" data-annual="21">29</span></div>
+      <div class="tier-period" id="period-essential">per month, CAD</div>
+      <div class="tier-annual-note" id="annual-essential"></div>
+      <div class="tier-features">
+        <div class="tf">3 analyses per month</div>
+        <div class="tf">50 chats per day</div>
+        <div class="tf">All charge modules</div>
+        <div class="tf">Full 5-pass reports</div>
+        <div class="tf">PDF export</div>
+        <div class="tf dim">Premium features not included</div>
+      </div>
+      <a href="/register?next=criminal" class="tier-cta">Start Essential</a>
+    </div>
+
+    <!-- Complete -->
+    <div class="tier featured" style="border:2px solid var(--blue)">
+      <div class="tier-badge">Most Popular</div>
+      <div class="tier-name complete">Complete</div>
+      <div class="tier-price"><sup>$</sup><span class="price-val" data-monthly="79" data-annual="58">79</span></div>
+      <div class="tier-period" id="period-complete">per month, CAD</div>
+      <div class="tier-annual-note" id="annual-complete"></div>
+      <div class="tier-features">
+        <div class="tf">5 analyses per month</div>
+        <div class="tf">100 chats per day</div>
+        <div class="tf">Criminal &amp; Family Law</div>
+        <div class="tf">Full 5-pass reports</div>
+        <div class="tf">PDF export</div>
+        <div class="tf dim">Premium features not included</div>
+      </div>
+      <a href="/register?next=criminal" class="tier-cta primary">Start Complete</a>
+    </div>
+
+    <!-- Counsel -->
+    <div class="tier" style="background:var(--navy)">
+      <div class="tier-name counsel">Counsel</div>
+      <div class="tier-price"><sup>$</sup><span class="price-val" data-monthly="159" data-annual="116">159</span></div>
+      <div class="tier-period" id="period-counsel">per month, CAD</div>
+      <div class="tier-annual-note" id="annual-counsel"></div>
+      <div class="tier-features">
+        <div class="tf">Unlimited analyses</div>
+        <div class="tf">Unlimited chat</div>
+        <div class="tf">Criminal &amp; Family Law</div>
+        <div class="tf-section">Premium Counsel Features</div>
+        <div class="tf">🎙 Voice dictation + language cleanup</div>
+        <div class="tf">📋 Affidavit interview builder</div>
+        <div class="tf">⚖️ Cross-examination prep builder</div>
+        <div class="tf">📁 Defence organization tool</div>
+      </div>
+      <a href="/register?next=criminal" class="tier-cta primary" style="background:var(--blue-light);border-color:var(--blue-light)">Start Counsel</a>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);text-align:center;margin-top:10px">The closest thing to having counsel in your corner.</div>
+    </div>
+
+  </div>
+
+  <!-- Analysis Pack -->
+  <div class="pack">
+    <div class="pack-left">
+      <div class="pack-label">Analysis Pack — One Time Purchase</div>
+      <div class="pack-price">$29 <span style="font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text3);font-weight:400">one-time</span></div>
+      <div class="pack-desc">3 document analyses. No subscription required. Perfect for a single matter.</div>
+    </div>
+    <a href="/register?next=criminal" class="pack-cta">Buy Analysis Pack</a>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <h2>Common Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">Is ClearStand legal advice?</div>
+      <div class="faq-a">No. ClearStand is a legal preparation tool that helps you understand your situation, organize your case, and prepare documents. It is not a substitute for advice from a licensed lawyer. For serious matters, we always recommend consulting duty counsel or Legal Aid Ontario (1-800-668-8258).</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Which provinces does ClearStand cover?</div>
+      <div class="faq-a">ClearStand Criminal Defence covers all of Canada under the Criminal Code. ClearStand Family Law is currently optimized for Ontario proceedings, including all Ontario family court forms and the Family Law Rules.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I cancel my subscription anytime?</div>
+      <div class="faq-a">Yes. You can cancel at any time through your account settings. Your access continues until the end of the billing period.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is the 5-pass Crown disclosure analysis?</div>
+      <div class="faq-a">When you upload your Crown disclosure package, ClearStand runs five separate AI analyses: narrative inconsistencies, Charter rights violations, witness credibility issues, missing disclosure items, and an overall defence strategy. The full report is exportable as a PDF.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What are the Counsel-only features?</div>
+      <div class="faq-a">Counsel includes four premium tools not available on other plans: voice dictation with AI language cleanup, the affidavit interview builder (which converts your spoken answers into court-ready numbered paragraphs with integrated case law), the cross-examination prep builder, and the defence organization tool.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my data secure?</div>
+      <div class="faq-a">Documents you upload are processed in memory only and are not stored on our servers. Your case profile is stored locally in your browser. We do not sell your data.</div>
+    </div>
+  </div>
+
+  <div class="disclaimer">ClearStand is a legal preparation tool, not a substitute for legal advice. · Not affiliated with any law society or government body.</div>
+</main>
+
+<footer>
+  <a href="/">ClearStand</a> · <a href="/criminal-defence">Criminal Defence</a> · <a href="/family-law">Family Law</a> · <a href="/get-started">Get Started</a>
+</footer>
+
+<script>
+let isAnnual = false;
+
+function toggleAnnual() {
+  isAnnual = document.getElementById('annualToggle').checked;
+  document.getElementById('lbl-monthly').classList.toggle('on', !isAnnual);
+  document.getElementById('lbl-annual').classList.toggle('on', isAnnual);
+  document.getElementById('save-badge').style.display = isAnnual ? 'inline' : 'none';
+
+  document.querySelectorAll('.price-val').forEach(el => {
+    el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+  });
+
+  const tiers = ['essential', 'complete', 'counsel'];
+  const annual = { essential: 249, complete: 699, counsel: 1399 };
+  const monthly = { essential: 29, complete: 79, counsel: 159 };
+
+  tiers.forEach(t => {
+    const periodEl = document.getElementById('period-' + t);
+    const annualEl = document.getElementById('annual-' + t);
+    if (isAnnual) {
+      periodEl.textContent = 'per month, billed annually';
+      annualEl.textContent = '$' + annual[t] + '/year — save $' + ((monthly[t] * 12) - annual[t]) + '/year';
+    } else {
+      periodEl.textContent = 'per month, CAD';
+      annualEl.textContent = '';
+    }
+  });
+}
+</script>
+</body>
+</html>
