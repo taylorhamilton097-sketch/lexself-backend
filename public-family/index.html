@@ -1181,7 +1181,7 @@ function closeDrawer() {
 function loadForm(key) {
   showPanel('chat'); bnA('chat');
   currentForm = key;
-  document.getElementById('ctxName').textContent = FORM_NAMES[key] || key;
+  const cn=document.getElementById('ctxName')||document.getElementById('ctxPill'); if(cn) cn.textContent = FORM_NAMES[key] || key;
   clearChat(false);
   qs(`I need help with ${FORM_NAMES[key]}. Please guide me through what this form requires, what information is needed, common mistakes to avoid, and relevant caselaw for my situation. Use my profile where applicable.`);
 }
@@ -1451,7 +1451,7 @@ async function stopVoice(){
   document.getElementById('vBtn').textContent='Cleaning…';
   inp.disabled=true;
   try {
-    const resp=await fetch('/dictation/clean',{
+    const resp=await fetch('/api/dictation/clean',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')},
       body:JSON.stringify({text:raw})
@@ -1703,7 +1703,7 @@ async function startDocAnalysis() {
   const profile = caseProfile;
 
   try {
-    const resp = await fetch('/family/analyze', {
+    const resp = await fetch('/api/family/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({ base64, role, issues, ctx, profile })
@@ -2191,7 +2191,7 @@ async function sendAffMessage(userAnswer, isFirst = false, firstMsg = null) {
       ? [{ role: 'user', content: firstMsg || 'Start the affidavit interview. Ask me what type of affidavit I need.' }]
       : affHistory;
 
-    const resp = await fetch('/family/chat', {
+    const resp = await fetch('/api/family/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({
@@ -2301,7 +2301,7 @@ async function stopAffVoice() {
   document.getElementById('affVBtn').textContent = 'Cleaning…';
   inp.disabled = true;
   try {
-    const resp = await fetch('/dictation/clean', {
+    const resp = await fetch('/api/dictation/clean', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({ text: raw })
