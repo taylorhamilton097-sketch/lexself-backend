@@ -101,8 +101,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 /* ── PANELS ── */
 .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
 .panel.on { display: flex; }
-#panel-people { overflow-y: auto !important; display: block !important; }
-#panel-people.on { display: block !important; overflow-y: auto; }
+#panel-people.on { overflow-y: auto; }
 .panel-pad { padding: 20px 16px; max-width: 700px; margin: 0 auto; width: 100%; overflow-y: auto; align-self: flex-start; }
 
 /* ── UPLOAD PANEL ── */
@@ -636,10 +635,9 @@ select.fi { cursor: pointer; }
 
 </div>
 
-
   <!-- PEOPLE PANEL -->
   <div id="panel-people" class="panel">
-    <div style="overflow-y:auto;padding:20px 16px;max-width:700px;width:100%;margin:0 auto">
+    <div style="padding:20px 16px;width:100%;max-width:700px;margin:0 auto">
       <div class="ptitle">People in My Case</div>
       <div class="psub">Add everyone involved — police, witnesses, victims, co-accused · Stored locally</div>
 
@@ -691,8 +689,7 @@ select.fi { cursor: pointer; }
     </div>
   </div>
 
-
-  <!-- DEFENCE ORGANIZATION PANEL -->
+    <!-- DEFENCE ORGANIZATION PANEL -->
   <div id="panel-defence-org" class="panel">
     <div style="display:flex;flex:1;overflow:hidden">
       <!-- Tabs -->
