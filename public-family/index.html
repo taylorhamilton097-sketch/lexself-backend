@@ -1763,7 +1763,7 @@ function sendAnalToAffidavit() {
     const violations = (analResults.violations || []).map(v => v.rule + ' — ' + v.title).join(', ');
     const counters = (analResults.counterArguments || []).slice(0,3).map(c => c.theirPoint).join('; ');
     const affPoints = (analResults.affidavitPoints || []).join(' | ');
-    const contextMsg = 'Start the affidavit interview. I have already analyzed the other side's documents. Here is what was found: Violations: ' + (violations || 'none identified') + '. Key issues to address: ' + (counters || 'none') + '. Suggested affidavit points: ' + (affPoints || 'none') + '. Please use this analysis to guide the interview and build a responding affidavit that addresses these specific issues.';
+    const contextMsg = 'Start the affidavit interview. I have already analyzed the other side\'s documents. Here is what was found: Violations: ' + (violations || 'none identified') + '. Key issues to address: ' + (counters || 'none') + '. Suggested affidavit points: ' + (affPoints || 'none') + '. Please use this analysis to guide the interview and build a responding affidavit that addresses these specific issues.';
     setTimeout(() => sendAffMessage(null, true, contextMsg), 300);
     toast('Analysis loaded — starting targeted affidavit interview');
   }
