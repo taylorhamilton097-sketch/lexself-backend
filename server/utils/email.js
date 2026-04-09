@@ -2,41 +2,25 @@
 
 async function sendWelcomeEmail(user) {
   const { email, name } = user;
+  const apiKey = process.env.RESEND_API_KEY;
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpFrom = process.env.SMTP_FROM || 'ClearStand <hello@clearstand.ca>';
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
-
-  console.log(`[Email] Attempting to send welcome email to ${email}`);
-  console.log(`[Email] SMTP_HOST: ${smtpHost || 'NOT SET'}`);
-  console.log(`[Email] SMTP_USER: ${smtpUser || 'NOT SET'}`);
-  console.log(`[Email] SMTP_PASS: ${smtpPass ? 'SET (' + smtpPass.length + ' chars)' : 'NOT SET'}`);
-  console.log(`[Email] SMTP_PORT: ${smtpPort}`);
-
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.log('[Email] SMTP not configured — skipping');
+  if (!apiKey) {
+    console.log('[Email] RESEND_API_KEY not set — skipping');
     return;
   }
 
   try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: false,
-      auth: { user: smtpUser, pass: smtpPass },
-    });
-
-    await transporter.verify();
-    console.log('[Email] SMTP connection verified successfully');
-
-    await transporter.sendMail({
-      from: smtpFrom,
-      to: email,
-      subject: 'Welcome to ClearStand — Your account is ready',
-      text: `Hi ${name},
+    const resp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'ClearStand <hello@clearstand.ca>',
+        to: email,
+        subject: 'Welcome to ClearStand — Your account is ready',
+        text: `Hi ${name},
 
 Your ClearStand account is ready.
 
@@ -60,13 +44,17 @@ For serious matters contact Legal Aid Ontario: 1-800-668-8258
 
 Your rights. Your case. Your ground.
 ClearStand — clearstand.ca`,
+      }),
     });
 
-    console.log(`[Email] Welcome email sent successfully to ${email}`);
+    const data = await resp.json();
+    if (resp.ok) {
+      console.log(`[Email] Welcome email sent to ${email} — ID: ${data.id}`);
+    } else {
+      console.error(`[Email] Resend error: ${JSON.stringify(data)}`);
+    }
   } catch(err) {
-    console.error(`[Email] Failed to send to ${email}: ${err.message}`);
-    console.error(`[Email] Error code: ${err.code}`);
-    console.error(`[Email] Response: ${err.response}`);
+    console.error(`[Email] Failed: ${err.message}`);
   }
 }
 
