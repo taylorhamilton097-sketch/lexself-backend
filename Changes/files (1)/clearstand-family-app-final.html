@@ -384,6 +384,14 @@ select.fi { cursor: pointer; }
 .acct-link:hover { color:var(--text); }
 .acct-link.danger { color:#E87070; }
 
+/* ── COURT FORMS ── */
+.form-card { background:var(--navy-light);border:1px solid var(--border);padding:14px 16px;cursor:pointer;transition:all .15s;user-select:none; }
+.form-card:hover { border-color:var(--blue);background:var(--navy-mid); }
+.form-card:active { background:var(--navy); }
+.form-card-num { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:4px; }
+.form-card-name { font-family:'Inter',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:3px; }
+.form-card-desc { font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3); }
+
 /* ── AFFIDAVIT PANEL ── */
 .affidavit-wrap { flex: 1; display: flex; overflow: hidden; }
 .aff-interview { width: 50%; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
@@ -485,6 +493,10 @@ select.fi { cursor: pointer; }
     <div class="sb-sec">
       <div class="sb-hdr">Case Directory</div>
       <button class="sbt" onclick="showPanel('people');bnA('people');sbA(this)"><span class="lbl">People in My Case<span class="tag">Parties · Witnesses · Children</span></span></button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">Court Forms</div>
+      <button class="sbt" onclick="showPanel('forms');bnA('forms');sbA(this)"><span class="lbl">Ontario Court Forms<span class="tag">Auto-Fill · Download · Court-Ready</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
@@ -658,6 +670,118 @@ select.fi { cursor: pointer; }
 
       <!-- People List -->
       <div id="fp_list"></div>
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
+  <!-- ONTARIO COURT FORMS PANEL -->
+  <div id="panel-forms" class="panel">
+    <div class="panel-pad">
+      <div class="ptitle">Ontario Court Forms</div>
+      <div class="psub">Auto-filled from your profile and People in My Case · Download as Word document</div>
+
+      <!-- Profile warning if no data -->
+      <div id="forms-warn" style="display:none;background:rgba(244,162,97,.12);border:1px solid rgba(244,162,97,.3);padding:12px 14px;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:.88rem;color:#F4A261">
+        ⚠ Complete your Case Profile and add People in My Case first for best results. Forms will still generate but may have empty fields.
+      </div>
+
+      <!-- Extra fields form -->
+      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:24px">
+        <div class="pr-sec-t" style="margin-top:0">Additional Information</div>
+        <div class="psub" style="margin-bottom:12px">These fields supplement your profile data</div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Court Name</label><input class="fi" type="text" id="form_court_name" placeholder="e.g. Ontario Court of Justice" style="font-size:16px"></div>
+          <div class="fg"><label class="fl">Court Office Address</label><input class="fi" type="text" id="form_court_addr" placeholder="Court office address" style="font-size:16px"></div>
+        </div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Motion / Hearing Date</label><input class="fi" type="date" id="form_motion_date"></div>
+          <div class="fg"><label class="fl">Place of Hearing</label><input class="fi" type="text" id="form_place_hearing" placeholder="Courtroom or location" style="font-size:16px"></div>
+        </div>
+        <div class="fg"><label class="fl">Judge's Name <span style="color:var(--text3)">(if known)</span></label><input class="fi" type="text" id="form_judge" placeholder="Justice ..." style="font-size:16px"></div>
+        <div class="fg"><label class="fl">Applicant's Lawyer <span style="color:var(--text3)">(if any)</span></label><input class="fi" type="text" id="form_app_lawyer" placeholder="Name, address, phone, email" style="font-size:16px;resize:vertical"></div>
+        <div class="fg"><label class="fl">Respondent's Lawyer <span style="color:var(--text3)">(if any)</span></label><input class="fi" type="text" id="form_resp_lawyer" placeholder="Name, address, phone, email" style="font-size:16px;resize:vertical"></div>
+      </div>
+
+      <!-- Form selector grid -->
+      <div class="pr-sec-t">Select a Form to Generate</div>
+      <div id="forms-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px">
+
+        <div class="form-card" onclick="generateForm('8')">
+          <div class="form-card-num">Form 8</div>
+          <div class="form-card-name">Application (General)</div>
+          <div class="form-card-desc">Start a family court case</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('10')">
+          <div class="form-card-num">Form 10</div>
+          <div class="form-card-name">Answer</div>
+          <div class="form-card-desc">Respond to an Application</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('14')">
+          <div class="form-card-num">Form 14</div>
+          <div class="form-card-name">Notice of Motion</div>
+          <div class="form-card-desc">Bring a motion before the court</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('14a')">
+          <div class="form-card-num">Form 14A</div>
+          <div class="form-card-name">Affidavit (General)</div>
+          <div class="form-card-desc">Sworn statement in support of motion</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('14c')">
+          <div class="form-card-num">Form 14C</div>
+          <div class="form-card-name">Confirmation</div>
+          <div class="form-card-desc">Confirm motion is proceeding</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('25')">
+          <div class="form-card-num">Form 25</div>
+          <div class="form-card-name">Draft Order</div>
+          <div class="form-card-desc">Proposed court order</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('35_1')">
+          <div class="form-card-num">Form 35.1</div>
+          <div class="form-card-name">Parenting Affidavit</div>
+          <div class="form-card-desc">Decision-making & parenting time</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('6b')">
+          <div class="form-card-num">Form 6B</div>
+          <div class="form-card-name">Affidavit of Service</div>
+          <div class="form-card-desc">Proof of service of documents</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('13')">
+          <div class="form-card-num">Form 13</div>
+          <div class="form-card-name">Financial Statement</div>
+          <div class="form-card-desc">Income & expenses (Support)</div>
+        </div>
+
+        <div class="form-card" onclick="generateForm('13b')">
+          <div class="form-card-num">Form 13B</div>
+          <div class="form-card-name">Net Family Property</div>
+          <div class="form-card-desc">Property division statement</div>
+        </div>
+
+      </div>
+
+      <!-- Page limit override -->
+      <div style="background:var(--navy-light);border:1px solid var(--border);padding:14px 16px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <input type="checkbox" id="form_override_pages" style="width:16px;height:16px;cursor:pointer">
+          <label for="form_override_pages" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);cursor:pointer">Override default page limit</label>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3)">Ontario court forms have default page limits but courts accept longer documents when the matter requires it. Check this box to allow additional pages.</div>
+      </div>
+
+      <!-- Status -->
+      <div id="forms-status" style="display:none;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light)">
+        Generating form...
+      </div>
+
       <div style="height:40px"></div>
     </div>
   </div>
@@ -1035,7 +1159,7 @@ function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   const panel = document.getElementById('panel-' + name);
   if (panel) panel.classList.add('on');
-  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case' };
+  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms' };
   if (name === 'people') setTimeout(renderFamilyPeople, 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
   if (name === 'affidavit' && document.getElementById('affMsgs') && document.getElementById('affMsgs').innerHTML === '') { setTimeout(startAffidavit, 100); }
@@ -1779,6 +1903,69 @@ function sendAnalToAffidavit() {
     const contextMsg = 'Start the affidavit interview. I have already analyzed the other side\'s documents. Here is what was found: Violations: ' + (violations || 'none identified') + '. Key issues to address: ' + (counters || 'none') + '. Suggested affidavit points: ' + (affPoints || 'none') + '. Please use this analysis to guide the interview and build a responding affidavit that addresses these specific issues.';
     setTimeout(() => sendAffMessage(null, true, contextMsg), 300);
     toast('Analysis loaded — starting targeted affidavit interview');
+  }
+}
+
+// ═══════════════════════════════════════════
+// ONTARIO COURT FORMS ENGINE
+// ═══════════════════════════════════════════
+async function generateForm(formKey) {
+  if (!currentUser) { openAuthOrLogin(); return; }
+
+  const status = document.getElementById('forms-status');
+  status.style.display = 'block';
+  status.textContent = 'Generating form — please wait...';
+
+  // Build extra data from the additional fields
+  const extraData = {
+    court_name:            document.getElementById('form_court_name')?.value || '',
+    court_office_address:  document.getElementById('form_court_addr')?.value || '',
+    motion_date:           document.getElementById('form_motion_date')?.value || '',
+    place_of_hearing:      document.getElementById('form_place_hearing')?.value || '',
+    judge_name:            document.getElementById('form_judge')?.value || '',
+    applicant_lawyer:      document.getElementById('form_app_lawyer')?.value || '',
+    applicant_lawyer_name: document.getElementById('form_app_lawyer')?.value || '',
+    respondent_lawyer:     document.getElementById('form_resp_lawyer')?.value || '',
+    respondent_lawyer_name:document.getElementById('form_resp_lawyer')?.value || '',
+  };
+
+  try {
+    const resp = await fetch('/api/forms/fill', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (authToken || ''),
+      },
+      body: JSON.stringify({
+        formKey,
+        profile: caseProfile || {},
+        people: familyPeople || [],
+        extraData,
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || 'Form generation failed');
+    }
+
+    // Download the file
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ClearStand_Form_${formKey}_${new Date().toISOString().slice(0,10)}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    status.textContent = '✓ Form downloaded successfully';
+    setTimeout(() => status.style.display = 'none', 3000);
+
+  } catch(err) {
+    status.textContent = '✗ Error: ' + err.message;
+    console.error('Form error:', err);
   }
 }
 
