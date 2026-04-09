@@ -858,7 +858,13 @@ select.fi { cursor: pointer; }
           <div class="aff-hdr-title">Affidavit Interview Builder</div>
           <div class="aff-hdr-sub">AI-guided · Case law integrated · Voice supported</div>
         </div>
-        <div class="aff-msgs" id="affMsgs"></div>
+        <div class="aff-msgs" id="affMsgs">
+          <div id="aff-start-prompt" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:24px">
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);text-align:center">Affidavit Interview Builder</div>
+            <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);text-align:center;max-width:320px">ClearStand will ask you questions one at a time and build your affidavit draft as you answer.</div>
+            <button onclick="beginAffidavit()" style="padding:12px 28px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:500">Begin Interview →</button>
+          </div>
+        </div>
         <div class="aff-input-bar">
           <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()">🎙 Voice</button>
           <textarea id="aff-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
@@ -1162,7 +1168,7 @@ function showPanel(name) {
   const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms' };
   if (name === 'people') setTimeout(renderFamilyPeople, 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
-  if (name === 'affidavit' && document.getElementById('affMsgs') && document.getElementById('affMsgs').innerHTML === '') { setTimeout(startAffidavit, 100); }
+  // Affidavit interview started manually via Begin button
 }
 function bnA(name) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on')); document.getElementById('bn-'+name)?.classList.add('on'); }
 function sbA(btn) { document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
@@ -2126,11 +2132,19 @@ FORMAT YOUR RESPONSES AS JSON:
 
 When the affidavit is complete set complete to true. The draft should be a complete, court-ready document with proper case law woven throughout.`;
 
+function beginAffidavit() {
+  document.getElementById('aff-start-prompt')?.remove();
+  startAffidavit();
+}
+
 async function startAffidavit() {
   affHistory = [];
   affDraft = [];
   affQuestionNum = 0;
-  document.getElementById('affMsgs').innerHTML = '';
+  const msgs = document.getElementById('affMsgs');
+  // Clear everything except start prompt (which may already be gone)
+  msgs.querySelectorAll('.aff-msg').forEach(el => el.remove());
+  document.getElementById('aff-start-prompt')?.remove();
   document.getElementById('affDoc').innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
   document.getElementById('affProgress').textContent = '';
   
