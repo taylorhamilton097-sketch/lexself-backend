@@ -997,7 +997,7 @@ const API = '/api';
 let authToken = localStorage.getItem('ls_tok');
 let currentUser = null, usageState = null, chatHist = [], chatBusy = false;
 let caseProfile = {}, currentForm = 'general', voiceRec = null, isRecording = false;
-const apiKey = process?.env?.ANTHROPIC_API_KEY || '';
+const apiKey = ''; // API key handled server-side
 
 const FORM_NAMES = {
   form8:'Form 8 — Application (General)',form8a:'Form 8A — Application (Divorce)',
