@@ -99,7 +99,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .dw-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); display: block; margin-top: 1px; }
 
 /* ── PANELS ── */
-.panel { display: none; flex: 1; overflow-y: auto; }
+.panel { display: none; flex: 1; overflow-y: auto; } /* v2 */
 .panel.on { display: flex; flex-direction: column; }
 #panel-report.on, #panel-crossex.on, #panel-defence-org.on { overflow: hidden; }
 
@@ -634,11 +634,9 @@ select.fi { cursor: pointer; }
     </div>
   </div>
 
-</div>
-
   <!-- PEOPLE PANEL -->
-  <div id="panel-people" class="panel" style="justify-content:flex-start;align-items:stretch;overflow-y:auto">
-    <div style="padding:24px 16px;max-width:680px;width:100%;margin:0 auto">
+  <div id="panel-people" class="panel">
+    <div class="upload-wrap">
       <div class="upload-title">People in My Case</div>
       <div class="upload-sub">Add everyone involved — police, witnesses, victims, co-accused · Stored locally</div>
 
