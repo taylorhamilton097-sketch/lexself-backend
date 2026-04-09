@@ -573,46 +573,35 @@ select.fi { cursor: pointer; }
 
   <!-- CROSS-EXAMINATION PANEL -->
   <div id="panel-crossex" class="panel">
-    <div style="display:flex;flex:1;overflow:hidden">
-      <!-- Left: Interview -->
-      <div style="width:50%;display:flex;flex-direction:column;border-right:1px solid var(--border)">
-        <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:8px">Cross-Examination Builder</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <select id="cxWitnessType" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;outline:none;min-width:140px">
-              <option value="">Select witness type…</option>
-              <option value="complainant">Complainant</option>
-              <option value="officer">Police Officer</option>
-              <option value="civilian">Civilian Witness</option>
-              <option value="expert">Expert Witness</option>
-            </select>
-            <button onclick="document.getElementById('cxDocFile').click()" style="padding:6px 12px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
-            <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
-          </div>
-          <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
+    <div style="display:flex;flex:1;flex-direction:column;overflow:hidden">
+      <!-- Header -->
+      <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:8px">Cross-Examination Builder</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <select id="cxWitnessType" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;outline:none;min-width:140px">
+            <option value="">Select witness type…</option>
+            <option value="complainant">Complainant</option>
+            <option value="officer">Police Officer</option>
+            <option value="civilian">Civilian Witness</option>
+            <option value="expert">Expert Witness</option>
+          </select>
+          <button onclick="document.getElementById('cxDocFile').click()" style="padding:6px 12px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
+          <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
+          <button onclick="openCxOutline()" style="padding:6px 12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxViewBtn">View Outline ↗</button>
         </div>
-        <div id="cxMsgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
-        <div style="padding:10px 12px;background:var(--navy-mid);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
-          <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s">🎙 Voice</button>
-          <textarea id="cx-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="cxAr(this)" onkeydown="cxHk(event)" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:42px;max-height:120px;outline:none;transition:border-color .15s"></textarea>
-          <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
-        </div>
+        <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
       </div>
-      <!-- Right: Cross-Ex Outline -->
-      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:2px">Cross-Examination Outline</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Builds as you answer · Export when ready</div>
-        </div>
-        <div id="cxDoc" style="flex:1;overflow-y:auto;padding:16px;font-family:'Inter',sans-serif;font-size:.88rem;line-height:1.75;color:var(--text)">
-          <div id="cxDocEmpty" style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:32px">Your cross-examination outline will appear here</div>
-        </div>
-        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--navy-mid)">
-          <button onclick="exportCxPdf()" style="padding:8px 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em">Export PDF</button>
-          <button onclick="copyCxOutline()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em">Copy</button>
-          <button onclick="resetCx()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em">Start Over</button>
-        </div>
+      <!-- Full width interview -->
+      <div id="cxMsgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
+      <!-- Hidden doc storage -->
+      <div id="cxDoc" style="display:none"></div>
+      <!-- Input bar -->
+      <div style="padding:10px 12px;background:var(--navy-mid);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
+        <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s">🎙 Voice</button>
+        <textarea id="cx-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="cxAr(this)" onkeydown="cxHk(event)" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:42px;max-height:120px;outline:none;transition:border-color .15s"></textarea>
+        <button onclick="resetCx()" style="padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Restart</button>
+        <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
       </div>
     </div>
   </div>
@@ -1542,12 +1531,10 @@ function showCxAnswer(a) {
 
 function updateCxDoc(outline) {
   if (!outline) return;
-  const doc = document.getElementById('cxDoc');
-  doc.innerHTML = '';
-  const pre = document.createElement('div');
-  pre.style.cssText = 'font-family:Inter,sans-serif;font-size:.88rem;line-height:1.75;color:var(--text);white-space:pre-wrap';
-  pre.textContent = outline;
-  doc.appendChild(pre);
+  window._cxOutline = outline;
+  // Show subtle indicator that outline is ready
+  document.getElementById('cxViewBtn').textContent = 'View Outline ↗ ●';
+  document.getElementById('cxViewBtn').style.background = 'var(--blue-light)';
 }
 
 async function sendCxMessage(userAnswer, isFirst = false, firstMsg = null) {
@@ -1667,22 +1654,50 @@ function cxAr(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scro
 
 function resetCx() {
   if (!confirm('Start the cross-examination builder over?')) return;
+  window._cxOutline = '';
+  document.getElementById('cxViewBtn').textContent = 'View Outline ↗';
+  document.getElementById('cxViewBtn').style.background = 'var(--blue)';
   startCrossEx();
 }
 
 function copyCxOutline() {
-  const doc = document.getElementById('cxDoc');
-  if (doc.querySelector('#cxDocEmpty')) { toast('No outline yet'); return; }
-  navigator.clipboard.writeText(doc.textContent);
+  if (!window._cxOutline) { toast('No outline yet'); return; }
+  navigator.clipboard.writeText(window._cxOutline);
   toast('Cross-examination outline copied');
 }
 
 function exportCxPdf() {
-  const doc = document.getElementById('cxDoc');
-  if (doc.querySelector('#cxDocEmpty')) { toast('No outline yet'); return; }
-  openPdfSheet();
-  document.getElementById('pdf_content').value = doc.textContent;
-  document.getElementById('pdf_title').value = 'Cross-Examination Outline';
+  openCxOutline();
+}
+
+function openCxOutline() {
+  const outline = window._cxOutline || '';
+  if (!outline.trim()) { toast('No outline yet — complete the interview first'); return; }
+  const witnessType = document.getElementById('cxWitnessType')?.value || 'Witness';
+  const win = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+  win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Cross-Examination Outline — ClearStand</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 800px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.75; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .meta { font-family: monospace; font-size: .75rem; color: #666; margin-bottom: 32px; text-transform: uppercase; letter-spacing: .1em; }
+  pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: .95rem; line-height: 1.8; }
+  .disclaimer { margin-top: 40px; padding: 12px 16px; border: 1px solid #ddd; font-family: monospace; font-size: .7rem; color: #888; text-transform: uppercase; letter-spacing: .08em; }
+  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #2E86C1; color: white; border: none; cursor: pointer; font-family: monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; }
+  @media print { .print-btn { display: none; } }
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+<h1>Cross-Examination Outline</h1>
+<div class="meta">ClearStand Criminal Defence · ${witnessType} · Generated ${new Date().toLocaleDateString('en-CA')}</div>
+<pre>${outline.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+<div class="disclaimer">DRAFT — AI-ASSISTED DOCUMENT. REVIEW CAREFULLY BEFORE USE IN COURT. NOT LEGAL ADVICE. CLEARSTAND.CA</div>
+</body>
+</html>`);
+  win.document.close();
 }
 
 // Voice for cross-ex
