@@ -1,7 +1,5 @@
 'use strict';
 
-const nodemailer = require('nodemailer');
-
 async function sendWelcomeEmail(user) {
   const { email, name } = user;
 
@@ -9,24 +7,36 @@ async function sendWelcomeEmail(user) {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
   const smtpFrom = process.env.SMTP_FROM || 'ClearStand <hello@clearstand.ca>';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+
+  console.log(`[Email] Attempting to send welcome email to ${email}`);
+  console.log(`[Email] SMTP_HOST: ${smtpHost || 'NOT SET'}`);
+  console.log(`[Email] SMTP_USER: ${smtpUser || 'NOT SET'}`);
+  console.log(`[Email] SMTP_PASS: ${smtpPass ? 'SET (' + smtpPass.length + ' chars)' : 'NOT SET'}`);
+  console.log(`[Email] SMTP_PORT: ${smtpPort}`);
 
   if (!smtpHost || !smtpUser || !smtpPass) {
-    console.log(`[Welcome email not sent — SMTP not configured] To: ${email}`);
+    console.log('[Email] SMTP not configured — skipping');
     return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: { user: smtpUser, pass: smtpPass },
-  });
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: false,
+      auth: { user: smtpUser, pass: smtpPass },
+    });
 
-  await transporter.sendMail({
-    from: smtpFrom,
-    to: email,
-    subject: 'Welcome to ClearStand — Your account is ready',
-    text: `Hi ${name},
+    await transporter.verify();
+    console.log('[Email] SMTP connection verified successfully');
+
+    await transporter.sendMail({
+      from: smtpFrom,
+      to: email,
+      subject: 'Welcome to ClearStand — Your account is ready',
+      text: `Hi ${name},
 
 Your ClearStand account is ready.
 
@@ -42,7 +52,7 @@ YOUR FREE PLAN INCLUDES:
 
 UPGRADE ANYTIME:
 Essential — $29/month
-Complete — $79/month  
+Complete — $79/month
 Counsel — $159/month (unlimited + premium features)
 
 ClearStand is a legal preparation tool, not legal advice.
@@ -50,9 +60,14 @@ For serious matters contact Legal Aid Ontario: 1-800-668-8258
 
 Your rights. Your case. Your ground.
 ClearStand — clearstand.ca`,
-  });
+    });
 
-  console.log(`Welcome email sent to ${email}`);
+    console.log(`[Email] Welcome email sent successfully to ${email}`);
+  } catch(err) {
+    console.error(`[Email] Failed to send to ${email}: ${err.message}`);
+    console.error(`[Email] Error code: ${err.code}`);
+    console.error(`[Email] Response: ${err.response}`);
+  }
 }
 
 module.exports = { sendWelcomeEmail };
