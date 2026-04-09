@@ -99,8 +99,9 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .dw-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); display: block; margin-top: 1px; }
 
 /* ── PANELS ── */
-.panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
-.panel.on { display: flex; }
+.panel { display: none; flex: 1; overflow-y: auto; }
+.panel.on { display: flex; flex-direction: column; }
+#panel-report.on, #panel-crossex.on, #panel-defence-org.on { overflow: hidden; }
 
 .panel-pad { padding: 20px 16px; max-width: 700px; margin: 0 auto; width: 100%; overflow-y: auto; align-self: flex-start; }
 
