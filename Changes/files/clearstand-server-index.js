@@ -30,9 +30,9 @@ app.use('/api/family/chat',    require('./routes/family-chat'));
 app.use('/api/dictation',       require('./routes/dictation'));
 app.use('/api/family/analyze',  require('./routes/family-analyze'));
 
-// Criminal routes (reuse from existing criminal build or add here)
-// app.use('/api/chat',        require('./routes/criminal-chat'));
-// app.use('/api/analyze',     require('./routes/analyze'));
+// Criminal routes
+app.use('/api/chat',        require('./routes/criminal-chat'));
+app.use('/api/analyze',        require('./routes/analyze'));
 
 // Admin
 // app.use('/api/admin',       require('./routes/admin'));
@@ -50,6 +50,10 @@ app.get('/api/health', (req, res) => res.json({
 app.use('/family', express.static(path.join(__dirname, '../public-family')));
 app.get('/family/*', (req, res) => res.sendFile(path.join(__dirname, '../public-family/index.html')));
 
+// Auth page
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
+
 // Get started selection page
 app.get('/get-started', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/get-started.html')));
 
@@ -57,7 +61,10 @@ app.get('/get-started', (req, res) => res.sendFile(path.join(__dirname, '../publ
 app.get('/criminal-defence', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/criminal.html')));
 app.get('/family-law', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/family.html')));
 
-// Criminal app at root or /criminal
+// Criminal app route
+app.get('/criminal-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/app.html')));
+
+// Static files
 app.use(express.static(path.join(__dirname, '../public-criminal')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/index.html')));
 

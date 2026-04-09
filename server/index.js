@@ -32,7 +32,7 @@ app.use('/api/family/analyze',  require('./routes/family-analyze'));
 
 // Criminal routes
 app.use('/api/chat',        require('./routes/criminal-chat'));
-// app.use('/api/analyze',     require('./routes/analyze'));
+app.use('/api/analyze',        require('./routes/analyze'));
 
 // Admin
 // app.use('/api/admin',       require('./routes/admin'));

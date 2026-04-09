@@ -348,6 +348,29 @@ select.fi { cursor: pointer; }
 .pdf-dl-btn:hover { background: var(--blue-light); }
 .pdf-cancel { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; min-height: 40px; }
 
+/* ── DEFENCE ORG ── */
+.dorg-tab { width:100%;padding:12px 14px;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;text-align:left;transition:all .15s;border-left:3px solid transparent; }
+.dorg-tab.on { color:var(--white);background:var(--navy-light);border-left-color:var(--blue); }
+.dorg-section { display:flex;flex-direction:column;flex:1;overflow:hidden; }
+.dorg-hdr { padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
+.dorg-title { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
+.dorg-add-btn { padding:6px 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;transition:background .15s; }
+.dorg-add-btn:hover { background:var(--blue-light); }
+.dorg-list { flex:1;overflow-y:auto;padding:12px; }
+.dorg-item { border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px; }
+.dorg-item.urgent { border-left:3px solid #E87070; }
+.dorg-item.important { border-left:3px solid #F4A261; }
+.dorg-item.normal { border-left:3px solid var(--blue); }
+.dorg-item-title { font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:2px; }
+.dorg-item-meta { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
+.dorg-item-notes { font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);margin-top:4px; }
+.dorg-del { background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:2px 6px;flex-shrink:0; }
+.dorg-del:hover { color:#E87070; }
+.dorg-empty { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:32px; }
+.dorg-fi { width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;margin-bottom:10px;transition:border-color .15s; }
+.dorg-fi:focus { border-color:var(--blue); }
+.dorg-fl { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block; }
+
 /* ── ONBOARDING ── */
 .ob-ov { position:fixed;inset:0;background:rgba(13,27,42,0.97);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px; }
 .ob-box { background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:480px;padding:36px 32px; }
@@ -450,6 +473,7 @@ select.fi { cursor: pointer; }
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
       <button class="sbt" onclick="showPanel('crossex');bnActive('crossex');sbActive(this)"><span class="lbl">Cross-Examination Builder<span class="tag">Witness · Questions · Strategy</span></span></button>
+      <button class="sbt" onclick="showPanel('defence-org');bnActive('defence-org');sbActive(this)"><span class="lbl">Defence Organization<span class="tag">Timeline · Evidence · Deadlines</span></span></button>
     </div>
   </aside>
 
@@ -658,6 +682,73 @@ select.fi { cursor: pointer; }
   </div>
 
 </div>
+
+  <!-- DEFENCE ORGANIZATION PANEL -->
+  <div id="panel-defence-org" class="panel">
+    <div style="display:flex;flex:1;overflow:hidden">
+      <!-- Tabs -->
+      <div style="display:flex;flex-direction:column;width:140px;background:var(--navy-mid);border-right:1px solid var(--border);flex-shrink:0">
+        <button class="dorg-tab on" id="dorg-t-timeline" onclick="dorgTab('timeline',this)">Timeline</button>
+        <button class="dorg-tab" id="dorg-t-evidence" onclick="dorgTab('evidence',this)">Evidence</button>
+        <button class="dorg-tab" id="dorg-t-deadlines" onclick="dorgTab('deadlines',this)">Deadlines</button>
+        <button class="dorg-tab" id="dorg-t-notes" onclick="dorgTab('notes',this)">Case Notes</button>
+      </div>
+      <!-- Content -->
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+        <!-- TIMELINE -->
+        <div id="dorg-timeline" class="dorg-section">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Case Timeline</div>
+            <button class="dorg-add-btn" onclick="openDorgModal('timeline')">+ Add Event</button>
+          </div>
+          <div id="dorg-timeline-list" class="dorg-list"></div>
+        </div>
+
+        <!-- EVIDENCE -->
+        <div id="dorg-evidence" class="dorg-section" style="display:none">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Evidence Tracker</div>
+            <button class="dorg-add-btn" onclick="openDorgModal('evidence')">+ Add Item</button>
+          </div>
+          <div id="dorg-evidence-list" class="dorg-list"></div>
+        </div>
+
+        <!-- DEADLINES -->
+        <div id="dorg-deadlines" class="dorg-section" style="display:none">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Court Dates & Deadlines</div>
+            <button class="dorg-add-btn" onclick="openDorgModal('deadlines')">+ Add Deadline</button>
+          </div>
+          <div id="dorg-deadlines-list" class="dorg-list"></div>
+        </div>
+
+        <!-- NOTES -->
+        <div id="dorg-notes" class="dorg-section" style="display:none">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Case Notes</div>
+            <button class="dorg-add-btn" onclick="saveDorgNotes()">Save</button>
+          </div>
+          <div style="flex:1;padding:16px;display:flex;flex-direction:column">
+            <textarea id="dorg-notes-txt" placeholder="General case notes, strategy thoughts, things to remember…" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:12px;font-family:'Inter',sans-serif;font-size:.88rem;line-height:1.65;resize:none;outline:none;min-height:400px"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DEFENCE ORG MODAL -->
+  <div id="dorg-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:440px;padding:28px">
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:20px" id="dorg-modal-title">Add Item</div>
+      <div id="dorg-modal-fields"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="saveDorgItem()" style="flex:1;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:500">Save</button>
+        <button onclick="closeDorgModal()" style="padding:12px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <!-- CROSS-EXAMINATION PANEL -->
   <div id="panel-crossex" class="panel">
@@ -969,7 +1060,8 @@ function showPanel(name) {
   const panel = document.getElementById('panel-' + name);
   if (panel) panel.classList.add('on');
   currentPanel = name;
-  const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder' };
+  const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder', 'defence-org':'Defence Organization' };
+  if (name === 'defence-org') setTimeout(() => renderDorgList('timeline'), 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
   if (name === 'chat' && document.getElementById('msgs').innerHTML === '') showWelcome();
   if (name === 'crossex' && document.getElementById('cxMsgs').innerHTML === '') setTimeout(startCrossEx, 100);
@@ -2031,6 +2123,118 @@ function renderPeople() {
     });
   });
   list.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// DEFENCE ORGANIZATION TOOL
+// ═══════════════════════════════════════════
+let dorgData = JSON.parse(localStorage.getItem('cs_dorg') || '{"timeline":[],"evidence":[],"deadlines":[],"notes":""}');
+let dorgCurrentTab = 'timeline';
+let dorgCurrentModal = null;
+
+function saveDorg() { localStorage.setItem('cs_dorg', JSON.stringify(dorgData)); }
+
+function dorgTab(tab, btn) {
+  document.querySelectorAll('.dorg-tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.dorg-section').forEach(s => s.style.display = 'none');
+  document.getElementById('dorg-' + tab).style.display = 'flex';
+  dorgCurrentTab = tab;
+  if (tab === 'notes') document.getElementById('dorg-notes-txt').value = dorgData.notes || '';
+  else renderDorgList(tab);
+}
+
+function renderDorgList(tab) {
+  const list = document.getElementById('dorg-' + tab + '-list');
+  const items = dorgData[tab] || [];
+  if (!items.length) { list.innerHTML = `<div class="dorg-empty">No ${tab} items yet — click + Add to start</div>`; return; }
+
+  // Sort deadlines by date
+  if (tab === 'deadlines' || tab === 'timeline') items.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+
+  list.innerHTML = items.map((item, i) => `
+    <div class="dorg-item ${item.priority || 'normal'}">
+      <div style="flex:1">
+        <div class="dorg-item-title">${item.title || item.name || ''}</div>
+        <div class="dorg-item-meta">${item.date ? '📅 ' + item.date : ''} ${item.type ? '· ' + item.type : ''} ${item.status ? '· ' + item.status : ''}</div>
+        ${item.notes ? `<div class="dorg-item-notes">${item.notes}</div>` : ''}
+      </div>
+      <button class="dorg-del" onclick="deleteDorgItem('${tab}',${i})">✕</button>
+    </div>`).join('');
+}
+
+function deleteDorgItem(tab, idx) {
+  dorgData[tab].splice(idx, 1);
+  saveDorg();
+  renderDorgList(tab);
+}
+
+function openDorgModal(tab) {
+  dorgCurrentModal = tab;
+  const modal = document.getElementById('dorg-modal-ov');
+  const titles = { timeline:'Add Timeline Event', evidence:'Add Evidence Item', deadlines:'Add Court Date or Deadline' };
+  document.getElementById('dorg-modal-title').textContent = titles[tab] || 'Add Item';
+
+  const fields = {
+    timeline: `
+      <label class="dorg-fl">Event Title</label><input class="dorg-fi" id="dm_title" placeholder="e.g. Arrest, Search, Disclosure received" style="font-size:16px">
+      <label class="dorg-fl">Date</label><input class="dorg-fi" id="dm_date" type="date">
+      <label class="dorg-fl">Priority</label>
+      <select class="dorg-fi" id="dm_priority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select>
+      <label class="dorg-fl">Notes</label><textarea class="dorg-fi" id="dm_notes" rows="3" style="resize:vertical;font-size:16px"></textarea>`,
+    evidence: `
+      <label class="dorg-fl">Evidence Item</label><input class="dorg-fi" id="dm_title" placeholder="e.g. Officer notes — Cst. Smith" style="font-size:16px">
+      <label class="dorg-fl">Type</label>
+      <select class="dorg-fi" id="dm_type"><option>Officer Notes</option><option>Will-Say</option><option>Witness Statement</option><option>Surveillance Video</option><option>Body Cam</option><option>Forensic Report</option><option>Photo/Video</option><option>Document</option><option>Other</option></select>
+      <label class="dorg-fl">Status</label>
+      <select class="dorg-fi" id="dm_status"><option>Received</option><option>Requested — Not Yet Received</option><option>Missing — Not Disclosed</option><option>Challenged</option></select>
+      <label class="dorg-fl">Priority</label>
+      <select class="dorg-fi" id="dm_priority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select>
+      <label class="dorg-fl">Notes</label><textarea class="dorg-fi" id="dm_notes" rows="2" style="resize:vertical;font-size:16px"></textarea>`,
+    deadlines: `
+      <label class="dorg-fl">Event / Deadline</label><input class="dorg-fi" id="dm_title" placeholder="e.g. Next court date, Filing deadline" style="font-size:16px">
+      <label class="dorg-fl">Date</label><input class="dorg-fi" id="dm_date" type="date">
+      <label class="dorg-fl">Type</label>
+      <select class="dorg-fi" id="dm_type"><option>Court Appearance</option><option>Filing Deadline</option><option>Bail Hearing</option><option>Preliminary Inquiry</option><option>Trial</option><option>Sentencing</option><option>Appeal</option><option>Other</option></select>
+      <label class="dorg-fl">Priority</label>
+      <select class="dorg-fi" id="dm_priority"><option value="urgent">Urgent</option><option value="important">Important</option><option value="normal">Normal</option></select>
+      <label class="dorg-fl">Notes</label><textarea class="dorg-fi" id="dm_notes" rows="2" style="resize:vertical;font-size:16px"></textarea>`,
+  };
+
+  document.getElementById('dorg-modal-fields').innerHTML = fields[tab] || '';
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('dm_title')?.focus(), 100);
+}
+
+function closeDorgModal() { document.getElementById('dorg-modal-ov').style.display = 'none'; }
+
+function saveDorgItem() {
+  const tab = dorgCurrentModal;
+  const title = document.getElementById('dm_title')?.value.trim();
+  if (!title) { toast('Enter a title'); return; }
+
+  const item = {
+    title,
+    date: document.getElementById('dm_date')?.value || '',
+    type: document.getElementById('dm_type')?.value || '',
+    status: document.getElementById('dm_status')?.value || '',
+    priority: document.getElementById('dm_priority')?.value || 'normal',
+    notes: document.getElementById('dm_notes')?.value.trim() || '',
+    created: new Date().toISOString(),
+  };
+
+  if (!dorgData[tab]) dorgData[tab] = [];
+  dorgData[tab].push(item);
+  saveDorg();
+  closeDorgModal();
+  renderDorgList(tab);
+  toast('Added to ' + tab);
+}
+
+function saveDorgNotes() {
+  dorgData.notes = document.getElementById('dorg-notes-txt').value;
+  saveDorg();
+  toast('Notes saved');
 }
 
 // ═══════════════════════════════════════════

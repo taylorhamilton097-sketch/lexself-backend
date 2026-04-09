@@ -255,6 +255,10 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .profile-wrap { flex: 1; overflow-y: auto; padding: 20px 16px; max-width: 700px; margin: 0 auto; width: 100%; }
 .ptitle { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--white); margin-bottom: 4px; }
 .psub { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 20px; }
+.prof-tab { flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;min-height:40px; }
+.prof-tab.on { color:var(--blue-light);border-bottom-color:var(--blue); }
+.prof-section { flex:1; }
+
 .pr-sec-t { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-top: 20px; }
 .fr { display: flex; gap: 10px; }
 .fg { flex: 1; margin-bottom: 10px; }
@@ -304,6 +308,33 @@ select.fi { cursor: pointer; }
 .pp-price span { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--text3); font-weight: 400; }
 .pw-close { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 40px; }
 
+/* ── ACCOUNT PANEL ── */
+.acct-ov { position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:flex-start;justify-content:flex-end;padding:56px 16px 0 0; }
+.acct-ov.show { display:flex; }
+.acct-box { background:var(--navy-mid);border:1px solid var(--border);width:320px;max-height:calc(100vh - 72px);overflow-y:auto; }
+.acct-hdr { padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
+.acct-name { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
+.acct-email { font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px; }
+.acct-close { background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem; }
+.acct-plan { padding:14px 16px;border-bottom:1px solid var(--border);background:var(--navy-light); }
+.acct-plan-label { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px; }
+.acct-plan-name { font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-light);margin-bottom:10px; }
+.acct-usage { display:flex;flex-direction:column;gap:8px; }
+.acct-usage-row { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+.acct-usage-label { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
+.acct-usage-val { font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--text2); }
+.acct-usage-bar { height:3px;background:var(--border);flex:1;border-radius:2px;overflow:hidden; }
+.acct-usage-fill { height:100%;background:var(--blue);border-radius:2px;transition:width .3s; }
+.acct-usage-fill.warn { background:#F4A261; }
+.acct-usage-fill.danger { background:#E87070; }
+.acct-upgrade { margin:14px 16px;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;width:calc(100% - 32px);font-weight:500;transition:background .15s; }
+.acct-upgrade:hover { background:var(--blue-light); }
+.acct-section { padding:12px 16px;border-bottom:1px solid var(--border); }
+.acct-section-title { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px; }
+.acct-link { display:block;padding:8px 0;font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);cursor:pointer;background:none;border:none;text-align:left;width:100%;transition:color .15s; }
+.acct-link:hover { color:var(--text); }
+.acct-link.danger { color:#E87070; }
+
 /* ── PDF SHEET ── */
 .pdf-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 850; display: none; align-items: flex-end; }
 .pdf-ov.show { display: flex; }
@@ -316,6 +347,29 @@ select.fi { cursor: pointer; }
 .pdf-dl-btn { width: 100%; padding: 13px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 500; margin-top: 4px; min-height: 46px; transition: background 0.15s; }
 .pdf-dl-btn:hover { background: var(--blue-light); }
 .pdf-cancel { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; min-height: 40px; }
+
+/* ── DEFENCE ORG ── */
+.dorg-tab { width:100%;padding:12px 14px;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;text-align:left;transition:all .15s;border-left:3px solid transparent; }
+.dorg-tab.on { color:var(--white);background:var(--navy-light);border-left-color:var(--blue); }
+.dorg-section { display:flex;flex-direction:column;flex:1;overflow:hidden; }
+.dorg-hdr { padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
+.dorg-title { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
+.dorg-add-btn { padding:6px 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;transition:background .15s; }
+.dorg-add-btn:hover { background:var(--blue-light); }
+.dorg-list { flex:1;overflow-y:auto;padding:12px; }
+.dorg-item { border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px; }
+.dorg-item.urgent { border-left:3px solid #E87070; }
+.dorg-item.important { border-left:3px solid #F4A261; }
+.dorg-item.normal { border-left:3px solid var(--blue); }
+.dorg-item-title { font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:2px; }
+.dorg-item-meta { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
+.dorg-item-notes { font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);margin-top:4px; }
+.dorg-del { background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:2px 6px;flex-shrink:0; }
+.dorg-del:hover { color:#E87070; }
+.dorg-empty { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:32px; }
+.dorg-fi { width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;margin-bottom:10px;transition:border-color .15s; }
+.dorg-fi:focus { border-color:var(--blue); }
+.dorg-fl { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block; }
 
 /* ── ONBOARDING ── */
 .ob-ov { position:fixed;inset:0;background:rgba(13,27,42,0.97);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px; }
@@ -353,12 +407,11 @@ select.fi { cursor: pointer; }
   <span class="tn-tag">Criminal Defence</span>
   <span class="tn-mode" id="modeLabel">Defence Assistant</span>
   <div class="tn-right">
-    <span class="tn-plan" id="planBadge"></span>
     <button class="tn-btn" onclick="showPanel('upload');bnActive('upload')">Disclosure</button>
     <button class="tn-btn" onclick="showPanel('report');bnActive('report')">Report <span class="report-badge" id="reportBadge">New</span></button>
     <button class="tn-btn" onclick="openChargeDrawer()">Charges</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
-    <button class="tn-btn" onclick="showAuthOrLogout()">Account</button>
+    <button class="tn-btn" onclick="openAccountPanel()">Account</button>
   </div>
 </nav>
 
@@ -420,6 +473,7 @@ select.fi { cursor: pointer; }
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
       <button class="sbt" onclick="showPanel('crossex');bnActive('crossex');sbActive(this)"><span class="lbl">Cross-Examination Builder<span class="tag">Witness · Questions · Strategy</span></span></button>
+      <button class="sbt" onclick="showPanel('defence-org');bnActive('defence-org');sbActive(this)"><span class="lbl">Defence Organization<span class="tag">Timeline · Evidence · Deadlines</span></span></button>
     </div>
   </aside>
 
@@ -522,97 +576,211 @@ select.fi { cursor: pointer; }
   <!-- PROFILE PANEL -->
   <div id="panel-profile" class="panel">
     <div class="profile-wrap">
-      <div class="ptitle">My Case Profile</div>
-      <div class="psub">Stored locally · Used to personalize your defence analysis</div>
-
-      <div class="pr-sec-t">Personal Information</div>
-      <div class="fr">
-        <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="pr_first" style="font-size:16px"></div>
-        <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="pr_last" style="font-size:16px"></div>
-      </div>
-      <div class="fg"><label class="fl">Date of Birth</label><input class="fi" type="date" id="pr_dob"></div>
-      <div class="fr">
-        <div class="fg"><label class="fl">Phone</label><input class="fi" type="tel" id="pr_phone"></div>
-        <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="pr_email" style="font-size:16px"></div>
+      <!-- Tabs -->
+      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;flex-shrink:0">
+        <button class="prof-tab on" onclick="switchProfTab('my',this)">My Profile</button>
+        <button class="prof-tab" onclick="switchProfTab('people',this)">People in My Case</button>
       </div>
 
-      <div class="pr-sec-t">Your Case</div>
-      <div class="fg"><label class="fl">Charges</label><input class="fi" type="text" id="pr_charges" placeholder="e.g. Assault s.266, Breach s.145" style="font-size:16px"></div>
-      <div class="fg"><label class="fl">Date of Alleged Offence</label><input class="fi" type="date" id="pr_chargedate"></div>
-      <div class="fr">
-        <div class="fg"><label class="fl">Court File Number</label><input class="fi" type="text" id="pr_filenum"></div>
-        <div class="fg"><label class="fl">Court</label><input class="fi" type="text" id="pr_court" style="font-size:16px"></div>
-      </div>
-      <div class="fr">
-        <div class="fg"><label class="fl">Next Court Date</label><input class="fi" type="date" id="pr_nextdate"></div>
-        <div class="fg"><label class="fl">Next Event</label><input class="fi" type="text" id="pr_nextevent" style="font-size:16px"></div>
-      </div>
-      <div class="fg"><label class="fl">Bail Conditions</label><input class="fi" type="text" id="pr_bail" placeholder="e.g. No contact, curfew 10pm" style="font-size:16px"></div>
-      <div class="fg"><label class="fl">Prior Record</label>
-        <select class="fi" id="pr_record"><option value="">Select…</option><option>No prior record</option><option>Prior record — non-violent</option><option>Prior record — violent</option><option>Prior record — related offences</option></select></div>
-      <div class="fg"><label class="fl">Indigenous Identity (Gladue)</label>
-        <select class="fi" id="pr_indigenous"><option value="">Prefer not to say</option><option value="yes">Yes — First Nations, Métis, or Inuit</option><option value="no">No</option></select></div>
+      <!-- MY PROFILE TAB -->
+      <div id="prof-my" class="prof-section">
+        <div class="ptitle">My Case Profile</div>
+        <div class="psub">Stored locally · Used to personalize your defence analysis</div>
 
-      <div class="pr-sec-t">Legal Representation</div>
-      <div class="fg"><label class="fl">Crown Attorney</label><input class="fi" type="text" id="pr_crown" style="font-size:16px"></div>
-      <div class="fg"><label class="fl">My Lawyer (if any)</label><input class="fi" type="text" id="pr_lawyer" style="font-size:16px"></div>
+        <div class="pr-sec-t">Personal Information</div>
+        <div class="fr">
+          <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="pr_first" style="font-size:16px"></div>
+          <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="pr_last" style="font-size:16px"></div>
+        </div>
+        <div class="fg"><label class="fl">Date of Birth</label><input class="fi" type="date" id="pr_dob"></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Phone</label><input class="fi" type="tel" id="pr_phone"></div>
+          <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="pr_email" style="font-size:16px"></div>
+        </div>
 
-      <div class="pr-sec-t">Notes</div>
-      <div class="fg"><textarea class="fi" id="pr_notes" rows="4" placeholder="Key facts, witness names, important dates…" style="resize:vertical;font-size:16px"></textarea></div>
-
-      <div style="display:flex;gap:10px;margin-top:20px;align-items:center">
-        <button class="bp" onclick="saveProfile()">Save Profile</button>
-        <button class="bs" onclick="clearProfile()">Clear</button>
-        <span class="sok" id="sok">Saved</span>
+        <div class="pr-sec-t">Your Case</div>
+        <div class="fg"><label class="fl">Charges</label><input class="fi" type="text" id="pr_charges" placeholder="e.g. Assault s.266, Breach s.145" style="font-size:16px"></div>
+        <div class="fg"><label class="fl">Date of Alleged Offence</label><input class="fi" type="date" id="pr_chargedate"></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Court File Number</label><input class="fi" type="text" id="pr_filenum"></div>
+          <div class="fg"><label class="fl">Court</label><input class="fi" type="text" id="pr_court" style="font-size:16px"></div>
+        </div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Next Court Date</label><input class="fi" type="date" id="pr_nextdate"></div>
+          <div class="fg"><label class="fl">Next Event</label><input class="fi" type="text" id="pr_nextevent" style="font-size:16px"></div>
+        </div>
+        <div class="fg"><label class="fl">Bail Conditions</label><input class="fi" type="text" id="pr_bail" placeholder="e.g. No contact, curfew 10pm" style="font-size:16px"></div>
+        <div class="fg"><label class="fl">Prior Record</label>
+          <select class="fi" id="pr_record"><option value="">Select…</option><option>No prior record</option><option>Prior record — non-violent</option><option>Prior record — violent</option><option>Prior record — related offences</option></select></div>
+        <div class="fg"><label class="fl">Indigenous Identity (Gladue)</label>
+          <select class="fi" id="pr_indigenous"><option value="">Prefer not to say</option><option value="yes">Yes — First Nations, Métis, or Inuit</option><option value="no">No</option></select></div>
+        <div class="pr-sec-t">Legal Representation</div>
+        <div class="fg"><label class="fl">Crown Attorney</label><input class="fi" type="text" id="pr_crown" style="font-size:16px"></div>
+        <div class="fg"><label class="fl">My Lawyer (if any)</label><input class="fi" type="text" id="pr_lawyer" style="font-size:16px"></div>
+        <div class="pr-sec-t">Notes</div>
+        <div class="fg"><textarea class="fi" id="pr_notes" rows="4" placeholder="Key facts, witness names, important dates…" style="resize:vertical;font-size:16px"></textarea></div>
+        <div style="display:flex;gap:10px;margin-top:20px;align-items:center">
+          <button class="bp" onclick="saveProfile()">Save Profile</button>
+          <button class="bs" onclick="clearProfile()">Clear</button>
+          <span class="sok" id="sok">Saved</span>
+        </div>
+        <div style="height:40px"></div>
       </div>
-      <div style="height:40px"></div>
+
+      <!-- PEOPLE TAB -->
+      <div id="prof-people" class="prof-section" style="display:none">
+        <div class="ptitle">People in My Case</div>
+        <div class="psub">Add everyone involved — police, witnesses, victims, co-accused</div>
+
+        <!-- Add Person Form -->
+        <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
+          <div class="pr-sec-t" style="margin-top:0">Add a Person</div>
+          <div class="fg" style="margin-bottom:10px">
+            <label class="fl">Category</label>
+            <select class="fi" id="pp_category" onchange="ppUpdateRole()" style="font-size:16px">
+              <option value="">Select category…</option>
+              <option value="police">Police Officer</option>
+              <option value="civilian">Civilian</option>
+              <option value="redacted">Redacted Person</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:10px" id="pp_role_wrap">
+            <label class="fl">Role</label>
+            <select class="fi" id="pp_role" style="font-size:16px">
+              <option value="">Select role…</option>
+            </select>
+          </div>
+          <div id="pp_name_wrap">
+            <div class="fr">
+              <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="pp_first" placeholder="First name" style="font-size:16px"></div>
+              <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="pp_last" placeholder="Last name" style="font-size:16px"></div>
+            </div>
+            <div id="pp_police_fields" style="display:none">
+              <div class="fr">
+                <div class="fg"><label class="fl">Rank</label><input class="fi" type="text" id="pp_rank" placeholder="e.g. Constable, Sergeant" style="font-size:16px"></div>
+                <div class="fg"><label class="fl">Badge Number</label><input class="fi" type="text" id="pp_badge" placeholder="e.g. 4521" style="font-size:16px"></div>
+              </div>
+              <div class="fg"><label class="fl">Detachment / Division</label><input class="fi" type="text" id="pp_division" placeholder="e.g. OPP Sarnia, 53 Division" style="font-size:16px"></div>
+            </div>
+            <div id="pp_civilian_fields" style="display:none">
+              <div class="fg"><label class="fl">Address <span style="color:var(--text3)">(optional)</span></label><input class="fi" type="text" id="pp_address" placeholder="Street address" style="font-size:16px"></div>
+            </div>
+          </div>
+          <div id="pp_redacted_note" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Will be auto-labelled in ascending order (e.g. Witness #1, Victim #1)</div>
+          <div class="fg" style="margin-bottom:10px">
+            <label class="fl">Notes <span style="color:var(--text3)">(optional)</span></label>
+            <textarea class="fi" id="pp_notes" rows="2" placeholder="Relevant notes about this person…" style="font-size:16px;resize:vertical"></textarea>
+          </div>
+          <button class="bp" onclick="addPerson()" style="width:100%">Add to Case</button>
+        </div>
+
+        <!-- People List -->
+        <div id="pp_list"></div>
+        <div style="height:40px"></div>
+      </div>
     </div>
   </div>
 
 </div>
 
+  <!-- DEFENCE ORGANIZATION PANEL -->
+  <div id="panel-defence-org" class="panel">
+    <div style="display:flex;flex:1;overflow:hidden">
+      <!-- Tabs -->
+      <div style="display:flex;flex-direction:column;width:140px;background:var(--navy-mid);border-right:1px solid var(--border);flex-shrink:0">
+        <button class="dorg-tab on" id="dorg-t-timeline" onclick="dorgTab('timeline',this)">Timeline</button>
+        <button class="dorg-tab" id="dorg-t-evidence" onclick="dorgTab('evidence',this)">Evidence</button>
+        <button class="dorg-tab" id="dorg-t-deadlines" onclick="dorgTab('deadlines',this)">Deadlines</button>
+        <button class="dorg-tab" id="dorg-t-notes" onclick="dorgTab('notes',this)">Case Notes</button>
+      </div>
+      <!-- Content -->
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+        <!-- TIMELINE -->
+        <div id="dorg-timeline" class="dorg-section">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Case Timeline</div>
+            <button class="dorg-add-btn" onclick="openDorgModal('timeline')">+ Add Event</button>
+          </div>
+          <div id="dorg-timeline-list" class="dorg-list"></div>
+        </div>
+
+        <!-- EVIDENCE -->
+        <div id="dorg-evidence" class="dorg-section" style="display:none">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Evidence Tracker</div>
+            <button class="dorg-add-btn" onclick="openDorgModal('evidence')">+ Add Item</button>
+          </div>
+          <div id="dorg-evidence-list" class="dorg-list"></div>
+        </div>
+
+        <!-- DEADLINES -->
+        <div id="dorg-deadlines" class="dorg-section" style="display:none">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Court Dates & Deadlines</div>
+            <button class="dorg-add-btn" onclick="openDorgModal('deadlines')">+ Add Deadline</button>
+          </div>
+          <div id="dorg-deadlines-list" class="dorg-list"></div>
+        </div>
+
+        <!-- NOTES -->
+        <div id="dorg-notes" class="dorg-section" style="display:none">
+          <div class="dorg-hdr">
+            <div class="dorg-title">Case Notes</div>
+            <button class="dorg-add-btn" onclick="saveDorgNotes()">Save</button>
+          </div>
+          <div style="flex:1;padding:16px;display:flex;flex-direction:column">
+            <textarea id="dorg-notes-txt" placeholder="General case notes, strategy thoughts, things to remember…" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:12px;font-family:'Inter',sans-serif;font-size:.88rem;line-height:1.65;resize:none;outline:none;min-height:400px"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DEFENCE ORG MODAL -->
+  <div id="dorg-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:440px;padding:28px">
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:20px" id="dorg-modal-title">Add Item</div>
+      <div id="dorg-modal-fields"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="saveDorgItem()" style="flex:1;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:500">Save</button>
+        <button onclick="closeDorgModal()" style="padding:12px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CROSS-EXAMINATION PANEL -->
   <div id="panel-crossex" class="panel">
-    <div style="display:flex;flex:1;overflow:hidden">
-      <!-- Left: Interview -->
-      <div style="width:50%;display:flex;flex-direction:column;border-right:1px solid var(--border)">
-        <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:8px">Cross-Examination Builder</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <select id="cxWitnessType" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;outline:none;min-width:140px">
-              <option value="">Select witness type…</option>
-              <option value="complainant">Complainant</option>
-              <option value="officer">Police Officer</option>
-              <option value="civilian">Civilian Witness</option>
-              <option value="expert">Expert Witness</option>
-            </select>
-            <button onclick="document.getElementById('cxDocFile').click()" style="padding:6px 12px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
-            <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
-          </div>
-          <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
+    <div style="display:flex;flex:1;flex-direction:column;overflow:hidden">
+      <!-- Header -->
+      <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:8px">Cross-Examination Builder</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <select id="cxWitnessType" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;outline:none;min-width:140px">
+            <option value="">Select witness type…</option>
+            <option value="complainant">Complainant</option>
+            <option value="officer">Police Officer</option>
+            <option value="civilian">Civilian Witness</option>
+            <option value="expert">Expert Witness</option>
+          </select>
+          <button onclick="document.getElementById('cxDocFile').click()" style="padding:6px 12px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
+          <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
+          <button onclick="openCxOutline()" style="padding:6px 12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxViewBtn">View Outline ↗</button>
         </div>
-        <div id="cxMsgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
-        <div style="padding:10px 12px;background:var(--navy-mid);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
-          <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s">🎙 Voice</button>
-          <textarea id="cx-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="cxAr(this)" onkeydown="cxHk(event)" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:42px;max-height:120px;outline:none;transition:border-color .15s"></textarea>
-          <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
-        </div>
+        <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
       </div>
-      <!-- Right: Cross-Ex Outline -->
-      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:2px">Cross-Examination Outline</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Builds as you answer · Export when ready</div>
-        </div>
-        <div id="cxDoc" style="flex:1;overflow-y:auto;padding:16px;font-family:'Inter',sans-serif;font-size:.88rem;line-height:1.75;color:var(--text)">
-          <div id="cxDocEmpty" style="color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:32px">Your cross-examination outline will appear here</div>
-        </div>
-        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--navy-mid)">
-          <button onclick="exportCxPdf()" style="padding:8px 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em">Export PDF</button>
-          <button onclick="copyCxOutline()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em">Copy</button>
-          <button onclick="resetCx()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em">Start Over</button>
-        </div>
+      <!-- Full width interview -->
+      <div id="cxMsgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
+      <!-- Hidden doc storage -->
+      <div id="cxDoc" style="display:none"></div>
+      <!-- Input bar -->
+      <div style="padding:10px 12px;background:var(--navy-mid);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
+        <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s">🎙 Voice</button>
+        <textarea id="cx-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="cxAr(this)" onkeydown="cxHk(event)" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:42px;max-height:120px;outline:none;transition:border-color .15s"></textarea>
+        <button onclick="resetCx()" style="padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Restart</button>
+        <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
       </div>
     </div>
   </div>
@@ -772,6 +940,36 @@ select.fi { cursor: pointer; }
   </div>
 </div>
 
+<!-- ACCOUNT PANEL -->
+<div class="acct-ov" id="acctOv" onclick="if(event.target===this)closeAccountPanel()">
+  <div class="acct-box">
+    <div class="acct-hdr">
+      <div>
+        <div class="acct-name" id="acctName">My Account</div>
+        <div class="acct-email" id="acctEmail"></div>
+      </div>
+      <button class="acct-close" onclick="closeAccountPanel()">✕</button>
+    </div>
+    <!-- Plan & Usage -->
+    <div class="acct-plan">
+      <div class="acct-plan-label">Current Plan</div>
+      <div class="acct-plan-name" id="acctPlanName">Free</div>
+      <div class="acct-usage" id="acctUsage"></div>
+    </div>
+    <button class="acct-upgrade" id="acctUpgradeBtn" onclick="closeAccountPanel();openPaywall('upgrade')">Upgrade to Counsel →</button>
+    <!-- Links -->
+    <div class="acct-section">
+      <div class="acct-section-title">Account</div>
+      <button class="acct-link" onclick="closeAccountPanel();showPanel('profile');bnActive('profile')">My Case Profile</button>
+      <button class="acct-link" onclick="closeAccountPanel();window.location.href='/pricing'">View All Plans</button>
+      <button class="acct-link" onclick="openBillingPortal()">Manage Billing</button>
+    </div>
+    <div class="acct-section">
+      <button class="acct-link danger" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
 <!-- PDF SHEET -->
 <div class="pdf-ov" id="pdfSheetOv" onclick="if(event.target===this)closePdfSheet()">
   <div class="pdf-box">
@@ -862,7 +1060,8 @@ function showPanel(name) {
   const panel = document.getElementById('panel-' + name);
   if (panel) panel.classList.add('on');
   currentPanel = name;
-  const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder' };
+  const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder', 'defence-org':'Defence Organization' };
+  if (name === 'defence-org') setTimeout(() => renderDorgList('timeline'), 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
   if (name === 'chat' && document.getElementById('msgs').innerHTML === '') showWelcome();
   if (name === 'crossex' && document.getElementById('cxMsgs').innerHTML === '') setTimeout(startCrossEx, 100);
@@ -900,8 +1099,50 @@ function loadTopic(key) {
 }
 
 function showAuthOrLogout() {
-  if (currentUser) { if (confirm(`Sign out of ${currentUser.email}?`)) doLogout(); }
+  if (currentUser) openAccountPanel();
   else document.getElementById('authOv').style.display = 'flex';
+}
+
+function openAccountPanel() {
+  if (!currentUser) { document.getElementById('authOv').style.display = 'flex'; return; }
+  // Populate
+  document.getElementById('acctName').textContent = currentUser.name || 'My Account';
+  document.getElementById('acctEmail').textContent = currentUser.email || '';
+  const plan = usageState?.planLabel || usageState?.plan || 'Free';
+  document.getElementById('acctPlanName').textContent = plan;
+  // Hide upgrade button if already on counsel
+  const isCounsel = (usageState?.plan === 'counsel');
+  document.getElementById('acctUpgradeBtn').style.display = isCounsel ? 'none' : 'block';
+  // Build usage rows
+  const usage = document.getElementById('acctUsage');
+  usage.innerHTML = '';
+  if (usageState) {
+    const rows = [
+      { label: 'Analyses', used: usageState.analysis?.used, limit: usageState.analysis?.limit },
+      { label: 'Chat today', used: usageState.chat?.used, limit: usageState.chat?.limit },
+    ];
+    rows.forEach(r => {
+      if (r.limit === null || r.limit === Infinity) {
+        usage.innerHTML += `<div class="acct-usage-row"><span class="acct-usage-label">${r.label}</span><span class="acct-usage-val" style="color:var(--blue-light)">Unlimited</span></div>`;
+      } else {
+        const pct = Math.min(100, Math.round((r.used / r.limit) * 100));
+        const cls = pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : '';
+        usage.innerHTML += `<div class="acct-usage-row"><span class="acct-usage-label">${r.label}</span><div class="acct-usage-bar"><div class="acct-usage-fill ${cls}" style="width:${pct}%"></div></div><span class="acct-usage-val">${r.limit - r.used} left</span></div>`;
+      }
+    });
+  }
+  document.getElementById('acctOv').classList.add('show');
+}
+
+function closeAccountPanel() { document.getElementById('acctOv').classList.remove('show'); }
+
+async function openBillingPortal() {
+  closeAccountPanel();
+  try {
+    const d = await api('POST', '/api/billing/portal', {});
+    if (d.url) window.location.href = d.url;
+    else toast('Billing portal not available yet');
+  } catch(e) { toast('Error opening billing portal'); }
 }
 function switchAuth(tab, btn) {
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
@@ -1542,12 +1783,10 @@ function showCxAnswer(a) {
 
 function updateCxDoc(outline) {
   if (!outline) return;
-  const doc = document.getElementById('cxDoc');
-  doc.innerHTML = '';
-  const pre = document.createElement('div');
-  pre.style.cssText = 'font-family:Inter,sans-serif;font-size:.88rem;line-height:1.75;color:var(--text);white-space:pre-wrap';
-  pre.textContent = outline;
-  doc.appendChild(pre);
+  window._cxOutline = outline;
+  // Show subtle indicator that outline is ready
+  document.getElementById('cxViewBtn').textContent = 'View Outline ↗ ●';
+  document.getElementById('cxViewBtn').style.background = 'var(--blue-light)';
 }
 
 async function sendCxMessage(userAnswer, isFirst = false, firstMsg = null) {
@@ -1667,22 +1906,50 @@ function cxAr(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scro
 
 function resetCx() {
   if (!confirm('Start the cross-examination builder over?')) return;
+  window._cxOutline = '';
+  document.getElementById('cxViewBtn').textContent = 'View Outline ↗';
+  document.getElementById('cxViewBtn').style.background = 'var(--blue)';
   startCrossEx();
 }
 
 function copyCxOutline() {
-  const doc = document.getElementById('cxDoc');
-  if (doc.querySelector('#cxDocEmpty')) { toast('No outline yet'); return; }
-  navigator.clipboard.writeText(doc.textContent);
+  if (!window._cxOutline) { toast('No outline yet'); return; }
+  navigator.clipboard.writeText(window._cxOutline);
   toast('Cross-examination outline copied');
 }
 
 function exportCxPdf() {
-  const doc = document.getElementById('cxDoc');
-  if (doc.querySelector('#cxDocEmpty')) { toast('No outline yet'); return; }
-  openPdfSheet();
-  document.getElementById('pdf_content').value = doc.textContent;
-  document.getElementById('pdf_title').value = 'Cross-Examination Outline';
+  openCxOutline();
+}
+
+function openCxOutline() {
+  const outline = window._cxOutline || '';
+  if (!outline.trim()) { toast('No outline yet — complete the interview first'); return; }
+  const witnessType = document.getElementById('cxWitnessType')?.value || 'Witness';
+  const win = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+  win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Cross-Examination Outline — ClearStand</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 800px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.75; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .meta { font-family: monospace; font-size: .75rem; color: #666; margin-bottom: 32px; text-transform: uppercase; letter-spacing: .1em; }
+  pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: .95rem; line-height: 1.8; }
+  .disclaimer { margin-top: 40px; padding: 12px 16px; border: 1px solid #ddd; font-family: monospace; font-size: .7rem; color: #888; text-transform: uppercase; letter-spacing: .08em; }
+  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #2E86C1; color: white; border: none; cursor: pointer; font-family: monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; }
+  @media print { .print-btn { display: none; } }
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+<h1>Cross-Examination Outline</h1>
+<div class="meta">ClearStand Criminal Defence · ${witnessType} · Generated ${new Date().toLocaleDateString('en-CA')}</div>
+<pre>${outline.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+<div class="disclaimer">DRAFT — AI-ASSISTED DOCUMENT. REVIEW CAREFULLY BEFORE USE IN COURT. NOT LEGAL ADVICE. CLEARSTAND.CA</div>
+</body>
+</html>`);
+  win.document.close();
 }
 
 // Voice for cross-ex
@@ -1722,6 +1989,252 @@ async function stopCxVoice() {
   document.getElementById('cxVBtn').style.color = '';
   document.getElementById('cxVBtn').textContent = '🎙 Voice';
   inp.focus();
+}
+
+// ═══════════════════════════════════════════
+// PROFILE TABS & PEOPLE MANAGER
+// ═══════════════════════════════════════════
+let casePeople = JSON.parse(localStorage.getItem('lsc_people') || '[]');
+
+function switchProfTab(tab, btn) {
+  document.querySelectorAll('.prof-tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('prof-my').style.display = tab === 'my' ? 'block' : 'none';
+  document.getElementById('prof-people').style.display = tab === 'people' ? 'block' : 'none';
+  if (tab === 'people') renderPeople();
+}
+
+const POLICE_ROLES = ['Arresting Officer','Investigating Officer','Charging Officer','Witness Officer'];
+const CIVILIAN_ROLES = ['Witness','Alleged Victim','Co-Accused'];
+const REDACTED_ROLES = ['Redacted Witness','Redacted Alleged Victim'];
+
+function ppUpdateRole() {
+  const cat = document.getElementById('pp_category').value;
+  const roleSelect = document.getElementById('pp_role');
+  const nameWrap = document.getElementById('pp_name_wrap');
+  const redactedNote = document.getElementById('pp_redacted_note');
+  const policeFields = document.getElementById('pp_police_fields');
+  const civilianFields = document.getElementById('pp_civilian_fields');
+
+  roleSelect.innerHTML = '<option value="">Select role…</option>';
+  policeFields.style.display = 'none';
+  civilianFields.style.display = 'none';
+  redactedNote.style.display = 'none';
+  nameWrap.style.display = 'block';
+
+  if (cat === 'police') {
+    POLICE_ROLES.forEach(r => roleSelect.innerHTML += `<option>${r}</option>`);
+    policeFields.style.display = 'block';
+  } else if (cat === 'civilian') {
+    CIVILIAN_ROLES.forEach(r => roleSelect.innerHTML += `<option>${r}</option>`);
+    civilianFields.style.display = 'block';
+  } else if (cat === 'redacted') {
+    REDACTED_ROLES.forEach(r => roleSelect.innerHTML += `<option>${r}</option>`);
+    nameWrap.style.display = 'none';
+    redactedNote.style.display = 'block';
+  }
+}
+
+function addPerson() {
+  const cat = document.getElementById('pp_category').value;
+  const role = document.getElementById('pp_role').value;
+  if (!cat || !role) { toast('Select a category and role'); return; }
+
+  const person = { id: Date.now(), category: cat, role };
+
+  if (cat === 'redacted') {
+    // Auto-number
+    const existing = casePeople.filter(p => p.role === role).length;
+    person.label = role + ' #' + (existing + 1);
+  } else {
+    const first = document.getElementById('pp_first').value.trim();
+    const last = document.getElementById('pp_last').value.trim();
+    if (!first && !last) { toast('Enter at least a first name'); return; }
+    person.first = first;
+    person.last = last;
+    person.name = `${first} ${last}`.trim();
+
+    if (cat === 'police') {
+      person.rank = document.getElementById('pp_rank').value.trim();
+      person.badge = document.getElementById('pp_badge').value.trim();
+      person.division = document.getElementById('pp_division').value.trim();
+      person.label = `${person.rank ? person.rank + ' ' : ''}${person.name}${person.badge ? ' #' + person.badge : ''}`;
+    } else {
+      person.address = document.getElementById('pp_address').value.trim();
+      person.label = person.name;
+    }
+  }
+
+  person.notes = document.getElementById('pp_notes').value.trim();
+
+  casePeople.push(person);
+  localStorage.setItem('lsc_people', JSON.stringify(casePeople));
+  renderPeople();
+  // Reset form
+  document.getElementById('pp_category').value = '';
+  document.getElementById('pp_role').innerHTML = '<option value="">Select role…</option>';
+  ['pp_first','pp_last','pp_rank','pp_badge','pp_division','pp_address','pp_notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('pp_police_fields').style.display = 'none';
+  document.getElementById('pp_civilian_fields').style.display = 'none';
+  document.getElementById('pp_redacted_note').style.display = 'none';
+  toast('Person added to case');
+}
+
+function removePerson(id) {
+  casePeople = casePeople.filter(p => p.id !== id);
+  // Re-number redacted
+  let wCount = 0, vCount = 0;
+  casePeople.forEach(p => {
+    if (p.role === 'Redacted Witness') { wCount++; p.label = 'Redacted Witness #' + wCount; }
+    if (p.role === 'Redacted Alleged Victim') { vCount++; p.label = 'Redacted Alleged Victim #' + vCount; }
+  });
+  localStorage.setItem('lsc_people', JSON.stringify(casePeople));
+  renderPeople();
+}
+
+function renderPeople() {
+  const list = document.getElementById('pp_list');
+  if (!casePeople.length) {
+    list.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:24px">No people added yet</div>';
+    return;
+  }
+
+  const groups = {};
+  casePeople.forEach(p => {
+    const g = p.category === 'police' ? 'Police' : p.category === 'redacted' ? 'Redacted' : 'Civilians';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(p);
+  });
+
+  let html = '';
+  Object.entries(groups).forEach(([grp, people]) => {
+    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:.54rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">${grp}</div>`;
+    people.forEach(p => {
+      html += `<div style="border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div style="flex:1">
+          <div style="font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:2px">${p.label || p.name}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:${p.notes ? '6px' : '0'}">${p.role}${p.division ? ' · ' + p.division : ''}${p.address ? ' · ' + p.address : ''}</div>
+          ${p.notes ? `<div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2)">${p.notes}</div>` : ''}
+        </div>
+        <button onclick="removePerson(${p.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;flex-shrink:0;padding:2px 6px" title="Remove">✕</button>
+      </div>`;
+    });
+  });
+  list.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// DEFENCE ORGANIZATION TOOL
+// ═══════════════════════════════════════════
+let dorgData = JSON.parse(localStorage.getItem('cs_dorg') || '{"timeline":[],"evidence":[],"deadlines":[],"notes":""}');
+let dorgCurrentTab = 'timeline';
+let dorgCurrentModal = null;
+
+function saveDorg() { localStorage.setItem('cs_dorg', JSON.stringify(dorgData)); }
+
+function dorgTab(tab, btn) {
+  document.querySelectorAll('.dorg-tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.dorg-section').forEach(s => s.style.display = 'none');
+  document.getElementById('dorg-' + tab).style.display = 'flex';
+  dorgCurrentTab = tab;
+  if (tab === 'notes') document.getElementById('dorg-notes-txt').value = dorgData.notes || '';
+  else renderDorgList(tab);
+}
+
+function renderDorgList(tab) {
+  const list = document.getElementById('dorg-' + tab + '-list');
+  const items = dorgData[tab] || [];
+  if (!items.length) { list.innerHTML = `<div class="dorg-empty">No ${tab} items yet — click + Add to start</div>`; return; }
+
+  // Sort deadlines by date
+  if (tab === 'deadlines' || tab === 'timeline') items.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+
+  list.innerHTML = items.map((item, i) => `
+    <div class="dorg-item ${item.priority || 'normal'}">
+      <div style="flex:1">
+        <div class="dorg-item-title">${item.title || item.name || ''}</div>
+        <div class="dorg-item-meta">${item.date ? '📅 ' + item.date : ''} ${item.type ? '· ' + item.type : ''} ${item.status ? '· ' + item.status : ''}</div>
+        ${item.notes ? `<div class="dorg-item-notes">${item.notes}</div>` : ''}
+      </div>
+      <button class="dorg-del" onclick="deleteDorgItem('${tab}',${i})">✕</button>
+    </div>`).join('');
+}
+
+function deleteDorgItem(tab, idx) {
+  dorgData[tab].splice(idx, 1);
+  saveDorg();
+  renderDorgList(tab);
+}
+
+function openDorgModal(tab) {
+  dorgCurrentModal = tab;
+  const modal = document.getElementById('dorg-modal-ov');
+  const titles = { timeline:'Add Timeline Event', evidence:'Add Evidence Item', deadlines:'Add Court Date or Deadline' };
+  document.getElementById('dorg-modal-title').textContent = titles[tab] || 'Add Item';
+
+  const fields = {
+    timeline: `
+      <label class="dorg-fl">Event Title</label><input class="dorg-fi" id="dm_title" placeholder="e.g. Arrest, Search, Disclosure received" style="font-size:16px">
+      <label class="dorg-fl">Date</label><input class="dorg-fi" id="dm_date" type="date">
+      <label class="dorg-fl">Priority</label>
+      <select class="dorg-fi" id="dm_priority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select>
+      <label class="dorg-fl">Notes</label><textarea class="dorg-fi" id="dm_notes" rows="3" style="resize:vertical;font-size:16px"></textarea>`,
+    evidence: `
+      <label class="dorg-fl">Evidence Item</label><input class="dorg-fi" id="dm_title" placeholder="e.g. Officer notes — Cst. Smith" style="font-size:16px">
+      <label class="dorg-fl">Type</label>
+      <select class="dorg-fi" id="dm_type"><option>Officer Notes</option><option>Will-Say</option><option>Witness Statement</option><option>Surveillance Video</option><option>Body Cam</option><option>Forensic Report</option><option>Photo/Video</option><option>Document</option><option>Other</option></select>
+      <label class="dorg-fl">Status</label>
+      <select class="dorg-fi" id="dm_status"><option>Received</option><option>Requested — Not Yet Received</option><option>Missing — Not Disclosed</option><option>Challenged</option></select>
+      <label class="dorg-fl">Priority</label>
+      <select class="dorg-fi" id="dm_priority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select>
+      <label class="dorg-fl">Notes</label><textarea class="dorg-fi" id="dm_notes" rows="2" style="resize:vertical;font-size:16px"></textarea>`,
+    deadlines: `
+      <label class="dorg-fl">Event / Deadline</label><input class="dorg-fi" id="dm_title" placeholder="e.g. Next court date, Filing deadline" style="font-size:16px">
+      <label class="dorg-fl">Date</label><input class="dorg-fi" id="dm_date" type="date">
+      <label class="dorg-fl">Type</label>
+      <select class="dorg-fi" id="dm_type"><option>Court Appearance</option><option>Filing Deadline</option><option>Bail Hearing</option><option>Preliminary Inquiry</option><option>Trial</option><option>Sentencing</option><option>Appeal</option><option>Other</option></select>
+      <label class="dorg-fl">Priority</label>
+      <select class="dorg-fi" id="dm_priority"><option value="urgent">Urgent</option><option value="important">Important</option><option value="normal">Normal</option></select>
+      <label class="dorg-fl">Notes</label><textarea class="dorg-fi" id="dm_notes" rows="2" style="resize:vertical;font-size:16px"></textarea>`,
+  };
+
+  document.getElementById('dorg-modal-fields').innerHTML = fields[tab] || '';
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('dm_title')?.focus(), 100);
+}
+
+function closeDorgModal() { document.getElementById('dorg-modal-ov').style.display = 'none'; }
+
+function saveDorgItem() {
+  const tab = dorgCurrentModal;
+  const title = document.getElementById('dm_title')?.value.trim();
+  if (!title) { toast('Enter a title'); return; }
+
+  const item = {
+    title,
+    date: document.getElementById('dm_date')?.value || '',
+    type: document.getElementById('dm_type')?.value || '',
+    status: document.getElementById('dm_status')?.value || '',
+    priority: document.getElementById('dm_priority')?.value || 'normal',
+    notes: document.getElementById('dm_notes')?.value.trim() || '',
+    created: new Date().toISOString(),
+  };
+
+  if (!dorgData[tab]) dorgData[tab] = [];
+  dorgData[tab].push(item);
+  saveDorg();
+  closeDorgModal();
+  renderDorgList(tab);
+  toast('Added to ' + tab);
+}
+
+function saveDorgNotes() {
+  dorgData.notes = document.getElementById('dorg-notes-txt').value;
+  saveDorg();
+  toast('Notes saved');
 }
 
 // ═══════════════════════════════════════════

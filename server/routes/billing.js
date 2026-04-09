@@ -6,10 +6,13 @@ const { requireAuth } = require('../middleware/auth');
 const { getUserById, updateUserPlan, updateStripeCustomer, addOneTimePurchase } = require('../db');
 
 const STRIPE_PRICES = {
-  essential:     () => process.env.STRIPE_PRICE_ESSENTIAL,
-  complete:      () => process.env.STRIPE_PRICE_COMPLETE,
-  counsel:       () => process.env.STRIPE_PRICE_COUNSEL,
-  analysis_pack: () => process.env.STRIPE_PRICE_ANALYSIS_PACK,
+  essential:          () => process.env.STRIPE_PRICE_ESSENTIAL,
+  complete:           () => process.env.STRIPE_PRICE_COMPLETE,
+  counsel:            () => process.env.STRIPE_PRICE_COUNSEL,
+  analysis_pack:      () => process.env.STRIPE_PRICE_ANALYSIS_PACK,
+  essential_annual:   () => process.env.STRIPE_PRICE_ESSENTIAL_ANNUAL,
+  complete_annual:    () => process.env.STRIPE_PRICE_COMPLETE_ANNUAL,
+  counsel_annual:     () => process.env.STRIPE_PRICE_COUNSEL_ANNUAL,
 };
 
 let stripe;
@@ -22,12 +25,15 @@ const APP_URL = () => process.env.APP_URL || 'http://localhost:3000';
 
 // Plan metadata for checkout
 const PLAN_META = {
-  essential:          { priceId: STRIPE_PRICES.essential,  plan: 'essential', products: 'both', label: 'ClearStand Essential' },
-  complete:           { priceId: STRIPE_PRICES.complete,   plan: 'complete',  products: 'both', label: 'ClearStand Complete' },
-  counsel:            { priceId: STRIPE_PRICES.counsel,    plan: 'counsel',   products: 'both', label: 'ClearStand Counsel' },
+  essential:          { priceId: STRIPE_PRICES.essential,         plan: 'essential', products: 'both', label: 'ClearStand Essential' },
+  complete:           { priceId: STRIPE_PRICES.complete,          plan: 'complete',  products: 'both', label: 'ClearStand Complete' },
+  counsel:            { priceId: STRIPE_PRICES.counsel,           plan: 'counsel',   products: 'both', label: 'ClearStand Counsel' },
+  essential_annual:   { priceId: STRIPE_PRICES.essential_annual,  plan: 'essential', products: 'both', label: 'ClearStand Essential Annual' },
+  complete_annual:    { priceId: STRIPE_PRICES.complete_annual,   plan: 'complete',  products: 'both', label: 'ClearStand Complete Annual' },
+  counsel_annual:     { priceId: STRIPE_PRICES.counsel_annual,    plan: 'counsel',   products: 'both', label: 'ClearStand Counsel Annual' },
   // Legacy keys for backward compatibility
-  essential_criminal: { priceId: STRIPE_PRICES.essential,  plan: 'essential', products: 'criminal', label: 'ClearStand Essential' },
-  essential_family:   { priceId: STRIPE_PRICES.essential,  plan: 'essential', products: 'family',   label: 'ClearStand Essential' },
+  essential_criminal: { priceId: STRIPE_PRICES.essential,         plan: 'essential', products: 'criminal', label: 'ClearStand Essential' },
+  essential_family:   { priceId: STRIPE_PRICES.essential,         plan: 'essential', products: 'family',   label: 'ClearStand Essential' },
 };
 
 // One-time analysis pack
