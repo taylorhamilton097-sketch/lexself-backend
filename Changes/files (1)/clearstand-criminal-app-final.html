@@ -471,6 +471,10 @@ select.fi { cursor: pointer; }
       <button class="sbt" onclick="loadTopic('sentencing');sbActive(this)"><span class="lbl">Sentencing<span class="tag">Gladue · Lacasse</span></span></button>
     </div>
     <div class="sb-sec">
+      <div class="sb-hdr">Case Directory</div>
+      <button class="sbt" onclick="showPanel('people');bnActive('people');sbActive(this)"><span class="lbl">People in My Case<span class="tag">Police · Witnesses · Accused</span></span></button>
+    </div>
+    <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
       <button class="sbt" onclick="showPanel('crossex');bnActive('crossex');sbActive(this)"><span class="lbl">Cross-Examination Builder<span class="tag">Witness · Questions · Strategy</span></span></button>
       <button class="sbt" onclick="showPanel('defence-org');bnActive('defence-org');sbActive(this)"><span class="lbl">Defence Organization<span class="tag">Timeline · Evidence · Deadlines</span></span></button>
@@ -577,10 +581,7 @@ select.fi { cursor: pointer; }
   <div id="panel-profile" class="panel">
     <div class="profile-wrap">
       <!-- Tabs -->
-      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;flex-shrink:0">
-        <button class="prof-tab on" onclick="switchProfTab('my',this)">My Profile</button>
-        <button class="prof-tab" onclick="switchProfTab('people',this)">People in My Case</button>
-      </div>
+
 
       <!-- MY PROFILE TAB -->
       <div id="prof-my" class="prof-section">
@@ -627,10 +628,17 @@ select.fi { cursor: pointer; }
         <div style="height:40px"></div>
       </div>
 
-      <!-- PEOPLE TAB -->
-      <div id="prof-people" class="prof-section" style="display:none">
-        <div class="ptitle">People in My Case</div>
-        <div class="psub">Add everyone involved — police, witnesses, victims, co-accused</div>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- PEOPLE PANEL -->
+  <div id="panel-people" class="panel">
+    <div class="profile-wrap">
+      <div class="ptitle">People in My Case</div>
+      <div class="psub">Add everyone involved — police, witnesses, victims, co-accused · Stored locally</div>
 
         <!-- Add Person Form -->
         <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
@@ -677,11 +685,9 @@ select.fi { cursor: pointer; }
         <!-- People List -->
         <div id="pp_list"></div>
         <div style="height:40px"></div>
-      </div>
     </div>
   </div>
 
-</div>
 
   <!-- DEFENCE ORGANIZATION PANEL -->
   <div id="panel-defence-org" class="panel">
@@ -1060,7 +1066,8 @@ function showPanel(name) {
   const panel = document.getElementById('panel-' + name);
   if (panel) panel.classList.add('on');
   currentPanel = name;
-  const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder', 'defence-org':'Defence Organization' };
+  const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder', 'defence-org':'Defence Organization', people:'People in My Case' };
+  if (name === 'people') setTimeout(() => renderPeople(), 100);
   if (name === 'defence-org') setTimeout(() => renderDorgList('timeline'), 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
   if (name === 'chat' && document.getElementById('msgs').innerHTML === '') showWelcome();
@@ -1999,8 +2006,7 @@ let casePeople = JSON.parse(localStorage.getItem('lsc_people') || '[]');
 function switchProfTab(tab, btn) {
   document.querySelectorAll('.prof-tab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('prof-my').style.display = tab === 'my' ? 'block' : 'none';
-  document.getElementById('prof-people').style.display = tab === 'people' ? 'block' : 'none';
+  document.getElementById('prof-my').style.display = 'block';
   if (tab === 'people') renderPeople();
 }
 
