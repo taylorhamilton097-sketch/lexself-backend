@@ -104,7 +104,8 @@ router.post('/', requireAuth, async (req, res) => {
   }
 
   // Build system prompt with profile and context
-  let system = FAMILY_SYSTEM;
+  // Allow affidavit builder and other tools to override the system prompt
+  let system = context?.systemOverride || FAMILY_SYSTEM;
 
   // Load saved profile from DB if not in context
   const profile = context?.profile || getCaseProfile(user.id, 'family');
@@ -135,7 +136,7 @@ ${profile.otherParties?.length ? `Other parties: ${profile.otherParties.map(op=>
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
+        max_tokens: 4000,
         system,
         messages,
       }),
