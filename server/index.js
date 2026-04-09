@@ -70,6 +70,22 @@ app.use(express.static(path.join(__dirname, '../public-criminal')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/index.html')));
 
 const PORT = process.env.PORT || 3000;
+// Ensure admin account has counsel plan on every startup
+(async function ensureAdmin() {
+  try {
+    const { getUserByEmail, updateUserPlan } = require('./db');
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) return;
+    const user = getUserByEmail(adminEmail);
+    if (user && user.plan !== 'counsel' && user.plan !== 'admin') {
+      updateUserPlan(user.id, 'counsel', 'both', null, null, 'active');
+      console.log(`Admin account ${adminEmail} upgraded to counsel`);
+    }
+  } catch(e) {
+    console.error('Admin setup error:', e.message);
+  }
+})();
+
 app.listen(PORT, () => {
   console.log(`ClearStand Unified Backend → http://localhost:${PORT}`);
   console.log(`  Criminal: http://localhost:${PORT}/`);
