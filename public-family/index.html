@@ -1082,7 +1082,7 @@ async function doLogin() {
   if (!email||!pass) { err.textContent='Email and password required.'; err.classList.add('show'); return; }
   btn.disabled=true; btn.textContent='Signing in…';
   try {
-    const d = await api('POST','/api/auth/login',{email,password:pass});
+    const d = await api('POST','/auth/login',{email,password:pass});
     if (d?.error) { err.textContent=d.error; err.classList.add('show'); }
     else if (d?.token) { authToken=d.token; localStorage.setItem('ls_tok',d.token); currentUser=d.user; onAuthSuccess(); }
   } catch(e) { err.textContent='Network error.'; err.classList.add('show'); }
@@ -1099,7 +1099,7 @@ async function doRegister() {
   if (!name||!email||!pass) { err.textContent='All fields required.'; err.classList.add('show'); return; }
   btn.disabled=true; btn.textContent='Creating account…';
   try {
-    const d = await api('POST','/api/auth/register',{name,email,password:pass,product:'family'});
+    const d = await api('POST','/auth/register',{name,email,password:pass,product:'family'});
     if (d?.error) { err.textContent=d.error; err.classList.add('show'); }
     else if (d?.token) { authToken=d.token; localStorage.setItem('ls_tok',d.token); currentUser=d.user; onAuthSuccess(); }
   } catch(e) { err.textContent='Network error.'; err.classList.add('show'); }
@@ -1122,7 +1122,7 @@ async function onAuthSuccess() {
 }
 
 async function refreshUsage() {
-  const d = await api('GET','/api/auth/me');
+  const d = await api('GET','/auth/me');
   if (d?.user) { currentUser=d.user; usageState=d.usage; renderUsage(); }
 }
 
@@ -1186,7 +1186,7 @@ function closeAccountPanel() { document.getElementById('acctOv').classList.remov
 async function openBillingPortal() {
   closeAccountPanel();
   try {
-    const d = await fetch('/api/billing/portal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')}});
+    const d = await fetch('/billing/portal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')}});
     const r = await d.json();
     if (r.url) window.location.href = r.url;
     else toast('Billing portal not available yet');
@@ -1325,7 +1325,7 @@ async function stopVoice(){
   document.getElementById('vBtn').textContent='Cleaning…';
   inp.disabled=true;
   try {
-    const resp=await fetch('/api/dictation/clean',{
+    const resp=await fetch('/dictation/clean',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')},
       body:JSON.stringify({text:raw})
@@ -1348,7 +1348,7 @@ async function stopVoice(){
 const PIDS={role:'p_role',first:'p_first',last:'p_last',dob:'p_dob',addr:'p_addr',city:'p_city',prov:'p_prov',postal:'p_postal',phone:'p_phone',email:'p_email',occupation:'p_occupation',cf_number:'cf_number',cf_court:'cf_court',cf_addr:'cf_addr',cf_type:'cf_type',cf_nextdate:'cf_nextdate',cf_nextevent:'cf_nextevent',cf_judge:'cf_judge',ml_status:'ml_status',ml_first:'ml_first',ml_last:'ml_last',ml_firm:'ml_firm',ml_lso:'ml_lso',ml_phone:'ml_phone',ml_fax:'ml_fax'};
 
 async function loadProfileFromServer() {
-  const d = await api('GET','/api/auth/profile');
+  const d = await api('GET','/auth/profile');
   if (!d?.profile || !Object.keys(d.profile).length) return;
   caseProfile = d.profile;
   applyProfileToUI(caseProfile);
@@ -1371,7 +1371,7 @@ async function saveProfile() {
   p.otherParties=[];
   document.querySelectorAll('.party-blk').forEach(b=>{p.otherParties.push({role:b.querySelector('.or')?.value||'',first:b.querySelector('.of')?.value||'',last:b.querySelector('.ol')?.value||'',addr:b.querySelector('.oa')?.value||'',phone:b.querySelector('.op')?.value||'',email:b.querySelector('.oe')?.value||''});});
   caseProfile=p;
-  if(authToken) await api('POST','/api/auth/profile',{profile:p});
+  if(authToken) await api('POST','/auth/profile',{profile:p});
   localStorage.setItem('ls_family_profile',JSON.stringify(p));
   if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim()+(p.cf_number?' · '+p.cf_number:'');document.getElementById('ctxPill').classList.remove('none');}
   const ok=document.getElementById('sok');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2400);
@@ -1385,7 +1385,7 @@ function clearProfile() {
   document.getElementById('childList').innerHTML='';
   document.getElementById('partyList').innerHTML='';
   localStorage.removeItem('ls_family_profile');
-  if(authToken) api('POST','/api/auth/profile',{profile:{}});
+  if(authToken) api('POST','/auth/profile',{profile:{}});
   toast('Profile cleared');
 }
 
@@ -1569,7 +1569,7 @@ async function startDocAnalysis() {
   const profile = caseProfile;
 
   try {
-    const resp = await fetch('/api/family/analyze', {
+    const resp = await fetch('/family/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({ base64, role, issues, ctx, profile })
@@ -1994,7 +1994,7 @@ async function sendAffMessage(userAnswer, isFirst = false, firstMsg = null) {
       ? [{ role: 'user', content: firstMsg || 'Start the affidavit interview. Ask me what type of affidavit I need.' }]
       : affHistory;
 
-    const resp = await fetch('/api/family/chat', {
+    const resp = await fetch('/family/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({
@@ -2104,7 +2104,7 @@ async function stopAffVoice() {
   document.getElementById('affVBtn').textContent = 'Cleaning…';
   inp.disabled = true;
   try {
-    const resp = await fetch('/api/dictation/clean', {
+    const resp = await fetch('/dictation/clean', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({ text: raw })
@@ -2179,7 +2179,7 @@ function obSkip() {
   showWelcome();
   if (authToken) {
     try {
-      const d = await api('GET','/api/auth/me');
+      const d = await api('GET','/auth/me');
       if (d?.user) {
         currentUser=d.user; usageState=d.usage;
         document.getElementById('authOv').style.display='none';
