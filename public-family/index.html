@@ -1111,7 +1111,7 @@ function doLogout() {
   localStorage.removeItem('ls_tok');
   document.getElementById('authOv').style.display='flex';
   document.getElementById('usageStrip').classList.remove('show');
-  document.getElementById('planBadge').style.display='none';
+  // planBadge removed from nav
 }
 
 async function onAuthSuccess() {
@@ -1129,9 +1129,8 @@ async function refreshUsage() {
 function renderUsage() {
   if (!currentUser||!usageState) return;
   document.getElementById('usageStrip').classList.add('show');
-  document.getElementById('planBadge').textContent=usageState.planLabel||usageState.plan;
-  document.getElementById('planBadge').style.display='block';
-  document.getElementById('usrName').textContent=currentUser.name;
+  // planBadge removed - plan shown in account panel
+  const usrEl=document.getElementById('usrName'); if(usrEl) usrEl.textContent=currentUser.name;
   const { used:cU, limit:cL } = usageState.chat;
   const cPips = document.getElementById('cPips');
   cPips.innerHTML='';
