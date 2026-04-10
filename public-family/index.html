@@ -808,14 +808,32 @@ select.fi { cursor: pointer; }
 
       <!-- CHILD SUPPORT TAB -->
       <div id="supp-child">
-        <div class="pr-sec-t" style="margin-top:0">Payor Information</div>
+
+        <!-- Party Names & Incomes -->
+        <div class="pr-sec-t" style="margin-top:0">Party Information</div>
         <div class="fr">
           <div class="fg">
-            <label class="fl">Payor's Annual Gross Income ($)</label>
-            <input class="fi" type="number" id="cs_income" placeholder="e.g. 85000" oninput="calcChild()" style="font-size:16px">
+            <label class="fl">Applicant's Name</label>
+            <input class="fi" type="text" id="cs_app_name" placeholder="First Last" oninput="calcChild()" style="font-size:16px">
           </div>
           <div class="fg">
-            <label class="fl">Province of Payor</label>
+            <label class="fl">Applicant's Annual Gross Income ($)</label>
+            <input class="fi" type="number" id="cs_app_income" placeholder="e.g. 85000" oninput="calcChild()" style="font-size:16px">
+          </div>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">Respondent's Name</label>
+            <input class="fi" type="text" id="cs_resp_name" placeholder="First Last" oninput="calcChild()" style="font-size:16px">
+          </div>
+          <div class="fg">
+            <label class="fl">Respondent's Annual Gross Income ($)</label>
+            <input class="fi" type="number" id="cs_resp_income" placeholder="e.g. 60000" oninput="calcChild()" style="font-size:16px">
+          </div>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">Province</label>
             <select class="fi" id="cs_province" onchange="calcChild()" style="font-size:16px">
               <option value="ON">Ontario</option>
               <option value="BC">British Columbia</option>
@@ -831,43 +849,14 @@ select.fi { cursor: pointer; }
           </div>
         </div>
 
+        <!-- Children -->
         <div class="pr-sec-t">Children</div>
-        <div class="fr">
-          <div class="fg">
-            <label class="fl">Number of Children</label>
-            <select class="fi" id="cs_children" onchange="calcChild()" style="font-size:16px">
-              <option value="1">1 child</option>
-              <option value="2">2 children</option>
-              <option value="3">3 children</option>
-              <option value="4">4 children</option>
-              <option value="5">5+ children</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Custody Arrangement</label>
-            <select class="fi" id="cs_custody" onchange="calcChild()" style="font-size:16px">
-              <option value="sole">Sole/Primary (one parent)</option>
-              <option value="shared">Shared (40%+ each parent)</option>
-              <option value="split">Split (children split between parents)</option>
-            </select>
-          </div>
+        <div style="margin-bottom:12px">
+          <div id="cs_children_list"></div>
+          <button onclick="addChildRow()" style="margin-top:8px;padding:8px 16px;background:none;border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600">+ Add Child</button>
         </div>
 
-        <div id="cs_shared_wrap" style="display:none">
-          <div class="pr-sec-t">Shared Custody — Both Incomes Required</div>
-          <div class="fr">
-            <div class="fg">
-              <label class="fl">Payor's Annual Income ($)</label>
-              <input class="fi" type="number" id="cs_income2" placeholder="Higher income parent" oninput="calcChild()" style="font-size:16px">
-            </div>
-            <div class="fg">
-              <label class="fl">Other Parent's Annual Income ($)</label>
-              <input class="fi" type="number" id="cs_income3" placeholder="Lower income parent" oninput="calcChild()" style="font-size:16px">
-            </div>
-          </div>
-          <div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:16px">In shared custody, the <em>Contino</em> formula applies — each parent pays the table amount for the other, with the lower amount offset against the higher.</div>
-        </div>
-
+        <!-- Section 7 -->
         <div class="pr-sec-t">Section 7 Special Expenses <span style="color:var(--text3);font-size:.85em">(optional)</span></div>
         <div class="fr">
           <div class="fg">
@@ -885,19 +874,17 @@ select.fi { cursor: pointer; }
             <input class="fi" type="number" id="cs_extra" placeholder="0" oninput="calcChild()" style="font-size:16px">
           </div>
           <div class="fg">
-            <label class="fl">Payor's Share of Income (%)</label>
+            <label class="fl">Applicant's Share of S.7 (%)</label>
             <input class="fi" type="number" id="cs_share" placeholder="e.g. 60" value="50" oninput="calcChild()" style="font-size:16px">
           </div>
         </div>
 
-        <!-- Child Support Result -->
+        <!-- Result -->
         <div id="cs_result" style="display:none;margin-top:24px">
           <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px">
-            <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:16px">Child Support Result</div>
-            <div class="supp-result-row">
-              <span class="supp-result-label">Table Amount</span>
-              <span class="supp-result-val" id="cs_table_amt"></span>
-            </div>
+            <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:4px">Child Support Result</div>
+            <div id="cs_parties_label" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:16px"></div>
+            <div id="cs_per_child_breakdown"></div>
             <div class="supp-result-row" id="cs_s7_row" style="display:none">
               <span class="supp-result-label">Section 7 Contribution</span>
               <span class="supp-result-val" id="cs_s7_amt"></span>
@@ -906,9 +893,10 @@ select.fi { cursor: pointer; }
               <span class="supp-result-label" style="color:var(--white);font-weight:600">Total Monthly Support</span>
               <span class="supp-result-val" id="cs_total_amt" style="color:#4CAF50;font-size:1.2rem"></span>
             </div>
+            <div id="cs_payor_label" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)"></div>
             <div id="cs_shared_note" style="display:none;margin-top:12px;font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3)"></div>
             <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-family:'Inter',sans-serif;font-size:.8rem;color:var(--text3)">
-              Based on Federal Child Support Guidelines, Schedule I (Ontario). Income over $150,000 uses the Guidelines formula. Results are estimates — actual amounts set by court order.
+              Based on Federal Child Support Guidelines, Schedule I (Ontario). Income over $150,000 uses the Guidelines formula. Results are estimates only.
             </div>
           </div>
           <button onclick="copySupport('child')" style="margin-top:12px;padding:8px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">Copy Result</button>
@@ -917,11 +905,21 @@ select.fi { cursor: pointer; }
 
       <!-- SPOUSAL SUPPORT TAB -->
       <div id="supp-spousal" style="display:none">
-        <div class="pr-sec-t" style="margin-top:0">Income Information</div>
+        <div class="pr-sec-t" style="margin-top:0">Party Information</div>
         <div class="fr">
+          <div class="fg">
+            <label class="fl">Payor's Name</label>
+            <input class="fi" type="text" id="ss_payor_name" placeholder="First Last" style="font-size:16px">
+          </div>
           <div class="fg">
             <label class="fl">Payor's Annual Gross Income ($)</label>
             <input class="fi" type="number" id="ss_payor_income" placeholder="e.g. 120000" oninput="calcSpousal()" style="font-size:16px">
+          </div>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">Recipient's Name</label>
+            <input class="fi" type="text" id="ss_recip_name" placeholder="First Last" style="font-size:16px">
           </div>
           <div class="fg">
             <label class="fl">Recipient's Annual Gross Income ($)</label>
@@ -1384,6 +1382,7 @@ function showPanel(name) {
   if (panel) panel.classList.add('on');
   const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms', support:'Support Calculator' };
   if (name === 'people') setTimeout(renderFamilyPeople, 100);
+  if (name === 'support') setTimeout(loadChildrenFromPeople, 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
   // Affidavit interview started manually via Begin button
 }
@@ -2249,68 +2248,157 @@ function getTableAmount(income, numChildren, province) {
   return Math.round((lowerAmt + ratio * (upperAmt - lowerAmt)) * mult);
 }
 
+let csChildren = []; // [{name, custody}]
+
 function suppTab(tab, btn) {
   document.querySelectorAll('.supp-tab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('supp-child').style.display = tab === 'child' ? 'block' : 'none';
   document.getElementById('supp-spousal').style.display = tab === 'spousal' ? 'block' : 'none';
+  if (tab === 'child') loadChildrenFromPeople();
+}
+
+function loadChildrenFromPeople() {
+  // Auto-populate names from People in My Case
+  const app = familyPeople.find(p => p.role === 'Applicant');
+  const resp = familyPeople.find(p => p.role === 'Respondent');
+  if (app && !document.getElementById('cs_app_name').value) {
+    document.getElementById('cs_app_name').value = app.name || '';
+    document.getElementById('cs_app_income').value = app.income || '';
+  }
+  if (resp && !document.getElementById('cs_resp_name').value) {
+    document.getElementById('cs_resp_name').value = resp.name || '';
+    document.getElementById('cs_resp_income').value = resp.income || '';
+  }
+  // Auto-add children
+  const kids = familyPeople.filter(p => p.role === 'Child');
+  if (kids.length > 0 && csChildren.length === 0) {
+    kids.forEach(k => {
+      csChildren.push({ name: k.name || 'Child', custody: k.living === 'Applicant' ? 'primary_app' : k.living === 'Respondent' ? 'primary_resp' : 'shared' });
+    });
+    renderChildRows();
+  }
+  if (csChildren.length === 0) addChildRow();
+}
+
+function addChildRow() {
+  csChildren.push({ name: '', custody: 'primary_resp' });
+  renderChildRows();
+}
+
+function removeChildRow(idx) {
+  csChildren.splice(idx, 1);
+  renderChildRows();
+  calcChild();
+}
+
+function renderChildRows() {
+  const list = document.getElementById('cs_children_list');
+  const appName = document.getElementById('cs_app_name').value || 'Applicant';
+  const respName = document.getElementById('cs_resp_name').value || 'Respondent';
+  list.innerHTML = csChildren.map((c, i) => `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;background:var(--navy-light);padding:10px 12px;border:1px solid var(--border)">
+      <input class="fi" type="text" placeholder="Child's name" value="${c.name}" oninput="csChildren[${i}].name=this.value;calcChild()" style="font-size:16px;flex:1;min-width:100px">
+      <select class="fi" onchange="csChildren[${i}].custody=this.value;calcChild()" style="font-size:15px;flex:1.5">
+        <option value="primary_app" ${c.custody==='primary_app'?'selected':''}>Primary — ${appName}</option>
+        <option value="primary_resp" ${c.custody==='primary_resp'?'selected':''}>Primary — ${respName}</option>
+        <option value="shared" ${c.custody==='shared'?'selected':''}>Shared (40%+ each)</option>
+      </select>
+      <button onclick="removeChildRow(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 6px;flex-shrink:0">✕</button>
+    </div>`).join('');
 }
 
 function calcChild() {
-  const income = parseInt(document.getElementById('cs_income').value) || 0;
-  const children = parseInt(document.getElementById('cs_children').value) || 1;
+  const appIncome = parseInt(document.getElementById('cs_app_income').value) || 0;
+  const respIncome = parseInt(document.getElementById('cs_resp_income').value) || 0;
   const province = document.getElementById('cs_province').value;
-  const custody = document.getElementById('cs_custody').value;
   const childcare = parseFloat(document.getElementById('cs_childcare').value) || 0;
   const medical = parseFloat(document.getElementById('cs_medical').value) || 0;
   const extra = parseFloat(document.getElementById('cs_extra').value) || 0;
   const share = parseFloat(document.getElementById('cs_share').value) || 50;
+  const appName = document.getElementById('cs_app_name').value || 'Applicant';
+  const respName = document.getElementById('cs_resp_name').value || 'Respondent';
 
-  // Show/hide shared custody fields
-  const sharedWrap = document.getElementById('cs_shared_wrap');
-  sharedWrap.style.display = custody === 'shared' ? 'block' : 'none';
+  // Re-render child rows to update name dropdowns
+  if (csChildren.length > 0) renderChildRows();
 
-  if (!income || income < 6000) return;
+  if (!appIncome && !respIncome) return;
+  if (csChildren.length === 0) return;
 
-  let tableAmt = 0;
-  let sharedNote = '';
+  // Calculate per-child and determine who pays whom
+  // Primary parent with child = receives support from other parent
+  // Shared = use Contino (set-off)
+  
+  let appPaysResp = 0; // Applicant pays Respondent (children primarily with Resp)
+  let respPaysApp = 0; // Respondent pays Applicant (children primarily with App)
+  let sharedChildren = [];
+  let perChildBreakdown = '';
 
-  if (custody === 'shared') {
-    const inc2 = parseInt(document.getElementById('cs_income2').value) || income;
-    const inc3 = parseInt(document.getElementById('cs_income3').value) || 0;
-    if (!inc3) return;
-    const higher = Math.max(inc2, inc3);
-    const lower = Math.min(inc2, inc3);
-    const higherTable = getTableAmount(higher, children, province);
-    const lowerTable = getTableAmount(lower, children, province);
-    tableAmt = higherTable - lowerTable;
-    sharedNote = `Contino formula: Higher income table ($${higherTable.toLocaleString()}) minus lower income table ($${lowerTable.toLocaleString()}) = net payment of $${tableAmt.toLocaleString()}/month. Courts may adjust based on actual expenses and parenting time.`;
-    document.getElementById('cs_shared_note').textContent = sharedNote;
-    document.getElementById('cs_shared_note').style.display = 'block';
-  } else {
-    tableAmt = getTableAmount(income, children, province);
-    document.getElementById('cs_shared_note').style.display = 'none';
+  const appPrimary = csChildren.filter(c => c.custody === 'primary_app');
+  const respPrimary = csChildren.filter(c => c.custody === 'primary_resp');
+  const sharedCusts = csChildren.filter(c => c.custody === 'shared');
+
+  // Children primarily with Applicant — Respondent pays
+  if (appPrimary.length > 0 && respIncome > 0) {
+    const amt = getTableAmount(respIncome, appPrimary.length, province);
+    respPaysApp = amt;
+    const names = appPrimary.map(c => c.name || 'Child').join(', ');
+    perChildBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} — ${respName} pays ${appName}</span><span class="supp-result-val">$${amt.toLocaleString()}/mo</span></div>`;
   }
 
-  // Section 7 expenses
+  // Children primarily with Respondent — Applicant pays
+  if (respPrimary.length > 0 && appIncome > 0) {
+    const amt = getTableAmount(appIncome, respPrimary.length, province);
+    appPaysResp = amt;
+    const names = respPrimary.map(c => c.name || 'Child').join(', ');
+    perChildBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} — ${appName} pays ${respName}</span><span class="supp-result-val">$${amt.toLocaleString()}/mo</span></div>`;
+  }
+
+  // Shared children — Contino set-off
+  let sharedNetAmt = 0;
+  let sharedNetPayer = '';
+  if (sharedCusts.length > 0 && appIncome > 0 && respIncome > 0) {
+    const higher = Math.max(appIncome, respIncome);
+    const lower = Math.min(appIncome, respIncome);
+    const higherPayer = appIncome > respIncome ? appName : respName;
+    const higherTable = getTableAmount(higher, sharedCusts.length, province);
+    const lowerTable = getTableAmount(lower, sharedCusts.length, province);
+    sharedNetAmt = higherTable - lowerTable;
+    sharedNetPayer = higherPayer;
+    const names = sharedCusts.map(c => c.name || 'Child').join(', ');
+    perChildBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} — Shared (Contino: ${higherPayer} pays net)</span><span class="supp-result-val">$${sharedNetAmt.toLocaleString()}/mo</span></div>`;
+    if (higherPayer === appName) appPaysResp += sharedNetAmt;
+    else respPaysApp += sharedNetAmt;
+  }
+
+  // Net result
+  const net = Math.abs(appPaysResp - respPaysApp);
+  const netPayer = appPaysResp > respPaysApp ? appName : respName;
+  const netRecip = appPaysResp > respPaysApp ? respName : appName;
+
+  // Section 7
   const totalS7 = childcare + medical + extra;
   const s7Monthly = totalS7 / 12;
-  const payorS7 = Math.round((s7Monthly * share) / 100);
+  const appS7 = Math.round((s7Monthly * share) / 100);
+  const respS7 = Math.round((s7Monthly * (100 - share)) / 100);
 
-  const total = tableAmt + payorS7;
+  const total = net + Math.max(appS7, respS7);
 
   // Display
   document.getElementById('cs_result').style.display = 'block';
-  document.getElementById('cs_table_amt').textContent = '$' + tableAmt.toLocaleString() + '/month';
-  
-  if (payorS7 > 0) {
+  document.getElementById('cs_parties_label').textContent = appName + ' vs ' + respName;
+  document.getElementById('cs_per_child_breakdown').innerHTML = perChildBreakdown;
+  document.getElementById('cs_payor_label').textContent = `Net payor: ${netPayer} pays ${netRecip} $${net.toLocaleString()}/month`;
+
+  if (totalS7 > 0) {
     document.getElementById('cs_s7_row').style.display = 'flex';
-    document.getElementById('cs_s7_amt').textContent = '$' + payorS7.toLocaleString() + '/month (' + share + '% of $' + Math.round(s7Monthly).toLocaleString() + ')';
+    document.getElementById('cs_s7_amt').textContent = `$${appS7.toLocaleString()}/mo (App ${share}%) + $${respS7.toLocaleString()}/mo (Resp ${100-share}%)`;
   } else {
     document.getElementById('cs_s7_row').style.display = 'none';
   }
 
-  document.getElementById('cs_total_amt').textContent = '$' + total.toLocaleString() + '/month';
+  document.getElementById('cs_total_amt').textContent = '$' + net.toLocaleString() + '/month';
+  document.getElementById('cs_shared_note').style.display = 'none';
 }
 
 function calcSpousal() {
