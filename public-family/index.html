@@ -866,7 +866,7 @@ select.fi { cursor: pointer; }
           </div>
         </div>
         <div class="aff-input-bar">
-          <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()">🎙 Voice</button>
+          <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()" style="background:rgba(46,134,193,.15);border-color:#2E86C1;color:#2E86C1;font-weight:600;font-size:.6rem;padding:0 16px">🎙 Voice</button>
           <textarea id="aff-ci" placeholder="Type your answer here…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
           <button class="aff-send" id="affSBtn" onclick="submitAffAnswer()">Next →</button>
         </div>

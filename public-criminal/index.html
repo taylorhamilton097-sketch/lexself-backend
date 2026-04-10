@@ -366,7 +366,7 @@
       <!-- Essential -->
       <div style="background:var(--white-pure);padding:36px 24px;border-left:2px solid var(--blue)">
         <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:12px">Essential</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$<span class="price-val" data-monthly="29" data-annual="21">29</span></div>
+        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$<span class="price-val" data-monthly="29" data-annual="249">29</span></div>
         <div style="font-family:var(--font-ui);font-size:.85rem;color:var(--text-light);margin-bottom:4px" id="period-essential">Per month, CAD</div>
         <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:18px" id="annual-essential"></div>
         <ul class="highlights dark" style="margin-bottom:28px">
@@ -382,7 +382,7 @@
       <div style="background:var(--white-pure);padding:36px 24px;border-left:2px solid var(--blue);position:relative">
         <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-family:var(--font-ui);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:3px 14px;white-space:nowrap">Most Popular</div>
         <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:12px">Complete</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$<span class="price-val" data-monthly="79" data-annual="58">79</span></div>
+        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$<span class="price-val" data-monthly="79" data-annual="699">79</span></div>
         <div style="font-family:var(--font-ui);font-size:.85rem;color:var(--text-light);margin-bottom:4px" id="period-complete">Per month, CAD</div>
         <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:18px" id="annual-complete"></div>
         <ul class="highlights dark" style="margin-bottom:28px">
@@ -398,7 +398,7 @@
       <!-- Counsel -->
       <div style="background:var(--navy);padding:36px 24px">
         <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:12px">Counsel</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--white);margin-bottom:4px">$<span class="price-val" data-monthly="159" data-annual="116">159</span></div>
+        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--white);margin-bottom:4px">$<span class="price-val" data-monthly="159" data-annual="1,399">159</span></div>
         <div style="font-family:var(--font-ui);font-size:.85rem;color:rgba(244,246,248,0.5);margin-bottom:4px" id="period-counsel">Per month, CAD</div>
         <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--blue-light);font-weight:600;margin-bottom:20px;min-height:18px" id="annual-counsel"></div>
         <ul class="highlights" style="margin-bottom:28px">
@@ -442,14 +442,14 @@ function toggleAnnual() {
     el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
   });
 
-  const annual = { essential: 249, complete: 699, counsel: 1399 };
   const monthly = { essential: 29, complete: 79, counsel: 159 };
+  const perMonth = { essential: 21, complete: 58, counsel: 116 };
   ['essential','complete','counsel'].forEach(t => {
     const p = document.getElementById('period-' + t);
     const a = document.getElementById('annual-' + t);
     if (isAnnual) {
-      p.textContent = 'Billed annually';
-      a.textContent = '$' + annual[t] + '/year — $' + Math.round(annual[t]/12) + '/month';
+      p.textContent = 'Per year, CAD';
+      a.textContent = 'Just $' + perMonth[t] + '/month — save $' + ((monthly[t]*12) - (perMonth[t]*12)) + '/yr';
     } else {
       p.textContent = 'Per month, CAD';
       a.textContent = '';

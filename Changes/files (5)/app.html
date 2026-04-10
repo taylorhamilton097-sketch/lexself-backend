@@ -242,7 +242,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 
 /* Input bar */
 .input-bar { padding: 10px 12px; background: var(--navy-mid); border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
-.it { flex-shrink: 0; padding: 4px 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; min-height: 30px; white-space: nowrap; transition: all 0.15s; }
+.it { flex-shrink: 0; padding: 8px 16px; background: rgba(46,134,193,.15); border: 1px solid #2E86C1; color: #2E86C1; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; min-height: 38px; white-space: nowrap; transition: all 0.15s; font-weight: 600; }
 .it:hover { border-color: var(--blue); color: var(--blue-light); }
 .it.rec { border-color: #E87070; color: #E87070; }
 .vs { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: #E87070; display: none; padding: 0 4px; }
@@ -784,7 +784,7 @@ select.fi { cursor: pointer; }
       <div id="cxDoc" style="display:none"></div>
       <!-- Input bar -->
       <div style="padding:10px 12px;background:var(--navy-mid);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
-        <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s">🎙 Voice</button>
+        <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 16px;height:42px;background:rgba(46,134,193,.15);border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;font-weight:600">🎙 Voice</button>
         <textarea id="cx-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="cxAr(this)" onkeydown="cxHk(event)" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:42px;max-height:120px;outline:none;transition:border-color .15s"></textarea>
         <button onclick="resetCx()" style="padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Restart</button>
         <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
