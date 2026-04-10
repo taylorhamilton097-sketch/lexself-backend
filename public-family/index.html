@@ -2281,6 +2281,16 @@ function loadChildrenFromPeople() {
   if (csChildren.length === 0) addChildRow();
 }
 
+function updateChildDropdowns() {
+  const appName = document.getElementById('cs_app_name').value || 'Applicant';
+  const respName = document.getElementById('cs_resp_name').value || 'Respondent';
+  document.querySelectorAll('.cs-custody-select').forEach((sel, i) => {
+    const opts = sel.options;
+    opts[0].text = 'Primary — ' + appName;
+    opts[1].text = 'Primary — ' + respName;
+  });
+}
+
 function addChildRow() {
   csChildren.push({ name: '', custody: 'primary_resp' });
   renderChildRows();
@@ -2298,8 +2308,8 @@ function renderChildRows() {
   const respName = document.getElementById('cs_resp_name').value || 'Respondent';
   list.innerHTML = csChildren.map((c, i) => `
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;background:var(--navy-light);padding:10px 12px;border:1px solid var(--border)">
-      <input class="fi" type="text" placeholder="Child's name" value="${c.name}" oninput="csChildren[${i}].name=this.value;calcChild()" style="font-size:16px;flex:1;min-width:100px">
-      <select class="fi" onchange="csChildren[${i}].custody=this.value;calcChild()" style="font-size:15px;flex:1.5">
+      <input class="fi" type="text" placeholder="Child's name" value="${c.name}" oninput="csChildren[${i}].name=this.value" onblur="calcChild()" style="font-size:16px;flex:1;min-width:100px">
+      <select class="fi cs-custody-select" onchange="csChildren[${i}].custody=this.value;calcChild()" style="font-size:15px;flex:1.5">
         <option value="primary_app" ${c.custody==='primary_app'?'selected':''}>Primary — ${appName}</option>
         <option value="primary_resp" ${c.custody==='primary_resp'?'selected':''}>Primary — ${respName}</option>
         <option value="shared" ${c.custody==='shared'?'selected':''}>Shared (40%+ each)</option>
@@ -2319,8 +2329,8 @@ function calcChild() {
   const appName = document.getElementById('cs_app_name').value || 'Applicant';
   const respName = document.getElementById('cs_resp_name').value || 'Respondent';
 
-  // Re-render child rows to update name dropdowns
-  if (csChildren.length > 0) renderChildRows();
+  // Update custody dropdown labels without re-rendering
+  updateChildDropdowns();
 
   if (!appIncome && !respIncome) return;
   if (csChildren.length === 0) return;
