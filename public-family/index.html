@@ -526,7 +526,7 @@ select.fi { cursor: pointer; }
     <div class="input-bar">
       <button class="it" id="vBtn" onclick="toggleVoice()">🎙 Voice</button>
       <span class="vs" id="vs">● Recording</span>
-      <textarea id="ci" placeholder="Ask about your family law matter…" rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
+      <textarea id="ci" placeholder="What do you need help with today?" rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
       <button class="send-btn" id="sBtn" onclick="sendMsg()">Send</button>
     </div>
   </div>
@@ -687,7 +687,7 @@ select.fi { cursor: pointer; }
 
       <!-- Extra fields form -->
       <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:24px">
-        <div class="pr-sec-t" style="margin-top:0">Additional Information</div>
+        <div class="pr-sec-t" style="margin-top:0;font-size:.62rem">Additional Information</div>
         <div class="psub" style="margin-bottom:12px">These fields supplement your profile data</div>
         <div class="fr">
           <div class="fg"><label class="fl">Court Name</label><input class="fi" type="text" id="form_court_name" placeholder="e.g. Ontario Court of Justice" style="font-size:16px"></div>
@@ -862,12 +862,12 @@ select.fi { cursor: pointer; }
           <div id="aff-start-prompt" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:24px">
             <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);text-align:center">Affidavit Interview Builder</div>
             <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);text-align:center;max-width:320px">ClearStand will ask you questions one at a time and build your affidavit draft as you answer.</div>
-            <button onclick="beginAffidavit()" style="padding:12px 28px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:500">Begin Interview →</button>
+            <button onclick="beginAffidavit()" style="padding:16px 40px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-top:8px">Begin Interview →</button>
           </div>
         </div>
         <div class="aff-input-bar">
           <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()">🎙 Voice</button>
-          <textarea id="aff-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
+          <textarea id="aff-ci" placeholder="Type your answer here…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
           <button class="aff-send" id="affSBtn" onclick="submitAffAnswer()">Next →</button>
         </div>
       </div>
@@ -880,7 +880,7 @@ select.fi { cursor: pointer; }
           <div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>
         </div>
         <div class="aff-actions">
-          <button class="aff-btn primary" onclick="exportAffidavit()">Export PDF</button>
+          <button class="aff-btn primary" onclick="exportAffidavit()" style="background:#2E86C1;font-weight:600">Export PDF</button>
           <button class="aff-btn" onclick="copyAffidavit()">Copy Text</button>
           <button class="aff-btn" onclick="resetAffidavit()">Start Over</button>
           <span class="aff-progress" id="affProgress"></span>
@@ -1271,7 +1271,7 @@ function renderUsage() {
     document.getElementById('usageStrip').classList.remove('show');
   } else {
     const remaining = cL - cU;
-    const threshold = Math.ceil(cL * 0.2);
+    const threshold = Math.ceil(cL * 0.2); // show at 80% consumed
     if (remaining <= threshold) {
       for(let i=0;i<Math.min(cL,10);i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,10)?' on':'');cPips.appendChild(p);}
       document.getElementById('cCnt').textContent=`${remaining} left`;

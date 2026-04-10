@@ -526,7 +526,7 @@ select.fi { cursor: pointer; }
     <div class="input-bar">
       <button class="it" id="vBtn" onclick="toggleVoice()">🎙 Voice</button>
       <span class="vs" id="vs">● Recording</span>
-      <textarea id="ci" placeholder="Ask about your family law matter…" rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
+      <textarea id="ci" placeholder="What do you need help with today?" rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
       <button class="send-btn" id="sBtn" onclick="sendMsg()">Send</button>
     </div>
   </div>
@@ -687,7 +687,7 @@ select.fi { cursor: pointer; }
 
       <!-- Extra fields form -->
       <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:24px">
-        <div class="pr-sec-t" style="margin-top:0">Additional Information</div>
+        <div class="pr-sec-t" style="margin-top:0;font-size:.62rem">Additional Information</div>
         <div class="psub" style="margin-bottom:12px">These fields supplement your profile data</div>
         <div class="fr">
           <div class="fg"><label class="fl">Court Name</label><input class="fi" type="text" id="form_court_name" placeholder="e.g. Ontario Court of Justice" style="font-size:16px"></div>
@@ -858,10 +858,16 @@ select.fi { cursor: pointer; }
           <div class="aff-hdr-title">Affidavit Interview Builder</div>
           <div class="aff-hdr-sub">AI-guided · Case law integrated · Voice supported</div>
         </div>
-        <div class="aff-msgs" id="affMsgs"></div>
+        <div class="aff-msgs" id="affMsgs">
+          <div id="aff-start-prompt" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:24px">
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);text-align:center">Affidavit Interview Builder</div>
+            <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);text-align:center;max-width:320px">ClearStand will ask you questions one at a time and build your affidavit draft as you answer.</div>
+            <button onclick="beginAffidavit()" style="padding:16px 40px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-top:8px">Begin Interview →</button>
+          </div>
+        </div>
         <div class="aff-input-bar">
           <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()">🎙 Voice</button>
-          <textarea id="aff-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
+          <textarea id="aff-ci" placeholder="Type your answer here…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
           <button class="aff-send" id="affSBtn" onclick="submitAffAnswer()">Next →</button>
         </div>
       </div>
@@ -874,7 +880,7 @@ select.fi { cursor: pointer; }
           <div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>
         </div>
         <div class="aff-actions">
-          <button class="aff-btn primary" onclick="exportAffidavit()">Export PDF</button>
+          <button class="aff-btn primary" onclick="exportAffidavit()" style="background:#2E86C1;font-weight:600">Export PDF</button>
           <button class="aff-btn" onclick="copyAffidavit()">Copy Text</button>
           <button class="aff-btn" onclick="resetAffidavit()">Start Over</button>
           <span class="aff-progress" id="affProgress"></span>
@@ -1162,7 +1168,7 @@ function showPanel(name) {
   const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms' };
   if (name === 'people') setTimeout(renderFamilyPeople, 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
-  if (name === 'affidavit' && document.getElementById('affMsgs') && document.getElementById('affMsgs').innerHTML === '') { setTimeout(startAffidavit, 100); }
+  // Affidavit interview started manually via Begin button
 }
 function bnA(name) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on')); document.getElementById('bn-'+name)?.classList.add('on'); }
 function sbA(btn) { document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
@@ -1181,7 +1187,7 @@ function closeDrawer() {
 function loadForm(key) {
   showPanel('chat'); bnA('chat');
   currentForm = key;
-  document.getElementById('ctxName').textContent = FORM_NAMES[key] || key;
+  const cn=document.getElementById('ctxName')||document.getElementById('ctxPill'); if(cn) cn.textContent = FORM_NAMES[key] || key;
   clearChat(false);
   qs(`I need help with ${FORM_NAMES[key]}. Please guide me through what this form requires, what information is needed, common mistakes to avoid, and relevant caselaw for my situation. Use my profile where applicable.`);
 }
@@ -1265,7 +1271,7 @@ function renderUsage() {
     document.getElementById('usageStrip').classList.remove('show');
   } else {
     const remaining = cL - cU;
-    const threshold = Math.ceil(cL * 0.2);
+    const threshold = Math.ceil(cL * 0.2); // show at 80% consumed
     if (remaining <= threshold) {
       for(let i=0;i<Math.min(cL,10);i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,10)?' on':'');cPips.appendChild(p);}
       document.getElementById('cCnt').textContent=`${remaining} left`;
@@ -1451,7 +1457,7 @@ async function stopVoice(){
   document.getElementById('vBtn').textContent='Cleaning…';
   inp.disabled=true;
   try {
-    const resp=await fetch('/dictation/clean',{
+    const resp=await fetch('/api/dictation/clean',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')},
       body:JSON.stringify({text:raw})
@@ -1703,7 +1709,7 @@ async function startDocAnalysis() {
   const profile = caseProfile;
 
   try {
-    const resp = await fetch('/family/analyze', {
+    const resp = await fetch('/api/family/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({ base64, role, issues, ctx, profile })
@@ -2126,11 +2132,19 @@ FORMAT YOUR RESPONSES AS JSON:
 
 When the affidavit is complete set complete to true. The draft should be a complete, court-ready document with proper case law woven throughout.`;
 
+function beginAffidavit() {
+  document.getElementById('aff-start-prompt')?.remove();
+  startAffidavit();
+}
+
 async function startAffidavit() {
   affHistory = [];
   affDraft = [];
   affQuestionNum = 0;
-  document.getElementById('affMsgs').innerHTML = '';
+  const msgs = document.getElementById('affMsgs');
+  // Clear everything except start prompt (which may already be gone)
+  msgs.querySelectorAll('.aff-msg').forEach(el => el.remove());
+  document.getElementById('aff-start-prompt')?.remove();
   document.getElementById('affDoc').innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
   document.getElementById('affProgress').textContent = '';
   
@@ -2191,7 +2205,7 @@ async function sendAffMessage(userAnswer, isFirst = false, firstMsg = null) {
       ? [{ role: 'user', content: firstMsg || 'Start the affidavit interview. Ask me what type of affidavit I need.' }]
       : affHistory;
 
-    const resp = await fetch('/family/chat', {
+    const resp = await fetch('/api/family/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({
@@ -2301,7 +2315,7 @@ async function stopAffVoice() {
   document.getElementById('affVBtn').textContent = 'Cleaning…';
   inp.disabled = true;
   try {
-    const resp = await fetch('/dictation/clean', {
+    const resp = await fetch('/api/dictation/clean', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
       body: JSON.stringify({ text: raw })
