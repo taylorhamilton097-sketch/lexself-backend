@@ -42,8 +42,8 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .tn-mode { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); border: 1px solid var(--border); padding: 2px 8px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .tn-plan { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue-light); border: 1px solid var(--blue-dim); padding: 2px 8px; display: none; }
-.tn-btn { height: 32px; padding: 0 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; white-space: nowrap; }
-.tn-btn:hover { border-color: var(--blue); color: var(--text); }
+.tn-btn { height: 36px; padding: 0 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); color: var(--text); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; white-space: nowrap; }
+.tn-btn:hover { border-color: #2E86C1; color: var(--white); background: rgba(46,134,193,.2); }
 .report-badge { display: none; font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; background: var(--blue); color: var(--white); padding: 1px 5px; border-radius: 2px; margin-left: 4px; }
 .report-badge.show { display: inline; }
 
@@ -71,7 +71,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .hamburger span { width:20px;height:2px;background:var(--text2);display:block;border-radius:2px; }
 @media (min-width: 768px) { .hamburger { display:none; } }
 .sb-sec { border-bottom: 1px solid var(--border); }
-.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
+.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
 .sbt { width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text2); cursor: pointer; display: flex; align-items: flex-start; gap: 8px; text-align: left; transition: all 0.15s; border-left: 3px solid transparent; }
 .sbt:hover { background: var(--navy-light); color: var(--text); }
 .sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
@@ -357,7 +357,7 @@ select.fi { cursor: pointer; }
 .dorg-section { display:flex;flex-direction:column;flex:1;overflow:hidden; }
 .dorg-hdr { padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
 .dorg-title { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
-.dorg-add-btn { padding:8px 18px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;transition:background .15s;font-weight:600; }
+.dorg-add-btn { padding:9px 20px;background:#2E86C1;font-weight:600;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;transition:background .15s;font-weight:600; }
 .dorg-add-btn:hover { background:var(--blue-light); }
 .dorg-list { flex:1;overflow-y:auto;padding:12px; }
 .dorg-item { border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px; }
@@ -773,7 +773,7 @@ select.fi { cursor: pointer; }
           </select>
           <button onclick="document.getElementById('cxDocFile').click()" style="padding:6px 12px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
           <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
-          <button onclick="openCxOutline()" style="padding:8px 16px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap;font-weight:600" id="cxViewBtn">View Outline ↗</button>
+          <button onclick="openCxOutline()" style="padding:8px 16px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap;font-weight:600" id="cxViewBtn" style="font-weight:600;font-size:.55rem;padding:8px 18px">View Outline ↗</button>
         </div>
         <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
@@ -894,7 +894,7 @@ select.fi { cursor: pointer; }
 <!-- AUTH OVERLAY -->
 <div class="auth-ov" id="authOv">
   <div class="auth-box">
-    <div class="auth-logo">Clear<span>Stand</span> Criminal</div>
+    <a href="/" style="text-decoration:none"><div class="auth-logo">Clear<span>Stand</span></div></a>
     <div class="auth-sub">Canadian Criminal Defence · Sign in to continue</div>
     <div class="auth-tabs">
       <button class="auth-tab on" onclick="switchAuth('login',this)">Sign In</button>
@@ -919,6 +919,10 @@ select.fi { cursor: pointer; }
       <button class="auth-btn" id="regBtn" onclick="doRegister()">Create Free Account</button>
     </div>
     <div class="auth-free">Free: 10 chat · 1 analysis · No credit card required · Not legal advice</div>
+    <div style="margin-top:14px;text-align:center;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+      <a href="/family" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none;display:block;margin-bottom:8px">Switch to Family Law →</a>
+      <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none">← Back to Home</a>
+    </div>
   </div>
 </div>
 
