@@ -17,7 +17,7 @@ async function sendWelcomeEmail(user) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'ClearStand <hello@clearstand.ca>',
+        from: 'ClearStand <send.hello@clearstand.ca>',
         to: email,
         subject: 'Welcome to ClearStand — Your account is ready',
         text: `Hi ${name},
