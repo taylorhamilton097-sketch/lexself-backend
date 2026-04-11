@@ -1012,16 +1012,16 @@ select.fi { cursor: pointer; }
         <div style="margin-bottom:20px">
           <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:#2E86C1;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(46,134,193,.3)" id="pd_app_section_lbl">Applicant — Net Family Property</div>
           <div class="fr">
-            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_assets_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_debts_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_assets_vd" placeholder="0" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_debts_vd" placeholder="0" style="font-size:16px"></div>
           </div>
           <div class="fr">
-            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_assets_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_debts_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_assets_dom" placeholder="0" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_debts_dom" placeholder="0" style="font-size:16px"></div>
           </div>
           <div class="fr">
-            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($) <span style="color:var(--text3);font-size:.85em">(gifts, inheritance, etc.)</span></label><input class="fi" type="number" id="pd_app_excluded" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_app_mhome" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($) <span style="color:var(--text3);font-size:.85em">(gifts, inheritance, etc.)</span></label><input class="fi" type="number" id="pd_app_excluded" placeholder="0" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_app_mhome" placeholder="0" style="font-size:16px"></div>
           </div>
         </div>
 
@@ -1029,21 +1029,25 @@ select.fi { cursor: pointer; }
         <div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:#F4A261;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(244,162,97,.3)" id="pd_resp_section_lbl">Respondent — Net Family Property</div>
           <div class="fr">
-            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_assets_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_debts_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_assets_vd" placeholder="0" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_debts_vd" placeholder="0" style="font-size:16px"></div>
           </div>
           <div class="fr">
-            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_assets_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_debts_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_assets_dom" placeholder="0" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_debts_dom" placeholder="0" style="font-size:16px"></div>
           </div>
           <div class="fr">
-            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($)</label><input class="fi" type="number" id="pd_resp_excluded" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_resp_mhome" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($)</label><input class="fi" type="number" id="pd_resp_excluded" placeholder="0" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_resp_mhome" placeholder="0" style="font-size:16px"></div>
           </div>
         </div>
       </div>
 
       <!-- RESULT -->
+      <div style="margin-bottom:20px">
+        <button onclick="calcNFP()" style="padding:14px 32px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;width:100%">Calculate Property Division →</button>
+      </div>
+
       <div id="pd_result" style="display:none">
 
         <!-- NFP Breakdown -->
@@ -2381,10 +2385,6 @@ function calcNFP() {
   pdData = { appName, respName, appNFP, respNFP, equalization, equalPayer, equalRecip,
     appAssetsVD, appDebtsVD, appAssetsDOM, appDebtsDOM, appExcluded,
     respAssetsVD, respDebtsVD, respAssetsDOM, respDebtsDOM, respExcluded };
-
-  // Only show results if at least one meaningful value entered
-  const hasData = appAssetsVD > 0 || respAssetsVD > 0 || appAssetsDOM > 0 || respAssetsDOM > 0;
-  if (!hasData) return;
 
   // Display
   document.getElementById('pd_result').style.display = 'block';
