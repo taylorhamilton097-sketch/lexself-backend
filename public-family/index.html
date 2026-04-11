@@ -518,6 +518,7 @@ select.fi { cursor: pointer; }
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
       <button class="sbt" onclick="showPanel('support');bnA('support');sbA(this)"><span class="lbl">Support Calculator<span class="tag">Child · Spousal · SSAG</span></span></button>
+      <button class="sbt" onclick="showPanel('property');bnA('property');sbA(this)"><span class="lbl">Property Division<span class="tag">NFP · Equalization · Buyout</span></span></button>
       <button class="sbt" onclick="showPanel('analysis');bnA('analysis');sbA(this)"><span class="lbl">Document Analysis<span class="tag">Upload · Analyze · Settlement Intel</span></span></button>
       <button class="sbt" onclick="showPanel('affidavit');bnA('affidavit');sbA(this)"><span class="lbl">Affidavit Interview Builder<span class="tag">AI-Guided · Case Law Integrated</span></span></button>
     </div>
@@ -952,7 +953,190 @@ select.fi { cursor: pointer; }
   </div>
 
   <!-- DOCUMENT ANALYSIS PANEL -->
-  <div id="panel-analysis" class="panel">
+  <!-- PROPERTY DIVISION PANEL -->
+  <div id="panel-property" class="panel">
+    <div class="panel-pad" style="overflow-y:auto">
+      <div class="ptitle">Property Division Calculator</div>
+      <div class="psub">Net Family Property equalization under the Family Law Act, Part I · Ontario</div>
+
+      <!-- Party Names -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:rgba(46,134,193,.1);border:2px solid #2E86C1;padding:14px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:#2E86C1;margin-bottom:8px">Applicant</div>
+          <input class="fi" type="text" id="pd_app_name" placeholder="Full legal name" style="font-size:16px;width:100%">
+        </div>
+        <div style="background:rgba(244,162,97,.08);border:2px solid rgba(244,162,97,.4);padding:14px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:#F4A261;margin-bottom:8px">Respondent</div>
+          <input class="fi" type="text" id="pd_resp_name" placeholder="Full legal name" style="font-size:16px;width:100%">
+        </div>
+      </div>
+
+      <div class="fr">
+        <div class="fg">
+          <label class="fl">Date of Marriage</label>
+          <input class="fi" type="date" id="pd_marriage_date">
+        </div>
+        <div class="fg">
+          <label class="fl">Valuation Date (Date of Separation)</label>
+          <input class="fi" type="date" id="pd_val_date">
+        </div>
+      </div>
+
+      <!-- NFP Upload Option -->
+      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
+        <div class="pr-sec-t" style="margin-top:0">Option A — Upload Form 13B Statements</div>
+        <div class="psub" style="margin-bottom:12px">Upload both parties' Net Family Property Statements and ClearStand will extract the values automatically</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label class="fl" id="pd_app_file_lbl">Applicant's Form 13B</label>
+            <input type="file" id="pd_app_file" accept=".pdf,.docx" style="display:none" onchange="loadNFPFile('app')">
+            <button onclick="document.getElementById('pd_app_file').click()" style="width:100%;padding:10px;background:none;border:1px dashed #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">+ Upload PDF/DOCX</button>
+            <div id="pd_app_file_status" style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.08em"></div>
+          </div>
+          <div>
+            <label class="fl" id="pd_resp_file_lbl">Respondent's Form 13B</label>
+            <input type="file" id="pd_resp_file" accept=".pdf,.docx" style="display:none" onchange="loadNFPFile('resp')">
+            <button onclick="document.getElementById('pd_resp_file').click()" style="width:100%;padding:10px;background:none;border:1px dashed rgba(244,162,97,.4);color:#F4A261;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">+ Upload PDF/DOCX</button>
+            <div id="pd_resp_file_status" style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.08em"></div>
+          </div>
+        </div>
+        <div id="pd_extract_status" style="display:none;margin-top:12px;padding:10px;background:rgba(46,134,193,.1);border:1px solid rgba(46,134,193,.2);font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em"></div>
+      </div>
+
+      <!-- Manual Entry -->
+      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
+        <div class="pr-sec-t" style="margin-top:0">Option B — Manual Entry</div>
+        <div class="psub" style="margin-bottom:16px">Enter values directly from each party's Net Family Property Statement (Form 13B)</div>
+
+        <!-- Applicant NFP -->
+        <div style="margin-bottom:20px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:#2E86C1;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(46,134,193,.3)" id="pd_app_section_lbl">Applicant — Net Family Property</div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_assets_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_debts_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_assets_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_debts_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($) <span style="color:var(--text3);font-size:.85em">(gifts, inheritance, etc.)</span></label><input class="fi" type="number" id="pd_app_excluded" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_app_mhome" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+          </div>
+        </div>
+
+        <!-- Respondent NFP -->
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:#F4A261;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(244,162,97,.3)" id="pd_resp_section_lbl">Respondent — Net Family Property</div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_assets_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_debts_vd" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_assets_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_debts_dom" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($)</label><input class="fi" type="number" id="pd_resp_excluded" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_resp_mhome" placeholder="0" oninput="calcNFP()" style="font-size:16px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div id="pd_result" style="display:none">
+
+        <!-- NFP Breakdown -->
+        <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:16px">Net Family Property Calculation</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+            <!-- Applicant column -->
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#2E86C1;margin-bottom:10px" id="pd_res_app_name">Applicant</div>
+              <div class="supp-result-row"><span class="supp-result-label">Assets at Valuation Date</span><span id="pd_res_app_avd" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Debts at Valuation Date</span><span id="pd_res_app_dvd" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Assets at Marriage</span><span id="pd_res_app_adom" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Add: Debts at Marriage</span><span id="pd_res_app_ddom" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Excluded Property s.4(2)</span><span id="pd_res_app_excl" class="supp-result-val"></span></div>
+              <div class="supp-result-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
+                <span class="supp-result-label" style="color:var(--white);font-weight:600">NFP</span>
+                <span id="pd_res_app_nfp" class="supp-result-val" style="color:#2E86C1;font-size:1.1rem"></span>
+              </div>
+            </div>
+            <!-- Respondent column -->
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#F4A261;margin-bottom:10px" id="pd_res_resp_name">Respondent</div>
+              <div class="supp-result-row"><span class="supp-result-label">Assets at Valuation Date</span><span id="pd_res_resp_avd" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Debts at Valuation Date</span><span id="pd_res_resp_dvd" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Assets at Marriage</span><span id="pd_res_resp_adom" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Add: Debts at Marriage</span><span id="pd_res_resp_ddom" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Excluded Property s.4(2)</span><span id="pd_res_resp_excl" class="supp-result-val"></span></div>
+              <div class="supp-result-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
+                <span class="supp-result-label" style="color:var(--white);font-weight:600">NFP</span>
+                <span id="pd_res_resp_nfp" class="supp-result-val" style="color:#F4A261;font-size:1.1rem"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equalization -->
+          <div style="background:rgba(46,134,193,.1);border:1px solid rgba(46,134,193,.2);padding:16px">
+            <div class="supp-result-row"><span class="supp-result-label">Higher NFP</span><span id="pd_higher_nfp" class="supp-result-val"></span></div>
+            <div class="supp-result-row"><span class="supp-result-label">Lower NFP</span><span id="pd_lower_nfp" class="supp-result-val"></span></div>
+            <div class="supp-result-row" style="border-top:1px solid rgba(46,134,193,.3);padding-top:10px;margin-top:6px">
+              <span class="supp-result-label" style="color:var(--white);font-weight:600">Equalization Payment</span>
+              <span id="pd_equal_amt" class="supp-result-val" style="color:#4CAF50;font-size:1.2rem"></span>
+            </div>
+            <div id="pd_equal_direction" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:#2E86C1"></div>
+            <div style="margin-top:10px;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">Pursuant to s.5(1) Family Law Act — the spouse with the lesser NFP is entitled to one-half the difference.</div>
+          </div>
+        </div>
+
+        <!-- Spousal Support Buyout -->
+        <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white)">Spousal Support Buyout</div>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)">
+              <input type="checkbox" id="pd_buyout_on" onchange="toggleBuyout()" style="width:16px;height:16px;cursor:pointer"> Include
+            </label>
+          </div>
+          <div id="pd_buyout_fields" style="display:none">
+            <div class="psub" style="margin-bottom:14px">The party paying equalization can reduce their payment in exchange for a credit applied to the receiving party — effectively buying out future spousal support obligations. This must be agreed upon by both parties and approved by the court.</div>
+            <div class="fr">
+              <div class="fg">
+                <label class="fl">Equalization Payor reduces payment by ($)</label>
+                <input class="fi" type="number" id="pd_buyout_amt" placeholder="e.g. 20000" oninput="calcBuyout()" style="font-size:16px">
+              </div>
+              <div class="fg">
+                <label class="fl">Buyout credited to recipient as</label>
+                <select class="fi" id="pd_buyout_type" onchange="calcBuyout()" style="font-size:16px">
+                  <option value="lump">Lump-sum spousal support</option>
+                  <option value="full">Full and final release of spousal support</option>
+                  <option value="partial">Partial release — reduced ongoing support</option>
+                </select>
+              </div>
+            </div>
+            <div id="pd_buyout_result" style="display:none;margin-top:12px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);padding:14px">
+              <div class="supp-result-row"><span class="supp-result-label">Original Equalization Payment</span><span id="pd_buyout_original" class="supp-result-val"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label">Less: Spousal Support Buyout</span><span id="pd_buyout_reduction" class="supp-result-val" style="color:#E87070"></span></div>
+              <div class="supp-result-row"><span class="supp-result-label" style="color:var(--white);font-weight:600">Adjusted Equalization Payment</span><span id="pd_buyout_adjusted" class="supp-result-val" style="color:#4CAF50;font-size:1.1rem"></span></div>
+              <div id="pd_buyout_direction" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:#4CAF50"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="exportPropertyReport()" style="padding:12px 24px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600">Export PDF Report</button>
+          <button onclick="copyPropertyText()" style="padding:12px 24px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em">Copy Text</button>
+        </div>
+      </div>
+
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
+    <div id="panel-analysis" class="panel">
     <div style="display:flex;flex:1;overflow:hidden;flex-direction:column">
       <!-- Upload state -->
       <div id="anal-upload" style="flex:1;overflow-y:auto;padding:24px 16px;max-width:680px;margin:0 auto;width:100%">
@@ -1338,7 +1522,7 @@ function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   const panel = document.getElementById('panel-' + name);
   if (panel) panel.classList.add('on');
-  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms', support:'Support Calculator' };
+  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms', support:'Support Calculator', property:'Property Division' };
   if (name === 'people') setTimeout(renderFamilyPeople, 100);
   if (name === 'support') setTimeout(loadSupportFromPeople, 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
@@ -2147,6 +2331,281 @@ async function generateForm(formKey) {
     status.textContent = '✗ Error: ' + err.message;
     console.error('Form error:', err);
   }
+}
+
+// ═══════════════════════════════════════════
+// PROPERTY DIVISION CALCULATOR
+// ═══════════════════════════════════════════
+let pdData = {}; // stores calculated values for export
+
+function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function calcNFP() {
+  const appName = document.getElementById('pd_app_name').value || 'Applicant';
+  const respName = document.getElementById('pd_resp_name').value || 'Respondent';
+
+  // Update section labels
+  document.getElementById('pd_app_section_lbl').textContent = appName + ' — Net Family Property';
+  document.getElementById('pd_resp_section_lbl').textContent = respName + ' — Net Family Property';
+
+  // Applicant NFP = (Assets VD - Debts VD) - (Assets DOM - Debts DOM) - Excluded + MHome adjustment
+  const appAssetsVD  = val('pd_app_assets_vd');
+  const appDebtsVD   = val('pd_app_debts_vd');
+  const appAssetsDOM = val('pd_app_assets_dom');
+  const appDebtsDOM  = val('pd_app_debts_dom');
+  const appExcluded  = val('pd_app_excluded');
+  const appMHome     = val('pd_app_mhome');
+
+  const respAssetsVD  = val('pd_resp_assets_vd');
+  const respDebtsVD   = val('pd_resp_debts_vd');
+  const respAssetsDOM = val('pd_resp_assets_dom');
+  const respDebtsDOM  = val('pd_resp_debts_dom');
+  const respExcluded  = val('pd_resp_excluded');
+  const respMHome     = val('pd_resp_mhome');
+
+  // NFP formula per s.4 FLA:
+  // NFP = (Assets at VD - Debts at VD) - (Assets at DOM - Debts at DOM - Excluded property)
+  // Note: matrimonial home value at DOM is NOT deducted per s.4(2) exclusion rules
+  const appNFP = (appAssetsVD - appDebtsVD) - (appAssetsDOM - appDebtsDOM - appExcluded);
+  const respNFP = (respAssetsVD - respDebtsVD) - (respAssetsDOM - respDebtsDOM - respExcluded);
+
+  // Equalization = (Higher NFP - Lower NFP) / 2
+  const higher = Math.max(appNFP, respNFP);
+  const lower = Math.min(appNFP, respNFP);
+  const equalization = (higher - lower) / 2;
+  const equalPayer = appNFP > respNFP ? appName : respName;
+  const equalRecip = appNFP > respNFP ? respName : appName;
+
+  // Store for export
+  pdData = { appName, respName, appNFP, respNFP, equalization, equalPayer, equalRecip,
+    appAssetsVD, appDebtsVD, appAssetsDOM, appDebtsDOM, appExcluded,
+    respAssetsVD, respDebtsVD, respAssetsDOM, respDebtsDOM, respExcluded };
+
+  // Display
+  document.getElementById('pd_result').style.display = 'block';
+  document.getElementById('pd_res_app_name').textContent = appName;
+  document.getElementById('pd_res_resp_name').textContent = respName;
+
+  document.getElementById('pd_res_app_avd').textContent = fmt(appAssetsVD);
+  document.getElementById('pd_res_app_dvd').textContent = '(' + fmt(appDebtsVD) + ')';
+  document.getElementById('pd_res_app_adom').textContent = '(' + fmt(appAssetsDOM) + ')';
+  document.getElementById('pd_res_app_ddom').textContent = fmt(appDebtsDOM);
+  document.getElementById('pd_res_app_excl').textContent = '(' + fmt(appExcluded) + ')';
+  document.getElementById('pd_res_app_nfp').textContent = fmt(appNFP);
+
+  document.getElementById('pd_res_resp_avd').textContent = fmt(respAssetsVD);
+  document.getElementById('pd_res_resp_dvd').textContent = '(' + fmt(respDebtsVD) + ')';
+  document.getElementById('pd_res_resp_adom').textContent = '(' + fmt(respAssetsDOM) + ')';
+  document.getElementById('pd_res_resp_ddom').textContent = fmt(respDebtsDOM);
+  document.getElementById('pd_res_resp_excl').textContent = '(' + fmt(respExcluded) + ')';
+  document.getElementById('pd_res_resp_nfp').textContent = fmt(respNFP);
+
+  document.getElementById('pd_higher_nfp').textContent = fmt(higher) + ' (' + (appNFP > respNFP ? appName : respName) + ')';
+  document.getElementById('pd_lower_nfp').textContent = fmt(lower) + ' (' + (appNFP <= respNFP ? appName : respName) + ')';
+  document.getElementById('pd_equal_amt').textContent = fmt(equalization);
+  document.getElementById('pd_equal_direction').textContent = equalPayer + ' pays ' + equalRecip + ' — equalization payment';
+
+  // Recalc buyout if active
+  if (document.getElementById('pd_buyout_on').checked) calcBuyout();
+}
+
+function toggleBuyout() {
+  const on = document.getElementById('pd_buyout_on').checked;
+  document.getElementById('pd_buyout_fields').style.display = on ? 'block' : 'none';
+  if (on) calcBuyout();
+}
+
+function calcBuyout() {
+  if (!pdData.equalization) return;
+  const buyoutAmt = parseFloat(document.getElementById('pd_buyout_amt').value) || 0;
+  const buyoutType = document.getElementById('pd_buyout_type').value;
+  if (!buyoutAmt) return;
+
+  if (buyoutAmt > pdData.equalization) {
+    toast('Buyout cannot exceed the equalization payment');
+    return;
+  }
+
+  const adjusted = pdData.equalization - buyoutAmt;
+  pdData.buyoutAmt = buyoutAmt;
+  pdData.adjusted = adjusted;
+  pdData.buyoutType = buyoutType;
+
+  const typeLabels = {
+    lump: 'applied as lump-sum spousal support',
+    full: 'in full and final release of all spousal support obligations',
+    partial: 'as partial release — reducing ongoing spousal support'
+  };
+
+  document.getElementById('pd_buyout_result').style.display = 'block';
+  document.getElementById('pd_buyout_original').textContent = fmt(pdData.equalization);
+  document.getElementById('pd_buyout_reduction').textContent = '(' + fmt(buyoutAmt) + ') — ' + typeLabels[buyoutType];
+  document.getElementById('pd_buyout_adjusted').textContent = fmt(adjusted);
+  document.getElementById('pd_buyout_direction').textContent = pdData.equalPayer + ' pays ' + pdData.equalRecip + ' ' + fmt(adjusted) + ' — net equalization after buyout';
+}
+
+function loadNFPFile(party) {
+  const fileInput = document.getElementById('pd_' + party + '_file');
+  const status = document.getElementById('pd_' + party + '_file_status');
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  status.textContent = 'Extracting values from ' + file.name + '...';
+  document.getElementById('pd_extract_status').style.display = 'block';
+  document.getElementById('pd_extract_status').textContent = 'Reading ' + file.name + ' — AI extracting NFP values...';
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    const mediaType = file.name.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    try {
+      const resp = await fetch('/api/family/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
+              { type: 'text', text: `Extract the Net Family Property values from this Ontario Form 13B. Return ONLY valid JSON with these exact keys:
+{
+  "assets_vd": number,
+  "debts_vd": number,
+  "assets_dom": number,
+  "debts_dom": number,
+  "excluded": number,
+  "mhome_dom": number
+}
+If a value is not present, use 0. Do not include any other text.` }
+            ]
+          }],
+          context: { systemOverride: 'You are a legal document parser. Extract numerical values from Ontario family court Form 13B NFP statements. Return only valid JSON.' }
+        })
+      });
+
+      const data = await resp.json();
+      const text = data.content?.[0]?.text || '{}';
+      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+
+      // Fill in the fields
+      const prefix = 'pd_' + party + '_';
+      if (parsed.assets_vd !== undefined) document.getElementById(prefix + 'assets_vd').value = parsed.assets_vd;
+      if (parsed.debts_vd !== undefined) document.getElementById(prefix + 'debts_vd').value = parsed.debts_vd;
+      if (parsed.assets_dom !== undefined) document.getElementById(prefix + 'assets_dom').value = parsed.assets_dom;
+      if (parsed.debts_dom !== undefined) document.getElementById(prefix + 'debts_dom').value = parsed.debts_dom;
+      if (parsed.excluded !== undefined) document.getElementById(prefix + 'excluded').value = parsed.excluded;
+      if (parsed.mhome !== undefined) document.getElementById(prefix + 'mhome').value = parsed.mhome;
+
+      status.textContent = '✓ Values extracted from ' + file.name;
+      document.getElementById('pd_extract_status').textContent = '✓ Values extracted — review and confirm before calculating';
+      calcNFP();
+    } catch(err) {
+      status.textContent = '✗ Could not extract — please enter values manually';
+      document.getElementById('pd_extract_status').style.display = 'none';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function exportPropertyReport() {
+  if (!pdData.equalization) { toast('Calculate first'); return; }
+
+  const appName = pdData.appName || 'Applicant';
+  const respName = pdData.respName || 'Respondent';
+  const marDate = document.getElementById('pd_marriage_date').value;
+  const valDate = document.getElementById('pd_val_date').value;
+  const buyoutOn = document.getElementById('pd_buyout_on').checked;
+  const buyoutType = document.getElementById('pd_buyout_type')?.value;
+  const typeLabels = { lump:'as lump-sum spousal support', full:'in full and final release of all spousal support', partial:'as partial release of spousal support' };
+
+  const report = `PROPERTY DIVISION REPORT
+Pursuant to Part I, Family Law Act, R.S.O. 1990, c. F.3
+${'═'.repeat(60)}
+
+PARTIES
+Applicant:   ${appName}
+Respondent:  ${respName}
+
+RELEVANT DATES
+Date of Marriage:    ${marDate || '[not entered]'}
+Valuation Date:      ${valDate || '[not entered]'}
+
+${'─'.repeat(60)}
+NET FAMILY PROPERTY CALCULATION
+${'─'.repeat(60)}
+
+${appName.toUpperCase()}
+Assets at Valuation Date:              ${fmt(pdData.appAssetsVD)}
+Less: Debts at Valuation Date:        (${fmt(pdData.appDebtsVD)})
+Less: Assets at Date of Marriage:     (${fmt(pdData.appAssetsDOM)})
+Add: Debts at Date of Marriage:        ${fmt(pdData.appDebtsDOM)}
+Less: Excluded Property s.4(2) FLA:  (${fmt(pdData.appExcluded)})
+                                       ${'─'.repeat(20)}
+NET FAMILY PROPERTY:                   ${fmt(pdData.appNFP)}
+
+${respName.toUpperCase()}
+Assets at Valuation Date:              ${fmt(pdData.respAssetsVD)}
+Less: Debts at Valuation Date:        (${fmt(pdData.respDebtsVD)})
+Less: Assets at Date of Marriage:     (${fmt(pdData.respAssetsDOM)})
+Add: Debts at Date of Marriage:        ${fmt(pdData.respDebtsDOM)}
+Less: Excluded Property s.4(2) FLA:  (${fmt(pdData.respExcluded)})
+                                       ${'─'.repeat(20)}
+NET FAMILY PROPERTY:                   ${fmt(pdData.respNFP)}
+
+${'─'.repeat(60)}
+EQUALIZATION
+${'─'.repeat(60)}
+Higher NFP (${pdData.appNFP > pdData.respNFP ? appName : respName}):    ${fmt(Math.max(pdData.appNFP, pdData.respNFP))}
+Lower NFP (${pdData.appNFP <= pdData.respNFP ? appName : respName}):     ${fmt(Math.min(pdData.appNFP, pdData.respNFP))}
+Difference:                            ${fmt(Math.max(pdData.appNFP, pdData.respNFP) - Math.min(pdData.appNFP, pdData.respNFP))}
+Equalization Payment (÷ 2):           ${fmt(pdData.equalization)}
+
+EQUALIZATION PAYMENT: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmt(pdData.equalization)}
+
+Pursuant to s.5(1) Family Law Act — the spouse with the lesser NFP is entitled
+to one-half the difference between the spouses' NFP.
+${buyoutOn && pdData.buyoutAmt ? `
+${'─'.repeat(60)}
+SPOUSAL SUPPORT BUYOUT
+${'─'.repeat(60)}
+Original Equalization Payment:         ${fmt(pdData.equalization)}
+Less: Spousal Support Buyout:         (${fmt(pdData.buyoutAmt)})
+  Applied ${typeLabels[buyoutType] || ''}
+                                       ${'─'.repeat(20)}
+ADJUSTED EQUALIZATION PAYMENT:        ${fmt(pdData.adjusted)}
+
+NET: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmt(pdData.adjusted)}
+The ${fmt(pdData.buyoutAmt)} reduction constitutes a ${typeLabels[buyoutType]}.
+This agreement requires court approval and independent legal advice for each party.
+` : ''}
+${'═'.repeat(60)}
+IMPORTANT NOTICE
+
+This calculation is based on values provided by the parties. It is prepared
+for negotiation and settlement purposes only. Actual equalization entitlements
+are determined by the court pursuant to Part I of the Family Law Act.
+
+All parties should obtain independent legal advice before agreeing to any
+property division settlement. This document is not legal advice.
+
+Generated by ClearStand · clearstand.ca
+DRAFT — REVIEW CAREFULLY BEFORE RELYING ON THESE CALCULATIONS`;
+
+  openPdfSheet();
+  document.getElementById('pdf_content').value = report;
+  document.getElementById('pdf_title').value = 'Property Division Report — ' + appName + ' v ' + respName;
+}
+
+function copyPropertyText() {
+  if (!pdData.equalization) { toast('Calculate first'); return; }
+  exportPropertyReport();
+  setTimeout(() => {
+    const text = document.getElementById('pdf_content').value;
+    navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
+    document.getElementById('pdfSheet').style.display = 'none';
+  }, 100);
 }
 
 // ═══════════════════════════════════════════
