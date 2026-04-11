@@ -2342,7 +2342,7 @@ async function generateForm(formKey) {
 // ═══════════════════════════════════════════
 let pdData = {}; // stores calculated values for export
 
-function fmt(n) { if (isNaN(n) || n === undefined || n === null) return '$0.00'; return '$' + Math.abs(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtCurrency(n) { if (isNaN(n) || n === undefined || n === null) return '$0.00'; return '$' + Math.abs(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
 
 function calcNFP() {
@@ -2391,23 +2391,23 @@ function calcNFP() {
   document.getElementById('pd_res_app_name').textContent = appName;
   document.getElementById('pd_res_resp_name').textContent = respName;
 
-  document.getElementById('pd_res_app_avd').textContent = fmt(appAssetsVD);
-  document.getElementById('pd_res_app_dvd').textContent = '(' + fmt(appDebtsVD) + ')';
-  document.getElementById('pd_res_app_adom').textContent = '(' + fmt(appAssetsDOM) + ')';
-  document.getElementById('pd_res_app_ddom').textContent = fmt(appDebtsDOM);
-  document.getElementById('pd_res_app_excl').textContent = '(' + fmt(appExcluded) + ')';
-  document.getElementById('pd_res_app_nfp').textContent = fmt(appNFP);
+  document.getElementById('pd_res_app_avd').textContent = fmtCurrency(appAssetsVD);
+  document.getElementById('pd_res_app_dvd').textContent = '(' + fmtCurrency(appDebtsVD) + ')';
+  document.getElementById('pd_res_app_adom').textContent = '(' + fmtCurrency(appAssetsDOM) + ')';
+  document.getElementById('pd_res_app_ddom').textContent = fmtCurrency(appDebtsDOM);
+  document.getElementById('pd_res_app_excl').textContent = '(' + fmtCurrency(appExcluded) + ')';
+  document.getElementById('pd_res_app_nfp').textContent = fmtCurrency(appNFP);
 
-  document.getElementById('pd_res_resp_avd').textContent = fmt(respAssetsVD);
-  document.getElementById('pd_res_resp_dvd').textContent = '(' + fmt(respDebtsVD) + ')';
-  document.getElementById('pd_res_resp_adom').textContent = '(' + fmt(respAssetsDOM) + ')';
-  document.getElementById('pd_res_resp_ddom').textContent = fmt(respDebtsDOM);
-  document.getElementById('pd_res_resp_excl').textContent = '(' + fmt(respExcluded) + ')';
-  document.getElementById('pd_res_resp_nfp').textContent = fmt(respNFP);
+  document.getElementById('pd_res_resp_avd').textContent = fmtCurrency(respAssetsVD);
+  document.getElementById('pd_res_resp_dvd').textContent = '(' + fmtCurrency(respDebtsVD) + ')';
+  document.getElementById('pd_res_resp_adom').textContent = '(' + fmtCurrency(respAssetsDOM) + ')';
+  document.getElementById('pd_res_resp_ddom').textContent = fmtCurrency(respDebtsDOM);
+  document.getElementById('pd_res_resp_excl').textContent = '(' + fmtCurrency(respExcluded) + ')';
+  document.getElementById('pd_res_resp_nfp').textContent = fmtCurrency(respNFP);
 
-  document.getElementById('pd_higher_nfp').textContent = fmt(higher) + ' (' + (appNFP > respNFP ? appName : respName) + ')';
-  document.getElementById('pd_lower_nfp').textContent = fmt(lower) + ' (' + (appNFP <= respNFP ? appName : respName) + ')';
-  document.getElementById('pd_equal_amt').textContent = fmt(equalization);
+  document.getElementById('pd_higher_nfp').textContent = fmtCurrency(higher) + ' (' + (appNFP > respNFP ? appName : respName) + ')';
+  document.getElementById('pd_lower_nfp').textContent = fmtCurrency(lower) + ' (' + (appNFP <= respNFP ? appName : respName) + ')';
+  document.getElementById('pd_equal_amt').textContent = fmtCurrency(equalization);
   document.getElementById('pd_equal_direction').textContent = equalPayer + ' pays ' + equalRecip + ' — equalization payment';
 
   // Recalc buyout if active
@@ -2443,10 +2443,10 @@ function calcBuyout() {
   };
 
   document.getElementById('pd_buyout_result').style.display = 'block';
-  document.getElementById('pd_buyout_original').textContent = fmt(pdData.equalization);
-  document.getElementById('pd_buyout_reduction').textContent = '(' + fmt(buyoutAmt) + ') — ' + typeLabels[buyoutType];
-  document.getElementById('pd_buyout_adjusted').textContent = fmt(adjusted);
-  document.getElementById('pd_buyout_direction').textContent = pdData.equalPayer + ' pays ' + pdData.equalRecip + ' ' + fmt(adjusted) + ' — net equalization after buyout';
+  document.getElementById('pd_buyout_original').textContent = fmtCurrency(pdData.equalization);
+  document.getElementById('pd_buyout_reduction').textContent = '(' + fmtCurrency(buyoutAmt) + ') — ' + typeLabels[buyoutType];
+  document.getElementById('pd_buyout_adjusted').textContent = fmtCurrency(adjusted);
+  document.getElementById('pd_buyout_direction').textContent = pdData.equalPayer + ' pays ' + pdData.equalRecip + ' ' + fmtCurrency(adjusted) + ' — net equalization after buyout';
 }
 
 function loadNFPFile(party) {
@@ -2541,32 +2541,32 @@ NET FAMILY PROPERTY CALCULATION
 ${'─'.repeat(60)}
 
 ${appName.toUpperCase()}
-Assets at Valuation Date:              ${fmt(pdData.appAssetsVD)}
-Less: Debts at Valuation Date:        (${fmt(pdData.appDebtsVD)})
-Less: Assets at Date of Marriage:     (${fmt(pdData.appAssetsDOM)})
-Add: Debts at Date of Marriage:        ${fmt(pdData.appDebtsDOM)}
-Less: Excluded Property s.4(2) FLA:  (${fmt(pdData.appExcluded)})
+Assets at Valuation Date:              ${fmtCurrency(pdData.appAssetsVD)}
+Less: Debts at Valuation Date:        (${fmtCurrency(pdData.appDebtsVD)})
+Less: Assets at Date of Marriage:     (${fmtCurrency(pdData.appAssetsDOM)})
+Add: Debts at Date of Marriage:        ${fmtCurrency(pdData.appDebtsDOM)}
+Less: Excluded Property s.4(2) FLA:  (${fmtCurrency(pdData.appExcluded)})
                                        ${'─'.repeat(20)}
-NET FAMILY PROPERTY:                   ${fmt(pdData.appNFP)}
+NET FAMILY PROPERTY:                   ${fmtCurrency(pdData.appNFP)}
 
 ${respName.toUpperCase()}
-Assets at Valuation Date:              ${fmt(pdData.respAssetsVD)}
-Less: Debts at Valuation Date:        (${fmt(pdData.respDebtsVD)})
-Less: Assets at Date of Marriage:     (${fmt(pdData.respAssetsDOM)})
-Add: Debts at Date of Marriage:        ${fmt(pdData.respDebtsDOM)}
-Less: Excluded Property s.4(2) FLA:  (${fmt(pdData.respExcluded)})
+Assets at Valuation Date:              ${fmtCurrency(pdData.respAssetsVD)}
+Less: Debts at Valuation Date:        (${fmtCurrency(pdData.respDebtsVD)})
+Less: Assets at Date of Marriage:     (${fmtCurrency(pdData.respAssetsDOM)})
+Add: Debts at Date of Marriage:        ${fmtCurrency(pdData.respDebtsDOM)}
+Less: Excluded Property s.4(2) FLA:  (${fmtCurrency(pdData.respExcluded)})
                                        ${'─'.repeat(20)}
-NET FAMILY PROPERTY:                   ${fmt(pdData.respNFP)}
+NET FAMILY PROPERTY:                   ${fmtCurrency(pdData.respNFP)}
 
 ${'─'.repeat(60)}
 EQUALIZATION
 ${'─'.repeat(60)}
-Higher NFP (${pdData.appNFP > pdData.respNFP ? appName : respName}):    ${fmt(Math.max(pdData.appNFP, pdData.respNFP))}
-Lower NFP (${pdData.appNFP <= pdData.respNFP ? appName : respName}):     ${fmt(Math.min(pdData.appNFP, pdData.respNFP))}
-Difference:                            ${fmt(Math.max(pdData.appNFP, pdData.respNFP) - Math.min(pdData.appNFP, pdData.respNFP))}
-Equalization Payment (÷ 2):           ${fmt(pdData.equalization)}
+Higher NFP (${pdData.appNFP > pdData.respNFP ? appName : respName}):    ${fmtCurrency(Math.max(pdData.appNFP, pdData.respNFP))}
+Lower NFP (${pdData.appNFP <= pdData.respNFP ? appName : respName}):     ${fmtCurrency(Math.min(pdData.appNFP, pdData.respNFP))}
+Difference:                            ${fmtCurrency(Math.max(pdData.appNFP, pdData.respNFP) - Math.min(pdData.appNFP, pdData.respNFP))}
+Equalization Payment (÷ 2):           ${fmtCurrency(pdData.equalization)}
 
-EQUALIZATION PAYMENT: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmt(pdData.equalization)}
+EQUALIZATION PAYMENT: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmtCurrency(pdData.equalization)}
 
 Pursuant to s.5(1) Family Law Act — the spouse with the lesser NFP is entitled
 to one-half the difference between the spouses' NFP.
@@ -2574,14 +2574,14 @@ ${buyoutOn && pdData.buyoutAmt ? `
 ${'─'.repeat(60)}
 SPOUSAL SUPPORT BUYOUT
 ${'─'.repeat(60)}
-Original Equalization Payment:         ${fmt(pdData.equalization)}
-Less: Spousal Support Buyout:         (${fmt(pdData.buyoutAmt)})
+Original Equalization Payment:         ${fmtCurrency(pdData.equalization)}
+Less: Spousal Support Buyout:         (${fmtCurrency(pdData.buyoutAmt)})
   Applied ${typeLabels[buyoutType] || ''}
                                        ${'─'.repeat(20)}
-ADJUSTED EQUALIZATION PAYMENT:        ${fmt(pdData.adjusted)}
+ADJUSTED EQUALIZATION PAYMENT:        ${fmtCurrency(pdData.adjusted)}
 
-NET: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmt(pdData.adjusted)}
-The ${fmt(pdData.buyoutAmt)} reduction constitutes a ${typeLabels[buyoutType]}.
+NET: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmtCurrency(pdData.adjusted)}
+The ${fmtCurrency(pdData.buyoutAmt)} reduction constitutes a ${typeLabels[buyoutType]}.
 This agreement requires court approval and independent legal advice for each party.
 ` : ''}
 ${'═'.repeat(60)}
