@@ -2338,7 +2338,7 @@ async function generateForm(formKey) {
 // ═══════════════════════════════════════════
 let pdData = {}; // stores calculated values for export
 
-function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmt(n) { if (isNaN(n) || n === undefined || n === null) return '$0.00'; return '$' + Math.abs(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
 
 function calcNFP() {
@@ -2381,6 +2381,10 @@ function calcNFP() {
   pdData = { appName, respName, appNFP, respNFP, equalization, equalPayer, equalRecip,
     appAssetsVD, appDebtsVD, appAssetsDOM, appDebtsDOM, appExcluded,
     respAssetsVD, respDebtsVD, respAssetsDOM, respDebtsDOM, respExcluded };
+
+  // Only show results if at least one meaningful value entered
+  const hasData = appAssetsVD > 0 || respAssetsVD > 0 || appAssetsDOM > 0 || respAssetsDOM > 0;
+  if (!hasData) return;
 
   // Display
   document.getElementById('pd_result').style.display = 'block';
