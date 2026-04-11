@@ -59,6 +59,8 @@ app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../public-cri
 // Get started selection page
 app.get('/get-started', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/get-started.html')));
 app.get('/about', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/about.html')));
+app.get('/privacy-policy', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/privacy-policy.html')));
+app.get('/terms-of-use', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/terms-of-use.html')));
 
 // Marketing subpages
 app.get('/criminal-defence', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/criminal.html')));
