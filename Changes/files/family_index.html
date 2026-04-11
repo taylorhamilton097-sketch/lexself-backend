@@ -116,7 +116,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .us-pip { width: 8px; height: 8px; background: var(--navy-border); border-radius: 2px; }
 .us-pip.on { background: var(--blue-light); }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
-.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); cursor: pointer; background: none; border: none; text-decoration: underline; text-underline-offset: 2px; }
+.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
 
 /* ── LAYOUT ── */
 .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -140,7 +140,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
   border-left: 3px solid transparent;
 }
 .sbt:hover { background: var(--navy-light); color: var(--text); }
-.sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
+.sbt.on { background: var(--navy-light); color: var(--white); border-left: 3px solid #2E86C1; }
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.94rem; font-weight: 500; line-height: 1.35; color: var(--text); }
 .sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
@@ -211,7 +211,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .wlc h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 10px; }
 .wlc p { font-size: 0.9rem; color: var(--text2); line-height: 1.65; margin-bottom: 20px; }
 .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.chip { padding: 7px 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; text-align: left; }
+.chip { white-space:nowrap; padding: 7px 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; text-align: left; }
 .chip:hover { border-color: var(--blue); color: var(--text); background: var(--navy-light); }
 
 /* ── INPUT BAR ── */
@@ -384,6 +384,13 @@ select.fi { cursor: pointer; }
 .acct-link:hover { color:var(--text); }
 .acct-link.danger { color:#E87070; }
 
+/* ── SUPPORT CALCULATOR ── */
+.supp-tab { flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;min-height:40px; }
+.supp-tab.on { color:var(--blue-light);border-bottom-color:var(--blue); }
+.supp-result-row { display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05); }
+.supp-result-label { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
+.supp-result-val { font-family:'Playfair Display',serif;font-size:1rem;color:var(--blue-light); }
+
 /* ── COURT FORMS ── */
 .form-card { background:var(--navy-light);border:1px solid var(--border);padding:14px 16px;cursor:pointer;transition:all .15s;user-select:none; }
 .form-card:hover { border-color:var(--blue);background:var(--navy-mid); }
@@ -412,10 +419,20 @@ select.fi { cursor: pointer; }
 .aff-send { padding: 0 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; height: 42px; transition: background 0.15s; flex-shrink: 0; }
 .aff-send:hover { background: var(--blue-light); }
 .aff-send:disabled { opacity: 0.5; cursor: not-allowed; }
-.aff-voice { padding: 0 10px; height: 42px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; flex-shrink: 0; }
-.aff-voice:hover { border-color: var(--blue); color: var(--blue-light); }
+.aff-voice { padding: 0 16px; height: 42px; background: rgba(46,134,193,.15); border: 1px solid #2E86C1; color: #2E86C1; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; flex-shrink: 0; font-weight: 600; }
+.aff-voice:hover { background: rgba(46,134,193,.25); border-color: #2E86C1; color: var(--white); }
 .aff-voice.rec { border-color: #E87070; color: #E87070; }
-.aff-doc { flex: 1; overflow-y: auto; padding: 20px; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.75; color: var(--text); white-space: pre-wrap; }
+.aff-doc { flex: 1; overflow-y: auto; padding: 16px; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.75; color: var(--text); }
+.aff-para { display:flex; gap:10px; align-items:flex-start; padding:8px 6px; border-bottom:1px solid rgba(255,255,255,.05); }
+.aff-para:hover { background:rgba(255,255,255,.02); }
+.aff-para-num { font-family:'JetBrains Mono',monospace; font-size:.75rem; color:var(--blue-light); min-width:28px; padding-top:4px; flex-shrink:0; font-weight:600; }
+.aff-para-text { flex:1; font-family:'Inter',sans-serif; font-size:.88rem; line-height:1.75; color:var(--text); outline:none; cursor:text; white-space:pre-wrap; word-break:break-word; }
+.aff-para-text:focus { background:rgba(46,134,193,.06); }
+.aff-para-actions { display:flex; flex-direction:column; gap:3px; opacity:0; transition:opacity .15s; flex-shrink:0; }
+.aff-para:hover .aff-para-actions { opacity:1; }
+.aff-para-btn { background:none; border:none; color:var(--text3); cursor:pointer; font-size:.7rem; padding:2px 4px; line-height:1; }
+.aff-para-btn:hover { color:var(--white); }
+.aff-para-opening { font-family:'Inter',sans-serif; font-size:.88rem; color:var(--text2); padding:8px 6px 12px; border-bottom:1px solid rgba(255,255,255,.1); margin-bottom:4px; font-style:italic; }
 .aff-doc-empty { padding: 32px 20px; text-align: center; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .aff-actions { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; background: var(--navy-mid); }
 .aff-btn { padding: 8px 14px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; }
@@ -500,6 +517,7 @@ select.fi { cursor: pointer; }
     </div>
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
+      <button class="sbt" onclick="showPanel('support');bnA('support');sbA(this)"><span class="lbl">Support Calculator<span class="tag">Child · Spousal · SSAG</span></span></button>
       <button class="sbt" onclick="showPanel('analysis');bnA('analysis');sbA(this)"><span class="lbl">Document Analysis<span class="tag">Upload · Analyze · Settlement Intel</span></span></button>
       <button class="sbt" onclick="showPanel('affidavit');bnA('affidavit');sbA(this)"><span class="lbl">Affidavit Interview Builder<span class="tag">AI-Guided · Case Law Integrated</span></span></button>
     </div>
@@ -520,7 +538,7 @@ select.fi { cursor: pointer; }
   <div class="ctx-bar">
       <span class="ctx-pill none" id="ctxPill" id="ctxName">Ontario Family Law Assistant</span>
       <span id="fileNumBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;padding:2px 8px;border:1px solid var(--border)">File: <span id="fileNumVal"></span></span>
-      <button onclick="showPanel('profile');bnA('profile')" style="margin-left:8px;padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em" id="addFileBtn">+ File #</button>
+      <button onclick="showPanel('profile');bnA('profile')" style="margin-left:8px;padding:6px 14px;background:none;border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600" id="addFileBtn">+ File #</button>
     </div>
     <div class="msgs" id="msgs"></div>
     <div class="input-bar">
@@ -786,6 +804,153 @@ select.fi { cursor: pointer; }
     </div>
   </div>
 
+  <!-- SUPPORT CALCULATOR PANEL -->
+  <div id="panel-support" class="panel">
+    <div class="panel-pad" style="overflow-y:auto">
+      <div class="ptitle">Support Calculator</div>
+      <div class="psub">Federal Child Support Guidelines · Spousal Support Advisory Guidelines · All figures in CAD</div>
+
+      <!-- ── PARTIES ── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:rgba(46,134,193,.1);border:2px solid #2E86C1;padding:16px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:#2E86C1;margin-bottom:10px">Applicant</div>
+          <div class="fg" style="margin-bottom:8px"><label class="fl">Full Name</label><input class="fi" type="text" id="sc_app_name" placeholder="First Last" style="font-size:16px"></div>
+          <div class="fg"><label class="fl">Annual Gross Income ($)</label><input class="fi" type="number" id="sc_app_income" placeholder="e.g. 85000" oninput="calcSupport()" style="font-size:16px"></div>
+        </div>
+        <div style="background:rgba(244,162,97,.08);border:2px solid rgba(244,162,97,.4);padding:16px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:#F4A261;margin-bottom:10px">Respondent</div>
+          <div class="fg" style="margin-bottom:8px"><label class="fl">Full Name</label><input class="fi" type="text" id="sc_resp_name" placeholder="First Last" style="font-size:16px"></div>
+          <div class="fg"><label class="fl">Annual Gross Income ($)</label><input class="fi" type="number" id="sc_resp_income" placeholder="e.g. 60000" oninput="calcSupport()" style="font-size:16px"></div>
+        </div>
+      </div>
+
+      <div class="fr">
+        <div class="fg">
+          <label class="fl">Province</label>
+          <select class="fi" id="sc_province" onchange="calcSupport()" style="font-size:16px">
+            <option value="ON">Ontario</option><option value="BC">British Columbia</option>
+            <option value="AB">Alberta</option><option value="QC">Quebec</option>
+            <option value="MB">Manitoba</option><option value="SK">Saskatchewan</option>
+            <option value="NS">Nova Scotia</option><option value="NB">New Brunswick</option>
+            <option value="NL">Newfoundland</option><option value="PE">PEI</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Years of Cohabitation</label>
+          <input class="fi" type="number" id="sc_years" placeholder="e.g. 12" oninput="calcSupport()" style="font-size:16px">
+        </div>
+      </div>
+
+      <!-- ── CHILDREN ── -->
+      <div class="pr-sec-t">Children</div>
+      <div id="sc_children_list" style="margin-bottom:8px"></div>
+      <button onclick="scAddChild()" style="padding:8px 16px;background:none;border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600">+ Add Child</button>
+
+      <!-- ── SECTION 7 ── -->
+      <div class="pr-sec-t">Section 7 Special Expenses <span style="color:var(--text3);font-size:.85em">(optional)</span></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Annual Childcare ($)</label><input class="fi" type="number" id="sc_childcare" placeholder="0" oninput="calcSupport()" style="font-size:16px"></div>
+        <div class="fg"><label class="fl">Annual Medical/Dental ($)</label><input class="fi" type="number" id="sc_medical" placeholder="0" oninput="calcSupport()" style="font-size:16px"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Annual Extracurricular ($)</label><input class="fi" type="number" id="sc_extra" placeholder="0" oninput="calcSupport()" style="font-size:16px"></div>
+        <div class="fg"><label class="fl">Applicant's Share of S.7 (%)</label><input class="fi" type="number" id="sc_share" value="50" oninput="calcSupport()" style="font-size:16px"></div>
+      </div>
+
+      <!-- ── SPOUSAL SUPPORT ── -->
+      <div style="display:flex;align-items:center;gap:12px;margin:20px 0 0">
+        <div class="pr-sec-t" style="margin:0">Spousal Support</div>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)">
+          <input type="checkbox" id="sc_spousal_on" checked onchange="calcSupport()" style="width:16px;height:16px;cursor:pointer"> Include
+        </label>
+      </div>
+      <div id="sc_spousal_fields" style="margin-top:12px">
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">Recipient's Role During Relationship</label>
+            <select class="fi" id="sc_role" onchange="calcSupport()" style="font-size:16px">
+              <option value="both">Both worked full-time throughout</option>
+              <option value="primary">Recipient was primary caregiver / reduced work</option>
+              <option value="sahp">Stay-at-home — did not work</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Formula</label>
+            <select class="fi" id="sc_formula" onchange="calcSupport()" style="font-size:16px">
+              <option value="without">Without Child Support</option>
+              <option value="with">With Child Support</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RESULTS ── -->
+      <div id="sc_result" style="display:none;margin-top:28px">
+
+        <!-- Child Support Result -->
+        <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:4px">Child Support</div>
+          <div id="sc_cs_parties" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px"></div>
+          <div id="sc_cs_breakdown"></div>
+          <div class="supp-result-row" id="sc_s7_row" style="display:none">
+            <span class="supp-result-label">Section 7 (shared)</span>
+            <span class="supp-result-val" id="sc_s7_amt"></span>
+          </div>
+          <div class="supp-result-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:6px">
+            <span class="supp-result-label" style="color:var(--white);font-weight:600">Child Support Payable</span>
+            <span class="supp-result-val" id="sc_cs_net" style="color:#4CAF50;font-size:1.1rem"></span>
+          </div>
+          <div id="sc_cs_payor" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)"></div>
+        </div>
+
+        <!-- Spousal Support Result -->
+        <div id="sc_ss_block" style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:4px">Spousal Support <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">SSAG Range</span></div>
+          <div id="sc_ss_payor_lbl" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+            <div style="text-align:center;padding:10px;background:var(--navy);border:1px solid var(--border)">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">Low</div>
+              <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--text)" id="sc_ss_low"></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--text3)">per month</div>
+            </div>
+            <div style="text-align:center;padding:10px;background:var(--navy-mid);border:2px solid #2E86C1">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light);margin-bottom:4px">Mid</div>
+              <div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white)" id="sc_ss_mid"></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--text3)">per month</div>
+            </div>
+            <div style="text-align:center;padding:10px;background:var(--navy);border:1px solid var(--border)">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">High</div>
+              <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--text)" id="sc_ss_high"></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--text3)">per month</div>
+            </div>
+          </div>
+          <div class="supp-result-row">
+            <span class="supp-result-label">Duration Range</span>
+            <span class="supp-result-val" id="sc_ss_duration"></span>
+          </div>
+          <div id="sc_ss_notes" style="margin-top:10px;font-family:'Inter',sans-serif;font-size:.8rem;color:var(--text3);line-height:1.6"></div>
+        </div>
+
+        <!-- Offset Summary -->
+        <div style="background:rgba(46,134,193,.1);border:2px solid #2E86C1;padding:20px;margin-bottom:16px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:14px">Net Payment Summary <span style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">(Court-Ready Offset)</span></div>
+          <div id="sc_offset_breakdown"></div>
+          <div class="supp-result-row" style="border-top:2px solid #2E86C1;padding-top:12px;margin-top:8px">
+            <span class="supp-result-label" style="color:var(--white);font-size:.65rem;font-weight:600">NET AMOUNT OWING</span>
+            <span class="supp-result-val" id="sc_net_total" style="color:#4CAF50;font-size:1.3rem;font-weight:700"></span>
+          </div>
+          <div id="sc_net_direction" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:#2E86C1"></div>
+          <div style="margin-top:12px;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">Per <em>Contino v Leonelli-Contino</em> 2005 SCC 58 — courts prefer a global set-off rather than separate orders where both parties owe support.</div>
+        </div>
+
+        <button onclick="copyFullSupport()" style="padding:10px 20px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-right:10px">Copy Full Result</button>
+        <button onclick="copyAffidavitSupport()" style="padding:10px 20px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em">Copy Affidavit Format</button>
+      </div>
+
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
   <!-- DOCUMENT ANALYSIS PANEL -->
   <div id="panel-analysis" class="panel">
     <div style="display:flex;flex:1;overflow:hidden;flex-direction:column">
@@ -930,10 +1095,14 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadTopic('property');closeDrawer()">Property Division</button>
       <button class="drawer-btn" onclick="loadTopic('motion');closeDrawer()">Urgent Motions</button>
     </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px">Just need analyses?</div>
+        <button onclick="startCheckout('analysis_pack')" style="padding:8px 18px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">$29 — 3 Analyses, No Subscription</button>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- ONBOARDING -->
+  
+  <!-- ONBOARDING -->
 <div class="ob-ov" id="obOv" style="display:none">
   <div class="ob-box">
     <div class="ob-progress">
@@ -1077,7 +1246,7 @@ select.fi { cursor: pointer; }
 <!-- PAYWALL -->
 <div class="pw-ov" id="pwOv">
   <div class="pw-box">
-    <div class="pw-title" id="pwTitle">Upgrade Your Plan</div>
+    <div class="pw-title" id="pwTitle">Upgrade to Counsel</div>
     <div class="pw-msg" id="pwMsg"></div>
     <div class="pw-plans">
       <div class="pp-card" onclick="checkout('counsel')" style="border:2px solid var(--blue);position:relative">
@@ -1169,8 +1338,9 @@ function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   const panel = document.getElementById('panel-' + name);
   if (panel) panel.classList.add('on');
-  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms' };
+  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms', support:'Support Calculator' };
   if (name === 'people') setTimeout(renderFamilyPeople, 100);
+  if (name === 'support') setTimeout(loadSupportFromPeople, 100);
   document.getElementById('modeLabel').textContent = labels[name] || name;
   // Affidavit interview started manually via Begin button
 }
@@ -1980,6 +2150,302 @@ async function generateForm(formKey) {
 }
 
 // ═══════════════════════════════════════════
+// SUPPORT CALCULATOR
+// ═══════════════════════════════════════════
+
+const CS_TABLE_ON = {
+  10000:[75,126,163,197,228],15000:[112,188,244,295,342],20000:[149,250,325,393,456],
+  25000:[187,313,407,491,569],30000:[232,381,491,592,686],35000:[277,449,576,693,803],
+  40000:[322,518,661,794,920],45000:[364,583,743,892,1033],50000:[404,645,820,984,1140],
+  55000:[443,705,896,1074,1244],60000:[481,766,972,1165,1350],65000:[519,826,1047,1254,1453],
+  70000:[556,883,1119,1340,1553],75000:[592,938,1188,1421,1647],80000:[628,993,1257,1503,1742],
+  85000:[663,1047,1326,1585,1838],90000:[698,1101,1394,1666,1932],95000:[733,1154,1461,1747,2025],
+  100000:[767,1207,1528,1826,2117],110000:[835,1311,1659,1983,2299],120000:[903,1414,1789,2139,2480],
+  130000:[970,1516,1919,2293,2659],140000:[1037,1617,2047,2447,2838],150000:[1103,1717,2175,2600,3015],
+  160000:[1169,1817,2302,2752,3192],170000:[1234,1915,2428,2903,3367],180000:[1299,2013,2553,3053,3542],
+  190000:[1363,2110,2677,3203,3716],200000:[1427,2207,2801,3352,3889],
+  220000:[1554,2399,3047,3646,4230],240000:[1680,2590,3291,3939,4569],
+  260000:[1805,2780,3533,4231,4907],280000:[1929,2968,3774,4522,5244],
+  300000:[2053,3156,4014,4812,5580],350000:[2361,3624,4612,5527,6413],
+  400000:[2666,4088,5205,6237,7237],500000:[3272,5012,6382,7648,8874],
+};
+const PROV_MULT = { ON:1.0,BC:0.97,AB:1.02,QC:0.88,MB:0.95,SK:0.96,NS:0.93,NB:0.91,NL:0.94,PE:0.90 };
+
+function getTableAmount(income, numChildren, province) {
+  const mult = PROV_MULT[province] || 1.0;
+  const childIdx = Math.min(numChildren, 5) - 1;
+  const keys = Object.keys(CS_TABLE_ON).map(Number).sort((a,b)=>a-b);
+  if (income > 150000) {
+    const base = CS_TABLE_ON[150000][childIdx];
+    const rates = [5.5,8.5,10.8,12.9,15.0];
+    return Math.round((base + ((income-150000)/1000)*rates[childIdx]) * mult);
+  }
+  let lower = keys[0], upper = keys[keys.length-1];
+  for (let i=0;i<keys.length-1;i++) { if(income>=keys[i]&&income<=keys[i+1]){lower=keys[i];upper=keys[i+1];break;} }
+  if (lower===upper) return Math.round(CS_TABLE_ON[lower][childIdx]*mult);
+  const ratio = (income-lower)/(upper-lower);
+  return Math.round((CS_TABLE_ON[lower][childIdx] + ratio*(CS_TABLE_ON[upper][childIdx]-CS_TABLE_ON[lower][childIdx]))*mult);
+}
+
+let scChildren = [];
+
+function loadSupportFromPeople() {
+  const app = familyPeople.find(p => p.role==='Applicant');
+  const resp = familyPeople.find(p => p.role==='Respondent');
+  if (app) { document.getElementById('sc_app_name').value = app.name||''; }
+  if (resp) { document.getElementById('sc_resp_name').value = resp.name||''; }
+  const kids = familyPeople.filter(p => p.role==='Child');
+  if (kids.length>0 && scChildren.length===0) {
+    kids.forEach(k => scChildren.push({
+      name: k.name||'Child',
+      custody: k.living==='Applicant'?'primary_app':k.living==='Respondent'?'primary_resp':'shared'
+    }));
+    renderScChildren();
+  }
+  if (scChildren.length===0) scAddChild();
+}
+
+function scAddChild() {
+  scChildren.push({name:'', custody:'primary_resp'});
+  renderScChildren();
+}
+
+function scRemoveChild(idx) {
+  scChildren.splice(idx,1);
+  renderScChildren();
+  calcSupport();
+}
+
+function renderScChildren() {
+  const appName = document.getElementById('sc_app_name').value||'Applicant';
+  const respName = document.getElementById('sc_resp_name').value||'Respondent';
+  const list = document.getElementById('sc_children_list');
+  list.innerHTML = scChildren.map((c,i) => `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;background:var(--navy-light);padding:10px 12px;border:1px solid var(--border)">
+      <input class="fi" type="text" placeholder="Child's name" value="${c.name}"
+        onchange="scChildren[${i}].name=this.value"
+        style="font-size:16px;flex:1;min-width:100px">
+      <select class="fi sc-cust-sel" onchange="scChildren[${i}].custody=this.value;calcSupport()" style="font-size:15px;flex:1.5">
+        <option value="primary_app" ${c.custody==='primary_app'?'selected':''}>Primary — ${appName}</option>
+        <option value="primary_resp" ${c.custody==='primary_resp'?'selected':''}>Primary — ${respName}</option>
+        <option value="shared" ${c.custody==='shared'?'selected':''}>Shared (40%+ each)</option>
+      </select>
+      <button onclick="scRemoveChild(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 6px;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function calcSupport() {
+  const appIncome = parseInt(document.getElementById('sc_app_income').value)||0;
+  const respIncome = parseInt(document.getElementById('sc_resp_income').value)||0;
+  const appName = document.getElementById('sc_app_name').value||'Applicant';
+  const respName = document.getElementById('sc_resp_name').value||'Respondent';
+  const province = document.getElementById('sc_province').value;
+  const years = parseFloat(document.getElementById('sc_years').value)||0;
+  const spousalOn = document.getElementById('sc_spousal_on').checked;
+  const role = document.getElementById('sc_role').value;
+  const formula = document.getElementById('sc_formula').value;
+  const childcare = parseFloat(document.getElementById('sc_childcare').value)||0;
+  const medical = parseFloat(document.getElementById('sc_medical').value)||0;
+  const extra = parseFloat(document.getElementById('sc_extra').value)||0;
+  const share = parseFloat(document.getElementById('sc_share').value)||50;
+
+  // Show/hide spousal fields
+  document.getElementById('sc_spousal_fields').style.display = spousalOn?'block':'none';
+  document.getElementById('sc_ss_block').style.display = spousalOn?'block':'none';
+
+  if (!appIncome && !respIncome) return;
+  if (scChildren.length===0) return;
+
+  // ── CHILD SUPPORT ──
+  const appPrimary = scChildren.filter(c=>c.custody==='primary_app');
+  const respPrimary = scChildren.filter(c=>c.custody==='primary_resp');
+  const shared = scChildren.filter(c=>c.custody==='shared');
+
+  let appPaysCS = 0, respPaysCS = 0;
+  let csBreakdown = '';
+
+  if (appPrimary.length>0 && respIncome>0) {
+    const amt = getTableAmount(respIncome, appPrimary.length, province);
+    respPaysCS = amt;
+    const names = appPrimary.map(c=>c.name||'Child').join(', ');
+    csBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} (primary w/ ${appName}) — ${respName} pays</span><span class="supp-result-val">$${amt.toLocaleString()}/mo</span></div>`;
+  }
+  if (respPrimary.length>0 && appIncome>0) {
+    const amt = getTableAmount(appIncome, respPrimary.length, province);
+    appPaysCS = amt;
+    const names = respPrimary.map(c=>c.name||'Child').join(', ');
+    csBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} (primary w/ ${respName}) — ${appName} pays</span><span class="supp-result-val">$${amt.toLocaleString()}/mo</span></div>`;
+  }
+  if (shared.length>0 && appIncome>0 && respIncome>0) {
+    const higher = Math.max(appIncome, respIncome);
+    const lower = Math.min(appIncome, respIncome);
+    const higherName = appIncome>respIncome?appName:respName;
+    const higherTable = getTableAmount(higher, shared.length, province);
+    const lowerTable = getTableAmount(lower, shared.length, province);
+    const net = higherTable - lowerTable;
+    if (appIncome>respIncome) appPaysCS+=net; else respPaysCS+=net;
+    const names = shared.map(c=>c.name||'Child').join(', ');
+    csBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} (shared — Contino set-off, ${higherName} pays net)</span><span class="supp-result-val">$${net.toLocaleString()}/mo</span></div>`;
+  }
+
+  const csNetAmt = Math.abs(appPaysCS - respPaysCS);
+  const csNetPayer = appPaysCS>respPaysCS?appName:respName;
+  const csNetRecip = appPaysCS>respPaysCS?respName:appName;
+
+  // Section 7
+  const s7Monthly = (childcare+medical+extra)/12;
+  const appS7 = Math.round((s7Monthly*share)/100);
+  const respS7 = Math.round((s7Monthly*(100-share))/100);
+
+  // ── SPOUSAL SUPPORT ──
+  let ssLow=0, ssMid=0, ssHigh=0, ssDur='', ssNotes='', ssPayer='', ssRecip='';
+  if (spousalOn && years>0 && appIncome>0 && respIncome>0) {
+    const diff = appIncome - respIncome;
+    if (Math.abs(diff) > 0) {
+      const higherIncome = Math.max(appIncome, respIncome);
+      const lowerIncome = Math.min(appIncome, respIncome);
+      ssPayer = appIncome>respIncome?appName:respName;
+      ssRecip = appIncome>respIncome?respName:appName;
+      const incomeDiff = higherIncome - lowerIncome;
+
+      if (formula==='without') {
+        let lowP = Math.max(0.02, Math.min(0.015*years, 0.50));
+        let midP = Math.max(0.025, Math.min(0.0175*years, 0.50));
+        let highP = Math.max(0.03, Math.min(0.02*years, 0.50));
+        ssLow = Math.round((incomeDiff*lowP)/12);
+        ssMid = Math.round((incomeDiff*midP)/12);
+        ssHigh = Math.round((incomeDiff*highP)/12);
+      } else {
+        const base = role==='sahp'?0.35:role==='primary'?0.28:0.22;
+        ssLow = Math.round((incomeDiff*(base-0.05))/12);
+        ssMid = Math.round((incomeDiff*base)/12);
+        ssHigh = Math.round((incomeDiff*(base+0.05))/12);
+      }
+
+      const durLow = (0.5*years).toFixed(1);
+      const durHigh = years>=20?'indefinite':(years*1.0).toFixed(0);
+      ssDur = `${durLow} to ${durHigh} years`;
+
+      const notesMap = {
+        both:'Both parties worked full-time. Compensatory claim may be limited. Merger of economic lives applies.',
+        primary:`Recipient reduced work to care for children. Strong compensatory basis — Moge v Moge [1992] 3 SCR 813.`,
+        sahp:`Stay-at-home parent. Strong compensatory and non-compensatory basis — Bracklow v Bracklow [1999] 1 SCR 420.`
+      };
+      ssNotes = notesMap[role]||'';
+    }
+  }
+
+  // ── DISPLAY ──
+  document.getElementById('sc_result').style.display = 'block';
+
+  // CS
+  document.getElementById('sc_cs_parties').textContent = appName + ' v. ' + respName;
+  document.getElementById('sc_cs_breakdown').innerHTML = csBreakdown;
+  document.getElementById('sc_cs_net').textContent = '$' + csNetAmt.toLocaleString() + '/month';
+  document.getElementById('sc_cs_payor').textContent = csNetPayer + ' pays ' + csNetRecip + ' — child support';
+
+  if (s7Monthly>0) {
+    document.getElementById('sc_s7_row').style.display='flex';
+    document.getElementById('sc_s7_amt').textContent = appName+': $'+appS7.toLocaleString()+'/mo ('+share+'%) | '+respName+': $'+respS7.toLocaleString()+'/mo ('+(100-share)+'%)';
+  } else { document.getElementById('sc_s7_row').style.display='none'; }
+
+  // SS
+  if (spousalOn && ssMid>0) {
+    document.getElementById('sc_ss_payor_lbl').textContent = ssPayer + ' pays ' + ssRecip;
+    document.getElementById('sc_ss_low').textContent = '$'+ssLow.toLocaleString();
+    document.getElementById('sc_ss_mid').textContent = '$'+ssMid.toLocaleString();
+    document.getElementById('sc_ss_high').textContent = '$'+ssHigh.toLocaleString();
+    document.getElementById('sc_ss_duration').textContent = ssDur;
+    document.getElementById('sc_ss_notes').textContent = ssNotes;
+  }
+
+  // ── OFFSET SUMMARY ──
+  // Who owes what total (CS + SS mid)
+  let appOwes = appPaysCS + (spousalOn && ssPayer===appName ? ssMid : 0);
+  let respOwes = respPaysCS + (spousalOn && ssPayer===respName ? ssMid : 0);
+
+  let offsetHtml = `
+    <div class="supp-result-row"><span class="supp-result-label">${appName} — child support owing</span><span class="supp-result-val">$${appPaysCS.toLocaleString()}/mo</span></div>
+    <div class="supp-result-row"><span class="supp-result-label">${respName} — child support owing</span><span class="supp-result-val">$${respPaysCS.toLocaleString()}/mo</span></div>`;
+
+  if (spousalOn && ssMid>0) {
+    offsetHtml += `
+    <div class="supp-result-row"><span class="supp-result-label">${ssPayer} — spousal support owing (mid)</span><span class="supp-result-val">$${ssMid.toLocaleString()}/mo</span></div>
+    <div class="supp-result-row"><span class="supp-result-label">${ssRecip} — spousal support owing</span><span class="supp-result-val">$0/mo</span></div>`;
+  }
+
+  offsetHtml += `<div class="supp-result-row" style="margin-top:8px"><span class="supp-result-label">${appName} total owing</span><span class="supp-result-val">$${appOwes.toLocaleString()}/mo</span></div>
+    <div class="supp-result-row"><span class="supp-result-label">${respName} total owing</span><span class="supp-result-val">$${respOwes.toLocaleString()}/mo</span></div>`;
+
+  document.getElementById('sc_offset_breakdown').innerHTML = offsetHtml;
+  const netTotal = Math.abs(appOwes - respOwes);
+  const netPayer = appOwes>respOwes?appName:respName;
+  const netRecip = appOwes>respOwes?respName:appName;
+  document.getElementById('sc_net_total').textContent = '$'+netTotal.toLocaleString()+'/month';
+  document.getElementById('sc_net_direction').textContent = netPayer + ' pays ' + netRecip + ' — net after full set-off';
+}
+
+function copyFullSupport() {
+  const appName = document.getElementById('sc_app_name').value||'Applicant';
+  const respName = document.getElementById('sc_resp_name').value||'Respondent';
+  const csNet = document.getElementById('sc_cs_net').textContent;
+  const ssLow = document.getElementById('sc_ss_low').textContent;
+  const ssMid = document.getElementById('sc_ss_mid').textContent;
+  const ssHigh = document.getElementById('sc_ss_high').textContent;
+  const netTotal = document.getElementById('sc_net_total').textContent;
+  const netDir = document.getElementById('sc_net_direction').textContent;
+
+  const text = `SUPPORT CALCULATION SUMMARY
+${'='.repeat(40)}
+Parties: ${appName} v. ${respName}
+
+CHILD SUPPORT (Federal Guidelines — Ontario)
+Net Child Support: ${csNet}
+
+SPOUSAL SUPPORT (SSAG Range)
+Low: ${ssLow}/month | Mid: ${ssMid}/month | High: ${ssHigh}/month
+
+NET AFTER SET-OFF
+${netTotal}
+${netDir}
+
+Note: These are estimates based on stated incomes. Actual amounts set by court order.`;
+
+  navigator.clipboard.writeText(text).then(() => toast('Copied'));
+}
+
+function copyAffidavitSupport() {
+  const appName = document.getElementById('sc_app_name').value||'Applicant';
+  const respName = document.getElementById('sc_resp_name').value||'Respondent';
+  const appIncome = document.getElementById('sc_app_income').value||'[income]';
+  const respIncome = document.getElementById('sc_resp_income').value||'[income]';
+  const csNet = document.getElementById('sc_cs_net').textContent;
+  const ssMid = document.getElementById('sc_ss_mid').textContent;
+  const ssLow = document.getElementById('sc_ss_low').textContent;
+  const ssHigh = document.getElementById('sc_ss_high').textContent;
+  const netTotal = document.getElementById('sc_net_total').textContent;
+  const netDir = document.getElementById('sc_net_direction').textContent;
+  const years = document.getElementById('sc_years').value||'[years]';
+  const ssDur = document.getElementById('sc_ss_duration').textContent;
+
+  const text = `[AFFIDAVIT PARAGRAPH — SUPPORT]
+
+[Para __]. ${appName}'s annual gross income is $${Number(appIncome).toLocaleString()} and ${respName}'s annual gross income is $${Number(respIncome).toLocaleString()}.
+
+[Para __]. Pursuant to the Federal Child Support Guidelines, Schedule I (Ontario), the applicable table amount for child support is ${csNet}.
+
+[Para __]. Each party's obligation, before set-off, is as follows: ${document.getElementById('sc_cs_breakdown').innerText.replace(/\n/g,' | ')}.
+
+[Para __]. Pursuant to the Spousal Support Advisory Guidelines (Rogerson and Thompson), having regard to the parties' incomes and ${years} years of cohabitation, the range of spousal support is: Low — ${ssLow}/month; Mid — ${ssMid}/month; High — ${ssHigh}/month, for a duration of ${ssDur}.
+
+[Para __]. After full set-off of both parties' obligations, the net amount payable is ${netTotal} (${netDir}).
+
+DRAFT — AI-ASSISTED. REVIEW CAREFULLY BEFORE FILING.`;
+
+  navigator.clipboard.writeText(text).then(() => toast('Affidavit paragraphs copied'));
+}
+
+// ═══════════════════════════════════════════
 // FAMILY PEOPLE MANAGER
 // ═══════════════════════════════════════════
 let familyPeople = JSON.parse(localStorage.getItem('cs_family_people') || '[]');
@@ -2067,6 +2533,8 @@ function renderFamilyPeople() {
 // ═══════════════════════════════════════════
 let affHistory = [];
 let affDraft = [];
+let affParas = [];
+let affOpening = '';
 let affBusy = false;
 let affVoiceRec = null, affRecording = false;
 let affQuestionNum = 0;
@@ -2149,6 +2617,7 @@ async function startAffidavit() {
   // Clear everything except start prompt (which may already be gone)
   msgs.querySelectorAll('.aff-msg').forEach(el => el.remove());
   document.getElementById('aff-start-prompt')?.remove();
+  affParas = []; affOpening = '';
   document.getElementById('affDoc').innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
   document.getElementById('affProgress').textContent = '';
   
@@ -2177,12 +2646,100 @@ function showAffAnswer(a) {
 
 function updateAffDraft(draft) {
   if (!draft) return;
+  // Parse the draft into paragraphs
+  // Extract opening line (I, [NAME], of...) and numbered paragraphs
+  const lines = draft.split('\n').filter(l => l.trim());
+  affParas = [];
+  let openingLines = [];
+  let inNumbered = false;
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    // Check if it's a numbered paragraph
+    const match = trimmed.match(/^(\d+)\.\s*(.+)/);
+    if (match) {
+      inNumbered = true;
+      affParas.push(match[2].trim());
+    } else if (!inNumbered && trimmed) {
+      openingLines.push(trimmed);
+    } else if (trimmed && !trimmed.match(/^SWORN|^DRAFT|^AFFIRM/)) {
+      // Continuation of last paragraph or closing
+      if (affParas.length > 0) affParas[affParas.length-1] += ' ' + trimmed;
+    }
+  });
+
+  // Store opening
+  affOpening = openingLines.join('\n') || '';
+  renderAffDoc();
+}
+
+function renderAffDoc() {
   const doc = document.getElementById('affDoc');
-  doc.innerHTML = '';
-  const pre = document.createElement('div');
-  pre.style.cssText = 'font-family:Inter,sans-serif;font-size:.88rem;line-height:1.75;color:var(--text);white-space:pre-wrap;padding:4px';
-  pre.textContent = draft;
-  doc.appendChild(pre);
+  if (!affParas.length && !affOpening) {
+    doc.innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
+    return;
+  }
+
+  let html = '';
+  if (affOpening) {
+    html += `<div class="aff-para-opening">${affOpening.replace(/\n/g,'<br>')}</div>`;
+  }
+
+  affParas.forEach((para, i) => {
+    html += `<div class="aff-para" id="aff-p-${i}">
+      <span class="aff-para-num">${i+1}.</span>
+      <div class="aff-para-text" contenteditable="true" 
+           onblur="affParas[${i}]=this.innerText.trim()"
+           onkeydown="affParaKey(event,${i})">${para}</div>
+      <div class="aff-para-actions">
+        <button class="aff-para-btn" onclick="affInsertPara(${i})" title="Insert paragraph below">＋</button>
+        <button class="aff-para-btn" onclick="affMovePara(${i},-1)" title="Move up">↑</button>
+        <button class="aff-para-btn" onclick="affMovePara(${i},1)" title="Move down">↓</button>
+        <button class="aff-para-btn" onclick="affDeletePara(${i})" title="Delete" style="color:#E87070">✕</button>
+      </div>
+    </div>`;
+  });
+
+  // Closing block
+  html += `<div class="aff-para-opening" style="margin-top:12px;border-top:1px solid rgba(255,255,255,.1);padding-top:12px">
+    SWORN before me at __________, in the Province of Ontario, this ___ day of __________, 20___.<br><br>
+    _________________________ &nbsp;&nbsp;&nbsp; _________________________<br>
+    Commissioner for Taking Oaths &nbsp;&nbsp;&nbsp; Signature of Deponent<br><br>
+    <em>DRAFT — AI-ASSISTED. REVIEW CAREFULLY WITH A LICENSED ONTARIO LAWYER BEFORE FILING.</em>
+  </div>`;
+
+  doc.innerHTML = html;
+}
+
+function affParaKey(e, idx) {
+  // Enter key at end of paragraph = insert new paragraph below
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    affInsertPara(idx);
+  }
+}
+
+function affInsertPara(idx) {
+  affParas.splice(idx+1, 0, '');
+  renderAffDoc();
+  // Focus new paragraph
+  setTimeout(() => {
+    const el = document.getElementById('aff-p-'+(idx+1));
+    if (el) el.querySelector('.aff-para-text').focus();
+  }, 50);
+}
+
+function affDeletePara(idx) {
+  if (affParas.length <= 1) { toast('Cannot delete the only paragraph'); return; }
+  affParas.splice(idx, 1);
+  renderAffDoc();
+}
+
+function affMovePara(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= affParas.length) return;
+  [affParas[idx], affParas[newIdx]] = [affParas[newIdx], affParas[idx]];
+  renderAffDoc();
 }
 
 async function sendAffMessage(userAnswer, isFirst = false, firstMsg = null) {
@@ -2287,11 +2844,19 @@ function copyAffidavit() {
 }
 
 function exportAffidavit() {
-  const doc = document.getElementById('affDoc');
-  if (doc.querySelector('.aff-doc-empty')) { toast('No affidavit content yet'); return; }
-  const content = doc.textContent.trim();
+  if (!affParas.length) { toast('No affidavit content yet'); return; }
+  // Build clean numbered text from paragraphs
+  let text = '';
+  if (affOpening) text += affOpening + '\n\n';
+  affParas.forEach((p, i) => {
+    text += (i+1) + '. ' + p + '\n\n';
+  });
+  text += 'SWORN before me at __________, in the Province of Ontario, this ___ day of __________, 20___.\n\n';
+  text += '_________________________ \t _________________________\n';
+  text += 'Commissioner for Taking Oaths \t Signature of Deponent\n\n';
+  text += 'DRAFT — AI-ASSISTED. REVIEW CAREFULLY WITH A LICENSED ONTARIO LAWYER BEFORE FILING.';
   openPdfSheet();
-  document.getElementById('pdf_content').value = content;
+  document.getElementById('pdf_content').value = text;
   document.getElementById('pdf_title').value = 'Affidavit';
 }
 

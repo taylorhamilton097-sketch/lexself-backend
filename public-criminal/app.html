@@ -55,7 +55,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .us-pip { width: 8px; height: 8px; background: var(--navy-border); border-radius: 2px; }
 .us-pip.on { background: var(--blue-light); }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
-.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); cursor: pointer; background: none; border: none; text-decoration: underline; text-underline-offset: 2px; }
+.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
 
 /* ── LAYOUT ── */
 .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -74,7 +74,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
 .sbt { width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text2); cursor: pointer; display: flex; align-items: flex-start; gap: 8px; text-align: left; transition: all 0.15s; border-left: 3px solid transparent; }
 .sbt:hover { background: var(--navy-light); color: var(--text); }
-.sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
+.sbt.on { background: var(--navy-light); color: var(--white); border-left: 3px solid #2E86C1; }
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; line-height: 1.35; color: var(--text); }
 .sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
@@ -762,7 +762,10 @@ select.fi { cursor: pointer; }
     <div style="display:flex;flex:1;flex-direction:column;overflow:hidden">
       <!-- Header -->
       <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
-        <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:8px">Cross-Examination Builder</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white)">Cross-Examination Builder</div>
+          <button id="cxFullBtn" onclick="toggleCxFullscreen()" style="padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em">⛶ Expand</button>
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
           <select id="cxWitnessType" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:.6rem;outline:none">
             <option value="">Select witness type…</option>
@@ -771,7 +774,7 @@ select.fi { cursor: pointer; }
             <option value="civilian">Civilian Witness</option>
             <option value="expert">Expert Witness</option>
           </select>
-          <button onclick="document.getElementById('cxDocFile').click()" style="padding:6px 12px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
+          <button onclick="document.getElementById('cxDocFile').click()" style="padding:8px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
           <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
           <button onclick="openCxOutline()" style="padding:8px 16px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap;font-weight:600" id="cxViewBtn" style="font-weight:600;font-size:.55rem;padding:8px 18px">View Outline ↗</button>
         </div>
@@ -833,10 +836,14 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadTopic('disclosure');closeDrawer()">Stinchcombe Disclosure Request</button>
       <button class="drawer-btn" onclick="loadTopic('sentencing');closeDrawer()">Sentencing — Gladue · Lacasse</button>
     </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px">Just need analyses?</div>
+        <button onclick="startCheckout('analysis_pack')" style="padding:8px 18px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">$29 — 3 Analyses, No Subscription</button>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- ONBOARDING -->
+  
+  <!-- ONBOARDING -->
 <div class="ob-ov" id="obOv" style="display:none">
   <div class="ob-box">
     <div class="ob-progress">
@@ -929,7 +936,7 @@ select.fi { cursor: pointer; }
 <!-- PAYWALL -->
 <div class="pw-ov" id="pwOv">
   <div class="pw-box">
-    <div class="pw-title" id="pwTitle">Upgrade Your Plan</div>
+    <div class="pw-title" id="pwTitle">Upgrade to Counsel</div>
     <div class="pw-msg" id="pwMsg"></div>
     <div class="pw-plans">
       <div class="pp-card" onclick="startCheckout('counsel')" style="border:2px solid var(--blue);position:relative">
@@ -1193,6 +1200,24 @@ async function doRegister() {
   } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
   btn.disabled = false; btn.textContent = 'Create Free Account';
 }
+let cxFullscreen = false;
+function toggleCxFullscreen() {
+  cxFullscreen = !cxFullscreen;
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('cxFullBtn');
+  if (cxFullscreen) {
+    sidebar.style.display = 'none';
+    btn.textContent = '⛶ Exit';
+    btn.style.borderColor = '#2E86C1';
+    btn.style.color = '#2E86C1';
+  } else {
+    sidebar.style.display = '';
+    btn.textContent = '⛶ Expand';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }
+}
+
 function doLogout() {
   authToken = null; currentUser = null; usageState = null;
   localStorage.removeItem('ls_tok');
@@ -1246,7 +1271,7 @@ function renderUsage() {
 }
 
 function openPaywall(reason, title, msg) {
-  document.getElementById('pwTitle').textContent = title || 'Upgrade Your Plan';
+  document.getElementById('pwTitle').textContent = title || 'Upgrade to Counsel';
   document.getElementById('pwMsg').textContent = msg || 'Upgrade to continue using ClearStand Criminal.';
   document.getElementById('pwOv').classList.add('show');
 }

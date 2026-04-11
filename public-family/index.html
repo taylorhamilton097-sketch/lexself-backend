@@ -116,7 +116,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .us-pip { width: 8px; height: 8px; background: var(--navy-border); border-radius: 2px; }
 .us-pip.on { background: var(--blue-light); }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
-.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); cursor: pointer; background: none; border: none; text-decoration: underline; text-underline-offset: 2px; }
+.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
 
 /* ── LAYOUT ── */
 .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -140,7 +140,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
   border-left: 3px solid transparent;
 }
 .sbt:hover { background: var(--navy-light); color: var(--text); }
-.sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
+.sbt.on { background: var(--navy-light); color: var(--white); border-left: 3px solid #2E86C1; }
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.94rem; font-weight: 500; line-height: 1.35; color: var(--text); }
 .sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
@@ -211,7 +211,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .wlc h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 10px; }
 .wlc p { font-size: 0.9rem; color: var(--text2); line-height: 1.65; margin-bottom: 20px; }
 .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.chip { padding: 7px 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; text-align: left; }
+.chip { white-space:nowrap; padding: 7px 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; text-align: left; }
 .chip:hover { border-color: var(--blue); color: var(--text); background: var(--navy-light); }
 
 /* ── INPUT BAR ── */
@@ -419,8 +419,8 @@ select.fi { cursor: pointer; }
 .aff-send { padding: 0 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; height: 42px; transition: background 0.15s; flex-shrink: 0; }
 .aff-send:hover { background: var(--blue-light); }
 .aff-send:disabled { opacity: 0.5; cursor: not-allowed; }
-.aff-voice { padding: 0 10px; height: 42px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; flex-shrink: 0; }
-.aff-voice:hover { border-color: var(--blue); color: var(--blue-light); }
+.aff-voice { padding: 0 16px; height: 42px; background: rgba(46,134,193,.15); border: 1px solid #2E86C1; color: #2E86C1; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; flex-shrink: 0; font-weight: 600; }
+.aff-voice:hover { background: rgba(46,134,193,.25); border-color: #2E86C1; color: var(--white); }
 .aff-voice.rec { border-color: #E87070; color: #E87070; }
 .aff-doc { flex: 1; overflow-y: auto; padding: 16px; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.75; color: var(--text); }
 .aff-para { display:flex; gap:10px; align-items:flex-start; padding:8px 6px; border-bottom:1px solid rgba(255,255,255,.05); }
@@ -538,7 +538,7 @@ select.fi { cursor: pointer; }
   <div class="ctx-bar">
       <span class="ctx-pill none" id="ctxPill" id="ctxName">Ontario Family Law Assistant</span>
       <span id="fileNumBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;padding:2px 8px;border:1px solid var(--border)">File: <span id="fileNumVal"></span></span>
-      <button onclick="showPanel('profile');bnA('profile')" style="margin-left:8px;padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em" id="addFileBtn">+ File #</button>
+      <button onclick="showPanel('profile');bnA('profile')" style="margin-left:8px;padding:6px 14px;background:none;border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600" id="addFileBtn">+ File #</button>
     </div>
     <div class="msgs" id="msgs"></div>
     <div class="input-bar">
@@ -1095,10 +1095,14 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadTopic('property');closeDrawer()">Property Division</button>
       <button class="drawer-btn" onclick="loadTopic('motion');closeDrawer()">Urgent Motions</button>
     </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px">Just need analyses?</div>
+        <button onclick="startCheckout('analysis_pack')" style="padding:8px 18px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">$29 — 3 Analyses, No Subscription</button>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- ONBOARDING -->
+  
+  <!-- ONBOARDING -->
 <div class="ob-ov" id="obOv" style="display:none">
   <div class="ob-box">
     <div class="ob-progress">
@@ -1242,7 +1246,7 @@ select.fi { cursor: pointer; }
 <!-- PAYWALL -->
 <div class="pw-ov" id="pwOv">
   <div class="pw-box">
-    <div class="pw-title" id="pwTitle">Upgrade Your Plan</div>
+    <div class="pw-title" id="pwTitle">Upgrade to Counsel</div>
     <div class="pw-msg" id="pwMsg"></div>
     <div class="pw-plans">
       <div class="pp-card" onclick="checkout('counsel')" style="border:2px solid var(--blue);position:relative">
