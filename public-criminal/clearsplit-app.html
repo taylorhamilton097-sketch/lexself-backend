@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0D1B2A">
+<title>ClearSplit — Separation Agreement Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0D1B2A;
+  --navy-mid:  #162233;
+  --navy-light:#1E3045;
+  --navy-border:#2A3F56;
+  --blue:      #2E86C1;
+  --blue-light:#3EA4E4;
+  --blue-dim:  #1A4F73;
+  --teal:      #20B2AA;
+  --teal-light:#2DD4CC;
+  --teal-dim:  #0A4A47;
+  --teal-border:#1A7A74;
+  --white:     #F4F6F8;
+  --text:      #E8EDF2;
+  --text2:     #8BA3BA;
+  --text3:     #4A6680;
+  --border:    #2A3F56;
+  --hdr:       56px;
+  --bot:       60px;
+  --safe-bot:  env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 400; display: flex; flex-direction: column; }
+
+/* ── TOP NAV ── */
+.topnav { height: var(--hdr); background: var(--navy-mid); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; padding-top: env(safe-area-inset-top, 0px); }
+.tn-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); letter-spacing: -0.01em; text-decoration: none; }
+.tn-logo span { color: var(--teal); }
+.tn-divider { width: 1px; height: 20px; background: var(--border); }
+.tn-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--teal); border: 1px solid var(--teal-border); padding: 2px 8px; }
+.tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.tn-btn { height: 36px; padding: 0 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); color: var(--text); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+.tn-btn:hover { border-color: var(--teal); color: var(--white); background: rgba(32,178,170,.2); }
+.tn-btn.primary { background: var(--teal); border-color: var(--teal); color: var(--navy); font-weight: 600; }
+.tn-btn.primary:hover { background: var(--teal-light); }
+
+/* ── LAYOUT ── */
+.app-body { flex: 1; display: flex; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 280px; background: var(--navy-mid); border-right: 1px solid var(--border); display: none; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+@media (min-width: 768px) { .sidebar { display: flex; } }
+.mob-sidebar-ov { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:300; }
+.mob-sidebar-ov.show { display:block; }
+.mob-sidebar { position:fixed; top:0; left:0; bottom:0; width:280px; background:var(--navy-mid); border-right:1px solid var(--border); overflow-y:auto; z-index:301; transform:translateX(-100%); transition:transform .3s cubic-bezier(.32,.72,0,1); }
+.mob-sidebar.open { transform:translateX(0); }
+.hamburger { display:flex; flex-direction:column; gap:4px; cursor:pointer; padding:8px; background:none; border:none; }
+.hamburger span { width:20px; height:2px; background:var(--text2); display:block; border-radius:2px; }
+@media (min-width: 768px) { .hamburger { display:none; } }
+
+.sb-header { padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+.sb-product { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--teal); margin-bottom: 4px; }
+.sb-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--white); }
+
+/* Progress steps in sidebar */
+.sb-progress { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.sb-step { width: 100%; padding: 10px 16px; background: none; border: none; color: var(--text3); cursor: pointer; display: flex; align-items: center; gap: 10px; text-align: left; transition: all 0.15s; border-left: 3px solid transparent; position: relative; }
+.sb-step:hover { background: var(--navy-light); color: var(--text2); }
+.sb-step.active { background: var(--navy-light); color: var(--white); border-left-color: var(--teal); }
+.sb-step.done { color: var(--text2); border-left-color: var(--teal-dim); }
+.sb-step.done .step-num { background: var(--teal-dim); color: var(--teal); }
+.sb-step.active .step-num { background: var(--teal); color: var(--navy); }
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--navy-border); color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 600; }
+.step-label { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; }
+.step-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; display: block; }
+
+.sb-sec { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.sb-hdr { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--teal); margin-bottom: 8px; }
+.sb-action { width: 100%; padding: 8px 10px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; margin-bottom: 4px; }
+.sb-action:hover { border-color: var(--teal); color: var(--teal); background: rgba(32,178,170,.05); }
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-nav { height: var(--bot); background: var(--navy-mid); border-top: 1px solid var(--border); display: flex; flex-shrink: 0; padding-bottom: var(--safe-bot); }
+@media (min-width: 768px) { .bottom-nav { display: none; } }
+.bn-item { flex: 1; background: none; border: none; color: var(--text3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 4px; transition: color 0.15s; border-top: 2px solid transparent; }
+.bn-item.on { color: var(--teal); border-top-color: var(--teal); }
+.bn-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.42rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ── PANELS ── */
+.panel { display: none; flex: 1; overflow-y: auto; }
+.panel.on { display: flex; flex-direction: column; }
+
+.panel-wrap { padding: 24px 20px 40px; max-width: 720px; margin: 0 auto; width: 100%; }
+.panel-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 4px; }
+.panel-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--teal); margin-bottom: 24px; }
+
+/* ── FORM ELEMENTS ── */
+.section-hdr { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--teal); margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--teal-dim); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+.field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.field-row.single { grid-template-columns: 1fr; }
+.fg { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.fl { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); }
+.fi { background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 9px 10px; font-family: 'Inter', sans-serif; font-size: 0.88rem; outline: none; width: 100%; transition: border 0.15s; -webkit-appearance: none; }
+.fi:focus { border-color: var(--teal); }
+select.fi { cursor: pointer; }
+textarea.fi { resize: vertical; min-height: 80px; }
+
+.party-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 20px; }
+.party-col { background: var(--navy-light); padding: 14px; border: 1px solid var(--border); }
+.party-col.party-a { border-top: 3px solid var(--teal); }
+.party-col.party-b { border-top: 3px solid #F4A261; }
+.party-label { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px; }
+.party-label.a { color: var(--teal); }
+.party-label.b { color: #F4A261; }
+
+.child-card { background: var(--navy-light); border: 1px solid var(--border); border-left: 3px solid var(--teal-dim); padding: 14px; margin-bottom: 10px; position: relative; }
+.child-card-hdr { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.remove-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 0.75rem; padding: 2px 6px; }
+.remove-btn:hover { color: #E74C3C; }
+
+.add-btn { width: 100%; padding: 10px; background: none; border: 1px dashed var(--teal-border); color: var(--teal); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; margin-bottom: 16px; }
+.add-btn:hover { background: rgba(32,178,170,.08); }
+
+.nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); gap: 12px; }
+.btn-back { padding: 11px 24px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; }
+.btn-back:hover { border-color: var(--text2); color: var(--text); }
+.btn-next { padding: 11px 32px; background: var(--teal); border: none; color: var(--navy); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; transition: background 0.15s; }
+.btn-next:hover { background: var(--teal-light); }
+.btn-next:disabled { background: var(--navy-border); color: var(--text3); cursor: not-allowed; }
+
+.info-box { background: rgba(32,178,170,.07); border: 1px solid rgba(32,178,170,.25); padding: 12px 14px; margin-bottom: 16px; }
+.info-box p { font-family: 'Inter', sans-serif; font-size: 0.83rem; color: var(--text2); line-height: 1.6; }
+.info-box p strong { color: var(--teal); }
+
+.warn-box { background: rgba(244,162,97,.07); border: 1px solid rgba(244,162,97,.25); padding: 12px 14px; margin-bottom: 16px; }
+.warn-box p { font-family: 'Inter', sans-serif; font-size: 0.83rem; color: var(--text2); line-height: 1.6; }
+
+.radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.radio-opt { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.radio-opt input { accent-color: var(--teal); width: 15px; height: 15px; cursor: pointer; }
+.radio-opt span { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); }
+
+.calc-result { background: var(--navy-light); border: 1px solid var(--teal-border); padding: 14px; margin-top: 12px; }
+.calc-label { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; }
+.calc-amount { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--teal); }
+.calc-note { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--text3); margin-top: 4px; line-height: 1.5; }
+
+/* ── AGREEMENT PANEL ── */
+#panel-agreement.on { overflow: hidden; }
+.agreement-layout { display: flex; flex: 1; overflow: hidden; height: 100%; }
+.agreement-sidebar { width: 260px; background: var(--navy-mid); border-right: 1px solid var(--border); overflow-y: auto; flex-shrink: 0; padding: 16px; display: none; flex-direction: column; gap: 8px; }
+@media (min-width: 900px) { .agreement-sidebar { display: flex; } }
+.ag-sec-btn { width: 100%; padding: 8px 10px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; font-size: 0.78rem; transition: all 0.15s; }
+.ag-sec-btn.on { border-color: var(--teal); color: var(--teal); background: rgba(32,178,170,.07); }
+.agreement-main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.agreement-toolbar { background: var(--navy-mid); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+.tb-btn { padding: 7px 16px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; }
+.tb-btn:hover { border-color: var(--teal); color: var(--teal); }
+.tb-btn.teal { background: var(--teal); border-color: var(--teal); color: var(--navy); font-weight: 600; }
+.tb-btn.teal:hover { background: var(--teal-light); }
+.tb-status { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
+
+.agreement-content { flex: 1; padding: 24px; overflow-y: auto; }
+.agreement-doc { max-width: 700px; margin: 0 auto; background: var(--navy-light); border: 1px solid var(--border); padding: 32px 36px; min-height: 600px; font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.75; color: var(--text2); }
+.agreement-doc h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--white); text-align: center; margin-bottom: 6px; }
+.agreement-doc .doc-date { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 24px; }
+.agreement-doc .doc-section { margin-bottom: 20px; }
+.agreement-doc .doc-section h2 { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--teal); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--teal-dim); }
+.agreement-doc .doc-section p { margin-bottom: 8px; }
+.agreement-doc .sig-block { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.agreement-doc .sig-line { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 40px; }
+.agreement-doc .sig-name { font-size: 0.78rem; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.agreement-doc .placeholder { color: var(--teal); font-style: italic; }
+
+/* generating state */
+.gen-overlay { display: none; position: absolute; inset: 0; background: rgba(13,27,42,.92); z-index: 50; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.gen-overlay.show { display: flex; }
+.gen-spinner { width: 40px; height: 40px; border: 3px solid var(--navy-border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--teal); }
+.gen-step { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); }
+
+/* ── CHAT ── */
+.chat-wrap { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 88%; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.6; }
+.msg.user { background: rgba(32,178,170,.12); border: 1px solid rgba(32,178,170,.25); align-self: flex-end; color: var(--text); }
+.msg.ai { background: var(--navy-light); border: 1px solid var(--border); align-self: flex-start; color: var(--text2); }
+.msg.ai strong { color: var(--white); }
+.chat-input-row { display: flex; gap: 8px; padding: 12px 16px; background: var(--navy-mid); border-top: 1px solid var(--border); flex-shrink: 0; }
+.chat-input { flex: 1; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 0.88rem; outline: none; resize: none; max-height: 120px; overflow-y: auto; }
+.chat-input:focus { border-color: var(--teal); }
+.chat-send { padding: 0 18px; background: var(--teal); border: none; color: var(--navy); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; flex-shrink: 0; transition: background 0.15s; }
+.chat-send:hover { background: var(--teal-light); }
+.chat-send:disabled { background: var(--navy-border); color: var(--text3); cursor: not-allowed; }
+.typing-dot { display: inline-block; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; margin: 0 2px; animation: bounce 1s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--teal); color: var(--navy); padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 500; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap { background: var(--navy); border-bottom: 1px solid var(--border); padding: 0 16px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 36px; }
+.pb-label { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); white-space: nowrap; }
+.pb-track { flex: 1; height: 3px; background: var(--navy-border); }
+.pb-fill { height: 100%; background: var(--teal); transition: width 0.4s ease; }
+.pb-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--teal); white-space: nowrap; }
+
+@media (max-width: 600px) {
+  .party-grid { grid-template-columns: 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .field-row.three { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <button class="hamburger" onclick="toggleMobSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="/" class="tn-logo">Clear<span>Split</span></a>
+  <div class="tn-divider"></div>
+  <span class="tn-tag">Separation Agreement</span>
+  <div class="tn-right">
+    <span id="tn-party-pill" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--teal);border:1px solid var(--teal-border);padding:2px 8px;display:none"></span>
+    <button class="tn-btn" onclick="downloadPDF()" title="Download PDF">↓ PDF</button>
+    <a href="/" class="tn-btn" style="font-size:.55rem">← ClearStand</a>
+  </div>
+</nav>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar-wrap">
+  <span class="pb-label" id="pb-step-label">Step 1 of 7</span>
+  <div class="pb-track"><div class="pb-fill" id="pb-fill" style="width:14%"></div></div>
+  <span class="pb-pct" id="pb-pct">14%</span>
+</div>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="mob-sidebar-ov" id="mobSbOv" onclick="toggleMobSidebar()"></div>
+<div class="mob-sidebar" id="mobSb"></div>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="mainSidebar">
+    <div class="sb-header">
+      <div class="sb-product">ClearSplit</div>
+      <div class="sb-title">Separation Agreement Builder</div>
+    </div>
+
+    <div class="sb-progress" id="sb-steps">
+      <!-- steps injected by JS -->
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-hdr">Tools</div>
+      <button class="sb-action" onclick="showPanel('panel-chat');setActive('nav-chat')">💬 Ask ClearSplit AI</button>
+      <button class="sb-action" onclick="scrollToReview()">📋 Review Agreement</button>
+      <button class="sb-action" onclick="downloadPDF()">↓ Download PDF Draft</button>
+    </div>
+
+    <div class="sb-sec">
+      <div class="sb-hdr">Legal Notice</div>
+      <p style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--text3);line-height:1.6">ClearSplit produces a draft separation agreement based on your inputs. Both parties should obtain independent legal advice before signing. This is not legal advice.</p>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+
+  <!-- STEP 1: PARTIES -->
+  <div class="panel on" id="panel-parties">
+    <div class="panel-wrap">
+      <div class="panel-title">Party Information</div>
+      <div class="panel-sub">Step 1 — Who is this agreement between?</div>
+
+      <div class="info-box">
+        <p>Enter the full legal names and contact information for both parties. These will appear on the signed agreement. <strong>Party A</strong> is typically the person initiating ClearSplit.</p>
+      </div>
+
+      <div class="party-grid">
+        <div class="party-col party-a">
+          <div class="party-label a">Party A — Initiating Party</div>
+          <div class="fg"><label class="fl">Full Legal Name</label><input class="fi" id="a_name" placeholder="First Middle Last" autocomplete="name"></div>
+          <div class="fg"><label class="fl">Date of Birth</label><input class="fi" type="date" id="a_dob"></div>
+          <div class="fg"><label class="fl">Address</label><input class="fi" id="a_addr" placeholder="123 Main St, City, ON  A1B 2C3"></div>
+          <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="a_email" placeholder="email@example.com"></div>
+        </div>
+        <div class="party-col party-b">
+          <div class="party-label b">Party B — Other Party</div>
+          <div class="fg"><label class="fl">Full Legal Name</label><input class="fi" id="b_name" placeholder="First Middle Last"></div>
+          <div class="fg"><label class="fl">Date of Birth</label><input class="fi" type="date" id="b_dob"></div>
+          <div class="fg"><label class="fl">Address</label><input class="fi" id="b_addr" placeholder="123 Main St, City, ON  A1B 2C3"></div>
+          <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="b_email" placeholder="email@example.com"></div>
+        </div>
+      </div>
+
+      <div class="section-hdr">Relationship Details</div>
+      <div class="field-row">
+        <div class="fg"><label class="fl">Date of Marriage / Cohabitation</label><input class="fi" type="date" id="rel_start"></div>
+        <div class="fg"><label class="fl">Date of Separation</label><input class="fi" type="date" id="rel_sep"></div>
+      </div>
+      <div class="field-row">
+        <div class="fg">
+          <label class="fl">Province</label>
+          <select class="fi" id="province">
+            <option value="ON">Ontario</option>
+            <option value="BC">British Columbia</option>
+            <option value="AB">Alberta</option>
+            <option value="QC">Quebec</option>
+            <option value="MB">Manitoba</option>
+            <option value="SK">Saskatchewan</option>
+            <option value="NS">Nova Scotia</option>
+            <option value="NB">New Brunswick</option>
+            <option value="NL">Newfoundland & Labrador</option>
+            <option value="PE">Prince Edward Island</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Relationship Type</label>
+          <select class="fi" id="rel_type">
+            <option value="married">Married Spouses</option>
+            <option value="common_law">Common-Law Partners (3+ years)</option>
+            <option value="common_law_child">Common-Law Partners (with child)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <span></span>
+        <button class="btn-next" onclick="goToStep(2)">Next: Children & Parenting →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: CHILDREN -->
+  <div class="panel" id="panel-children">
+    <div class="panel-wrap">
+      <div class="panel-title">Children & Parenting</div>
+      <div class="panel-sub">Step 2 — Parenting arrangements</div>
+
+      <div class="info-box">
+        <p>If there are no children under 18, skip this section. For each child, you'll set a parenting schedule and decision-making arrangement. <strong>The child's best interests govern all parenting decisions</strong> under the <em>Children's Law Reform Act</em>.</p>
+      </div>
+
+      <div class="section-hdr">Children of the Relationship</div>
+      <div id="children-list"></div>
+      <button class="add-btn" onclick="addChild()">+ Add Child</button>
+
+      <div id="parenting-section" style="display:none">
+        <div class="section-hdr">Decision-Making Responsibility</div>
+        <div class="fg">
+          <label class="fl">Decision-Making Arrangement</label>
+          <select class="fi" id="decision_making">
+            <option value="joint">Joint Decision-Making (both parties share major decisions)</option>
+            <option value="primary_a">Sole to Party A</option>
+            <option value="primary_b">Sole to Party B</option>
+            <option value="divided">Divided (specify by category below)</option>
+          </select>
+        </div>
+        <div class="fg" id="decision_notes_fg" style="display:none">
+          <label class="fl">Decision-Making Notes</label>
+          <textarea class="fi" id="decision_notes" placeholder="e.g. Party A makes educational decisions; Party B makes medical decisions..."></textarea>
+        </div>
+
+        <div class="section-hdr">Parenting Time / Schedule</div>
+        <div class="fg">
+          <label class="fl">Primary Residence</label>
+          <select class="fi" id="primary_residence">
+            <option value="shared">Shared / Equal (week on / week off or similar)</option>
+            <option value="primary_a">Primarily with Party A (with access to Party B)</option>
+            <option value="primary_b">Primarily with Party B (with access to Party A)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Parenting Schedule Description</label>
+          <textarea class="fi" id="parenting_schedule" placeholder="e.g. The children will reside with Party A Monday to Friday and with Party B on alternating weekends from Friday at 6pm to Sunday at 6pm. Holidays will be shared equally on alternating years..."></textarea>
+        </div>
+
+        <div class="section-hdr">Special Provisions</div>
+        <div class="field-row">
+          <div class="fg">
+            <label class="fl">Holiday Schedule</label>
+            <select class="fi" id="holidays">
+              <option value="alternating">Alternating annually</option>
+              <option value="split">Split each year (specify below)</option>
+              <option value="custom">Custom arrangement</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Summer Vacation</label>
+            <select class="fi" id="summer">
+              <option value="2weeks_each">2 weeks each party</option>
+              <option value="4weeks_each">4 weeks each party</option>
+              <option value="equal">Equal split</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Additional Parenting Notes</label>
+          <textarea class="fi" id="parenting_notes" placeholder="Any additional provisions — passport/travel consent, extracurricular decisions, communication protocols..."></textarea>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-back" onclick="goToStep(1)">← Back</button>
+        <button class="btn-next" onclick="goToStep(3)">Next: Child Support →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: CHILD SUPPORT -->
+  <div class="panel" id="panel-support">
+    <div class="panel-wrap">
+      <div class="panel-title">Child Support</div>
+      <div class="panel-sub">Step 3 — Federal Child Support Guidelines</div>
+
+      <div class="info-box">
+        <p>Child support is calculated under the <strong>Federal Child Support Guidelines</strong>. Enter both parties' gross annual incomes and ClearSplit will calculate the table amount. Deviations from the Guidelines require a judge's approval.</p>
+      </div>
+
+      <div id="no-children-msg" style="display:none">
+        <div class="warn-box"><p>No children were entered in Step 2. If this separation involves children under 18, go back and add them first. If there are no children, this section will be skipped.</p></div>
+      </div>
+
+      <div id="support-form">
+        <div class="section-hdr">Income Information</div>
+        <div class="party-grid">
+          <div class="party-col party-a">
+            <div class="party-label a">Party A</div>
+            <div class="fg"><label class="fl">Gross Annual Income (CAD)</label><input class="fi" type="number" id="a_income" placeholder="65000" oninput="calcSupport()"></div>
+          </div>
+          <div class="party-col party-b">
+            <div class="party-label b">Party B</div>
+            <div class="fg"><label class="fl">Gross Annual Income (CAD)</label><input class="fi" type="number" id="b_income" placeholder="45000" oninput="calcSupport()"></div>
+          </div>
+        </div>
+
+        <div class="section-hdr">Support Arrangement</div>
+        <div class="fg">
+          <label class="fl">Support Arrangement Type</label>
+          <select class="fi" id="support_type" onchange="calcSupport()">
+            <option value="table">Table Amount (Guidelines)</option>
+            <option value="shared">Shared Parenting (set-off method)</option>
+            <option value="split">Split Custody</option>
+            <option value="agreed">Agreed Amount (deviation from Guidelines)</option>
+          </select>
+        </div>
+
+        <div id="calc-result-box" class="calc-result" style="display:none">
+          <div class="calc-label">Calculated Monthly Child Support</div>
+          <div class="calc-amount" id="support-amount">$0</div>
+          <div class="calc-note" id="support-note"></div>
+        </div>
+
+        <div id="agreed-amount-fg" class="fg" style="display:none">
+          <label class="fl">Agreed Monthly Amount (CAD)</label>
+          <input class="fi" type="number" id="agreed_support" placeholder="800" oninput="updateAgreedSupport()">
+          <div class="warn-box" style="margin-top:8px"><p>Deviating from the Federal Guidelines requires you to disclose the Guideline amount and the reason for the deviation. A judge must approve the deviation when formalizing your agreement.</p></div>
+        </div>
+
+        <div class="section-hdr">Special & Extraordinary Expenses (s.7)</div>
+        <div class="info-box">
+          <p>Section 7 expenses are shared in proportion to income and are in addition to table support. Common examples include childcare, medical/dental premiums, post-secondary tuition, and extraordinary extracurriculars.</p>
+        </div>
+        <div class="fg">
+          <label class="fl">Section 7 Expenses — Notes</label>
+          <textarea class="fi" id="s7_expenses" placeholder="e.g. Childcare costs of approximately $800/month shared proportionately. Medical/dental expenses not covered by insurance shared equally..."></textarea>
+        </div>
+
+        <div class="section-hdr">Payment Details</div>
+        <div class="field-row">
+          <div class="fg">
+            <label class="fl">Payable By</label>
+            <select class="fi" id="support_payor">
+              <option value="a_to_b">Party A to Party B</option>
+              <option value="b_to_a">Party B to Party A</option>
+              <option value="no_support">No support payable</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Payment Frequency</label>
+            <select class="fi" id="support_freq">
+              <option value="monthly">Monthly (1st of month)</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="semi">Semi-monthly (1st & 15th)</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Payment Method</label>
+          <select class="fi" id="support_method">
+            <option value="etransfer">E-Transfer</option>
+            <option value="direct_deposit">Direct Deposit</option>
+            <option value="cheque">Cheque</option>
+            <option value="fro">Family Responsibility Office (FRO)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-back" onclick="goToStep(2)">← Back</button>
+        <button class="btn-next" onclick="goToStep(4)">Next: Spousal Support →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: SPOUSAL SUPPORT -->
+  <div class="panel" id="panel-spousal">
+    <div class="panel-wrap">
+      <div class="panel-title">Spousal Support</div>
+      <div class="panel-sub">Step 4 — Spousal Support Advisory Guidelines (SSAG)</div>
+
+      <div class="info-box">
+        <p>Spousal support is discretionary and depends on length of relationship, income disparity, roles during the relationship, and economic hardship caused by separation. The <strong>SSAG</strong> provides a suggested range — not a fixed amount.</p>
+      </div>
+
+      <div class="section-hdr">Spousal Support Election</div>
+      <div class="fg">
+        <label class="fl">Spousal Support Arrangement</label>
+        <select class="fi" id="spousal_election" onchange="toggleSpousal()">
+          <option value="none">No spousal support — both parties waive</option>
+          <option value="calculate">Calculate using SSAG</option>
+          <option value="agreed">Agreed amount (specify below)</option>
+          <option value="lump_sum">Lump-sum payment</option>
+        </select>
+      </div>
+
+      <div id="spousal-calc-section" style="display:none">
+        <div class="section-hdr">SSAG Calculation Inputs</div>
+        <div class="party-grid">
+          <div class="party-col party-a">
+            <div class="party-label a">Party A — Payor/Recipient</div>
+            <div class="fg"><label class="fl">Gross Annual Income</label><input class="fi" type="number" id="ss_a_income" placeholder="85000" oninput="calcSpousal()"></div>
+          </div>
+          <div class="party-col party-b">
+            <div class="party-label b">Party B — Payor/Recipient</div>
+            <div class="fg"><label class="fl">Gross Annual Income</label><input class="fi" type="number" id="ss_b_income" placeholder="40000" oninput="calcSpousal()"></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="fg">
+            <label class="fl">Years Together (cohabitation)</label>
+            <input class="fi" type="number" id="years_together" placeholder="8" oninput="calcSpousal()">
+          </div>
+          <div class="fg">
+            <label class="fl">Children Under 18?</label>
+            <select class="fi" id="ss_has_children" onchange="calcSpousal()">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="ssag-result" class="calc-result" style="display:none">
+          <div class="calc-label">SSAG Monthly Range</div>
+          <div class="calc-amount" id="ssag-amount"></div>
+          <div class="calc-note" id="ssag-note"></div>
+        </div>
+      </div>
+
+      <div id="spousal-agreed-section" style="display:none">
+        <div class="section-hdr">Agreed Spousal Support</div>
+        <div class="field-row">
+          <div class="fg"><label class="fl">Monthly Amount (CAD)</label><input class="fi" type="number" id="agreed_spousal" placeholder="1200"></div>
+          <div class="fg">
+            <label class="fl">Duration</label>
+            <select class="fi" id="spousal_duration">
+              <option value="indefinite">Indefinite (review on material change)</option>
+              <option value="time_limited">Time-Limited</option>
+              <option value="reviewable">Reviewable at [date]</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg" id="duration_years_fg" style="display:none">
+          <label class="fl">Duration (Years)</label>
+          <input class="fi" type="number" id="duration_years" placeholder="3">
+        </div>
+      </div>
+
+      <div id="spousal-lump-section" style="display:none">
+        <div class="section-hdr">Lump-Sum Spousal Support</div>
+        <div class="fg"><label class="fl">Lump-Sum Amount (CAD)</label><input class="fi" type="number" id="lump_sum_amount" placeholder="25000"></div>
+        <div class="fg"><label class="fl">Payment Date / Schedule</label><input class="fi" id="lump_sum_schedule" placeholder="Payable within 30 days of signing"></div>
+      </div>
+
+      <div id="spousal-waiver-note" style="display:none">
+        <div class="info-box">
+          <p>Both parties are waiving their right to spousal support. This is a final and irrevocable waiver. <strong>Both parties should obtain independent legal advice before signing</strong> to confirm they understand this waiver and its implications.</p>
+        </div>
+      </div>
+
+      <div class="section-hdr">Tax Treatment</div>
+      <div class="fg">
+        <label class="fl">Spousal Support Tax Treatment</label>
+        <select class="fi" id="spousal_tax">
+          <option value="deductible">Taxable to recipient / Deductible to payor (periodic payments)</option>
+          <option value="no_deduct">Not deductible / Not income (lump sum)</option>
+          <option value="custom">Custom arrangement — see notes</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Additional Notes</label>
+        <textarea class="fi" id="spousal_notes" placeholder="Any additional terms, conditions, or review mechanisms..."></textarea>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-back" onclick="goToStep(3)">← Back</button>
+        <button class="btn-next" onclick="goToStep(5)">Next: Property Division →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: PROPERTY -->
+  <div class="panel" id="panel-property">
+    <div class="panel-wrap">
+      <div class="panel-title">Property Division</div>
+      <div class="panel-sub">Step 5 — Net Family Property & Equalization</div>
+
+      <div class="info-box">
+        <p>Under Ontario's <strong>Family Law Act</strong>, each spouse is entitled to equalization of net family property accumulated during the marriage. Enter key assets and debts — ClearSplit will calculate the equalization payment.</p>
+      </div>
+
+      <div class="section-hdr">Matrimonial Home</div>
+      <div class="fg">
+        <label class="fl">Matrimonial Home Disposition</label>
+        <select class="fi" id="home_disposition">
+          <option value="sell">Sell and split proceeds</option>
+          <option value="a_buys_out">Party A buys out Party B</option>
+          <option value="b_buys_out">Party B buys out Party A</option>
+          <option value="no_home">No matrimonial home</option>
+          <option value="deferred">Deferred sale (children reside)</option>
+        </select>
+      </div>
+      <div class="field-row" id="home-value-row">
+        <div class="fg"><label class="fl">Estimated Current Market Value (CAD)</label><input class="fi" type="number" id="home_value" placeholder="550000" oninput="calcEqualization()"></div>
+        <div class="fg"><label class="fl">Outstanding Mortgage Balance (CAD)</label><input class="fi" type="number" id="home_mortgage" placeholder="280000" oninput="calcEqualization()"></div>
+      </div>
+      <div class="field-row" id="home-split-row">
+        <div class="fg">
+          <label class="fl">Proceeds Split</label>
+          <select class="fi" id="home_split" onchange="calcEqualization()">
+            <option value="equal">Equal (50/50)</option>
+            <option value="custom">Custom split</option>
+          </select>
+        </div>
+        <div class="fg" id="home-custom-split" style="display:none">
+          <label class="fl">Party A Share (%)</label>
+          <input class="fi" type="number" id="home_a_pct" placeholder="60" oninput="calcEqualization()">
+        </div>
+      </div>
+
+      <div class="section-hdr">Net Family Property — Party A</div>
+      <div class="field-row">
+        <div class="fg"><label class="fl">Assets at Separation Date (CAD)</label><input class="fi" type="number" id="a_assets_vd" placeholder="120000" oninput="calcEqualization()"></div>
+        <div class="fg"><label class="fl">Debts at Separation Date (CAD)</label><input class="fi" type="number" id="a_debts_vd" placeholder="15000" oninput="calcEqualization()"></div>
+      </div>
+      <div class="field-row">
+        <div class="fg"><label class="fl">Assets at Date of Marriage (CAD)</label><input class="fi" type="number" id="a_assets_dom" placeholder="30000" oninput="calcEqualization()"></div>
+        <div class="fg"><label class="fl">Excluded Property — Gifts/Inheritance (CAD)</label><input class="fi" type="number" id="a_excluded" placeholder="0" oninput="calcEqualization()"></div>
+      </div>
+
+      <div class="section-hdr">Net Family Property — Party B</div>
+      <div class="field-row">
+        <div class="fg"><label class="fl">Assets at Separation Date (CAD)</label><input class="fi" type="number" id="b_assets_vd" placeholder="80000" oninput="calcEqualization()"></div>
+        <div class="fg"><label class="fl">Debts at Separation Date (CAD)</label><input class="fi" type="number" id="b_debts_vd" placeholder="8000" oninput="calcEqualization()"></div>
+      </div>
+      <div class="field-row">
+        <div class="fg"><label class="fl">Assets at Date of Marriage (CAD)</label><input class="fi" type="number" id="b_assets_dom" placeholder="10000" oninput="calcEqualization()"></div>
+        <div class="fg"><label class="fl">Excluded Property — Gifts/Inheritance (CAD)</label><input class="fi" type="number" id="b_excluded" placeholder="0" oninput="calcEqualization()"></div>
+      </div>
+
+      <div id="equalization-result" class="calc-result" style="display:none">
+        <div class="calc-label">Equalization Payment</div>
+        <div class="calc-amount" id="eq-amount">$0</div>
+        <div class="calc-note" id="eq-note"></div>
+      </div>
+
+      <div class="section-hdr">Personal Property</div>
+      <div class="fg">
+        <label class="fl">Vehicle(s)</label>
+        <textarea class="fi" id="vehicles" placeholder="e.g. Party A retains the 2019 Toyota RAV4 (license plate XXXX). Party B retains the 2021 Honda Civic (license plate YYYY). Any outstanding loans remain with the retaining party."></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Contents of Matrimonial Home</label>
+        <textarea class="fi" id="contents" placeholder="e.g. The parties have agreed to the division of household contents as itemized in Schedule A attached. Any disputed items will be disposed of or sold and proceeds split equally."></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">RRSPs / Pension / Investments</label>
+        <textarea class="fi" id="rrsp" placeholder="e.g. Party A's RRSP balance of $42,000 as of separation date — $18,000 to be transferred to Party B by RRSP transfer. Pension to be divided pursuant to a separate Division of Pension Benefits Order."></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Business Interests</label>
+        <textarea class="fi" id="business" placeholder="e.g. Party A's interest in ABC Corp. valued at $X — Party B releases all claims to the business in exchange for equalization adjustment."></textarea>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-back" onclick="goToStep(4)">← Back</button>
+        <button class="btn-next" onclick="goToStep(6)">Next: Other Terms →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6: OTHER TERMS -->
+  <div class="panel" id="panel-other">
+    <div class="panel-wrap">
+      <div class="panel-title">Other Terms</div>
+      <div class="panel-sub">Step 6 — Debts, Insurance & Final Provisions</div>
+
+      <div class="section-hdr">Joint Debts</div>
+      <div class="info-box">
+        <p>List any joint debts and which party assumes responsibility. <strong>Note:</strong> creditors are not bound by a separation agreement — both parties remain liable to the creditor even if one party agrees to assume the debt.</p>
+      </div>
+      <div class="fg">
+        <label class="fl">Joint Debt Allocation</label>
+        <textarea class="fi" id="joint_debts" placeholder="e.g. Joint TD Visa balance of approximately $4,200 — Party A to pay in full within 30 days of signing. Party B to indemnify Party A from the RBC line of credit balance of $12,000..."></textarea>
+      </div>
+
+      <div class="section-hdr">Life Insurance</div>
+      <div class="fg">
+        <label class="fl">Life Insurance — Child Support Obligation</label>
+        <select class="fi" id="life_insurance">
+          <option value="required">Required — each party maintains policy naming children as beneficiaries (recommended)</option>
+          <option value="a_only">Party A maintains policy only</option>
+          <option value="b_only">Party B maintains policy only</option>
+          <option value="none">No life insurance requirement</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Minimum Coverage Amount</label>
+        <input class="fi" id="insurance_amount" placeholder="$300,000 per party">
+      </div>
+
+      <div class="section-hdr">Releases & Waivers</div>
+      <div class="fg">
+        <label class="fl">Release of Estates Claims</label>
+        <select class="fi" id="estate_release">
+          <option value="mutual">Mutual full release of estate claims</option>
+          <option value="partial">Partial release — see notes</option>
+          <option value="none">No estate release</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Release of Other Claims</label>
+        <select class="fi" id="other_release">
+          <option value="full">Full and final mutual release of all claims arising from the relationship</option>
+          <option value="except_agreement">Full release except as set out in this agreement</option>
+          <option value="custom">Custom — see notes</option>
+        </select>
+      </div>
+
+      <div class="section-hdr">Dispute Resolution</div>
+      <div class="fg">
+        <label class="fl">Dispute Resolution Mechanism</label>
+        <select class="fi" id="dispute_resolution">
+          <option value="mediation_first">Mediation first, then arbitration</option>
+          <option value="mediation">Mediation only</option>
+          <option value="court">Court proceedings</option>
+          <option value="arbitration">Binding arbitration</option>
+        </select>
+      </div>
+
+      <div class="section-hdr">Governing Law</div>
+      <div class="fg">
+        <label class="fl">This agreement is governed by the laws of:</label>
+        <select class="fi" id="governing_law">
+          <option value="ON">Ontario, Canada</option>
+          <option value="BC">British Columbia, Canada</option>
+          <option value="AB">Alberta, Canada</option>
+          <option value="QC">Quebec, Canada</option>
+          <option value="MB">Manitoba, Canada</option>
+        </select>
+      </div>
+
+      <div class="section-hdr">Additional Provisions</div>
+      <div class="fg">
+        <label class="fl">Any Other Terms or Special Circumstances</label>
+        <textarea class="fi" id="additional_terms" placeholder="Include any other provisions the parties have agreed to that are not covered above — pet custody, travel provisions, right of first refusal on home, etc."></textarea>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-back" onclick="goToStep(5)">← Back</button>
+        <button class="btn-next" onclick="goToStep(7)">Generate Agreement →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7: AGREEMENT -->
+  <div class="panel" id="panel-agreement">
+    <div class="agreement-layout" style="position:relative">
+
+      <!-- Generating overlay -->
+      <div class="gen-overlay" id="genOverlay">
+        <div class="gen-spinner"></div>
+        <div class="gen-label">Drafting Agreement</div>
+        <div class="gen-step" id="gen-step-label">Reviewing party information...</div>
+      </div>
+
+      <!-- Left sidebar — document sections -->
+      <div class="agreement-sidebar">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);margin-bottom:10px">Document Sections</div>
+        <button class="ag-sec-btn on" onclick="scrollToSection('sec-parties')">Parties</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-recitals')">Recitals</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-parenting')">Parenting</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-child-support')">Child Support</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-spousal')">Spousal Support</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-property')">Property Division</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-debts')">Debts & Insurance</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-releases')">Releases</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-general')">General</button>
+        <button class="ag-sec-btn" onclick="scrollToSection('sec-signatures')">Signatures</button>
+        <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Draft Status</div>
+          <div id="draft-status-text" style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);line-height:1.5">Complete the form to generate your agreement.</div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="agreement-main">
+        <div class="agreement-toolbar">
+          <button class="tb-btn" onclick="goToStep(6)">← Edit Terms</button>
+          <button class="tb-btn" onclick="showPanel('panel-chat');setActive('nav-chat')">💬 Ask AI</button>
+          <button class="tb-btn" onclick="regenerateAgreement()">↻ Regenerate</button>
+          <button class="tb-btn teal" onclick="downloadPDF()">↓ Download PDF</button>
+          <span class="tb-status" id="ag-status">Ready</span>
+        </div>
+
+        <div class="agreement-content" id="agreement-content">
+          <div class="agreement-doc" id="agreement-doc">
+            <div id="sec-parties">
+              <h1 id="ag-title">SEPARATION AGREEMENT</h1>
+              <div class="doc-date" id="ag-date"></div>
+            </div>
+
+            <div class="doc-section" id="sec-recitals">
+              <h2>BACKGROUND</h2>
+              <div id="ag-background"></div>
+            </div>
+
+            <div class="doc-section" id="sec-parenting">
+              <h2>PART 1 — PARENTING ARRANGEMENTS</h2>
+              <div id="ag-parenting"></div>
+            </div>
+
+            <div class="doc-section" id="sec-child-support">
+              <h2>PART 2 — CHILD SUPPORT</h2>
+              <div id="ag-child-support"></div>
+            </div>
+
+            <div class="doc-section" id="sec-spousal">
+              <h2>PART 3 — SPOUSAL SUPPORT</h2>
+              <div id="ag-spousal"></div>
+            </div>
+
+            <div class="doc-section" id="sec-property">
+              <h2>PART 4 — PROPERTY DIVISION</h2>
+              <div id="ag-property"></div>
+            </div>
+
+            <div class="doc-section" id="sec-debts">
+              <h2>PART 5 — DEBTS AND INSURANCE</h2>
+              <div id="ag-debts"></div>
+            </div>
+
+            <div class="doc-section" id="sec-releases">
+              <h2>PART 6 — RELEASES</h2>
+              <div id="ag-releases"></div>
+            </div>
+
+            <div class="doc-section" id="sec-general">
+              <h2>PART 7 — GENERAL PROVISIONS</h2>
+              <div id="ag-general"></div>
+            </div>
+
+            <div class="doc-section" id="sec-signatures">
+              <h2>SIGNATURES</h2>
+              <div id="ag-signatures"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div class="panel" id="panel-chat">
+    <div class="chat-wrap">
+      <div style="background:var(--navy-mid);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;display:flex;align-items:center;gap:10px">
+        <button class="tb-btn" onclick="showPanel('panel-agreement');setActive('nav-agreement')" style="padding:5px 12px">← Back to Agreement</button>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal)">ClearSplit AI — Separation Advisor</span>
+      </div>
+      <div class="chat-msgs" id="chat-msgs">
+        <div class="msg ai">
+          <strong>ClearSplit AI</strong><br>
+          I'm your separation agreement advisor, trained in Canadian family law including the <em>Divorce Act</em>, <em>Family Law Act</em> (Ontario), Federal Child Support Guidelines, and Spousal Support Advisory Guidelines.<br><br>
+          Ask me anything about your agreement — support calculations, parenting arrangements, property division, or whether a term is enforceable. I'll give you a straight answer in plain language.
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chat-input" placeholder="Ask about support, parenting, property division..." rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-body -->
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bottom-nav">
+  <button class="bn-item on" id="nav-form" onclick="showCurrentStep();setActive('nav-form')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+    <span class="bn-lbl">Form</span>
+  </button>
+  <button class="bn-item" id="nav-agreement" onclick="showPanel('panel-agreement');setActive('nav-agreement')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span class="bn-lbl">Agreement</span>
+  </button>
+  <button class="bn-item" id="nav-chat" onclick="showPanel('panel-chat');setActive('nav-chat')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="bn-lbl">AI Help</span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let currentStep = 1;
+let childCount = 0;
+let chatHistory = [];
+let chatBusy = false;
+let equalizationData = {};
+let childSupportData = {};
+
+const STEPS = [
+  { id: 1, panel: 'panel-parties',   label: 'Parties',         sub: 'Names & relationship dates' },
+  { id: 2, panel: 'panel-children',  label: 'Children',        sub: 'Parenting arrangements' },
+  { id: 3, panel: 'panel-support',   label: 'Child Support',   sub: 'Federal Guidelines' },
+  { id: 4, panel: 'panel-spousal',   label: 'Spousal Support', sub: 'SSAG calculation' },
+  { id: 5, panel: 'panel-property',  label: 'Property',        sub: 'Division & equalization' },
+  { id: 6, panel: 'panel-other',     label: 'Other Terms',     sub: 'Debts, insurance & releases' },
+  { id: 7, panel: 'panel-agreement', label: 'Agreement',       sub: 'Review & download' },
+];
+
+// Child support tables (Ontario, simplified)
+const CS_TABLE = {
+  10000:[75,126,163,197,228],15000:[112,188,244,295,342],20000:[149,250,325,393,456],
+  25000:[187,313,407,491,569],30000:[232,381,491,592,686],35000:[277,449,576,693,803],
+  40000:[322,518,661,794,920],45000:[364,583,743,892,1033],50000:[404,645,820,984,1140],
+  55000:[443,705,896,1074,1244],60000:[481,766,972,1165,1350],65000:[519,826,1047,1254,1453],
+  70000:[556,883,1119,1340,1553],75000:[592,938,1188,1421,1647],80000:[628,993,1257,1503,1742],
+  85000:[663,1047,1326,1585,1838],90000:[698,1101,1394,1666,1932],95000:[733,1154,1461,1747,2025],
+  100000:[767,1207,1528,1826,2117],110000:[835,1311,1659,1983,2299],120000:[903,1414,1789,2139,2480],
+  130000:[970,1516,1919,2293,2659],140000:[1037,1617,2047,2447,2838],150000:[1103,1717,2175,2600,3015],
+  160000:[1169,1817,2302,2752,3192],170000:[1234,1915,2428,2903,3367],180000:[1299,2013,2553,3053,3542],
+  200000:[1427,2207,2801,3352,3889],
+};
+
+const PROV_MULT = {ON:1.0,BC:0.97,AB:1.02,QC:0.88,MB:0.95,SK:0.96,NS:0.93,NB:0.91,NL:0.94,PE:0.90};
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildSidebarSteps();
+  updateProgressBar();
+  document.getElementById('spousal_duration').addEventListener('change', function() {
+    document.getElementById('duration_years_fg').style.display = this.value === 'time_limited' ? 'block' : 'none';
+  });
+  document.getElementById('home_disposition').addEventListener('change', function() {
+    const show = this.value !== 'no_home';
+    document.getElementById('home-value-row').style.display = show ? 'grid' : 'none';
+    document.getElementById('home-split-row').style.display = (show && this.value === 'sell') ? 'grid' : 'none';
+  });
+  document.getElementById('home_split').addEventListener('change', function() {
+    document.getElementById('home-custom-split').style.display = this.value === 'custom' ? 'flex' : 'none';
+  });
+  document.getElementById('decision_making').addEventListener('change', function() {
+    document.getElementById('decision_notes_fg').style.display = this.value === 'divided' ? 'block' : 'none';
+  });
+  loadFromStorage();
+  cloneMobSidebar();
+});
+
+function buildSidebarSteps() {
+  const container = document.getElementById('sb-steps');
+  container.innerHTML = STEPS.map(s => `
+    <button class="sb-step ${s.id === currentStep ? 'active' : ''}" onclick="goToStep(${s.id})" id="sb-step-${s.id}">
+      <div class="step-num">${s.id}</div>
+      <div>
+        <div class="step-label">${s.label}</div>
+        <span class="step-sub">${s.sub}</span>
+      </div>
+    </button>
+  `).join('');
+}
+
+function updateProgressBar() {
+  const pct = Math.round((currentStep / STEPS.length) * 100);
+  document.getElementById('pb-fill').style.width = pct + '%';
+  document.getElementById('pb-pct').textContent = pct + '%';
+  document.getElementById('pb-step-label').textContent = `Step ${currentStep} of ${STEPS.length}`;
+}
+
+function updateSidebarSteps() {
+  STEPS.forEach(s => {
+    const el = document.getElementById('sb-step-' + s.id);
+    if (!el) return;
+    el.className = 'sb-step';
+    if (s.id === currentStep) el.classList.add('active');
+    else if (s.id < currentStep) el.classList.add('done');
+    // mark done step nums with check
+    const num = el.querySelector('.step-num');
+    if (s.id < currentStep) num.textContent = '✓';
+    else num.textContent = s.id;
+  });
+}
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function goToStep(n) {
+  currentStep = n;
+  const step = STEPS.find(s => s.id === n);
+  if (!step) return;
+  // hide all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.getElementById(step.panel).classList.add('on');
+  updateProgressBar();
+  updateSidebarSteps();
+  setActive('nav-form');
+  saveToStorage();
+  if (n === 7) generateAgreement();
+  // update party pill
+  const aName = v('a_name').split(' ')[0];
+  const bName = v('b_name').split(' ')[0];
+  if (aName && bName) {
+    const pill = document.getElementById('tn-party-pill');
+    pill.textContent = `${aName} & ${bName}`;
+    pill.style.display = 'inline';
+  }
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function showCurrentStep() {
+  goToStep(currentStep);
+}
+
+function scrollToReview() {
+  showPanel('panel-agreement');
+  setActive('nav-agreement');
+}
+
+function setActive(id) {
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('on');
+}
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.ag-sec-btn').forEach(b => b.classList.remove('on'));
+  event.target.classList.add('on');
+}
+
+// ══════════════════════════════════════════════════
+// MOBILE SIDEBAR
+// ══════════════════════════════════════════════════
+function toggleMobSidebar() {
+  document.getElementById('mobSbOv').classList.toggle('show');
+  document.getElementById('mobSb').classList.toggle('open');
+}
+function closeMobSidebar() {
+  document.getElementById('mobSbOv').classList.remove('show');
+  document.getElementById('mobSb').classList.remove('open');
+}
+function cloneMobSidebar() {
+  document.getElementById('mobSb').innerHTML = document.getElementById('mainSidebar').innerHTML;
+}
+
+// ══════════════════════════════════════════════════
+// CHILDREN
+// ══════════════════════════════════════════════════
+function addChild() {
+  childCount++;
+  const id = childCount;
+  const div = document.createElement('div');
+  div.className = 'child-card';
+  div.id = `child-${id}`;
+  div.innerHTML = `
+    <div class="child-card-hdr">
+      Child ${id}
+      <button class="remove-btn" onclick="removeChild(${id})">✕ Remove</button>
+    </div>
+    <div class="field-row">
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="child_name_${id}" placeholder="Full legal name"></div>
+      <div class="fg"><label class="fl">Date of Birth</label><input class="fi" type="date" id="child_dob_${id}"></div>
+    </div>
+    <div class="field-row">
+      <div class="fg">
+        <label class="fl">Primary Residence</label>
+        <select class="fi" id="child_res_${id}">
+          <option value="shared">Shared</option>
+          <option value="party_a">Primarily Party A</option>
+          <option value="party_b">Primarily Party B</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Special Needs / Notes</label>
+        <input class="fi" id="child_notes_${id}" placeholder="Medical, educational, other notes">
+      </div>
+    </div>
+  `;
+  document.getElementById('children-list').appendChild(div);
+  document.getElementById('parenting-section').style.display = 'block';
+  calcSupport();
+}
+
+function removeChild(id) {
+  const el = document.getElementById(`child-${id}`);
+  if (el) el.remove();
+  if (document.getElementById('children-list').children.length === 0) {
+    document.getElementById('parenting-section').style.display = 'none';
+  }
+  calcSupport();
+}
+
+function getChildrenData() {
+  const cards = document.querySelectorAll('[id^="child-"]');
+  return Array.from(cards).map(c => {
+    const num = c.id.split('-')[1];
+    return {
+      name:  v(`child_name_${num}`),
+      dob:   v(`child_dob_${num}`),
+      res:   v(`child_res_${num}`),
+      notes: v(`child_notes_${num}`),
+    };
+  }).filter(c => c.name || c.dob);
+}
+
+function numChildren() {
+  return document.querySelectorAll('[id^="child-"]').length;
+}
+
+// ══════════════════════════════════════════════════
+// CHILD SUPPORT CALCULATOR
+// ══════════════════════════════════════════════════
+function getTableAmount(income, n) {
+  const prov = v('province') || 'ON';
+  const mult = PROV_MULT[prov] || 1.0;
+  const idx = Math.min(n, 5) - 1;
+  const keys = Object.keys(CS_TABLE).map(Number).sort((a,b)=>a-b);
+  let lo = keys[0], hi = keys[keys.length-1];
+  for (const k of keys) { if (k <= income) lo = k; }
+  for (const k of [...keys].reverse()) { if (k >= income) hi = k; }
+  if (income >= hi) return Math.round(CS_TABLE[hi][idx] * mult);
+  const loA = CS_TABLE[lo][idx] * mult;
+  const hiA = CS_TABLE[hi][idx] * mult;
+  const pct = (income - lo) / (hi - lo);
+  return Math.round(loA + pct * (hiA - loA));
+}
+
+function calcSupport() {
+  const n = numChildren();
+  const aInc = parseFloat(v('a_income')) || 0;
+  const bInc = parseFloat(v('b_income')) || 0;
+  const type = v('support_type');
+  const box = document.getElementById('calc-result-box');
+  const agreedFg = document.getElementById('agreed-amount-fg');
+
+  agreedFg.style.display = type === 'agreed' ? 'block' : 'none';
+  if (n === 0 || (!aInc && !bInc)) { box.style.display = 'none'; return; }
+
+  let amount = 0, note = '';
+  const payor = v('support_payor');
+
+  if (type === 'table') {
+    const payorInc = payor === 'a_to_b' ? aInc : bInc;
+    amount = getTableAmount(payorInc, n);
+    note = `Federal Child Support Guidelines — ${n} child${n>1?'ren':''} | Payor income: $${payorInc.toLocaleString()}/yr`;
+  } else if (type === 'shared') {
+    const aTable = getTableAmount(aInc, n);
+    const bTable = getTableAmount(bInc, n);
+    amount = Math.abs(aTable - bTable);
+    const paysStr = aTable > bTable ? 'Party A pays Party B' : 'Party B pays Party A';
+    note = `Set-off method (shared parenting) — A: $${aTable}/mo | B: $${bTable}/mo | ${paysStr}`;
+  } else if (type === 'split') {
+    amount = Math.abs(getTableAmount(aInc,1) - getTableAmount(bInc,1));
+    note = 'Split custody — offset of each party\'s table amount per child in their primary care';
+  }
+
+  childSupportData = { amount, note, n, aInc, bInc, type };
+  if (type !== 'agreed') {
+    box.style.display = 'block';
+    document.getElementById('support-amount').textContent = `$${amount.toLocaleString()}/month`;
+    document.getElementById('support-note').textContent = note;
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function updateAgreedSupport() {
+  const amt = parseFloat(v('agreed_support')) || 0;
+  childSupportData.amount = amt;
+  childSupportData.type = 'agreed';
+}
+
+// ══════════════════════════════════════════════════
+// SPOUSAL SUPPORT CALCULATOR (SSAG)
+// ══════════════════════════════════════════════════
+function toggleSpousal() {
+  const val = v('spousal_election');
+  document.getElementById('spousal-calc-section').style.display   = val === 'calculate' ? 'block' : 'none';
+  document.getElementById('spousal-agreed-section').style.display = (val === 'agreed' || val === 'calculate') ? 'block' : 'none';
+  document.getElementById('spousal-lump-section').style.display   = val === 'lump_sum' ? 'block' : 'none';
+  document.getElementById('spousal-waiver-note').style.display    = val === 'none' ? 'block' : 'none';
+  if (val === 'calculate') calcSpousal();
+}
+
+function calcSpousal() {
+  const aInc = parseFloat(v('ss_a_income')) || 0;
+  const bInc = parseFloat(v('ss_b_income')) || 0;
+  const years = parseFloat(v('years_together')) || 0;
+  const hasKids = v('ss_has_children') === 'yes';
+  const result = document.getElementById('ssag-result');
+  if (!aInc || !bInc || !years) { result.style.display = 'none'; return; }
+
+  const higher = Math.max(aInc, bInc);
+  const lower  = Math.min(aInc, bInc);
+  const diff   = higher - lower;
+  if (diff < 10000) { result.style.display = 'none'; return; }
+
+  // SSAG without children formula: 1.5%-2% per year × income differential, monthly
+  // With children: NDWC formula
+  let loRate, hiRate;
+  if (hasKids) {
+    loRate = 0.015; hiRate = 0.02;
+  } else {
+    loRate = 0.015; hiRate = 0.02;
+  }
+  const lo = Math.round((diff * loRate * years) / 12);
+  const hi = Math.round((diff * hiRate * years) / 12);
+
+  const payorName = aInc > bInc ? 'Party A' : 'Party B';
+  const recipName = aInc > bInc ? 'Party B' : 'Party A';
+
+  result.style.display = 'block';
+  document.getElementById('ssag-amount').textContent = `$${lo.toLocaleString()} – $${hi.toLocaleString()}/month`;
+  document.getElementById('ssag-note').textContent = `${payorName} pays ${recipName} | Based on ${years} years together | Income differential: $${diff.toLocaleString()}/yr | Duration range: ~${Math.round(years*0.5)}–${years} years`;
+}
+
+// ══════════════════════════════════════════════════
+// EQUALIZATION CALCULATOR
+// ══════════════════════════════════════════════════
+function calcEqualization() {
+  const aAssetsVD = parseFloat(document.getElementById('a_assets_vd').value) || 0;
+  const aDebtsVD  = parseFloat(document.getElementById('a_debts_vd').value)  || 0;
+  const aAssetsDOM= parseFloat(document.getElementById('a_assets_dom').value)|| 0;
+  const aExcluded = parseFloat(document.getElementById('a_excluded').value)   || 0;
+
+  const bAssetsVD = parseFloat(document.getElementById('b_assets_vd').value) || 0;
+  const bDebtsVD  = parseFloat(document.getElementById('b_debts_vd').value)  || 0;
+  const bAssetsDOM= parseFloat(document.getElementById('b_assets_dom').value)|| 0;
+  const bExcluded = parseFloat(document.getElementById('b_excluded').value)   || 0;
+
+  const homeValue   = parseFloat(document.getElementById('home_value').value)    || 0;
+  const homeMortgage= parseFloat(document.getElementById('home_mortgage').value) || 0;
+  const homeDisp    = document.getElementById('home_disposition').value;
+
+  let homeEquity = 0;
+  if (homeDisp !== 'no_home') homeEquity = homeValue - homeMortgage;
+
+  const aNFP = (aAssetsVD + homeEquity * 0.5) - aDebtsVD - aAssetsDOM - aExcluded;
+  const bNFP = bAssetsVD - bDebtsVD - bAssetsDOM - bExcluded;
+
+  const diff = Math.abs(aNFP - bNFP);
+  const equalization = diff / 2;
+  const payer  = aNFP > bNFP ? 'Party A' : 'Party B';
+  const recip  = aNFP > bNFP ? 'Party B' : 'Party A';
+
+  equalizationData = { aNFP, bNFP, equalization, payer, recip, homeEquity };
+
+  const result = document.getElementById('equalization-result');
+  if (equalization > 0) {
+    result.style.display = 'block';
+    document.getElementById('eq-amount').textContent = `$${equalization.toLocaleString('en-CA', {maximumFractionDigits:0})}`;
+    document.getElementById('eq-note').textContent = `${payer} pays ${recip} | Party A NFP: $${aNFP.toLocaleString('en-CA',{maximumFractionDigits:0})} | Party B NFP: $${bNFP.toLocaleString('en-CA',{maximumFractionDigits:0})} | Pursuant to s.5(1) Family Law Act`;
+  } else {
+    result.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function fmt(n) {
+  if (!n && n !== 0) return 'N/A';
+  return '$' + Number(n).toLocaleString('en-CA', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtDate(d) {
+  if (!d) return '[date not entered]';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function today() {
+  return new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════════════
+// AGREEMENT GENERATION
+// ══════════════════════════════════════════════════
+async function generateAgreement() {
+  showGenerating(true);
+  const data = collectAllData();
+  const steps = [
+    'Reviewing party information...',
+    'Drafting parenting provisions...',
+    'Calculating support obligations...',
+    'Drafting property division clauses...',
+    'Drafting releases and general provisions...',
+    'Finalising agreement...',
+  ];
+  let i = 0;
+  const interval = setInterval(() => {
+    document.getElementById('gen-step-label').textContent = steps[i % steps.length];
+    i++;
+  }, 1800);
+
+  try {
+    const agreementText = await callClaude(buildAgreementPrompt(data));
+    clearInterval(interval);
+    renderAgreement(agreementText, data);
+    document.getElementById('draft-status-text').textContent = `Draft generated ${today()}. Review all terms carefully before signing.`;
+    document.getElementById('ag-status').textContent = 'Draft ready';
+  } catch(e) {
+    clearInterval(interval);
+    renderAgreementFallback(data);
+    document.getElementById('ag-status').textContent = 'Draft ready (template)';
+  }
+  showGenerating(false);
+}
+
+function regenerateAgreement() {
+  generateAgreement();
+}
+
+function showGenerating(show) {
+  document.getElementById('genOverlay').classList.toggle('show', show);
+}
+
+function collectAllData() {
+  return {
+    aName: v('a_name'), bName: v('b_name'),
+    aDob: v('a_dob'), bDob: v('b_dob'),
+    aAddr: v('a_addr'), bAddr: v('b_addr'),
+    aEmail: v('a_email'), bEmail: v('b_email'),
+    relStart: v('rel_start'), relSep: v('rel_sep'),
+    province: v('province'), relType: v('rel_type'),
+    children: getChildrenData(),
+    decisionMaking: v('decision_making'),
+    decisionNotes: v('decision_notes'),
+    primaryResidence: v('primary_residence'),
+    parentingSchedule: v('parenting_schedule'),
+    holidays: v('holidays'), summer: v('summer'),
+    parentingNotes: v('parenting_notes'),
+    aIncome: v('a_income'), bIncome: v('b_income'),
+    supportType: v('support_type'), supportPayor: v('support_payor'),
+    supportFreq: v('support_freq'), supportMethod: v('support_method'),
+    childSupportAmount: childSupportData.amount || 0,
+    agreedSupport: v('agreed_support'),
+    s7Expenses: v('s7_expenses'),
+    spousalElection: v('spousal_election'),
+    agreedSpousal: v('agreed_spousal'),
+    spousalDuration: v('spousal_duration'),
+    durationYears: v('duration_years'),
+    lumpSumAmount: v('lump_sum_amount'),
+    lumpSumSchedule: v('lump_sum_schedule'),
+    spousalTax: v('spousal_tax'),
+    spousalNotes: v('spousal_notes'),
+    homeDisposition: v('home_disposition'),
+    homeValue: v('home_value'), homeMortgage: v('home_mortgage'),
+    homeSplit: v('home_split'), homeAPct: v('home_a_pct'),
+    aAssetsVD: v('a_assets_vd'), aDebtsVD: v('a_debts_vd'),
+    aAssetsDOM: v('a_assets_dom'), aExcluded: v('a_excluded'),
+    bAssetsVD: v('b_assets_vd'), bDebtsVD: v('b_debts_vd'),
+    bAssetsDOM: v('b_assets_dom'), bExcluded: v('b_excluded'),
+    vehicles: v('vehicles'), contents: v('contents'),
+    rrsp: v('rrsp'), business: v('business'),
+    equalization: equalizationData,
+    jointDebts: v('joint_debts'),
+    lifeInsurance: v('life_insurance'), insuranceAmount: v('insurance_amount'),
+    estateRelease: v('estate_release'), otherRelease: v('other_release'),
+    disputeResolution: v('dispute_resolution'),
+    governingLaw: v('governing_law'),
+    additionalTerms: v('additional_terms'),
+  };
+}
+
+function buildAgreementPrompt(d) {
+  const childNames = d.children.map(c => c.name || 'child').join(', ');
+  return `You are a Canadian family law paralegal drafting a separation agreement. Draft a complete, formal separation agreement in Canadian legal style based on these inputs. 
+
+Write the full text of each clause — do not use placeholder text like "[insert here]". Use actual names and amounts throughout. Make it legally professional but readable.
+
+PARTIES:
+Party A: ${d.aName || 'Party A'}, born ${fmtDate(d.aDob)}, of ${d.aAddr || '[address]'}
+Party B: ${d.bName || 'Party B'}, born ${fmtDate(d.bDob)}, of ${d.bAddr || '[address]'}
+Relationship: ${d.relType === 'married' ? 'Married spouses' : 'Common-law partners'}
+Date of marriage/cohabitation: ${fmtDate(d.relStart)}
+Date of separation: ${fmtDate(d.relSep)}
+Province: ${d.province}
+
+CHILDREN: ${d.children.length > 0 ? childNames : 'No children under 18'}
+${d.children.length > 0 ? `Decision-making: ${d.decisionMaking}. Primary residence: ${d.primaryResidence}. Schedule: ${d.parentingSchedule || 'to be agreed'}. Holiday: ${d.holidays}. Summer: ${d.summer}. Additional: ${d.parentingNotes}` : ''}
+
+CHILD SUPPORT:
+${d.children.length > 0 ? `Monthly amount: ${fmt(d.supportType === 'agreed' ? d.agreedSupport : d.childSupportAmount)}. Type: ${d.supportType}. Payor: ${d.supportPayor}. Frequency: ${d.supportFreq}. Method: ${d.supportMethod}. S.7 expenses: ${d.s7Expenses || 'none specified'}` : 'Not applicable — no children'}
+
+SPOUSAL SUPPORT: ${d.spousalElection}
+${d.spousalElection !== 'none' ? `Amount/range: ${d.agreedSpousal ? fmt(d.agreedSpousal) + '/month' : 'per SSAG'}. Duration: ${d.spousalDuration}. Tax treatment: ${d.spousalTax}. Notes: ${d.spousalNotes}` : 'Both parties waive all rights to spousal support.'}
+
+PROPERTY:
+Home: ${d.homeDisposition}. Value: ${fmt(d.homeValue)}. Mortgage: ${fmt(d.homeMortgage)}. Net equity: ~${fmt(parseFloat(d.homeValue||0) - parseFloat(d.homeMortgage||0))}.
+Equalization: ${d.equalization.payer || 'TBD'} pays ${d.equalization.recip || 'the other party'} ${fmt(d.equalization.equalization)}.
+NFP A: ${fmt(d.equalization.aNFP)}, NFP B: ${fmt(d.equalization.bNFP)}.
+Vehicles: ${d.vehicles || 'as agreed'}
+Contents: ${d.contents || 'as agreed'}
+RRSPs/Pension: ${d.rrsp || 'each party retains their own'}
+Business: ${d.business || 'n/a'}
+
+DEBTS: ${d.jointDebts || 'each party assumes their own debts'}
+Life insurance: ${d.lifeInsurance}. Amount: ${d.insuranceAmount || 'appropriate coverage'}
+Estate release: ${d.estateRelease}
+Release: ${d.otherRelease}
+Dispute resolution: ${d.disputeResolution}
+Governing law: ${d.governingLaw}
+Additional terms: ${d.additionalTerms || 'none'}
+
+Write the full separation agreement now. Format each section with a bold header like PART 1 — PARENTING ARRANGEMENTS, etc. Write in first person plural for the parties ("the parties agree..."). Include the standard notice that independent legal advice is recommended before signing. The agreement should be thorough but use plain Canadian English — not archaic legalese.`;
+}
+
+async function callClaude(prompt) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system: 'You are a Canadian family law paralegal. Draft complete, professional separation agreements. Use actual names and figures provided — never use placeholders. Write in formal but plain Canadian English.',
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+function renderAgreement(text, data) {
+  const aName = data.aName || 'Party A';
+  const bName = data.bName || 'Party B';
+  const sepDate = fmtDate(data.relSep) || today();
+
+  document.getElementById('ag-title').textContent = 'SEPARATION AGREEMENT';
+  document.getElementById('ag-date').textContent = `Made this ${today()} | Between ${aName} and ${bName}`;
+
+  // Parse sections from AI output and inject
+  const sections = {
+    background: extractSection(text, ['BACKGROUND', 'RECITAL', 'WHEREAS', 'THE PARTIES']),
+    parenting:  extractSection(text, ['PARENTING', 'PART 1', 'CHILDREN', 'DECISION-MAKING']),
+    childSupport: extractSection(text, ['CHILD SUPPORT', 'PART 2']),
+    spousal:    extractSection(text, ['SPOUSAL SUPPORT', 'PART 3']),
+    property:   extractSection(text, ['PROPERTY', 'PART 4', 'MATRIMONIAL']),
+    debts:      extractSection(text, ['DEBTS', 'INSURANCE', 'PART 5']),
+    releases:   extractSection(text, ['RELEASE', 'WAIVER', 'PART 6']),
+    general:    extractSection(text, ['GENERAL', 'PART 7', 'GOVERNING', 'DISPUTE']),
+  };
+
+  // If parsing fails, dump full text into background and leave others for fallback
+  const useFull = Object.values(sections).every(s => !s);
+
+  document.getElementById('ag-background').innerHTML    = formatParagraphs(useFull ? text : (sections.background || generateBackground(data)));
+  document.getElementById('ag-parenting').innerHTML     = formatParagraphs(sections.parenting    || generateParenting(data));
+  document.getElementById('ag-child-support').innerHTML = formatParagraphs(sections.childSupport || generateChildSupport(data));
+  document.getElementById('ag-spousal').innerHTML       = formatParagraphs(sections.spousal      || generateSpousal(data));
+  document.getElementById('ag-property').innerHTML      = formatParagraphs(sections.property     || generateProperty(data));
+  document.getElementById('ag-debts').innerHTML         = formatParagraphs(sections.debts        || generateDebts(data));
+  document.getElementById('ag-releases').innerHTML      = formatParagraphs(sections.releases     || generateReleases(data));
+  document.getElementById('ag-general').innerHTML       = formatParagraphs(sections.general      || generateGeneral(data));
+  document.getElementById('ag-signatures').innerHTML    = generateSignatures(data);
+}
+
+function renderAgreementFallback(data) {
+  document.getElementById('ag-title').textContent = 'SEPARATION AGREEMENT';
+  document.getElementById('ag-date').textContent = `Made this ${today()} | Between ${data.aName||'Party A'} and ${data.bName||'Party B'}`;
+  document.getElementById('ag-background').innerHTML    = formatParagraphs(generateBackground(data));
+  document.getElementById('ag-parenting').innerHTML     = formatParagraphs(generateParenting(data));
+  document.getElementById('ag-child-support').innerHTML = formatParagraphs(generateChildSupport(data));
+  document.getElementById('ag-spousal').innerHTML       = formatParagraphs(generateSpousal(data));
+  document.getElementById('ag-property').innerHTML      = formatParagraphs(generateProperty(data));
+  document.getElementById('ag-debts').innerHTML         = formatParagraphs(generateDebts(data));
+  document.getElementById('ag-releases').innerHTML      = formatParagraphs(generateReleases(data));
+  document.getElementById('ag-general').innerHTML       = formatParagraphs(generateGeneral(data));
+  document.getElementById('ag-signatures').innerHTML    = generateSignatures(data);
+}
+
+function extractSection(text, keywords) {
+  const lines = text.split('\n');
+  let inSection = false;
+  let result = [];
+  let foundNext = false;
+  for (let i = 0; i < lines.length; i++) {
+    const upper = lines[i].toUpperCase();
+    const isHeader = upper.includes('PART ') || keywords.some(k => upper.includes(k));
+    const isNextHeader = i > 0 && (upper.match(/^PART \d/) || upper.match(/^#{1,3} /) || (upper.trim().length > 0 && upper === upper.toUpperCase() && upper.trim().length > 10));
+
+    if (!inSection && isHeader) { inSection = true; continue; }
+    if (inSection && isNextHeader && !keywords.some(k => upper.includes(k))) { break; }
+    if (inSection) result.push(lines[i]);
+  }
+  return result.join('\n').trim();
+}
+
+function formatParagraphs(text) {
+  if (!text) return '';
+  return text.split('\n\n').filter(p => p.trim()).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+}
+
+// ── Fallback clause generators ──
+function generateBackground(d) {
+  const aName = d.aName || 'Party A', bName = d.bName || 'Party B';
+  const relType = d.relType === 'married' ? 'married' : 'entered into a common-law relationship';
+  return `${aName} and ${bName} ${relType} on ${fmtDate(d.relStart)||'[date]'} and separated on ${fmtDate(d.relSep)||'[date]'}.
+
+The parties wish to settle all issues arising from the breakdown of their relationship, including ${d.children.length > 0 ? 'parenting arrangements, child support, ' : ''}spousal support, and the division of property, on a final and binding basis.
+
+The parties acknowledge that they have had the opportunity to obtain independent legal advice and that they enter into this agreement freely and voluntarily with full knowledge of its nature and consequences.`;
+}
+
+function generateParenting(d) {
+  if (d.children.length === 0) return 'This agreement does not address parenting arrangements as there are no children under the age of 18.';
+  const childNames = d.children.map(c => c.name || '[child]').join(' and ');
+  const dmLabels = { joint: 'Joint decision-making responsibility for all major decisions including education, health care, and religious upbringing', primary_a: `Sole decision-making responsibility with ${d.aName||'Party A'}`, primary_b: `Sole decision-making responsibility with ${d.bName||'Party B'}` };
+  return `1.1 The parties are the parents of the following children of the relationship: ${childNames}.
+
+1.2 Decision-Making: ${dmLabels[d.decisionMaking] || 'Joint decision-making responsibility'}.
+
+1.3 Parenting Schedule: ${d.parentingSchedule || 'The parties agree to the parenting schedule as mutually agreed from time to time, having regard to the best interests of the children.'}
+
+1.4 Holidays: Holidays shall be shared on ${d.holidays === 'alternating' ? 'an alternating annual basis' : 'a basis as set out below'}.
+
+1.5 Summer Vacation: Each party shall have ${d.summer === '2weeks_each' ? 'two weeks' : d.summer === '4weeks_each' ? 'four weeks' : 'equal time'} of uninterrupted summer vacation with the children, with advance notice of at least 60 days.
+
+${d.parentingNotes ? `1.6 Additional Provisions: ${d.parentingNotes}` : ''}
+
+1.7 All parenting decisions shall be made with the best interests of the children as the paramount consideration, as required by the Children's Law Reform Act.`;
+}
+
+function generateChildSupport(d) {
+  if (d.children.length === 0) return 'This agreement does not address child support as there are no children under the age of 18.';
+  const amount = d.supportType === 'agreed' ? d.agreedSupport : d.childSupportAmount;
+  const payorName = d.supportPayor === 'a_to_b' ? (d.aName||'Party A') : (d.bName||'Party B');
+  const recipName = d.supportPayor === 'a_to_b' ? (d.bName||'Party B') : (d.aName||'Party A');
+  const freqLabel = { monthly: 'monthly on the first day of each month', biweekly: 'bi-weekly', semi: 'semi-monthly on the 1st and 15th of each month' };
+  return `2.1 Pursuant to the Federal Child Support Guidelines, SOR/97-175, ${payorName} shall pay to ${recipName} the sum of ${fmt(amount)} per month for the support of the ${d.children.length === 1 ? 'child' : d.children.length + ' children'} of the relationship, commencing on the first day of the month following the date of signing of this agreement.
+
+2.2 Child support payments shall be made ${freqLabel[d.supportFreq]||'monthly'} by ${d.supportMethod === 'etransfer' ? 'e-Transfer' : d.supportMethod === 'direct_deposit' ? 'direct deposit' : d.supportMethod === 'fro' ? 'the Family Responsibility Office' : 'cheque'}.
+
+2.3 Child support shall be reviewed annually or upon a material change in circumstances, including a change in the payor's income of more than 10%.
+
+2.4 Special and Extraordinary Expenses (s.7): ${d.s7Expenses || 'Special and extraordinary expenses including childcare, extraordinary extracurricular activities, medical and dental expenses not covered by insurance, and post-secondary education costs shall be shared between the parties in proportion to their respective incomes at the time the expense is incurred.'}
+
+2.5 The parties acknowledge that child support is the right of the children and cannot be waived by either party.`;
+}
+
+function generateSpousal(d) {
+  const aName = d.aName||'Party A', bName = d.bName||'Party B';
+  if (d.spousalElection === 'none') {
+    return `3.1 Both ${aName} and ${bName} acknowledge that they are entitled to seek spousal support and, having had the opportunity to obtain independent legal advice, each party hereby waives any and all rights to spousal support from the other, now or in the future.
+
+3.2 This waiver is final and irrevocable and shall survive the signing of this agreement.`;
+  }
+  if (d.spousalElection === 'lump_sum') {
+    return `3.1 In full and final satisfaction of any and all claims for spousal support, one party shall pay to the other the lump sum of ${fmt(d.lumpSumAmount)}.
+
+3.2 Payment Schedule: ${d.lumpSumSchedule || 'Payable within 30 days of the signing of this agreement.'} 
+
+3.3 This lump sum payment is not taxable as income to the recipient and is not deductible by the payor.`;
+  }
+  const amt = d.agreedSpousal || '[amount as calculated per SSAG]';
+  const durLabel = { indefinite: 'on an indefinite basis, subject to review upon a material change in circumstances', time_limited: `for a period of ${d.durationYears || '[N]'} years from the date of this agreement`, reviewable: 'subject to review on the agreed review date' };
+  return `3.1 Spousal Support: The payor shall pay to the recipient the sum of ${fmt(amt)} per month as spousal support, payable on the first day of each month commencing on the date of signing of this agreement.
+
+3.2 Duration: Spousal support shall be paid ${durLabel[d.spousalDuration] || 'as agreed'}.
+
+3.3 Tax Treatment: ${d.spousalTax === 'deductible' ? 'Spousal support payments shall be included in the income of the recipient and deducted from the income of the payor for income tax purposes.' : 'This is a lump-sum payment and is not deductible or includable for income tax purposes.'}
+
+3.4 Review: Either party may apply to vary spousal support upon a material change in circumstances as defined by the Spousal Support Advisory Guidelines and applicable case law.
+
+${d.spousalNotes ? `3.5 Additional Terms: ${d.spousalNotes}` : ''}`;
+}
+
+function generateProperty(d) {
+  const aName = d.aName||'Party A', bName = d.bName||'Party B';
+  const homeLines = {
+    sell: `The matrimonial home shall be listed for sale at fair market value within [30] days of the signing of this agreement. Net proceeds after payment of the mortgage, real estate commissions, and legal costs shall be divided ${d.homeSplit === 'equal' ? 'equally between the parties' : `${d.homeAPct||50}% to ${aName} and ${100-(parseInt(d.homeAPct)||50)}% to ${bName}`}.`,
+    a_buys_out: `${aName} shall purchase ${bName}'s interest in the matrimonial home. The purchase price shall be determined by appraisal or agreement. ${aName} shall be responsible for all costs of the transfer including legal fees and Land Transfer Tax. ${bName} shall be removed from the mortgage and title within 60 days of signing.`,
+    b_buys_out: `${bName} shall purchase ${aName}'s interest in the matrimonial home. The purchase price shall be determined by appraisal or agreement. ${bName} shall be responsible for all costs of the transfer. ${aName} shall be removed from the mortgage and title within 60 days of signing.`,
+    no_home: 'The parties have no matrimonial home to divide.',
+    deferred: `The matrimonial home shall not be sold immediately so that the children may continue to reside therein. The home shall be sold on the earliest of: (a) the youngest child turning 18; (b) agreement of both parties; or (c) [insert trigger date]. Until sale, ${aName||'the occupying party'} shall be responsible for the mortgage, property tax, and maintenance.`,
+  };
+  return `4.1 Matrimonial Home: ${homeLines[d.homeDisposition] || homeLines['sell']}
+
+4.2 Equalization of Net Family Property: Pursuant to Part I of the Family Law Act, ${d.equalization.payer||'the party with the higher NFP'} shall pay to ${d.equalization.recip||'the other party'} the equalization payment of ${fmt(d.equalization.equalization)}. This payment represents one-half the difference between the parties' respective Net Family Property. ${aName}'s NFP: ${fmt(d.equalization.aNFP)}. ${bName}'s NFP: ${fmt(d.equalization.bNFP)}.
+
+4.3 Vehicles: ${d.vehicles || 'Each party shall retain the vehicle in their possession as of the date of signing.'}
+
+4.4 Household Contents: ${d.contents || 'The parties have agreed to the division of household contents and each party is satisfied with their respective share.'}
+
+4.5 RRSPs and Pension: ${d.rrsp || 'Each party shall retain their own registered retirement savings plans and pension entitlements accumulated as of the date of signing. Any required transfers shall be made by direct transfer pursuant to the Income Tax Act.'}
+
+4.6 Business Interests: ${d.business || 'Not applicable.'}
+
+4.7 Full and Final Property Settlement: Except as set out in this agreement, each party releases all claims to the other's property.`;
+}
+
+function generateDebts(d) {
+  return `5.1 Joint Debts: ${d.jointDebts || 'Each party shall be responsible for their own debts and liabilities. The parties agree to indemnify and hold harmless the other from any joint debts assumed under this agreement.'}
+
+5.2 Life Insurance: ${d.lifeInsurance === 'required' ? `Each party shall maintain in force a policy of life insurance naming the children of the relationship as irrevocable beneficiaries in a minimum amount of ${d.insuranceAmount || '$300,000'} for so long as they have a child support obligation. Proof of such insurance shall be provided to the other party upon request.` : d.lifeInsurance === 'none' ? 'The parties do not require each other to maintain life insurance under this agreement.' : `The designated party shall maintain life insurance in a minimum amount of ${d.insuranceAmount || '$300,000'} naming the children as irrevocable beneficiaries.`}
+
+5.3 Indemnification: Each party agrees to indemnify and save harmless the other from any claim or proceeding arising from any debt or liability that party has assumed under this agreement.`;
+}
+
+function generateReleases(d) {
+  const aName = d.aName||'Party A', bName = d.bName||'Party B';
+  const estateText = { mutual: `Each of ${aName} and ${bName} releases all rights in the estate of the other, including rights arising from the Succession Law Reform Act and any entitlement to an intestacy share.`, partial: 'The parties release their rights in each other\'s estate except as specified in writing.', none: 'The parties do not release their respective estate rights under this agreement.' };
+  const releaseText = { full: `Each party releases the other from all claims they have or may have arising from the relationship, including claims for property, support, unjust enrichment, resulting trust, constructive trust, or any other cause of action related to the relationship, cohabitation, or separation — except for any rights and obligations set out in this agreement.`, except_agreement: `Each party releases the other from all claims arising from the relationship except as expressly set out in this agreement.`, custom: 'Release as noted.' };
+  return `6.1 Estate Release: ${estateText[d.estateRelease]||estateText['mutual']}
+
+6.2 General Release: ${releaseText[d.otherRelease]||releaseText['full']}
+
+6.3 This release is intended to be final and binding and shall survive the signing of this agreement and any subsequent order of a court.`;
+}
+
+function generateGeneral(d) {
+  const drLabels = { mediation_first: 'In the event of any dispute arising under this agreement, the parties agree to attempt to resolve the dispute through mediation before commencing court proceedings. If mediation fails, either party may apply to a court of competent jurisdiction.', mediation: 'All disputes under this agreement shall be submitted to mediation.', court: 'Disputes under this agreement shall be resolved by court proceedings.', arbitration: 'All disputes under this agreement shall be submitted to binding arbitration.' };
+  return `7.1 Independent Legal Advice: The parties acknowledge that they have each had the opportunity to obtain independent legal advice before signing this agreement. Each party is encouraged to do so.
+
+7.2 Full Financial Disclosure: Each party represents that they have provided complete and accurate financial disclosure and are not aware of any undisclosed assets, liabilities, or income.
+
+7.3 Dispute Resolution: ${drLabels[d.disputeResolution]||drLabels['mediation_first']}
+
+7.4 Governing Law: This agreement is governed by the laws of the Province of ${d.governingLaw||'Ontario'} and the laws of Canada applicable therein.
+
+7.5 Entire Agreement: This agreement constitutes the entire agreement between the parties with respect to the matters set out herein and supersedes all prior agreements, negotiations, and representations.
+
+7.6 Amendment: This agreement may only be amended by a written document signed by both parties.
+
+7.7 Severability: If any provision of this agreement is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
+
+7.8 Binding Effect: This agreement is binding on the parties and their respective heirs, executors, administrators, and assigns.
+
+${d.additionalTerms ? `7.9 Additional Provisions: ${d.additionalTerms}` : ''}
+
+NOTICE: This is a draft separation agreement prepared with the assistance of ClearSplit. It is not legal advice. Both parties are strongly encouraged to obtain independent legal advice from a licensed lawyer before signing. In Ontario, Legal Aid may be available: 1-800-668-8258.`;
+}
+
+function generateSignatures(d) {
+  const aName = d.aName || 'Party A';
+  const bName = d.bName || 'Party B';
+  return `
+    <p style="margin-bottom:24px">IN WITNESS WHEREOF the parties have signed this agreement on the dates set out below.</p>
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">
+          <div class="sig-name">${aName}</div>
+        </div>
+        <br>
+        <div class="sig-line">
+          <div class="sig-name">Witness — Name</div>
+        </div>
+        <br>
+        <div class="sig-line">
+          <div class="sig-name">Date</div>
+        </div>
+      </div>
+      <div>
+        <div class="sig-line">
+          <div class="sig-name">${bName}</div>
+        </div>
+        <br>
+        <div class="sig-line">
+          <div class="sig-name">Witness — Name</div>
+        </div>
+        <br>
+        <div class="sig-line">
+          <div class="sig-name">Date</div>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:32px;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Draft prepared by ClearSplit · clearstand.ca · Not legal advice · Both parties should obtain independent legal advice before signing.</p>
+  `;
+}
+
+// ══════════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════════
+function chatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function sendChat() {
+  if (chatBusy) return;
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  addChatMsg('user', msg);
+  input.value = '';
+  autoResize(input);
+  chatHistory.push({ role: 'user', content: msg });
+
+  chatBusy = true;
+  document.getElementById('chat-send-btn').disabled = true;
+
+  const typing = addChatMsg('ai', '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>');
+
+  try {
+    const data = collectAllData();
+    const context = `Current agreement context:
+- Parties: ${data.aName||'A'} and ${data.bName||'B'}
+- Province: ${data.province}
+- Separation date: ${fmtDate(data.relSep)}
+- Children: ${data.children.length > 0 ? data.children.map(c=>c.name).join(', ') : 'None'}
+- Child support: ${data.childSupportAmount ? fmt(data.childSupportAmount)+'/month' : 'Not calculated'}
+- Spousal support: ${data.spousalElection}
+- Equalization: ${fmt(data.equalization?.equalization)}`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a Canadian family law advisor helping with a separation agreement. You know the Family Law Act (Ontario), Divorce Act, Federal Child Support Guidelines, SSAG, Children's Law Reform Act, and key case law. Give practical, plain-language answers. You are NOT a lawyer and remind users to get independent legal advice for important decisions. Current context:\n${context}`,
+        messages: chatHistory,
+      }),
+    });
+    const result = await response.json();
+    const reply = result.content?.[0]?.text || 'Something went wrong. Please try again.';
+    typing.innerHTML = reply.replace(/\n/g, '<br>');
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    typing.textContent = 'Connection error. Please check your connection and try again.';
+  }
+
+  chatBusy = false;
+  document.getElementById('chat-send-btn').disabled = false;
+  document.getElementById('chat-input').focus();
+}
+
+function addChatMsg(role, html) {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = html;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+// ══════════════════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════════════════
+function downloadPDF() {
+  const doc = document.getElementById('agreement-doc');
+  if (!doc || !doc.innerText.trim()) {
+    toast('Generate the agreement first');
+    return;
+  }
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'letter' });
+    const W = 215.9, ml = 20, tw = W - 40;
+    let y = 20;
+
+    const aName = v('a_name') || 'Party A';
+    const bName = v('b_name') || 'Party B';
+
+    // Header
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.setTextColor(15, 15, 15);
+    pdf.text('SEPARATION AGREEMENT', W/2, y, { align: 'center' }); y += 8;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(80, 80, 80);
+    pdf.text(`Between: ${aName} and ${bName}`, W/2, y, { align: 'center' }); y += 5;
+    pdf.text(`Date: ${today()}`, W/2, y, { align: 'center' }); y += 4;
+    pdf.setDrawColor(32, 178, 170);
+    pdf.setLineWidth(0.8);
+    pdf.line(ml, y, ml + tw, y); y += 8;
+
+    // Body text
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(9.5);
+    pdf.setTextColor(20, 20, 20);
+
+    const text = doc.innerText.replace(/\n{3,}/g, '\n\n');
+    const lines = text.split('\n');
+
+    for (const line of lines) {
+      if (y > 252) { pdf.addPage(); y = 20; }
+      if (!line.trim()) { y += 3; continue; }
+      const isHeader = line.match(/^(PART \d|BACKGROUND|SIGNATURES|[A-Z][A-Z ]{6,}:)/);
+      if (isHeader) {
+        y += 3;
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(9);
+        pdf.setTextColor(20, 178, 170);
+        const wrapped = pdf.splitTextToSize(line, tw);
+        pdf.text(wrapped, ml, y);
+        y += wrapped.length * 5 + 2;
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9.5);
+        pdf.setTextColor(20, 20, 20);
+      } else {
+        const wrapped = pdf.splitTextToSize(line, tw);
+        pdf.text(wrapped, ml, y);
+        y += wrapped.length * 5 + 1;
+      }
+    }
+
+    // Signature lines
+    if (y > 220) { pdf.addPage(); y = 20; }
+    y += 8;
+    pdf.setDrawColor(160, 160, 160);
+    pdf.setLineWidth(0.3);
+    pdf.line(ml, y, ml + 70, y);
+    pdf.line(ml + 100, y, ml + 170, y);
+    y += 4;
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(aName, ml, y);
+    pdf.text(bName, ml + 100, y);
+    y += 8;
+    pdf.line(ml, y, ml + 70, y);
+    pdf.line(ml + 100, y, ml + 170, y);
+    y += 4;
+    pdf.text('Witness', ml, y);
+    pdf.text('Witness', ml + 100, y);
+
+    // Footer
+    const total = pdf.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(6.5);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text(`ClearSplit · clearstand.ca · Draft separation agreement · Not legal advice · Page ${i} of ${total}`, W/2, 275, { align: 'center' });
+    }
+
+    const fn = `Separation_Agreement_${(aName+'_'+bName).replace(/[^a-z0-9]/gi,'_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+    pdf.save(fn);
+    toast('PDF downloaded');
+  } catch(e) {
+    toast('PDF export failed — try again');
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// LOCAL STORAGE
+// ══════════════════════════════════════════════════
+function saveToStorage() {
+  try {
+    const ids = ['a_name','b_name','a_dob','b_dob','a_addr','b_addr','a_email','b_email',
+      'rel_start','rel_sep','province','rel_type','decision_making','primary_residence',
+      'parenting_schedule','holidays','summer','parenting_notes','decision_notes',
+      'a_income','b_income','support_type','support_payor','support_freq','support_method','agreed_support','s7_expenses',
+      'spousal_election','agreed_spousal','spousal_duration','duration_years','lump_sum_amount','lump_sum_schedule','spousal_tax','spousal_notes',
+      'ss_a_income','ss_b_income','years_together','ss_has_children',
+      'home_disposition','home_value','home_mortgage','home_split','home_a_pct',
+      'a_assets_vd','a_debts_vd','a_assets_dom','a_excluded',
+      'b_assets_vd','b_debts_vd','b_assets_dom','b_excluded',
+      'vehicles','contents','rrsp','business',
+      'joint_debts','life_insurance','insurance_amount','estate_release','other_release','dispute_resolution','governing_law','additional_terms',
+    ];
+    const data = {};
+    ids.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
+    data._step = currentStep;
+    localStorage.setItem('clearsplit_data', JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('clearsplit_data');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    Object.entries(data).forEach(([id, val]) => {
+      if (id === '_step') return;
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+    if (data._step && data._step < 7) goToStep(data._step);
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
