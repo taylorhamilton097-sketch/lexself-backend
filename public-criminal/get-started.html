@@ -3,92 +3,386 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Choose Your Product — ClearStand</title>
+<meta name="description" content="Get started with ClearStand — choose your legal tool and create your free account.">
+<title>Get Started — ClearStand</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root {
-  --navy: #0D1B2A; --navy-mid: #162233; --navy-light: #1E3045;
-  --blue: #2E86C1; --blue-light: #3EA4E4; --blue-dim: #1A4F73;
-  --white: #F4F6F8; --border: #2A3F56; --text: #E8EDF2; --text2: #8BA3BA; --text3: #4A6680;
+body { background: var(--navy, #0D1B2A); }
+
+.gs-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
 
-nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; }
-.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); text-decoration: none; }
-.nav-logo span { color: var(--blue-light); }
+/* Nav */
+.gs-nav {
+  background: var(--navy-mid, #162233);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.gs-nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #F4F6F8;
+  text-decoration: none;
+  letter-spacing: -.01em;
+}
+.gs-nav-logo span { color: #3EA4E4; }
+.gs-nav-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: rgba(244,246,248,.4);
+  text-decoration: none;
+  transition: color .15s;
+}
+.gs-nav-back:hover { color: rgba(244,246,248,.7); }
 
-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; }
+/* Main content */
+.gs-main {
+  flex: 1;
+  padding: 60px 24px 80px;
+}
+.gs-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.gs-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: #3EA4E4;
+  text-align: center;
+  margin-bottom: 14px;
+  display: block;
+}
+.gs-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: #F4F6F8;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.gs-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: .95rem;
+  color: rgba(244,246,248,.5);
+  text-align: center;
+  margin-bottom: 56px;
+  line-height: 1.6;
+}
 
-.eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--blue); margin-bottom: 16px; text-align: center; }
-h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; color: var(--white); text-align: center; margin-bottom: 12px; line-height: 1.2; }
-.sub { font-family: 'Inter', sans-serif; font-size: 1rem; color: var(--text2); text-align: center; margin-bottom: 56px; max-width: 480px; line-height: 1.6; }
+/* Product cards grid */
+.gs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: rgba(255,255,255,.06);
+  margin-bottom: 2px;
+}
+.gs-card {
+  background: #162233;
+  padding: 36px 32px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background .15s;
+}
+.gs-card:hover { background: #1a2d42; }
+.gs-card-accent {
+  height: 3px;
+  margin: -36px -32px 28px;
+  width: calc(100% + 64px);
+}
+.gs-card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  margin-bottom: 10px;
+}
+.gs-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #F4F6F8;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.gs-card-body {
+  font-family: 'Inter', sans-serif;
+  font-size: .88rem;
+  color: rgba(244,246,248,.55);
+  line-height: 1.7;
+  margin-bottom: 24px;
+  flex: 1;
+}
+.gs-card-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(244,246,248,.35);
+  margin-bottom: 16px;
+}
+.gs-card-price strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.gs-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+}
+.gs-features li {
+  font-family: 'Inter', sans-serif;
+  font-size: .82rem;
+  color: rgba(244,246,248,.5);
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gs-features li::before {
+  content: '✓';
+  font-weight: 700;
+  font-size: .75rem;
+  flex-shrink: 0;
+}
 
-.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); width: 100%; max-width: 760px; }
+/* Button variants */
+.gs-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+}
+.gs-btn-blue  { background: #2E86C1; color: #fff; }
+.gs-btn-blue:hover { background: #3EA4E4; }
+.gs-btn-teal  { background: #20B2AA; color: #0d2d2a; }
+.gs-btn-teal:hover { background: #2DD4CC; }
+.gs-btn-outline { background: none; border: 1px solid rgba(255,255,255,.2); color: rgba(244,246,248,.7); }
+.gs-btn-outline:hover { border-color: rgba(255,255,255,.4); color: #F4F6F8; }
 
-.card { background: var(--navy-mid); padding: 48px 40px; display: flex; flex-direction: column; gap: 16px; transition: background 0.2s; cursor: pointer; text-decoration: none; }
-.card:hover { background: var(--navy-light); }
-.card-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--blue-light); }
-.card-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--white); line-height: 1.2; }
-.card-desc { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text2); line-height: 1.65; flex: 1; }
-.card-features { display: flex; flex-direction: column; gap: 6px; }
-.card-feature { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--text2); display: flex; align-items: center; gap: 8px; }
-.card-feature::before { content: ''; width: 6px; height: 6px; background: var(--blue); border-radius: 50%; flex-shrink: 0; }
-.card-cta { margin-top: 8px; padding: 12px 24px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; transition: background 0.15s; display: inline-block; text-align: center; text-decoration: none; }
-.card:hover .card-cta { background: var(--blue-light); }
+/* One-time row at bottom */
+.gs-onetime {
+  background: #162233;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(46,134,193,.2);
+}
+.gs-onetime-text {}
+.gs-onetime-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: rgba(244,246,248,.35);
+  margin-bottom: 4px;
+}
+.gs-onetime-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: #F4F6F8;
+  margin-bottom: 4px;
+}
+.gs-onetime-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: .82rem;
+  color: rgba(244,246,248,.45);
+  line-height: 1.55;
+}
+.gs-onetime-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: #F4F6F8;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.gs-onetime-price span {
+  font-family: 'Inter', sans-serif;
+  font-size: .82rem;
+  color: rgba(244,246,248,.35);
+  font-weight: 400;
+}
 
-.divider { width: 1px; background: var(--border); }
+/* Already have an account */
+.gs-signin {
+  text-align: center;
+  margin-top: 40px;
+  font-family: 'Inter', sans-serif;
+  font-size: .88rem;
+  color: rgba(244,246,248,.35);
+}
+.gs-signin a {
+  color: #3EA4E4;
+  text-decoration: none;
+}
+.gs-signin a:hover { text-decoration: underline; }
 
-.back { margin-top: 32px; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text3); text-decoration: none; }
-.back:hover { color: var(--text2); }
+/* Disclaimer */
+.gs-disclaimer {
+  text-align: center;
+  margin-top: 48px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .48rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(244,246,248,.2);
+  line-height: 1.8;
+}
 
-@media (max-width: 600px) {
-  .cards { grid-template-columns: 1fr; }
-  .card { padding: 36px 24px; }
+@media (max-width: 900px) {
+  .gs-grid { grid-template-columns: 1fr; }
+  .gs-onetime { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+@media (max-width: 540px) {
+  .gs-main { padding: 40px 16px 60px; }
+  .gs-card { padding: 28px 20px 32px; }
+  .gs-card-accent { margin: -28px -20px 24px; width: calc(100% + 40px); }
 }
 </style>
 </head>
-<body>
+<body class="gs-page">
 
-<nav>
-  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+<!-- NAV -->
+<nav class="gs-nav">
+  <a href="/" class="gs-nav-logo">Clear<span>Stand</span></a>
+  <a href="/" class="gs-nav-back">← Back to Home</a>
 </nav>
 
-<main>
-  <div class="eyebrow">Get Started Free</div>
-  <h1>Choose Your Legal Tool</h1>
-  <p class="sub">Both products are free to start. No credit card required.</p>
+<!-- MAIN -->
+<main class="gs-main">
+  <div class="gs-inner">
 
-  <div class="cards">
-    <a href="/register?next=criminal" class="card">
-      <div class="card-label">Criminal Defence</div>
-      <div class="card-title">Facing charges?<br>Start here.</div>
-      <p class="card-desc">Upload Crown disclosure for a five-pass AI analysis. Get charge-specific defence strategies, Charter rights guidance, and cross-examination preparation.</p>
-      <div class="card-features">
-        <div class="card-feature">Crown disclosure analysis</div>
-        <div class="card-feature">Full Criminal Code coverage</div>
-        <div class="card-feature">Charter rights · Bail · Jordan delay</div>
-        <div class="card-feature">Cross-examination builder</div>
+    <span class="gs-eyebrow">Get Started</span>
+    <h1 class="gs-title">Choose your legal tool.</h1>
+    <p class="gs-sub">All products share one account. Pick what you need today — you can access the others any time.</p>
+
+    <!-- PRODUCT CARDS -->
+    <div class="gs-grid">
+
+      <!-- Criminal Defence -->
+      <div class="gs-card">
+        <div class="gs-card-accent" style="background:#2E86C1"></div>
+        <div class="gs-card-label" style="color:#3EA4E4">Criminal Defence</div>
+        <div class="gs-card-title">Know your rights. Use them.</div>
+        <p class="gs-card-body">Facing charges? Upload your Crown disclosure for a 5-pass AI analysis, explore Charter defences, and build your cross-examination strategy.</p>
+        <div class="gs-card-price">
+          Free to start · from <strong>$29</strong>/month
+        </div>
+        <ul class="gs-features" style="--check-color:#3EA4E4">
+          <li style="color:rgba(244,246,248,.6)">Crown disclosure analysis (5-pass)</li>
+          <li style="color:rgba(244,246,248,.6)">Charter rights — s.8, s.9, s.10(b)</li>
+          <li style="color:rgba(244,246,248,.6)">All Criminal Code charges covered</li>
+          <li style="color:rgba(244,246,248,.6)">Cross-examination builder</li>
+          <li style="color:rgba(244,246,248,.6)">AI defence assistant</li>
+          <li style="color:rgba(244,246,248,.6)">PDF export</li>
+        </ul>
+        <a href="/criminal-app" class="gs-btn gs-btn-blue">Start Criminal Defence — Free</a>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(244,246,248,.25);text-align:center;margin-top:10px;text-transform:uppercase;letter-spacing:.08em">1 free analysis · 10 chat messages · No credit card</div>
       </div>
-      <div class="card-cta">Start Criminal Defence →</div>
-    </a>
-    <a href="/register?next=family" class="card">
-      <div class="card-label">Family Law</div>
-      <div class="card-title">Fighting for your<br>family? Start here.</div>
-      <p class="card-desc">Navigate custody, support, and separation with Ontario's actual court forms, the Federal Child Support Guidelines, and real case law guidance.</p>
-      <div class="card-features">
-        <div class="card-feature">All Ontario family court forms</div>
-        <div class="card-feature">Child & spousal support calculator</div>
-        <div class="card-feature">Custody · Property · Divorce</div>
-        <div class="card-feature">Affidavit & document builder</div>
+
+      <!-- Family Law -->
+      <div class="gs-card">
+        <div class="gs-card-accent" style="background:#2E86C1"></div>
+        <div class="gs-card-label" style="color:#3EA4E4">Family Law</div>
+        <div class="gs-card-title">Fight for what your family deserves.</div>
+        <p class="gs-card-body">Child custody, support calculations, court forms, document analysis, and an AI advisor that knows Ontario family law inside out.</p>
+        <div class="gs-card-price">
+          Free to start · from <strong>$29</strong>/month
+        </div>
+        <ul class="gs-features">
+          <li style="color:rgba(244,246,248,.6)">All Ontario family court forms</li>
+          <li style="color:rgba(244,246,248,.6)">Child &amp; spousal support calculator</li>
+          <li style="color:rgba(244,246,248,.6)">Document analysis &amp; response</li>
+          <li style="color:rgba(244,246,248,.6)">Property division — NFP equalization</li>
+          <li style="color:rgba(244,246,248,.6)">Voice-to-affidavit builder</li>
+          <li style="color:rgba(244,246,248,.6)">PDF export</li>
+        </ul>
+        <a href="/family" class="gs-btn gs-btn-blue">Start Family Law — Free</a>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(244,246,248,.25);text-align:center;margin-top:10px;text-transform:uppercase;letter-spacing:.08em">Free access · No credit card required</div>
       </div>
-      <div class="card-cta">Start Family Law →</div>
-    </a>
+
+      <!-- ClearSplit -->
+      <div class="gs-card" style="background:#0d2d2a">
+        <div class="gs-card-accent" style="background:#20B2AA"></div>
+        <div class="gs-card-label" style="color:#20B2AA">ClearSplit — Separation Agreements</div>
+        <div class="gs-card-title">Separate fairly. Move forward.</div>
+        <p class="gs-card-body">For couples separating amicably. One guided tool covers parenting, child support, spousal support, and property division — and generates your complete agreement.</p>
+        <div class="gs-card-price" style="color:rgba(32,178,170,.6)">
+          One-time · <strong style="color:#20B2AA">$299</strong> · 90-day access
+        </div>
+        <ul class="gs-features">
+          <li style="color:rgba(244,246,248,.6)">Complete separation agreement</li>
+          <li style="color:rgba(244,246,248,.6)">Child support — Federal Guidelines</li>
+          <li style="color:rgba(244,246,248,.6)">Spousal support — SSAG range</li>
+          <li style="color:rgba(244,246,248,.6)">Property division &amp; equalization</li>
+          <li style="color:rgba(244,246,248,.6)">Both parties access one account</li>
+          <li style="color:rgba(244,246,248,.6)">Unlimited PDF downloads</li>
+        </ul>
+        <a href="/clearsplit" class="gs-btn gs-btn-teal">Learn More &amp; Start — $299</a>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(32,178,170,.3);text-align:center;margin-top:10px;text-transform:uppercase;letter-spacing:.08em">$74 / 30-day renewal after 90 days · No auto-renewal</div>
+      </div>
+
+    </div>
+
+    <!-- ONE-TIME ANALYSIS PACK -->
+    <div class="gs-onetime">
+      <div class="gs-onetime-text">
+        <div class="gs-onetime-label">One-Time Purchase — No Subscription</div>
+        <div class="gs-onetime-title">Analysis Pack</div>
+        <div class="gs-onetime-desc">Need to analyse Crown disclosure once, without committing to a subscription? Get 3 full 5-pass analyses — use them any time within 12 months. All features included. No monthly charges.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+        <div>
+          <div class="gs-onetime-price">$29 <span>one-time · CAD</span></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;color:rgba(244,246,248,.25);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">3 analyses · 12-month validity</div>
+        </div>
+        <a href="/criminal-app" class="gs-btn gs-btn-outline" style="width:auto;padding:12px 28px;white-space:nowrap">Buy Analysis Pack</a>
+      </div>
+    </div>
+
+    <!-- SIGN IN -->
+    <div class="gs-signin">
+      Already have an account? <a href="/criminal-app">Sign in to Criminal Defence</a> · <a href="/family">Sign in to Family Law</a> · <a href="/clearsplit-app">Sign in to ClearSplit</a>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="gs-disclaimer">
+      ClearStand is a legal document and research tool. It is not legal advice and is not a substitute for a licensed lawyer.<br>
+      For complex matters, consult a licensed lawyer. Legal Aid Ontario: 1-800-668-8258.
+    </div>
+
   </div>
-
-  <a href="/" class="back">← Back to ClearStand</a>
 </main>
 
 </body>
