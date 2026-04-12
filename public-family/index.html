@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -85,14 +86,14 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
   display: none;
 }
 .tn-btn {
-  height: 36px;
-  padding: 0 14px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.15);
+  height: 32px;
+  padding: 0 12px;
+  background: none;
+  border: 1px solid var(--border);
   color: var(--text2);
   cursor: pointer;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.52rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: all 0.15s;
@@ -116,7 +117,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .us-pip { width: 8px; height: 8px; background: var(--navy-border); border-radius: 2px; }
 .us-pip.on { background: var(--blue-light); }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
-.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); cursor: pointer; background: none; border: none; text-decoration: underline; text-underline-offset: 2px; }
 
 /* ── LAYOUT ── */
 .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -124,15 +125,8 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 /* ── SIDEBAR ── */
 .sidebar { width: 288px; background: var(--navy-mid); border-right: 1px solid var(--border); display: none; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
 @media (min-width: 768px) { .sidebar { display: flex; } }
-.mob-sidebar-ov { display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300; }
-.mob-sidebar-ov.show { display:block; }
-.mob-sidebar { position:fixed;top:0;left:0;bottom:0;width:288px;background:var(--navy-mid);border-right:1px solid var(--border);overflow-y:auto;z-index:301;transform:translateX(-100%);transition:transform .3s cubic-bezier(.32,.72,0,1); }
-.mob-sidebar.open { transform:translateX(0); }
-.hamburger { display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:8px;background:none;border:none; }
-.hamburger span { width:20px;height:2px;background:var(--text2);display:block;border-radius:2px; }
-@media (min-width: 768px) { .hamburger { display:none; } }
 .sb-sec { border-bottom: 1px solid var(--border); }
-.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
+.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
 .sbt {
   width: 100%; padding: 9px 16px; background: none; border: none;
   color: var(--text2); cursor: pointer; display: flex; align-items: flex-start;
@@ -140,8 +134,8 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
   border-left: 3px solid transparent;
 }
 .sbt:hover { background: var(--navy-light); color: var(--text); }
-.sbt.on { background: var(--navy-light); color: var(--white); border-left: 3px solid #2E86C1; }
-.sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.94rem; font-weight: 500; line-height: 1.35; color: var(--text); }
+.sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
+.sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; line-height: 1.35; color: var(--text); }
 .sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* ── BOTTOM NAV (mobile) ── */
@@ -211,7 +205,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .wlc h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 10px; }
 .wlc p { font-size: 0.9rem; color: var(--text2); line-height: 1.65; margin-bottom: 20px; }
 .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.chip { white-space:nowrap; padding: 7px 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; text-align: left; }
+.chip { padding: 7px 12px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.8rem; transition: all 0.15s; text-align: left; }
 .chip:hover { border-color: var(--blue); color: var(--text); background: var(--navy-light); }
 
 /* ── INPUT BAR ── */
@@ -306,28 +300,6 @@ select.fi { cursor: pointer; }
 .toast { position: fixed; bottom: calc(var(--bot) + var(--safe-bot) + 12px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--navy-light); border: 1px solid var(--border); padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text); z-index: 999; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ── ONBOARDING ── */
-.ob-ov { position:fixed;inset:0;background:rgba(13,27,42,0.97);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px; }
-.ob-box { background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:480px;padding:36px 32px; }
-.ob-step { display:none; }
-.ob-step.on { display:block; }
-.ob-eyebrow { font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.16em;color:var(--blue);margin-bottom:12px; }
-.ob-title { font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:8px; }
-.ob-body { font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text2);line-height:1.65;margin-bottom:24px; }
-.ob-progress { display:flex;gap:6px;margin-bottom:24px; }
-.ob-dot { height:3px;flex:1;background:var(--border);transition:background .3s; }
-.ob-dot.on { background:var(--blue); }
-.ob-btn { width:100%;padding:14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;font-weight:500;transition:background .15s;min-height:48px; }
-.ob-btn:hover { background:var(--blue-light); }
-.ob-skip { display:block;text-align:center;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);cursor:pointer;background:none;border:none;width:100%; }
-.ob-skip:hover { color:var(--text2); }
-.ob-choices { display:flex;gap:10px;margin-bottom:16px; }
-.ob-choice { flex:1;padding:14px 10px;border:1px solid var(--border);cursor:pointer;text-align:center;background:none;transition:all .15s; }
-.ob-choice:hover { border-color:var(--blue);background:var(--navy-light); }
-.ob-choice.on { border-color:var(--blue);background:var(--navy-light); }
-.ob-choice-label { font-family:'Inter',sans-serif;font-size:.88rem;font-weight:500;color:var(--white);margin-bottom:4px; }
-.ob-choice-sub { font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
-
 /* ── DOCUMENT ANALYSIS PANEL ── */
 .anal-rtab { padding:10px 14px;background:none;border:none;color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;flex-shrink:0; }
 .anal-rtab.on { color:var(--blue-light);border-bottom-color:var(--blue); }
@@ -357,48 +329,6 @@ select.fi { cursor: pointer; }
 .anal-settle { background:rgba(46,134,193,.08);border:1px solid var(--blue-dim);padding:16px;margin-top:16px; }
 .anal-settle-title { font-family:'JetBrains Mono',monospace;font-size:.54rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:10px; }
 
-/* ── ACCOUNT PANEL ── */
-.acct-ov { position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:flex-start;justify-content:flex-end;padding:56px 16px 0 0; }
-.acct-ov.show { display:flex; }
-.acct-box { background:var(--navy-mid);border:1px solid var(--border);width:320px;max-height:calc(100vh - 72px);overflow-y:auto; }
-.acct-hdr { padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
-.acct-name { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
-.acct-email { font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px; }
-.acct-close { background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem; }
-.acct-plan { padding:14px 16px;border-bottom:1px solid var(--border);background:var(--navy-light); }
-.acct-plan-label { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px; }
-.acct-plan-name { font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-light);margin-bottom:10px; }
-.acct-usage { display:flex;flex-direction:column;gap:8px; }
-.acct-usage-row { display:flex;align-items:center;justify-content:space-between;gap:8px; }
-.acct-usage-label { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
-.acct-usage-val { font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--text2); }
-.acct-usage-bar { height:3px;background:var(--border);flex:1;border-radius:2px;overflow:hidden; }
-.acct-usage-fill { height:100%;background:var(--blue);border-radius:2px;transition:width .3s; }
-.acct-usage-fill.warn { background:#F4A261; }
-.acct-usage-fill.danger { background:#E87070; }
-.acct-upgrade { margin:14px 16px;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;width:calc(100% - 32px);font-weight:500;transition:background .15s; }
-.acct-upgrade:hover { background:var(--blue-light); }
-.acct-section { padding:12px 16px;border-bottom:1px solid var(--border); }
-.acct-section-title { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px; }
-.acct-link { display:block;padding:8px 0;font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);cursor:pointer;background:none;border:none;text-align:left;width:100%;transition:color .15s; }
-.acct-link:hover { color:var(--text); }
-.acct-link.danger { color:#E87070; }
-
-/* ── SUPPORT CALCULATOR ── */
-.supp-tab { flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;min-height:40px; }
-.supp-tab.on { color:var(--blue-light);border-bottom-color:var(--blue); }
-.supp-result-row { display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05); }
-.supp-result-label { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
-.supp-result-val { font-family:'Playfair Display',serif;font-size:1rem;color:var(--blue-light); }
-
-/* ── COURT FORMS ── */
-.form-card { background:var(--navy-light);border:1px solid var(--border);padding:14px 16px;cursor:pointer;transition:all .15s;user-select:none; }
-.form-card:hover { border-color:var(--blue);background:var(--navy-mid); }
-.form-card:active { background:var(--navy); }
-.form-card-num { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:4px; }
-.form-card-name { font-family:'Inter',sans-serif;font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:3px; }
-.form-card-desc { font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3); }
-
 /* ── AFFIDAVIT PANEL ── */
 .affidavit-wrap { flex: 1; display: flex; overflow: hidden; }
 .aff-interview { width: 50%; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
@@ -419,20 +349,10 @@ select.fi { cursor: pointer; }
 .aff-send { padding: 0 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; height: 42px; transition: background 0.15s; flex-shrink: 0; }
 .aff-send:hover { background: var(--blue-light); }
 .aff-send:disabled { opacity: 0.5; cursor: not-allowed; }
-.aff-voice { padding: 0 16px; height: 42px; background: rgba(46,134,193,.15); border: 1px solid #2E86C1; color: #2E86C1; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; flex-shrink: 0; font-weight: 600; }
-.aff-voice:hover { background: rgba(46,134,193,.25); border-color: #2E86C1; color: var(--white); }
+.aff-voice { padding: 0 10px; height: 42px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; flex-shrink: 0; }
+.aff-voice:hover { border-color: var(--blue); color: var(--blue-light); }
 .aff-voice.rec { border-color: #E87070; color: #E87070; }
-.aff-doc { flex: 1; overflow-y: auto; padding: 16px; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.75; color: var(--text); }
-.aff-para { display:flex; gap:10px; align-items:flex-start; padding:8px 6px; border-bottom:1px solid rgba(255,255,255,.05); }
-.aff-para:hover { background:rgba(255,255,255,.02); }
-.aff-para-num { font-family:'JetBrains Mono',monospace; font-size:.75rem; color:var(--blue-light); min-width:28px; padding-top:4px; flex-shrink:0; font-weight:600; }
-.aff-para-text { flex:1; font-family:'Inter',sans-serif; font-size:.88rem; line-height:1.75; color:var(--text); outline:none; cursor:text; white-space:pre-wrap; word-break:break-word; }
-.aff-para-text:focus { background:rgba(46,134,193,.06); }
-.aff-para-actions { display:flex; flex-direction:column; gap:3px; opacity:0; transition:opacity .15s; flex-shrink:0; }
-.aff-para:hover .aff-para-actions { opacity:1; }
-.aff-para-btn { background:none; border:none; color:var(--text3); cursor:pointer; font-size:.7rem; padding:2px 4px; line-height:1; }
-.aff-para-btn:hover { color:var(--white); }
-.aff-para-opening { font-family:'Inter',sans-serif; font-size:.88rem; color:var(--text2); padding:8px 6px 12px; border-bottom:1px solid rgba(255,255,255,.1); margin-bottom:4px; font-style:italic; }
+.aff-doc { flex: 1; overflow-y: auto; padding: 20px; font-family: 'Inter', sans-serif; font-size: 0.88rem; line-height: 1.75; color: var(--text); white-space: pre-wrap; }
 .aff-doc-empty { padding: 32px 20px; text-align: center; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .aff-actions { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; background: var(--navy-mid); }
 .aff-btn { padding: 8px 14px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; }
@@ -461,9 +381,11 @@ select.fi { cursor: pointer; }
   <span class="tn-tag">Family Law</span>
   <span class="tn-mode" id="modeLabel">Ontario Family Law Assistant</span>
   <div class="tn-right">
+    <span class="tn-plan" id="planBadge"></span>
     <button class="tn-btn" onclick="openFormDrawer()">Forms</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
-    <button class="tn-btn" onclick="openAccountPanel()">Account</button>
+    <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA">ClearSplit</a>
+    <button class="tn-btn" id="authBtn" onclick="handleAuthBtn()">Account</button>
   </div>
 </nav>
 
@@ -508,17 +430,7 @@ select.fi { cursor: pointer; }
       <button class="sbt" onclick="loadForm('form13a');sbA(this)"><span class="lbl">Form 13.1 — Financial (Property)<span class="tag">Property Division</span></span></button>
     </div>
     <div class="sb-sec">
-      <div class="sb-hdr">Case Directory</div>
-      <button class="sbt" onclick="showPanel('people');bnA('people');sbA(this)"><span class="lbl">People in My Case<span class="tag">Parties · Witnesses · Children</span></span></button>
-    </div>
-    <div class="sb-sec">
-      <div class="sb-hdr">Court Forms</div>
-      <button class="sbt" onclick="showPanel('forms');bnA('forms');sbA(this)"><span class="lbl">Ontario Court Forms<span class="tag">Auto-Fill · Download · Court-Ready</span></span></button>
-    </div>
-    <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
-      <button class="sbt" onclick="showPanel('support');bnA('support');sbA(this)"><span class="lbl">Support Calculator<span class="tag">Child · Spousal · SSAG</span></span></button>
-      <button class="sbt" onclick="showPanel('property');bnA('property');sbA(this)"><span class="lbl">Property Division<span class="tag">NFP · Equalization · Buyout</span></span></button>
       <button class="sbt" onclick="showPanel('analysis');bnA('analysis');sbA(this)"><span class="lbl">Document Analysis<span class="tag">Upload · Analyze · Settlement Intel</span></span></button>
       <button class="sbt" onclick="showPanel('affidavit');bnA('affidavit');sbA(this)"><span class="lbl">Affidavit Interview Builder<span class="tag">AI-Guided · Case Law Integrated</span></span></button>
     </div>
@@ -535,17 +447,14 @@ select.fi { cursor: pointer; }
 
   <!-- CHAT PANEL -->
   <div id="panel-chat" class="panel on">
-    <div style="background:rgba(46,134,193,0.08);border-bottom:1px solid var(--border);padding:5px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0">ClearStand is a legal preparation tool, not a substitute for legal advice.</div>
-  <div class="ctx-bar">
+    <div class="ctx-bar">
       <span class="ctx-pill none" id="ctxPill" id="ctxName">Ontario Family Law Assistant</span>
-      <span id="fileNumBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;padding:2px 8px;border:1px solid var(--border)">File: <span id="fileNumVal"></span></span>
-      <button onclick="showPanel('profile');bnA('profile')" style="margin-left:8px;padding:6px 14px;background:none;border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;font-weight:600" id="addFileBtn">+ File #</button>
     </div>
     <div class="msgs" id="msgs"></div>
     <div class="input-bar">
-      <button class="it" id="vBtn" onclick="toggleVoice()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice</button>
+      <button class="it" id="vBtn" onclick="toggleVoice()">Voice</button>
       <span class="vs" id="vs">● Recording</span>
-      <textarea id="ci" placeholder="What do you need help with today?" rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
+      <textarea id="ci" placeholder="Ask about your family law matter…" rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
       <button class="send-btn" id="sBtn" onclick="sendMsg()">Send</button>
     </div>
   </div>
@@ -621,526 +530,8 @@ select.fi { cursor: pointer; }
     </div>
   </div>
 
-  <!-- PEOPLE PANEL -->
-  <div id="panel-people" class="panel">
-    <div class="panel-pad">
-      <div class="ptitle">People in My Case</div>
-      <div class="psub">Add all parties, witnesses, and family members — stored locally</div>
-
-      <!-- Add Person Form -->
-      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
-        <div class="pr-sec-t" style="margin-top:0">Add a Person</div>
-
-        <div class="fr">
-          <div class="fg">
-            <label class="fl">Side</label>
-            <select class="fi" id="fp_side" style="font-size:16px">
-              <option value="">Select side…</option>
-              <option value="applicant">Applicant's Side</option>
-              <option value="respondent">Respondent's Side</option>
-              <option value="neutral">Neutral / Court</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Role</label>
-            <select class="fi" id="fp_role" style="font-size:16px">
-              <option value="">Select role…</option>
-              <option value="Applicant">Applicant</option>
-              <option value="Respondent">Respondent</option>
-              <option value="Child">Child</option>
-              <option value="Parent">Parent</option>
-              <option value="Sibling">Sibling</option>
-              <option value="Aunt/Uncle">Aunt / Uncle</option>
-              <option value="Cousin">Cousin</option>
-              <option value="Friend">Friend</option>
-              <option value="Witness">Witness</option>
-              <option value="Lawyer">Lawyer</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="fr">
-          <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="fp_first" placeholder="First name" style="font-size:16px"></div>
-          <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="fp_last" placeholder="Last name" style="font-size:16px"></div>
-        </div>
-
-        <div id="fp_child_fields" style="display:none">
-          <div class="fr">
-            <div class="fg"><label class="fl">Date of Birth</label><input class="fi" type="date" id="fp_child_dob"></div>
-            <div class="fg"><label class="fl">Age</label><input class="fi" type="number" id="fp_child_age" placeholder="Age" style="font-size:16px"></div>
-          </div>
-          <div class="fg"><label class="fl">Currently Living With</label>
-            <select class="fi" id="fp_child_living" style="font-size:16px">
-              <option value="">Select…</option>
-              <option>Applicant</option>
-              <option>Respondent</option>
-              <option>Shared / Both</option>
-              <option>Other</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="fg"><label class="fl">Address <span style="color:var(--text3)">(optional)</span></label><input class="fi" type="text" id="fp_address" placeholder="Address" style="font-size:16px"></div>
-        <div class="fg"><label class="fl">Notes <span style="color:var(--text3)">(optional)</span></label><textarea class="fi" id="fp_notes" rows="2" placeholder="Relevant notes…" style="font-size:16px;resize:vertical"></textarea></div>
-
-        <button class="bp" onclick="addFamilyPerson()" style="width:100%;margin-top:8px">Add to Case</button>
-      </div>
-
-      <!-- People List -->
-      <div id="fp_list"></div>
-      <div style="height:40px"></div>
-    </div>
-  </div>
-
-  <!-- ONTARIO COURT FORMS PANEL -->
-  <div id="panel-forms" class="panel">
-    <div class="panel-pad">
-      <div class="ptitle">Ontario Court Forms</div>
-      <div class="psub">Auto-filled from your profile and People in My Case · Download as Word document</div>
-
-      <!-- Profile warning if no data -->
-      <div id="forms-warn" style="display:none;background:rgba(244,162,97,.12);border:1px solid rgba(244,162,97,.3);padding:12px 14px;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:.88rem;color:#F4A261">
-        ⚠ Complete your Case Profile and add People in My Case first for best results. Forms will still generate but may have empty fields.
-      </div>
-
-      <!-- Extra fields form -->
-      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:24px">
-        <div class="pr-sec-t" style="margin-top:0;font-size:.62rem">Additional Information</div>
-        <div class="psub" style="margin-bottom:12px">These fields supplement your profile data</div>
-        <div class="fr">
-          <div class="fg"><label class="fl">Court Name</label><input class="fi" type="text" id="form_court_name" placeholder="e.g. Ontario Court of Justice" style="font-size:16px"></div>
-          <div class="fg"><label class="fl">Court Office Address</label><input class="fi" type="text" id="form_court_addr" placeholder="Court office address" style="font-size:16px"></div>
-        </div>
-        <div class="fr">
-          <div class="fg"><label class="fl">Motion / Hearing Date</label><input class="fi" type="date" id="form_motion_date"></div>
-          <div class="fg"><label class="fl">Place of Hearing</label><input class="fi" type="text" id="form_place_hearing" placeholder="Courtroom or location" style="font-size:16px"></div>
-        </div>
-        <div class="fg"><label class="fl">Judge's Name <span style="color:var(--text3)">(if known)</span></label><input class="fi" type="text" id="form_judge" placeholder="Justice ..." style="font-size:16px"></div>
-        <div class="fg"><label class="fl">Applicant's Lawyer <span style="color:var(--text3)">(if any)</span></label><input class="fi" type="text" id="form_app_lawyer" placeholder="Name, address, phone, email" style="font-size:16px;resize:vertical"></div>
-        <div class="fg"><label class="fl">Respondent's Lawyer <span style="color:var(--text3)">(if any)</span></label><input class="fi" type="text" id="form_resp_lawyer" placeholder="Name, address, phone, email" style="font-size:16px;resize:vertical"></div>
-      </div>
-
-      <!-- Form selector grid -->
-      <div class="pr-sec-t">Select a Form to Generate</div>
-      <div id="forms-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px">
-
-        <div class="form-card" onclick="generateForm('8')">
-          <div class="form-card-num">Form 8</div>
-          <div class="form-card-name">Application (General)</div>
-          <div class="form-card-desc">Start a family court case</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('10')">
-          <div class="form-card-num">Form 10</div>
-          <div class="form-card-name">Answer</div>
-          <div class="form-card-desc">Respond to an Application</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('14')">
-          <div class="form-card-num">Form 14</div>
-          <div class="form-card-name">Notice of Motion</div>
-          <div class="form-card-desc">Bring a motion before the court</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('14a')">
-          <div class="form-card-num">Form 14A</div>
-          <div class="form-card-name">Affidavit (General)</div>
-          <div class="form-card-desc">Sworn statement in support of motion</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('14c')">
-          <div class="form-card-num">Form 14C</div>
-          <div class="form-card-name">Confirmation</div>
-          <div class="form-card-desc">Confirm motion is proceeding</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('25')">
-          <div class="form-card-num">Form 25</div>
-          <div class="form-card-name">Draft Order</div>
-          <div class="form-card-desc">Proposed court order</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('35_1')">
-          <div class="form-card-num">Form 35.1</div>
-          <div class="form-card-name">Parenting Affidavit</div>
-          <div class="form-card-desc">Decision-making & parenting time</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('6b')">
-          <div class="form-card-num">Form 6B</div>
-          <div class="form-card-name">Affidavit of Service</div>
-          <div class="form-card-desc">Proof of service of documents</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('13')">
-          <div class="form-card-num">Form 13</div>
-          <div class="form-card-name">Financial Statement</div>
-          <div class="form-card-desc">Income & expenses (Support)</div>
-        </div>
-
-        <div class="form-card" onclick="generateForm('13b')">
-          <div class="form-card-num">Form 13B</div>
-          <div class="form-card-name">Net Family Property</div>
-          <div class="form-card-desc">Property division statement</div>
-        </div>
-
-      </div>
-
-      <!-- Page limit override -->
-      <div style="background:var(--navy-light);border:1px solid var(--border);padding:14px 16px;margin-bottom:20px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <input type="checkbox" id="form_override_pages" style="width:16px;height:16px;cursor:pointer">
-          <label for="form_override_pages" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);cursor:pointer">Override default page limit</label>
-        </div>
-        <div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3)">Ontario court forms have default page limits but courts accept longer documents when the matter requires it. Check this box to allow additional pages.</div>
-      </div>
-
-      <!-- Status -->
-      <div id="forms-status" style="display:none;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light)">
-        Generating form...
-      </div>
-
-      <div style="height:40px"></div>
-    </div>
-  </div>
-
-  <!-- SUPPORT CALCULATOR PANEL -->
-  <div id="panel-support" class="panel">
-    <div class="panel-pad" style="overflow-y:auto">
-      <div class="ptitle">Support Calculator</div>
-      <div class="psub">Federal Child Support Guidelines · Spousal Support Advisory Guidelines · All figures in CAD</div>
-
-      <!-- ── PARTIES ── -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-        <div style="background:rgba(46,134,193,.1);border:2px solid #2E86C1;padding:16px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:#2E86C1;margin-bottom:10px">Applicant</div>
-          <div class="fg" style="margin-bottom:8px"><label class="fl">Full Name</label><input class="fi" type="text" id="sc_app_name" placeholder="First Last" style="font-size:16px"></div>
-          <div class="fg"><label class="fl">Annual Gross Income ($)</label><input class="fi" type="number" id="sc_app_income" placeholder="e.g. 85000" oninput="calcSupport()" style="font-size:16px"></div>
-        </div>
-        <div style="background:rgba(244,162,97,.08);border:2px solid rgba(244,162,97,.4);padding:16px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:#F4A261;margin-bottom:10px">Respondent</div>
-          <div class="fg" style="margin-bottom:8px"><label class="fl">Full Name</label><input class="fi" type="text" id="sc_resp_name" placeholder="First Last" style="font-size:16px"></div>
-          <div class="fg"><label class="fl">Annual Gross Income ($)</label><input class="fi" type="number" id="sc_resp_income" placeholder="e.g. 60000" oninput="calcSupport()" style="font-size:16px"></div>
-        </div>
-      </div>
-
-      <div class="fr">
-        <div class="fg">
-          <label class="fl">Province</label>
-          <select class="fi" id="sc_province" onchange="calcSupport()" style="font-size:16px">
-            <option value="ON">Ontario</option><option value="BC">British Columbia</option>
-            <option value="AB">Alberta</option><option value="QC">Quebec</option>
-            <option value="MB">Manitoba</option><option value="SK">Saskatchewan</option>
-            <option value="NS">Nova Scotia</option><option value="NB">New Brunswick</option>
-            <option value="NL">Newfoundland</option><option value="PE">PEI</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label class="fl">Years of Cohabitation</label>
-          <input class="fi" type="number" id="sc_years" placeholder="e.g. 12" oninput="calcSupport()" style="font-size:16px">
-        </div>
-      </div>
-
-      <!-- ── CHILDREN ── -->
-      <div class="pr-sec-t">Children</div>
-      <div id="sc_children_list" style="margin-bottom:8px"></div>
-      <button onclick="scAddChild()" style="padding:8px 16px;background:none;border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600">+ Add Child</button>
-
-      <!-- ── SECTION 7 ── -->
-      <div class="pr-sec-t">Section 7 Special Expenses <span style="color:var(--text3);font-size:.85em">(optional)</span></div>
-      <div class="fr">
-        <div class="fg"><label class="fl">Annual Childcare ($)</label><input class="fi" type="number" id="sc_childcare" placeholder="0" oninput="calcSupport()" style="font-size:16px"></div>
-        <div class="fg"><label class="fl">Annual Medical/Dental ($)</label><input class="fi" type="number" id="sc_medical" placeholder="0" oninput="calcSupport()" style="font-size:16px"></div>
-      </div>
-      <div class="fr">
-        <div class="fg"><label class="fl">Annual Extracurricular ($)</label><input class="fi" type="number" id="sc_extra" placeholder="0" oninput="calcSupport()" style="font-size:16px"></div>
-        <div class="fg"><label class="fl">Applicant's Share of S.7 (%)</label><input class="fi" type="number" id="sc_share" value="50" oninput="calcSupport()" style="font-size:16px"></div>
-      </div>
-
-      <!-- ── SPOUSAL SUPPORT ── -->
-      <div style="display:flex;align-items:center;gap:12px;margin:20px 0 0">
-        <div class="pr-sec-t" style="margin:0">Spousal Support</div>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)">
-          <input type="checkbox" id="sc_spousal_on" checked onchange="calcSupport()" style="width:16px;height:16px;cursor:pointer"> Include
-        </label>
-      </div>
-      <div id="sc_spousal_fields" style="margin-top:12px">
-        <div class="fr">
-          <div class="fg">
-            <label class="fl">Recipient's Role During Relationship</label>
-            <select class="fi" id="sc_role" onchange="calcSupport()" style="font-size:16px">
-              <option value="both">Both worked full-time throughout</option>
-              <option value="primary">Recipient was primary caregiver / reduced work</option>
-              <option value="sahp">Stay-at-home — did not work</option>
-            </select>
-          </div>
-          <div class="fg">
-            <label class="fl">Formula</label>
-            <select class="fi" id="sc_formula" onchange="calcSupport()" style="font-size:16px">
-              <option value="without">Without Child Support</option>
-              <option value="with">With Child Support</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── RESULTS ── -->
-      <div id="sc_result" style="display:none;margin-top:28px">
-
-        <!-- Child Support Result -->
-        <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:4px">Child Support</div>
-          <div id="sc_cs_parties" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px"></div>
-          <div id="sc_cs_breakdown"></div>
-          <div class="supp-result-row" id="sc_s7_row" style="display:none">
-            <span class="supp-result-label">Section 7 (shared)</span>
-            <span class="supp-result-val" id="sc_s7_amt"></span>
-          </div>
-          <div class="supp-result-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:6px">
-            <span class="supp-result-label" style="color:var(--white);font-weight:600">Child Support Payable</span>
-            <span class="supp-result-val" id="sc_cs_net" style="color:#4CAF50;font-size:1.1rem"></span>
-          </div>
-          <div id="sc_cs_payor" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)"></div>
-        </div>
-
-        <!-- Spousal Support Result -->
-        <div id="sc_ss_block" style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:4px">Spousal Support <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">SSAG Range</span></div>
-          <div id="sc_ss_payor_lbl" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
-            <div style="text-align:center;padding:10px;background:var(--navy);border:1px solid var(--border)">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">Low</div>
-              <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--text)" id="sc_ss_low"></div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--text3)">per month</div>
-            </div>
-            <div style="text-align:center;padding:10px;background:var(--navy-mid);border:2px solid #2E86C1">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light);margin-bottom:4px">Mid</div>
-              <div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white)" id="sc_ss_mid"></div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--text3)">per month</div>
-            </div>
-            <div style="text-align:center;padding:10px;background:var(--navy);border:1px solid var(--border)">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">High</div>
-              <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--text)" id="sc_ss_high"></div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--text3)">per month</div>
-            </div>
-          </div>
-          <div class="supp-result-row">
-            <span class="supp-result-label">Duration Range</span>
-            <span class="supp-result-val" id="sc_ss_duration"></span>
-          </div>
-          <div id="sc_ss_notes" style="margin-top:10px;font-family:'Inter',sans-serif;font-size:.8rem;color:var(--text3);line-height:1.6"></div>
-        </div>
-
-        <!-- Offset Summary -->
-        <div style="background:rgba(46,134,193,.1);border:2px solid #2E86C1;padding:20px;margin-bottom:16px">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:14px">Net Payment Summary <span style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">(Court-Ready Offset)</span></div>
-          <div id="sc_offset_breakdown"></div>
-          <div class="supp-result-row" style="border-top:2px solid #2E86C1;padding-top:12px;margin-top:8px">
-            <span class="supp-result-label" style="color:var(--white);font-size:.65rem;font-weight:600">NET AMOUNT OWING</span>
-            <span class="supp-result-val" id="sc_net_total" style="color:#4CAF50;font-size:1.3rem;font-weight:700"></span>
-          </div>
-          <div id="sc_net_direction" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:#2E86C1"></div>
-          <div style="margin-top:12px;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">Per <em>Contino v Leonelli-Contino</em> 2005 SCC 58 — courts prefer a global set-off rather than separate orders where both parties owe support.</div>
-        </div>
-
-        <button onclick="copyFullSupport()" style="padding:10px 20px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-right:10px">Copy Full Result</button>
-        <button onclick="copyAffidavitSupport()" style="padding:10px 20px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em">Copy Affidavit Format</button>
-      </div>
-
-      <div style="height:40px"></div>
-    </div>
-  </div>
-
   <!-- DOCUMENT ANALYSIS PANEL -->
-  <!-- PROPERTY DIVISION PANEL -->
-  <div id="panel-property" class="panel">
-    <div class="panel-pad" style="overflow-y:auto">
-      <div class="ptitle">Property Division Calculator</div>
-      <div class="psub">Net Family Property equalization under the Family Law Act, Part I · Ontario</div>
-
-      <!-- Party Names -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-        <div style="background:rgba(46,134,193,.1);border:2px solid #2E86C1;padding:14px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:#2E86C1;margin-bottom:8px">Applicant</div>
-          <input class="fi" type="text" id="pd_app_name" placeholder="Full legal name" style="font-size:16px;width:100%">
-        </div>
-        <div style="background:rgba(244,162,97,.08);border:2px solid rgba(244,162,97,.4);padding:14px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:#F4A261;margin-bottom:8px">Respondent</div>
-          <input class="fi" type="text" id="pd_resp_name" placeholder="Full legal name" style="font-size:16px;width:100%">
-        </div>
-      </div>
-
-      <div class="fr">
-        <div class="fg">
-          <label class="fl">Date of Marriage</label>
-          <input class="fi" type="date" id="pd_marriage_date">
-        </div>
-        <div class="fg">
-          <label class="fl">Valuation Date (Date of Separation)</label>
-          <input class="fi" type="date" id="pd_val_date">
-        </div>
-      </div>
-
-      <!-- NFP Upload Option -->
-      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
-        <div class="pr-sec-t" style="margin-top:0">Option A — Upload Form 13B Statements</div>
-        <div class="psub" style="margin-bottom:12px">Upload both parties' Net Family Property Statements and ClearStand will extract the values automatically</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div>
-            <label class="fl" id="pd_app_file_lbl">Applicant's Form 13B</label>
-            <input type="file" id="pd_app_file" accept=".pdf,.docx" style="display:none" onchange="loadNFPFile('app')">
-            <button onclick="document.getElementById('pd_app_file').click()" style="width:100%;padding:10px;background:none;border:1px dashed #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">+ Upload PDF/DOCX</button>
-            <div id="pd_app_file_status" style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.08em"></div>
-          </div>
-          <div>
-            <label class="fl" id="pd_resp_file_lbl">Respondent's Form 13B</label>
-            <input type="file" id="pd_resp_file" accept=".pdf,.docx" style="display:none" onchange="loadNFPFile('resp')">
-            <button onclick="document.getElementById('pd_resp_file').click()" style="width:100%;padding:10px;background:none;border:1px dashed rgba(244,162,97,.4);color:#F4A261;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">+ Upload PDF/DOCX</button>
-            <div id="pd_resp_file_status" style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.08em"></div>
-          </div>
-        </div>
-        <div id="pd_extract_status" style="display:none;margin-top:12px;padding:10px;background:rgba(46,134,193,.1);border:1px solid rgba(46,134,193,.2);font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em"></div>
-      </div>
-
-      <!-- Manual Entry -->
-      <div style="background:var(--navy-light);border:1px solid var(--border);padding:16px;margin-bottom:20px">
-        <div class="pr-sec-t" style="margin-top:0">Option B — Manual Entry</div>
-        <div class="psub" style="margin-bottom:16px">Enter values directly from each party's Net Family Property Statement (Form 13B)</div>
-
-        <!-- Applicant NFP -->
-        <div style="margin-bottom:20px">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:#2E86C1;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(46,134,193,.3)" id="pd_app_section_lbl">Applicant — Net Family Property</div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_assets_vd" placeholder="0" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_app_debts_vd" placeholder="0" style="font-size:16px"></div>
-          </div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_assets_dom" placeholder="0" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_app_debts_dom" placeholder="0" style="font-size:16px"></div>
-          </div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($) <span style="color:var(--text3);font-size:.85em">(gifts, inheritance, etc.)</span></label><input class="fi" type="number" id="pd_app_excluded" placeholder="0" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_app_mhome" placeholder="0" style="font-size:16px"></div>
-          </div>
-        </div>
-
-        <!-- Respondent NFP -->
-        <div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:#F4A261;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(244,162,97,.3)" id="pd_resp_section_lbl">Respondent — Net Family Property</div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Assets at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_assets_vd" placeholder="0" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Valuation Date ($)</label><input class="fi" type="number" id="pd_resp_debts_vd" placeholder="0" style="font-size:16px"></div>
-          </div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Assets at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_assets_dom" placeholder="0" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Debts at Marriage Date ($)</label><input class="fi" type="number" id="pd_resp_debts_dom" placeholder="0" style="font-size:16px"></div>
-          </div>
-          <div class="fr">
-            <div class="fg"><label class="fl">Excluded Property — s.4(2) ($)</label><input class="fi" type="number" id="pd_resp_excluded" placeholder="0" style="font-size:16px"></div>
-            <div class="fg"><label class="fl">Matrimonial Home — Date of Marriage Value ($)</label><input class="fi" type="number" id="pd_resp_mhome" placeholder="0" style="font-size:16px"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RESULT -->
-      <div style="margin-bottom:20px">
-        <button onclick="calcNFP()" style="padding:14px 32px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;width:100%">Calculate Property Division →</button>
-      </div>
-
-      <div id="pd_result" style="display:none">
-
-        <!-- NFP Breakdown -->
-        <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:16px">Net Family Property Calculation</div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-            <!-- Applicant column -->
-            <div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#2E86C1;margin-bottom:10px" id="pd_res_app_name">Applicant</div>
-              <div class="supp-result-row"><span class="supp-result-label">Assets at Valuation Date</span><span id="pd_res_app_avd" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Debts at Valuation Date</span><span id="pd_res_app_dvd" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Assets at Marriage</span><span id="pd_res_app_adom" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Add: Debts at Marriage</span><span id="pd_res_app_ddom" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Excluded Property s.4(2)</span><span id="pd_res_app_excl" class="supp-result-val"></span></div>
-              <div class="supp-result-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
-                <span class="supp-result-label" style="color:var(--white);font-weight:600">NFP</span>
-                <span id="pd_res_app_nfp" class="supp-result-val" style="color:#2E86C1;font-size:1.1rem"></span>
-              </div>
-            </div>
-            <!-- Respondent column -->
-            <div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#F4A261;margin-bottom:10px" id="pd_res_resp_name">Respondent</div>
-              <div class="supp-result-row"><span class="supp-result-label">Assets at Valuation Date</span><span id="pd_res_resp_avd" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Debts at Valuation Date</span><span id="pd_res_resp_dvd" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Assets at Marriage</span><span id="pd_res_resp_adom" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Add: Debts at Marriage</span><span id="pd_res_resp_ddom" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Excluded Property s.4(2)</span><span id="pd_res_resp_excl" class="supp-result-val"></span></div>
-              <div class="supp-result-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
-                <span class="supp-result-label" style="color:var(--white);font-weight:600">NFP</span>
-                <span id="pd_res_resp_nfp" class="supp-result-val" style="color:#F4A261;font-size:1.1rem"></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Equalization -->
-          <div style="background:rgba(46,134,193,.1);border:1px solid rgba(46,134,193,.2);padding:16px">
-            <div class="supp-result-row"><span class="supp-result-label">Higher NFP</span><span id="pd_higher_nfp" class="supp-result-val"></span></div>
-            <div class="supp-result-row"><span class="supp-result-label">Lower NFP</span><span id="pd_lower_nfp" class="supp-result-val"></span></div>
-            <div class="supp-result-row" style="border-top:1px solid rgba(46,134,193,.3);padding-top:10px;margin-top:6px">
-              <span class="supp-result-label" style="color:var(--white);font-weight:600">Equalization Payment</span>
-              <span id="pd_equal_amt" class="supp-result-val" style="color:#4CAF50;font-size:1.2rem"></span>
-            </div>
-            <div id="pd_equal_direction" style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:#2E86C1"></div>
-            <div style="margin-top:10px;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">Pursuant to s.5(1) Family Law Act — the spouse with the lesser NFP is entitled to one-half the difference.</div>
-          </div>
-        </div>
-
-        <!-- Spousal Support Buyout -->
-        <div style="background:var(--navy-light);border:1px solid var(--border);padding:20px;margin-bottom:16px">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white)">Spousal Support Buyout</div>
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)">
-              <input type="checkbox" id="pd_buyout_on" onchange="toggleBuyout()" style="width:16px;height:16px;cursor:pointer"> Include
-            </label>
-          </div>
-          <div id="pd_buyout_fields" style="display:none">
-            <div class="psub" style="margin-bottom:14px">The party paying equalization can reduce their payment in exchange for a credit applied to the receiving party — effectively buying out future spousal support obligations. This must be agreed upon by both parties and approved by the court.</div>
-            <div class="fr">
-              <div class="fg">
-                <label class="fl">Equalization Payor reduces payment by ($)</label>
-                <input class="fi" type="number" id="pd_buyout_amt" placeholder="e.g. 20000" oninput="calcBuyout()" style="font-size:16px">
-              </div>
-              <div class="fg">
-                <label class="fl">Buyout credited to recipient as</label>
-                <select class="fi" id="pd_buyout_type" onchange="calcBuyout()" style="font-size:16px">
-                  <option value="lump">Lump-sum spousal support</option>
-                  <option value="full">Full and final release of spousal support</option>
-                  <option value="partial">Partial release — reduced ongoing support</option>
-                </select>
-              </div>
-            </div>
-            <div id="pd_buyout_result" style="display:none;margin-top:12px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);padding:14px">
-              <div class="supp-result-row"><span class="supp-result-label">Original Equalization Payment</span><span id="pd_buyout_original" class="supp-result-val"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label">Less: Spousal Support Buyout</span><span id="pd_buyout_reduction" class="supp-result-val" style="color:#E87070"></span></div>
-              <div class="supp-result-row"><span class="supp-result-label" style="color:var(--white);font-weight:600">Adjusted Equalization Payment</span><span id="pd_buyout_adjusted" class="supp-result-val" style="color:#4CAF50;font-size:1.1rem"></span></div>
-              <div id="pd_buyout_direction" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:#4CAF50"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Export -->
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button onclick="exportPropertyReport()" style="padding:12px 24px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600">Export PDF Report</button>
-          <button onclick="copyPropertyText()" style="padding:12px 24px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em">Copy Text</button>
-        </div>
-      </div>
-
-      <div style="height:40px"></div>
-    </div>
-  </div>
-
-    <div id="panel-analysis" class="panel">
+  <div id="panel-analysis" class="panel">
     <div style="display:flex;flex:1;overflow:hidden;flex-direction:column">
       <!-- Upload state -->
       <div id="anal-upload" style="flex:1;overflow-y:auto;padding:24px 16px;max-width:680px;margin:0 auto;width:100%">
@@ -1211,16 +602,10 @@ select.fi { cursor: pointer; }
           <div class="aff-hdr-title">Affidavit Interview Builder</div>
           <div class="aff-hdr-sub">AI-guided · Case law integrated · Voice supported</div>
         </div>
-        <div class="aff-msgs" id="affMsgs">
-          <div id="aff-start-prompt" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:24px">
-            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);text-align:center">Affidavit Interview Builder</div>
-            <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);text-align:center;max-width:320px">ClearStand will ask you questions one at a time and build your affidavit draft as you answer.</div>
-            <button onclick="beginAffidavit()" style="padding:16px 40px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-top:8px" style="padding:16px 40px;font-size:.7rem;letter-spacing:.14em">Begin Interview →</button>
-          </div>
-        </div>
+        <div class="aff-msgs" id="affMsgs"></div>
         <div class="aff-input-bar">
-          <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()" style="background:rgba(46,134,193,.15);border-color:#2E86C1;color:#2E86C1;font-weight:600;font-size:.6rem;padding:0 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice</button>
-          <textarea id="aff-ci" placeholder="Type your answer here…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
+          <button class="aff-voice" id="affVBtn" onclick="toggleAffVoice()">Voice</button>
+          <textarea id="aff-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="affAr(this)" onkeydown="affHk(event)"></textarea>
           <button class="aff-send" id="affSBtn" onclick="submitAffAnswer()">Next →</button>
         </div>
       </div>
@@ -1233,7 +618,7 @@ select.fi { cursor: pointer; }
           <div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>
         </div>
         <div class="aff-actions">
-          <button class="aff-btn primary" onclick="exportAffidavit()" style="background:#2E86C1;font-weight:600">Export PDF</button>
+          <button class="aff-btn primary" onclick="exportAffidavit()">Export PDF</button>
           <button class="aff-btn" onclick="copyAffidavit()">Copy Text</button>
           <button class="aff-btn" onclick="resetAffidavit()">Start Over</button>
           <span class="aff-progress" id="affProgress"></span>
@@ -1283,116 +668,13 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadTopic('property');closeDrawer()">Property Division</button>
       <button class="drawer-btn" onclick="loadTopic('motion');closeDrawer()">Urgent Motions</button>
     </div>
-        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px">Just need analyses?</div>
-        <button onclick="startCheckout('analysis_pack')" style="padding:8px 18px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">$29 — 3 Analyses, No Subscription</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- ONBOARDING -->
-<div class="ob-ov" id="obOv" style="display:none">
-  <div class="ob-box">
-    <div class="ob-progress">
-      <div class="ob-dot on" id="ob-d1"></div>
-      <div class="ob-dot" id="ob-d2"></div>
-      <div class="ob-dot" id="ob-d3"></div>
-    </div>
-
-    <!-- Step 1: Profile -->
-    <div class="ob-step on" id="ob-s1">
-      <div class="ob-eyebrow">Step 1 of 3</div>
-      <div class="ob-title">Welcome to ClearStand.</div>
-      <div class="ob-body">Let's get your profile set up so ClearStand can personalize your documents and analysis. This takes about 60 seconds.</div>
-      <div style="display:flex;gap:10px;margin-bottom:12px">
-        <div style="flex:1"><label style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">First Name</label><input id="ob_first" class="fi" type="text" placeholder="Your first name" style="font-size:16px"></div>
-        <div style="flex:1"><label style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">Last Name</label><input id="ob_last" class="fi" type="text" placeholder="Your last name" style="font-size:16px"></div>
-      </div>
-      <div style="margin-bottom:16px"><label style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">City</label><input id="ob_city" class="fi" type="text" placeholder="e.g. Toronto, Hamilton, London" style="font-size:16px"></div>
-      <button class="ob-btn" onclick="obNext(1)">Save & Continue →</button>
-      <button class="ob-skip" onclick="obSkip()">Skip for now</button>
-    </div>
-
-    <!-- Step 2: Matter type -->
-    <div class="ob-step" id="ob-s2">
-      <div class="ob-eyebrow">Step 2 of 3</div>
-      <div class="ob-title">What brings you to ClearStand?</div>
-      <div class="ob-body">This helps us show you the most relevant tools first.</div>
-      <div class="ob-choices">
-        <button class="ob-choice" id="ob-c-family" onclick="obSelectMatter('family')">
-          <div class="ob-choice-label">Family Law</div>
-          <div class="ob-choice-sub">Custody · Support · Divorce</div>
-        </button>
-        <button class="ob-choice" id="ob-c-criminal" onclick="obSelectMatter('criminal')">
-          <div class="ob-choice-label">Criminal Defence</div>
-          <div class="ob-choice-sub">Charges · Disclosure · Trial</div>
-        </button>
-      </div>
-      <button class="ob-choice" id="ob-c-both" onclick="obSelectMatter('both')" style="width:100%;margin-bottom:16px">
-        <div class="ob-choice-label">Both</div>
-        <div class="ob-choice-sub">I have matters in both areas</div>
-      </button>
-      <button class="ob-btn" onclick="obNext(2)">Continue →</button>
-      <button class="ob-skip" onclick="obSkip()">Skip for now</button>
-    </div>
-
-    <!-- Step 3: First action -->
-    <div class="ob-step" id="ob-s3">
-      <div class="ob-eyebrow">Step 3 of 3</div>
-      <div class="ob-title">You're ready. Here's where to start.</div>
-      <div class="ob-body">Choose your first action — you can always come back to do more.</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-        <button onclick="obFinish('chat')" style="padding:12px 16px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
-          💬 Ask a question about my situation
-        </button>
-        <button onclick="obFinish('analysis')" style="padding:12px 16px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
-          📄 Upload a document to analyze
-        </button>
-        <button onclick="obFinish('affidavit')" style="padding:12px 16px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
-          📝 Start building an affidavit
-        </button>
-        <button onclick="obFinish('profile')" style="padding:12px 16px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'">
-          👤 Complete my case profile first
-        </button>
-      </div>
-      <button class="ob-skip" onclick="obSkip()">I'll explore on my own</button>
-    </div>
-  </div>
-</div>
-
-<!-- ACCOUNT PANEL -->
-<div class="acct-ov" id="acctOv" onclick="if(event.target===this)closeAccountPanel()">
-  <div class="acct-box">
-    <div class="acct-hdr">
-      <div>
-        <div class="acct-name" id="acctName">My Account</div>
-        <div class="acct-email" id="acctEmail"></div>
-      </div>
-      <button class="acct-close" onclick="closeAccountPanel()">✕</button>
-    </div>
-    <div class="acct-plan">
-      <div class="acct-plan-label">Current Plan</div>
-      <div class="acct-plan-name" id="acctPlanName">Free</div>
-      <div class="acct-usage" id="acctUsage"></div>
-    </div>
-    <button class="acct-upgrade" id="acctUpgradeBtn" onclick="closeAccountPanel();openPaywall('upgrade')">Upgrade to Counsel →</button>
-    <div class="acct-section">
-      <div class="acct-section-title">Account</div>
-      <button class="acct-link" onclick="closeAccountPanel();showPanel('profile');bnA('profile')">My Case Profile</button>
-      <button class="acct-link" onclick="closeAccountPanel();showPanel('people');bnA('people')">People in My Case</button>
-      <button class="acct-link" onclick="closeAccountPanel();window.location.href='/pricing'">View All Plans</button>
-      <button class="acct-link" onclick="openBillingPortal()">Manage Billing</button>
-    </div>
-    <div class="acct-section">
-      <button class="acct-link danger" onclick="doLogout()">Sign Out</button>
-    </div>
   </div>
 </div>
 
 <!-- AUTH OVERLAY -->
 <div class="auth-ov" id="authOv">
   <div class="auth-box">
-    <a href="/" style="text-decoration:none"><div class="auth-logo">Clear<span>Stand</span></div></a>
+    <div class="auth-logo">Clear<span>Stand</span> Family</div>
     <div class="auth-sub">Ontario Family Law Assistant · Sign in to continue</div>
     <div class="auth-tabs">
       <button class="auth-tab on" onclick="swAuth('login',this)">Sign In</button>
@@ -1414,48 +696,29 @@ select.fi { cursor: pointer; }
       <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
       <label class="auth-lbl">Password</label>
       <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
-      <div style="display:flex;align-items:flex-start;gap:10px;margin:14px 0 12px">
-        <input type="checkbox" id="regTerms" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:#2E86C1">
-        <label for="regTerms" style="font-family:'Inter',sans-serif;font-size:.82rem;color:rgba(244,246,248,.6);line-height:1.5;cursor:pointer">
-          I have read and agree to the <a href="/terms-of-use" target="_blank" style="color:#2E86C1;text-decoration:underline">Terms of Use</a> and <a href="/privacy-policy" target="_blank" style="color:#2E86C1;text-decoration:underline">Privacy Policy</a>
-        </label>
-      </div>
       <button class="auth-btn" id="regBtn" onclick="doRegister()">Create Free Account</button>
     </div>
     <div class="auth-free">Free: 10 chat messages · No credit card required · Not legal advice</div>
-    <div style="margin-top:14px;text-align:center;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
-      <a href="/criminal-app" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none;display:block;margin-bottom:8px">Switch to Criminal Defence →</a>
-      <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none">← Back to Home</a>
-    </div>
-  </div>
-</div>
-
-<!-- MOBILE SIDEBAR -->
-<div class="mob-sidebar-ov" id="mobSbOv" onclick="closeMobSidebar()">
-  <div class="mob-sidebar" id="mobSb" onclick="event.stopPropagation()">
-    <!-- same content as desktop sidebar - populated by JS -->
   </div>
 </div>
 
 <!-- PAYWALL -->
 <div class="pw-ov" id="pwOv">
   <div class="pw-box">
-    <div class="pw-title" id="pwTitle">Upgrade to Counsel</div>
+    <div class="pw-title" id="pwTitle">Upgrade Your Plan</div>
     <div class="pw-msg" id="pwMsg"></div>
     <div class="pw-plans">
-      <div class="pp-card" onclick="checkout('counsel')" style="border:2px solid var(--blue);position:relative">
-        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap">Recommended</div>
-        <div class="pp-name" style="color:var(--blue-light)">Counsel — $159/month</div>
-        <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin:6px 0 4px;line-height:1.5">Unlimited everything + all premium features</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);line-height:1.8">🎙 Voice dictation + language cleanup<br>📋 Affidavit interview builder<br>⚖️ Cross-examination prep<br>📁 Defence organization tool</div>
+      <div class="pp-card" onclick="checkout('essential')">
+        <div class="pp-name">Essential</div>
+        <div class="pp-price">$29 <span>/ month CAD</span></div>
       </div>
       <div class="pp-card" onclick="checkout('complete')">
-        <div class="pp-name">Complete — $79/month</div>
-        <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin-top:4px">5 analyses · 100 chats/day · Criminal &amp; Family</div>
+        <div class="pp-name">Complete — Criminal &amp; Family</div>
+        <div class="pp-price">$59 <span>/ month CAD</span></div>
       </div>
-      <div class="pp-card" onclick="checkout('essential')">
-        <div class="pp-name">Essential — $29/month</div>
-        <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin-top:4px">3 analyses · 50 chats/day</div>
+      <div class="pp-card" onclick="checkout('counsel')">
+        <div class="pp-name">Counsel — Unlimited + Premium Features</div>
+        <div class="pp-price">$129 <span>/ month CAD</span></div>
       </div>
     </div>
     <button class="pw-close" onclick="closePw()">Continue with Free Plan</button>
@@ -1499,7 +762,7 @@ const API = '/api';
 let authToken = localStorage.getItem('ls_tok');
 let currentUser = null, usageState = null, chatHist = [], chatBusy = false;
 let caseProfile = {}, currentForm = 'general', voiceRec = null, isRecording = false;
-const apiKey = ''; // API key handled server-side
+const apiKey = process?.env?.ANTHROPIC_API_KEY || '';
 
 const FORM_NAMES = {
   form8:'Form 8 — Application (General)',form8a:'Form 8A — Application (Divorce)',
@@ -1520,6 +783,8 @@ const TOPIC_PROMPTS = {
   caselaw:`Please give me the most important Ontario family law cases I should know. Include cases on: best interests of the child, custody and mobility, child support, spousal support, property division, and procedural fairness for self-represented litigants.`,
 };
 
+</script>
+<script>
 async function api(method, path, body) {
   const h = { 'Content-Type': 'application/json' };
   if (authToken) h['Authorization'] = 'Bearer ' + authToken;
@@ -1530,13 +795,8 @@ async function api(method, path, body) {
 
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-  const panel = document.getElementById('panel-' + name);
-  if (panel) panel.classList.add('on');
-  const labels = { chat:'Ontario Family Law', profile:'My Profile', analysis:'Document Analysis', affidavit:'Affidavit Builder', people:'People in My Case', forms:'Ontario Court Forms', support:'Support Calculator', property:'Property Division' };
-  if (name === 'people') setTimeout(renderFamilyPeople, 100);
-  if (name === 'support') setTimeout(loadSupportFromPeople, 100);
-  document.getElementById('modeLabel').textContent = labels[name] || name;
-  // Affidavit interview started manually via Begin button
+  document.getElementById('panel-' + name)?.classList.add('on');
+  document.getElementById('modeLabel').textContent = { chat:'Ontario Family Law', profile:'My Profile' }[name] || name;
 }
 function bnA(name) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on')); document.getElementById('bn-'+name)?.classList.add('on'); }
 function sbA(btn) { document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
@@ -1555,7 +815,7 @@ function closeDrawer() {
 function loadForm(key) {
   showPanel('chat'); bnA('chat');
   currentForm = key;
-  const cn=document.getElementById('ctxName')||document.getElementById('ctxPill'); if(cn) cn.textContent = FORM_NAMES[key] || key;
+  document.getElementById('ctxName').textContent = FORM_NAMES[key] || key;
   clearChat(false);
   qs(`I need help with ${FORM_NAMES[key]}. Please guide me through what this form requires, what information is needed, common mistakes to avoid, and relevant caselaw for my situation. Use my profile where applicable.`);
 }
@@ -1598,7 +858,6 @@ async function doRegister() {
   const btn   = document.getElementById('regBtn');
   err.classList.remove('show');
   if (!name||!email||!pass) { err.textContent='All fields required.'; err.classList.add('show'); return; }
-  if (!document.getElementById('regTerms')?.checked) { err.textContent='You must agree to the Terms of Use to create an account.'; err.classList.add('show'); return; }
   btn.disabled=true; btn.textContent='Creating account…';
   try {
     const d = await api('POST','/auth/register',{name,email,password:pass,product:'family'});
@@ -1613,7 +872,7 @@ function doLogout() {
   localStorage.removeItem('ls_tok');
   document.getElementById('authOv').style.display='flex';
   document.getElementById('usageStrip').classList.remove('show');
-  // planBadge removed from nav
+  document.getElementById('planBadge').style.display='none';
 }
 
 async function onAuthSuccess() {
@@ -1624,78 +883,36 @@ async function onAuthSuccess() {
 }
 
 async function refreshUsage() {
-  const d = await api('GET','/auth/me');
+  const d = await api('GET','/auth/me?product=family');
   if (d?.user) { currentUser=d.user; usageState=d.usage; renderUsage(); }
 }
 
 function renderUsage() {
   if (!currentUser||!usageState) return;
   document.getElementById('usageStrip').classList.add('show');
-  // planBadge removed - plan shown in account panel
-  const usrEl=document.getElementById('usrName'); if(usrEl) usrEl.textContent=currentUser.name;
+  document.getElementById('planBadge').textContent=usageState.planLabel||usageState.plan;
+  document.getElementById('planBadge').style.display='block';
+  document.getElementById('usrName').textContent=currentUser.name;
   const { used:cU, limit:cL } = usageState.chat;
   const cPips = document.getElementById('cPips');
   cPips.innerHTML='';
   if (cL===null||cL===Infinity) {
-    document.getElementById('usageStrip').classList.remove('show');
+    for(let i=0;i<3;i++){const p=document.createElement('div');p.className='us-pip inf';cPips.appendChild(p);}
+    document.getElementById('cCnt').textContent='∞';
   } else {
-    const remaining = cL - cU;
-    const threshold = Math.ceil(cL * 0.2); // show at 80% consumed
-    if (remaining <= threshold) {
-      for(let i=0;i<Math.min(cL,10);i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,10)?' on':'');cPips.appendChild(p);}
-      document.getElementById('cCnt').textContent=`${remaining} left`;
-      document.getElementById('usageStrip').classList.add('show');
-    } else {
-      document.getElementById('usageStrip').classList.remove('show');
-    }
+    for(let i=0;i<Math.min(cL,10);i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,10)?' on':'');cPips.appendChild(p);}
+    document.getElementById('cCnt').textContent=`${cL-cU} left`;
   }
   document.getElementById('upgradeBtn').style.display=currentUser.plan==='free'?'block':'none';
 }
 
 function handleAuthBtn() {
-  if (currentUser) openAccountPanel();
+  if (currentUser) { if(confirm(`Sign out of ${currentUser.email}?`)) doLogout(); }
   else document.getElementById('authOv').style.display='flex';
 }
 
-function openAccountPanel() {
-  if (!currentUser) { document.getElementById('authOv').style.display='flex'; return; }
-  document.getElementById('acctName').textContent = currentUser.name || 'My Account';
-  document.getElementById('acctEmail').textContent = currentUser.email || '';
-  const plan = usageState?.planLabel || usageState?.plan || 'Free';
-  document.getElementById('acctPlanName').textContent = plan;
-  document.getElementById('acctUpgradeBtn').style.display = (usageState?.plan === 'counsel') ? 'none' : 'block';
-  const usage = document.getElementById('acctUsage');
-  usage.innerHTML = '';
-  if (usageState) {
-    const rows = [
-      { label: 'Analyses', used: usageState.analysis?.used, limit: usageState.analysis?.limit },
-      { label: 'Chat today', used: usageState.chat?.used, limit: usageState.chat?.limit },
-    ];
-    rows.forEach(r => {
-      if (r.limit === null || r.limit === Infinity) {
-        usage.innerHTML += `<div class="acct-usage-row"><span class="acct-usage-label">${r.label}</span><span class="acct-usage-val" style="color:var(--blue-light)">Unlimited</span></div>`;
-      } else {
-        const pct = Math.min(100, Math.round((r.used / r.limit) * 100));
-        const cls = pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : '';
-        usage.innerHTML += `<div class="acct-usage-row"><span class="acct-usage-label">${r.label}</span><div class="acct-usage-bar"><div class="acct-usage-fill ${cls}" style="width:${pct}%"></div></div><span class="acct-usage-val">${r.limit - r.used} left</span></div>`;
-      }
-    });
-  }
-  document.getElementById('acctOv').classList.add('show');
-}
-function closeAccountPanel() { document.getElementById('acctOv').classList.remove('show'); }
-async function openBillingPortal() {
-  closeAccountPanel();
-  try {
-    const d = await fetch('/billing/portal',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')}});
-    const r = await d.json();
-    if (r.url) window.location.href = r.url;
-    else toast('Billing portal not available yet');
-  } catch(e) { toast('Error opening billing portal'); }
-}
-
 function openPaywall(reason, title, msg) {
-  document.getElementById('pwTitle').textContent=title||'Upgrade to Counsel';
+  document.getElementById('pwTitle').textContent=title||'Upgrade Your Plan';
   document.getElementById('pwMsg').textContent=msg||'Upgrade to continue using ClearStand Family.';
   document.getElementById('pwOv').classList.add('show');
 }
@@ -1821,7 +1038,7 @@ async function stopVoice(){
   document.getElementById('vs').classList.remove('on');
   const inp=document.getElementById('ci');
   const raw=inp.value.trim();
-  if(!raw){document.getElementById('vBtn').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice';return;}
+  if(!raw){document.getElementById('vBtn').textContent='Voice';return;}
   // Clean up dictation through Claude
   document.getElementById('vBtn').textContent='Cleaning…';
   inp.disabled=true;
@@ -1842,14 +1059,14 @@ async function stopVoice(){
     toast('Voice captured');
   }
   inp.disabled=false;
-  document.getElementById('vBtn').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice';
+  document.getElementById('vBtn').textContent='Voice';
   inp.focus();
 }
 
 const PIDS={role:'p_role',first:'p_first',last:'p_last',dob:'p_dob',addr:'p_addr',city:'p_city',prov:'p_prov',postal:'p_postal',phone:'p_phone',email:'p_email',occupation:'p_occupation',cf_number:'cf_number',cf_court:'cf_court',cf_addr:'cf_addr',cf_type:'cf_type',cf_nextdate:'cf_nextdate',cf_nextevent:'cf_nextevent',cf_judge:'cf_judge',ml_status:'ml_status',ml_first:'ml_first',ml_last:'ml_last',ml_firm:'ml_firm',ml_lso:'ml_lso',ml_phone:'ml_phone',ml_fax:'ml_fax'};
 
 async function loadProfileFromServer() {
-  const d = await api('GET','/auth/profile');
+  const d = await api('GET','/auth/profile?product=family');
   if (!d?.profile || !Object.keys(d.profile).length) return;
   caseProfile = d.profile;
   applyProfileToUI(caseProfile);
@@ -1862,10 +1079,6 @@ function applyProfileToUI(p) {
   document.getElementById('partyList').innerHTML='';
   (p.otherParties||[]).forEach(op=>{addParty();const bl=document.querySelectorAll('.party-blk');const b=bl[bl.length-1];b.querySelector('.or').value=op.role||'';b.querySelector('.of').value=op.first||'';b.querySelector('.ol').value=op.last||'';b.querySelector('.oa').value=op.addr||'';b.querySelector('.op').value=op.phone||'';b.querySelector('.oe').value=op.email||'';});
   if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim()+(p.cf_number?' · '+p.cf_number:'');document.getElementById('ctxPill').classList.remove('none');}
-  if(p.cf_number){
-    const fb=document.getElementById('fileNumBadge');const fv=document.getElementById('fileNumVal');const ab=document.getElementById('addFileBtn');
-    if(fb)fb.style.display='block';if(fv)fv.textContent=p.cf_number;if(ab)ab.style.display='none';
-  }
 }
 
 async function saveProfile() {
@@ -1876,13 +1089,9 @@ async function saveProfile() {
   p.otherParties=[];
   document.querySelectorAll('.party-blk').forEach(b=>{p.otherParties.push({role:b.querySelector('.or')?.value||'',first:b.querySelector('.of')?.value||'',last:b.querySelector('.ol')?.value||'',addr:b.querySelector('.oa')?.value||'',phone:b.querySelector('.op')?.value||'',email:b.querySelector('.oe')?.value||''});});
   caseProfile=p;
-  if(authToken) await api('POST','/auth/profile',{profile:p});
+  if(authToken) await api('POST','/auth/profile?product=family',{profile:p});
   localStorage.setItem('ls_family_profile',JSON.stringify(p));
   if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim()+(p.cf_number?' · '+p.cf_number:'');document.getElementById('ctxPill').classList.remove('none');}
-  if(p.cf_number){
-    const fb=document.getElementById('fileNumBadge');const fv=document.getElementById('fileNumVal');const ab=document.getElementById('addFileBtn');
-    if(fb)fb.style.display='block';if(fv)fv.textContent=p.cf_number;if(ab)ab.style.display='none';
-  }
   const ok=document.getElementById('sok');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2400);
   toast('Profile saved to your account');
 }
@@ -1894,7 +1103,7 @@ function clearProfile() {
   document.getElementById('childList').innerHTML='';
   document.getElementById('partyList').innerHTML='';
   localStorage.removeItem('ls_family_profile');
-  if(authToken) api('POST','/auth/profile',{profile:{}});
+  if(authToken) api('POST','/auth/profile?product=family',{profile:{}});
   toast('Profile cleared');
 }
 
@@ -2008,18 +1217,6 @@ function generatePDF() {
   toast('PDF downloaded: '+fname);
 }
 
-function toggleMobSidebar() {
-  document.getElementById('mobSbOv').classList.toggle('show');
-  document.getElementById('mobSb').classList.toggle('open');
-  // Clone sidebar content if empty
-  if (!document.getElementById('mobSb').innerHTML.trim()) {
-    document.getElementById('mobSb').innerHTML = document.querySelector('.sidebar').innerHTML;
-  }
-}
-function closeMobSidebar() {
-  document.getElementById('mobSbOv').classList.remove('show');
-  document.getElementById('mobSb').classList.remove('open');
-}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
 if(window.location.search.includes('session_id=')){toast('Payment successful — plan upgraded!');refreshUsage();history.replaceState({},'','/family');}
@@ -2262,740 +1459,14 @@ function copyAnalReport() {
 }
 
 function sendAnalToAffidavit() {
+  // Switch to affidavit panel with context from analysis
   showPanel('affidavit');
   bnA('affidavit');
   if (analResults) {
+    // Pre-populate affidavit with analysis context
     window._analContext = analResults;
-    // Reset and restart affidavit with analysis context pre-loaded
-    affHistory = [];
-    document.getElementById('affMsgs').innerHTML = '';
-    document.getElementById('affDoc').innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
-    document.getElementById('affProgress').textContent = '';
-    // Build context summary from analysis
-    const violations = (analResults.violations || []).map(v => v.rule + ' — ' + v.title).join(', ');
-    const counters = (analResults.counterArguments || []).slice(0,3).map(c => c.theirPoint).join('; ');
-    const affPoints = (analResults.affidavitPoints || []).join(' | ');
-    const contextMsg = 'Start the affidavit interview. I have already analyzed the other side\'s documents. Here is what was found: Violations: ' + (violations || 'none identified') + '. Key issues to address: ' + (counters || 'none') + '. Suggested affidavit points: ' + (affPoints || 'none') + '. Please use this analysis to guide the interview and build a responding affidavit that addresses these specific issues.';
-    setTimeout(() => sendAffMessage(null, true, contextMsg), 300);
-    toast('Analysis loaded — starting targeted affidavit interview');
+    toast('Analysis loaded into Affidavit Builder');
   }
-}
-
-// ═══════════════════════════════════════════
-// ONTARIO COURT FORMS ENGINE
-// ═══════════════════════════════════════════
-async function generateForm(formKey) {
-  if (!currentUser) { openAuthOrLogin(); return; }
-
-  const status = document.getElementById('forms-status');
-  status.style.display = 'block';
-  status.textContent = 'Generating form — please wait...';
-
-  // Build extra data from the additional fields
-  const extraData = {
-    court_name:            document.getElementById('form_court_name')?.value || '',
-    court_office_address:  document.getElementById('form_court_addr')?.value || '',
-    motion_date:           document.getElementById('form_motion_date')?.value || '',
-    place_of_hearing:      document.getElementById('form_place_hearing')?.value || '',
-    judge_name:            document.getElementById('form_judge')?.value || '',
-    applicant_lawyer:      document.getElementById('form_app_lawyer')?.value || '',
-    applicant_lawyer_name: document.getElementById('form_app_lawyer')?.value || '',
-    respondent_lawyer:     document.getElementById('form_resp_lawyer')?.value || '',
-    respondent_lawyer_name:document.getElementById('form_resp_lawyer')?.value || '',
-  };
-
-  try {
-    const resp = await fetch('/api/forms/fill', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (authToken || ''),
-      },
-      body: JSON.stringify({
-        formKey,
-        profile: caseProfile || {},
-        people: familyPeople || [],
-        extraData,
-      }),
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error || 'Form generation failed');
-    }
-
-    // Download the file
-    const blob = await resp.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ClearStand_Form_${formKey}_${new Date().toISOString().slice(0,10)}.docx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    status.textContent = '✓ Form downloaded successfully';
-    setTimeout(() => status.style.display = 'none', 3000);
-
-  } catch(err) {
-    status.textContent = '✗ Error: ' + err.message;
-    console.error('Form error:', err);
-  }
-}
-
-// ═══════════════════════════════════════════
-// PROPERTY DIVISION CALCULATOR
-// ═══════════════════════════════════════════
-let pdData = {}; // stores calculated values for export
-
-function fmtCurrency(n) { if (isNaN(n) || n === undefined || n === null) return '$0.00'; return '$' + Math.abs(n).toLocaleString('en-CA', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
-
-function calcNFP() {
-  const appName = document.getElementById('pd_app_name').value || 'Applicant';
-  const respName = document.getElementById('pd_resp_name').value || 'Respondent';
-
-  // Update section labels
-  document.getElementById('pd_app_section_lbl').textContent = appName + ' — Net Family Property';
-  document.getElementById('pd_resp_section_lbl').textContent = respName + ' — Net Family Property';
-
-  // Applicant NFP = (Assets VD - Debts VD) - (Assets DOM - Debts DOM) - Excluded + MHome adjustment
-  const appAssetsVD  = val('pd_app_assets_vd');
-  const appDebtsVD   = val('pd_app_debts_vd');
-  const appAssetsDOM = val('pd_app_assets_dom');
-  const appDebtsDOM  = val('pd_app_debts_dom');
-  const appExcluded  = val('pd_app_excluded');
-  const appMHome     = val('pd_app_mhome');
-
-  const respAssetsVD  = val('pd_resp_assets_vd');
-  const respDebtsVD   = val('pd_resp_debts_vd');
-  const respAssetsDOM = val('pd_resp_assets_dom');
-  const respDebtsDOM  = val('pd_resp_debts_dom');
-  const respExcluded  = val('pd_resp_excluded');
-  const respMHome     = val('pd_resp_mhome');
-
-  // NFP formula per s.4 FLA:
-  // NFP = (Assets at VD - Debts at VD) - (Assets at DOM - Debts at DOM - Excluded property)
-  // Note: matrimonial home value at DOM is NOT deducted per s.4(2) exclusion rules
-  const appNFP = (appAssetsVD - appDebtsVD) - (appAssetsDOM - appDebtsDOM - appExcluded);
-  const respNFP = (respAssetsVD - respDebtsVD) - (respAssetsDOM - respDebtsDOM - respExcluded);
-
-  // Equalization = (Higher NFP - Lower NFP) / 2
-  const higher = Math.max(appNFP, respNFP);
-  const lower = Math.min(appNFP, respNFP);
-  const equalization = (higher - lower) / 2;
-  const equalPayer = appNFP > respNFP ? appName : respName;
-  const equalRecip = appNFP > respNFP ? respName : appName;
-
-  // Store for export
-  pdData = { appName, respName, appNFP, respNFP, equalization, equalPayer, equalRecip,
-    appAssetsVD, appDebtsVD, appAssetsDOM, appDebtsDOM, appExcluded,
-    respAssetsVD, respDebtsVD, respAssetsDOM, respDebtsDOM, respExcluded };
-
-  // Display
-  document.getElementById('pd_result').style.display = 'block';
-  document.getElementById('pd_res_app_name').textContent = appName;
-  document.getElementById('pd_res_resp_name').textContent = respName;
-
-  document.getElementById('pd_res_app_avd').textContent = fmtCurrency(appAssetsVD);
-  document.getElementById('pd_res_app_dvd').textContent = '(' + fmtCurrency(appDebtsVD) + ')';
-  document.getElementById('pd_res_app_adom').textContent = '(' + fmtCurrency(appAssetsDOM) + ')';
-  document.getElementById('pd_res_app_ddom').textContent = fmtCurrency(appDebtsDOM);
-  document.getElementById('pd_res_app_excl').textContent = '(' + fmtCurrency(appExcluded) + ')';
-  document.getElementById('pd_res_app_nfp').textContent = fmtCurrency(appNFP);
-
-  document.getElementById('pd_res_resp_avd').textContent = fmtCurrency(respAssetsVD);
-  document.getElementById('pd_res_resp_dvd').textContent = '(' + fmtCurrency(respDebtsVD) + ')';
-  document.getElementById('pd_res_resp_adom').textContent = '(' + fmtCurrency(respAssetsDOM) + ')';
-  document.getElementById('pd_res_resp_ddom').textContent = fmtCurrency(respDebtsDOM);
-  document.getElementById('pd_res_resp_excl').textContent = '(' + fmtCurrency(respExcluded) + ')';
-  document.getElementById('pd_res_resp_nfp').textContent = fmtCurrency(respNFP);
-
-  document.getElementById('pd_higher_nfp').textContent = fmtCurrency(higher) + ' (' + (appNFP > respNFP ? appName : respName) + ')';
-  document.getElementById('pd_lower_nfp').textContent = fmtCurrency(lower) + ' (' + (appNFP <= respNFP ? appName : respName) + ')';
-  document.getElementById('pd_equal_amt').textContent = fmtCurrency(equalization);
-  document.getElementById('pd_equal_direction').textContent = equalPayer + ' pays ' + equalRecip + ' — equalization payment';
-
-  // Recalc buyout if active
-  if (document.getElementById('pd_buyout_on').checked) calcBuyout();
-}
-
-function toggleBuyout() {
-  const on = document.getElementById('pd_buyout_on').checked;
-  document.getElementById('pd_buyout_fields').style.display = on ? 'block' : 'none';
-  if (on) calcBuyout();
-}
-
-function calcBuyout() {
-  if (!pdData.equalization) return;
-  const buyoutAmt = parseFloat(document.getElementById('pd_buyout_amt').value) || 0;
-  const buyoutType = document.getElementById('pd_buyout_type').value;
-  if (!buyoutAmt) return;
-
-  if (buyoutAmt > pdData.equalization) {
-    toast('Buyout cannot exceed the equalization payment');
-    return;
-  }
-
-  const adjusted = pdData.equalization - buyoutAmt;
-  pdData.buyoutAmt = buyoutAmt;
-  pdData.adjusted = adjusted;
-  pdData.buyoutType = buyoutType;
-
-  const typeLabels = {
-    lump: 'applied as lump-sum spousal support',
-    full: 'in full and final release of all spousal support obligations',
-    partial: 'as partial release — reducing ongoing spousal support'
-  };
-
-  document.getElementById('pd_buyout_result').style.display = 'block';
-  document.getElementById('pd_buyout_original').textContent = fmtCurrency(pdData.equalization);
-  document.getElementById('pd_buyout_reduction').textContent = '(' + fmtCurrency(buyoutAmt) + ') — ' + typeLabels[buyoutType];
-  document.getElementById('pd_buyout_adjusted').textContent = fmtCurrency(adjusted);
-  document.getElementById('pd_buyout_direction').textContent = pdData.equalPayer + ' pays ' + pdData.equalRecip + ' ' + fmtCurrency(adjusted) + ' — net equalization after buyout';
-}
-
-function loadNFPFile(party) {
-  const fileInput = document.getElementById('pd_' + party + '_file');
-  const status = document.getElementById('pd_' + party + '_file_status');
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  status.textContent = 'Extracting values from ' + file.name + '...';
-  document.getElementById('pd_extract_status').style.display = 'block';
-  document.getElementById('pd_extract_status').textContent = 'Reading ' + file.name + ' — AI extracting NFP values...';
-
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result.split(',')[1];
-    const mediaType = file.name.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-    try {
-      const resp = await fetch('/api/family/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (authToken || '') },
-        body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'document', source: { type: 'base64', media_type: mediaType, data: base64 } },
-              { type: 'text', text: `Extract the Net Family Property values from this Ontario Form 13B. Return ONLY valid JSON with these exact keys:
-{
-  "assets_vd": number,
-  "debts_vd": number,
-  "assets_dom": number,
-  "debts_dom": number,
-  "excluded": number,
-  "mhome_dom": number
-}
-If a value is not present, use 0. Do not include any other text.` }
-            ]
-          }],
-          context: { systemOverride: 'You are a legal document parser. Extract numerical values from Ontario family court Form 13B NFP statements. Return only valid JSON.' }
-        })
-      });
-
-      const data = await resp.json();
-      const text = data.content?.[0]?.text || '{}';
-      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
-
-      // Fill in the fields
-      const prefix = 'pd_' + party + '_';
-      if (parsed.assets_vd !== undefined) document.getElementById(prefix + 'assets_vd').value = parsed.assets_vd;
-      if (parsed.debts_vd !== undefined) document.getElementById(prefix + 'debts_vd').value = parsed.debts_vd;
-      if (parsed.assets_dom !== undefined) document.getElementById(prefix + 'assets_dom').value = parsed.assets_dom;
-      if (parsed.debts_dom !== undefined) document.getElementById(prefix + 'debts_dom').value = parsed.debts_dom;
-      if (parsed.excluded !== undefined) document.getElementById(prefix + 'excluded').value = parsed.excluded;
-      if (parsed.mhome !== undefined) document.getElementById(prefix + 'mhome').value = parsed.mhome;
-
-      status.textContent = '✓ Values extracted from ' + file.name;
-      document.getElementById('pd_extract_status').textContent = '✓ Values extracted — review and confirm before calculating';
-      calcNFP();
-    } catch(err) {
-      status.textContent = '✗ Could not extract — please enter values manually';
-      document.getElementById('pd_extract_status').style.display = 'none';
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-function exportPropertyReport() {
-  if (!pdData.equalization) { toast('Calculate first'); return; }
-
-  const appName = pdData.appName || 'Applicant';
-  const respName = pdData.respName || 'Respondent';
-  const marDate = document.getElementById('pd_marriage_date').value;
-  const valDate = document.getElementById('pd_val_date').value;
-  const buyoutOn = document.getElementById('pd_buyout_on').checked;
-  const buyoutType = document.getElementById('pd_buyout_type')?.value;
-  const typeLabels = { lump:'as lump-sum spousal support', full:'in full and final release of all spousal support', partial:'as partial release of spousal support' };
-
-  const report = `PROPERTY DIVISION REPORT
-Pursuant to Part I, Family Law Act, R.S.O. 1990, c. F.3
-${'═'.repeat(60)}
-
-PARTIES
-Applicant:   ${appName}
-Respondent:  ${respName}
-
-RELEVANT DATES
-Date of Marriage:    ${marDate || '[not entered]'}
-Valuation Date:      ${valDate || '[not entered]'}
-
-${'─'.repeat(60)}
-NET FAMILY PROPERTY CALCULATION
-${'─'.repeat(60)}
-
-${appName.toUpperCase()}
-Assets at Valuation Date:              ${fmtCurrency(pdData.appAssetsVD)}
-Less: Debts at Valuation Date:        (${fmtCurrency(pdData.appDebtsVD)})
-Less: Assets at Date of Marriage:     (${fmtCurrency(pdData.appAssetsDOM)})
-Add: Debts at Date of Marriage:        ${fmtCurrency(pdData.appDebtsDOM)}
-Less: Excluded Property s.4(2) FLA:  (${fmtCurrency(pdData.appExcluded)})
-                                       ${'─'.repeat(20)}
-NET FAMILY PROPERTY:                   ${fmtCurrency(pdData.appNFP)}
-
-${respName.toUpperCase()}
-Assets at Valuation Date:              ${fmtCurrency(pdData.respAssetsVD)}
-Less: Debts at Valuation Date:        (${fmtCurrency(pdData.respDebtsVD)})
-Less: Assets at Date of Marriage:     (${fmtCurrency(pdData.respAssetsDOM)})
-Add: Debts at Date of Marriage:        ${fmtCurrency(pdData.respDebtsDOM)}
-Less: Excluded Property s.4(2) FLA:  (${fmtCurrency(pdData.respExcluded)})
-                                       ${'─'.repeat(20)}
-NET FAMILY PROPERTY:                   ${fmtCurrency(pdData.respNFP)}
-
-${'─'.repeat(60)}
-EQUALIZATION
-${'─'.repeat(60)}
-Higher NFP (${pdData.appNFP > pdData.respNFP ? appName : respName}):    ${fmtCurrency(Math.max(pdData.appNFP, pdData.respNFP))}
-Lower NFP (${pdData.appNFP <= pdData.respNFP ? appName : respName}):     ${fmtCurrency(Math.min(pdData.appNFP, pdData.respNFP))}
-Difference:                            ${fmtCurrency(Math.max(pdData.appNFP, pdData.respNFP) - Math.min(pdData.appNFP, pdData.respNFP))}
-Equalization Payment (÷ 2):           ${fmtCurrency(pdData.equalization)}
-
-EQUALIZATION PAYMENT: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmtCurrency(pdData.equalization)}
-
-Pursuant to s.5(1) Family Law Act — the spouse with the lesser NFP is entitled
-to one-half the difference between the spouses' NFP.
-${buyoutOn && pdData.buyoutAmt ? `
-${'─'.repeat(60)}
-SPOUSAL SUPPORT BUYOUT
-${'─'.repeat(60)}
-Original Equalization Payment:         ${fmtCurrency(pdData.equalization)}
-Less: Spousal Support Buyout:         (${fmtCurrency(pdData.buyoutAmt)})
-  Applied ${typeLabels[buyoutType] || ''}
-                                       ${'─'.repeat(20)}
-ADJUSTED EQUALIZATION PAYMENT:        ${fmtCurrency(pdData.adjusted)}
-
-NET: ${pdData.equalPayer} pays ${pdData.equalRecip} ${fmtCurrency(pdData.adjusted)}
-The ${fmtCurrency(pdData.buyoutAmt)} reduction constitutes a ${typeLabels[buyoutType]}.
-This agreement requires court approval and independent legal advice for each party.
-` : ''}
-${'═'.repeat(60)}
-IMPORTANT NOTICE
-
-This calculation is based on values provided by the parties. It is prepared
-for negotiation and settlement purposes only. Actual equalization entitlements
-are determined by the court pursuant to Part I of the Family Law Act.
-
-All parties should obtain independent legal advice before agreeing to any
-property division settlement. This document is not legal advice.
-
-Generated by ClearStand · clearstand.ca
-DRAFT — REVIEW CAREFULLY BEFORE RELYING ON THESE CALCULATIONS`;
-
-  openPdfSheet();
-  document.getElementById('pdf_content').value = report;
-  document.getElementById('pdf_title').value = 'Property Division Report — ' + appName + ' v ' + respName;
-}
-
-function copyPropertyText() {
-  if (!pdData.equalization) { toast('Calculate first'); return; }
-  exportPropertyReport();
-  setTimeout(() => {
-    const text = document.getElementById('pdf_content').value;
-    navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
-    document.getElementById('pdfSheet').style.display = 'none';
-  }, 100);
-}
-
-// ═══════════════════════════════════════════
-// SUPPORT CALCULATOR
-// ═══════════════════════════════════════════
-
-const CS_TABLE_ON = {
-  10000:[75,126,163,197,228],15000:[112,188,244,295,342],20000:[149,250,325,393,456],
-  25000:[187,313,407,491,569],30000:[232,381,491,592,686],35000:[277,449,576,693,803],
-  40000:[322,518,661,794,920],45000:[364,583,743,892,1033],50000:[404,645,820,984,1140],
-  55000:[443,705,896,1074,1244],60000:[481,766,972,1165,1350],65000:[519,826,1047,1254,1453],
-  70000:[556,883,1119,1340,1553],75000:[592,938,1188,1421,1647],80000:[628,993,1257,1503,1742],
-  85000:[663,1047,1326,1585,1838],90000:[698,1101,1394,1666,1932],95000:[733,1154,1461,1747,2025],
-  100000:[767,1207,1528,1826,2117],110000:[835,1311,1659,1983,2299],120000:[903,1414,1789,2139,2480],
-  130000:[970,1516,1919,2293,2659],140000:[1037,1617,2047,2447,2838],150000:[1103,1717,2175,2600,3015],
-  160000:[1169,1817,2302,2752,3192],170000:[1234,1915,2428,2903,3367],180000:[1299,2013,2553,3053,3542],
-  190000:[1363,2110,2677,3203,3716],200000:[1427,2207,2801,3352,3889],
-  220000:[1554,2399,3047,3646,4230],240000:[1680,2590,3291,3939,4569],
-  260000:[1805,2780,3533,4231,4907],280000:[1929,2968,3774,4522,5244],
-  300000:[2053,3156,4014,4812,5580],350000:[2361,3624,4612,5527,6413],
-  400000:[2666,4088,5205,6237,7237],500000:[3272,5012,6382,7648,8874],
-};
-const PROV_MULT = { ON:1.0,BC:0.97,AB:1.02,QC:0.88,MB:0.95,SK:0.96,NS:0.93,NB:0.91,NL:0.94,PE:0.90 };
-
-function getTableAmount(income, numChildren, province) {
-  const mult = PROV_MULT[province] || 1.0;
-  const childIdx = Math.min(numChildren, 5) - 1;
-  const keys = Object.keys(CS_TABLE_ON).map(Number).sort((a,b)=>a-b);
-  if (income > 150000) {
-    const base = CS_TABLE_ON[150000][childIdx];
-    const rates = [5.5,8.5,10.8,12.9,15.0];
-    return Math.round((base + ((income-150000)/1000)*rates[childIdx]) * mult);
-  }
-  let lower = keys[0], upper = keys[keys.length-1];
-  for (let i=0;i<keys.length-1;i++) { if(income>=keys[i]&&income<=keys[i+1]){lower=keys[i];upper=keys[i+1];break;} }
-  if (lower===upper) return Math.round(CS_TABLE_ON[lower][childIdx]*mult);
-  const ratio = (income-lower)/(upper-lower);
-  return Math.round((CS_TABLE_ON[lower][childIdx] + ratio*(CS_TABLE_ON[upper][childIdx]-CS_TABLE_ON[lower][childIdx]))*mult);
-}
-
-let scChildren = [];
-
-function loadSupportFromPeople() {
-  const app = familyPeople.find(p => p.role==='Applicant');
-  const resp = familyPeople.find(p => p.role==='Respondent');
-  if (app) { document.getElementById('sc_app_name').value = app.name||''; }
-  if (resp) { document.getElementById('sc_resp_name').value = resp.name||''; }
-  const kids = familyPeople.filter(p => p.role==='Child');
-  if (kids.length>0 && scChildren.length===0) {
-    kids.forEach(k => scChildren.push({
-      name: k.name||'Child',
-      custody: k.living==='Applicant'?'primary_app':k.living==='Respondent'?'primary_resp':'shared'
-    }));
-    renderScChildren();
-  }
-  if (scChildren.length===0) scAddChild();
-}
-
-function scAddChild() {
-  scChildren.push({name:'', custody:'primary_resp'});
-  renderScChildren();
-}
-
-function scRemoveChild(idx) {
-  scChildren.splice(idx,1);
-  renderScChildren();
-  calcSupport();
-}
-
-function renderScChildren() {
-  const appName = document.getElementById('sc_app_name').value||'Applicant';
-  const respName = document.getElementById('sc_resp_name').value||'Respondent';
-  const list = document.getElementById('sc_children_list');
-  list.innerHTML = scChildren.map((c,i) => `
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;background:var(--navy-light);padding:10px 12px;border:1px solid var(--border)">
-      <input class="fi" type="text" placeholder="Child's name" value="${c.name}"
-        onchange="scChildren[${i}].name=this.value"
-        style="font-size:16px;flex:1;min-width:100px">
-      <select class="fi sc-cust-sel" onchange="scChildren[${i}].custody=this.value;calcSupport()" style="font-size:15px;flex:1.5">
-        <option value="primary_app" ${c.custody==='primary_app'?'selected':''}>Primary — ${appName}</option>
-        <option value="primary_resp" ${c.custody==='primary_resp'?'selected':''}>Primary — ${respName}</option>
-        <option value="shared" ${c.custody==='shared'?'selected':''}>Shared (40%+ each)</option>
-      </select>
-      <button onclick="scRemoveChild(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 6px;flex-shrink:0">✕</button>
-    </div>`).join('');
-}
-
-function calcSupport() {
-  const appIncome = parseInt(document.getElementById('sc_app_income').value)||0;
-  const respIncome = parseInt(document.getElementById('sc_resp_income').value)||0;
-  const appName = document.getElementById('sc_app_name').value||'Applicant';
-  const respName = document.getElementById('sc_resp_name').value||'Respondent';
-  const province = document.getElementById('sc_province').value;
-  const years = parseFloat(document.getElementById('sc_years').value)||0;
-  const spousalOn = document.getElementById('sc_spousal_on').checked;
-  const role = document.getElementById('sc_role').value;
-  const formula = document.getElementById('sc_formula').value;
-  const childcare = parseFloat(document.getElementById('sc_childcare').value)||0;
-  const medical = parseFloat(document.getElementById('sc_medical').value)||0;
-  const extra = parseFloat(document.getElementById('sc_extra').value)||0;
-  const share = parseFloat(document.getElementById('sc_share').value)||50;
-
-  // Show/hide spousal fields
-  document.getElementById('sc_spousal_fields').style.display = spousalOn?'block':'none';
-  document.getElementById('sc_ss_block').style.display = spousalOn?'block':'none';
-
-  if (!appIncome && !respIncome) return;
-  if (scChildren.length===0) return;
-
-  // ── CHILD SUPPORT ──
-  const appPrimary = scChildren.filter(c=>c.custody==='primary_app');
-  const respPrimary = scChildren.filter(c=>c.custody==='primary_resp');
-  const shared = scChildren.filter(c=>c.custody==='shared');
-
-  let appPaysCS = 0, respPaysCS = 0;
-  let csBreakdown = '';
-
-  if (appPrimary.length>0 && respIncome>0) {
-    const amt = getTableAmount(respIncome, appPrimary.length, province);
-    respPaysCS = amt;
-    const names = appPrimary.map(c=>c.name||'Child').join(', ');
-    csBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} (primary w/ ${appName}) — ${respName} pays</span><span class="supp-result-val">$${amt.toLocaleString()}/mo</span></div>`;
-  }
-  if (respPrimary.length>0 && appIncome>0) {
-    const amt = getTableAmount(appIncome, respPrimary.length, province);
-    appPaysCS = amt;
-    const names = respPrimary.map(c=>c.name||'Child').join(', ');
-    csBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} (primary w/ ${respName}) — ${appName} pays</span><span class="supp-result-val">$${amt.toLocaleString()}/mo</span></div>`;
-  }
-  if (shared.length>0 && appIncome>0 && respIncome>0) {
-    const higher = Math.max(appIncome, respIncome);
-    const lower = Math.min(appIncome, respIncome);
-    const higherName = appIncome>respIncome?appName:respName;
-    const higherTable = getTableAmount(higher, shared.length, province);
-    const lowerTable = getTableAmount(lower, shared.length, province);
-    const net = higherTable - lowerTable;
-    if (appIncome>respIncome) appPaysCS+=net; else respPaysCS+=net;
-    const names = shared.map(c=>c.name||'Child').join(', ');
-    csBreakdown += `<div class="supp-result-row"><span class="supp-result-label">${names} (shared — Contino set-off, ${higherName} pays net)</span><span class="supp-result-val">$${net.toLocaleString()}/mo</span></div>`;
-  }
-
-  const csNetAmt = Math.abs(appPaysCS - respPaysCS);
-  const csNetPayer = appPaysCS>respPaysCS?appName:respName;
-  const csNetRecip = appPaysCS>respPaysCS?respName:appName;
-
-  // Section 7
-  const s7Monthly = (childcare+medical+extra)/12;
-  const appS7 = Math.round((s7Monthly*share)/100);
-  const respS7 = Math.round((s7Monthly*(100-share))/100);
-
-  // ── SPOUSAL SUPPORT ──
-  let ssLow=0, ssMid=0, ssHigh=0, ssDur='', ssNotes='', ssPayer='', ssRecip='';
-  if (spousalOn && years>0 && appIncome>0 && respIncome>0) {
-    const diff = appIncome - respIncome;
-    if (Math.abs(diff) > 0) {
-      const higherIncome = Math.max(appIncome, respIncome);
-      const lowerIncome = Math.min(appIncome, respIncome);
-      ssPayer = appIncome>respIncome?appName:respName;
-      ssRecip = appIncome>respIncome?respName:appName;
-      const incomeDiff = higherIncome - lowerIncome;
-
-      if (formula==='without') {
-        let lowP = Math.max(0.02, Math.min(0.015*years, 0.50));
-        let midP = Math.max(0.025, Math.min(0.0175*years, 0.50));
-        let highP = Math.max(0.03, Math.min(0.02*years, 0.50));
-        ssLow = Math.round((incomeDiff*lowP)/12);
-        ssMid = Math.round((incomeDiff*midP)/12);
-        ssHigh = Math.round((incomeDiff*highP)/12);
-      } else {
-        const base = role==='sahp'?0.35:role==='primary'?0.28:0.22;
-        ssLow = Math.round((incomeDiff*(base-0.05))/12);
-        ssMid = Math.round((incomeDiff*base)/12);
-        ssHigh = Math.round((incomeDiff*(base+0.05))/12);
-      }
-
-      const durLow = (0.5*years).toFixed(1);
-      const durHigh = years>=20?'indefinite':(years*1.0).toFixed(0);
-      ssDur = `${durLow} to ${durHigh} years`;
-
-      const notesMap = {
-        both:'Both parties worked full-time. Compensatory claim may be limited. Merger of economic lives applies.',
-        primary:`Recipient reduced work to care for children. Strong compensatory basis — Moge v Moge [1992] 3 SCR 813.`,
-        sahp:`Stay-at-home parent. Strong compensatory and non-compensatory basis — Bracklow v Bracklow [1999] 1 SCR 420.`
-      };
-      ssNotes = notesMap[role]||'';
-    }
-  }
-
-  // ── DISPLAY ──
-  document.getElementById('sc_result').style.display = 'block';
-
-  // CS
-  document.getElementById('sc_cs_parties').textContent = appName + ' v. ' + respName;
-  document.getElementById('sc_cs_breakdown').innerHTML = csBreakdown;
-  document.getElementById('sc_cs_net').textContent = '$' + csNetAmt.toLocaleString() + '/month';
-  document.getElementById('sc_cs_payor').textContent = csNetPayer + ' pays ' + csNetRecip + ' — child support';
-
-  if (s7Monthly>0) {
-    document.getElementById('sc_s7_row').style.display='flex';
-    document.getElementById('sc_s7_amt').textContent = appName+': $'+appS7.toLocaleString()+'/mo ('+share+'%) | '+respName+': $'+respS7.toLocaleString()+'/mo ('+(100-share)+'%)';
-  } else { document.getElementById('sc_s7_row').style.display='none'; }
-
-  // SS
-  if (spousalOn && ssMid>0) {
-    document.getElementById('sc_ss_payor_lbl').textContent = ssPayer + ' pays ' + ssRecip;
-    document.getElementById('sc_ss_low').textContent = '$'+ssLow.toLocaleString();
-    document.getElementById('sc_ss_mid').textContent = '$'+ssMid.toLocaleString();
-    document.getElementById('sc_ss_high').textContent = '$'+ssHigh.toLocaleString();
-    document.getElementById('sc_ss_duration').textContent = ssDur;
-    document.getElementById('sc_ss_notes').textContent = ssNotes;
-  }
-
-  // ── OFFSET SUMMARY ──
-  // Who owes what total (CS + SS mid)
-  let appOwes = appPaysCS + (spousalOn && ssPayer===appName ? ssMid : 0);
-  let respOwes = respPaysCS + (spousalOn && ssPayer===respName ? ssMid : 0);
-
-  let offsetHtml = `
-    <div class="supp-result-row"><span class="supp-result-label">${appName} — child support owing</span><span class="supp-result-val">$${appPaysCS.toLocaleString()}/mo</span></div>
-    <div class="supp-result-row"><span class="supp-result-label">${respName} — child support owing</span><span class="supp-result-val">$${respPaysCS.toLocaleString()}/mo</span></div>`;
-
-  if (spousalOn && ssMid>0) {
-    offsetHtml += `
-    <div class="supp-result-row"><span class="supp-result-label">${ssPayer} — spousal support owing (mid)</span><span class="supp-result-val">$${ssMid.toLocaleString()}/mo</span></div>
-    <div class="supp-result-row"><span class="supp-result-label">${ssRecip} — spousal support owing</span><span class="supp-result-val">$0/mo</span></div>`;
-  }
-
-  offsetHtml += `<div class="supp-result-row" style="margin-top:8px"><span class="supp-result-label">${appName} total owing</span><span class="supp-result-val">$${appOwes.toLocaleString()}/mo</span></div>
-    <div class="supp-result-row"><span class="supp-result-label">${respName} total owing</span><span class="supp-result-val">$${respOwes.toLocaleString()}/mo</span></div>`;
-
-  document.getElementById('sc_offset_breakdown').innerHTML = offsetHtml;
-  const netTotal = Math.abs(appOwes - respOwes);
-  const netPayer = appOwes>respOwes?appName:respName;
-  const netRecip = appOwes>respOwes?respName:appName;
-  document.getElementById('sc_net_total').textContent = '$'+netTotal.toLocaleString()+'/month';
-  document.getElementById('sc_net_direction').textContent = netPayer + ' pays ' + netRecip + ' — net after full set-off';
-}
-
-function copyFullSupport() {
-  const appName = document.getElementById('sc_app_name').value||'Applicant';
-  const respName = document.getElementById('sc_resp_name').value||'Respondent';
-  const csNet = document.getElementById('sc_cs_net').textContent;
-  const ssLow = document.getElementById('sc_ss_low').textContent;
-  const ssMid = document.getElementById('sc_ss_mid').textContent;
-  const ssHigh = document.getElementById('sc_ss_high').textContent;
-  const netTotal = document.getElementById('sc_net_total').textContent;
-  const netDir = document.getElementById('sc_net_direction').textContent;
-
-  const text = `SUPPORT CALCULATION SUMMARY
-${'='.repeat(40)}
-Parties: ${appName} v. ${respName}
-
-CHILD SUPPORT (Federal Guidelines — Ontario)
-Net Child Support: ${csNet}
-
-SPOUSAL SUPPORT (SSAG Range)
-Low: ${ssLow}/month | Mid: ${ssMid}/month | High: ${ssHigh}/month
-
-NET AFTER SET-OFF
-${netTotal}
-${netDir}
-
-Note: These are estimates based on stated incomes. Actual amounts set by court order.`;
-
-  navigator.clipboard.writeText(text).then(() => toast('Copied'));
-}
-
-function copyAffidavitSupport() {
-  const appName = document.getElementById('sc_app_name').value||'Applicant';
-  const respName = document.getElementById('sc_resp_name').value||'Respondent';
-  const appIncome = document.getElementById('sc_app_income').value||'[income]';
-  const respIncome = document.getElementById('sc_resp_income').value||'[income]';
-  const csNet = document.getElementById('sc_cs_net').textContent;
-  const ssMid = document.getElementById('sc_ss_mid').textContent;
-  const ssLow = document.getElementById('sc_ss_low').textContent;
-  const ssHigh = document.getElementById('sc_ss_high').textContent;
-  const netTotal = document.getElementById('sc_net_total').textContent;
-  const netDir = document.getElementById('sc_net_direction').textContent;
-  const years = document.getElementById('sc_years').value||'[years]';
-  const ssDur = document.getElementById('sc_ss_duration').textContent;
-
-  const text = `[AFFIDAVIT PARAGRAPH — SUPPORT]
-
-[Para __]. ${appName}'s annual gross income is $${Number(appIncome).toLocaleString()} and ${respName}'s annual gross income is $${Number(respIncome).toLocaleString()}.
-
-[Para __]. Pursuant to the Federal Child Support Guidelines, Schedule I (Ontario), the applicable table amount for child support is ${csNet}.
-
-[Para __]. Each party's obligation, before set-off, is as follows: ${document.getElementById('sc_cs_breakdown').innerText.replace(/\n/g,' | ')}.
-
-[Para __]. Pursuant to the Spousal Support Advisory Guidelines (Rogerson and Thompson), having regard to the parties' incomes and ${years} years of cohabitation, the range of spousal support is: Low — ${ssLow}/month; Mid — ${ssMid}/month; High — ${ssHigh}/month, for a duration of ${ssDur}.
-
-[Para __]. After full set-off of both parties' obligations, the net amount payable is ${netTotal} (${netDir}).
-
-DRAFT — AI-ASSISTED. REVIEW CAREFULLY BEFORE FILING.`;
-
-  navigator.clipboard.writeText(text).then(() => toast('Affidavit paragraphs copied'));
-}
-
-// ═══════════════════════════════════════════
-// FAMILY PEOPLE MANAGER
-// ═══════════════════════════════════════════
-let familyPeople = JSON.parse(localStorage.getItem('cs_family_people') || '[]');
-
-document.addEventListener('change', function(e) {
-  if (e.target.id === 'fp_role') {
-    document.getElementById('fp_child_fields').style.display = e.target.value === 'Child' ? 'block' : 'none';
-  }
-});
-
-function addFamilyPerson() {
-  const side = document.getElementById('fp_side').value;
-  const role = document.getElementById('fp_role').value;
-  const first = document.getElementById('fp_first').value.trim();
-  const last = document.getElementById('fp_last').value.trim();
-  if (!side || !role) { toast('Select a side and role'); return; }
-  if (!first && role !== 'Child') { toast('Enter at least a first name'); return; }
-
-  const person = {
-    id: Date.now(), side, role,
-    first, last, name: `${first} ${last}`.trim(),
-    address: document.getElementById('fp_address').value.trim(),
-    notes: document.getElementById('fp_notes').value.trim(),
-  };
-
-  if (role === 'Child') {
-    person.dob = document.getElementById('fp_child_dob').value;
-    person.age = document.getElementById('fp_child_age').value;
-    person.living = document.getElementById('fp_child_living').value;
-    if (!person.name.trim()) person.name = 'Child ' + (familyPeople.filter(p => p.role === 'Child').length + 1);
-  }
-
-  familyPeople.push(person);
-  localStorage.setItem('cs_family_people', JSON.stringify(familyPeople));
-  renderFamilyPeople();
-
-  // Reset
-  ['fp_side','fp_role','fp_first','fp_last','fp_address','fp_notes','fp_child_dob','fp_child_age','fp_child_living'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-  document.getElementById('fp_child_fields').style.display = 'none';
-  toast('Person added');
-}
-
-function removeFamilyPerson(id) {
-  familyPeople = familyPeople.filter(p => p.id !== id);
-  localStorage.setItem('cs_family_people', JSON.stringify(familyPeople));
-  renderFamilyPeople();
-}
-
-function renderFamilyPeople() {
-  const list = document.getElementById('fp_list');
-  if (!list) return;
-  if (!familyPeople.length) {
-    list.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:24px">No people added yet</div>';
-    return;
-  }
-
-  const sideLabels = { applicant: "Applicant's Side", respondent: "Respondent's Side", neutral: "Neutral / Court" };
-  const sideColors = { applicant: 'var(--blue-light)', respondent: '#F4A261', neutral: 'var(--text3)' };
-  const groups = { applicant: [], respondent: [], neutral: [] };
-  familyPeople.forEach(p => { if (groups[p.side]) groups[p.side].push(p); });
-
-  let html = '';
-  Object.entries(groups).forEach(([side, people]) => {
-    if (!people.length) return;
-    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:.54rem;text-transform:uppercase;letter-spacing:.14em;color:${sideColors[side]};margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">${sideLabels[side]}</div>`;
-    people.forEach(p => {
-      const detail = [p.role, p.living ? 'Living with: ' + p.living : '', p.address].filter(Boolean).join(' · ');
-      html += `<div style="border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-        <div style="flex:1">
-          <div style="font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:2px">${p.name || p.role}${p.age ? ', age ' + p.age : ''}</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:${p.notes ? '6px' : '0'}">${detail}</div>
-          ${p.notes ? `<div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2)">${p.notes}</div>` : ''}
-        </div>
-        <button onclick="removeFamilyPerson(${p.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;flex-shrink:0;padding:2px 6px">✕</button>
-      </div>`;
-    });
-  });
-  list.innerHTML = html;
 }
 
 // ═══════════════════════════════════════════
@@ -3003,8 +1474,6 @@ function renderFamilyPeople() {
 // ═══════════════════════════════════════════
 let affHistory = [];
 let affDraft = [];
-let affParas = [];
-let affOpening = '';
 let affBusy = false;
 let affVoiceRec = null, affRecording = false;
 let affQuestionNum = 0;
@@ -3074,20 +1543,11 @@ FORMAT YOUR RESPONSES AS JSON:
 
 When the affidavit is complete set complete to true. The draft should be a complete, court-ready document with proper case law woven throughout.`;
 
-function beginAffidavit() {
-  document.getElementById('aff-start-prompt')?.remove();
-  startAffidavit();
-}
-
 async function startAffidavit() {
   affHistory = [];
   affDraft = [];
   affQuestionNum = 0;
-  const msgs = document.getElementById('affMsgs');
-  // Clear everything except start prompt (which may already be gone)
-  msgs.querySelectorAll('.aff-msg').forEach(el => el.remove());
-  document.getElementById('aff-start-prompt')?.remove();
-  affParas = []; affOpening = '';
+  document.getElementById('affMsgs').innerHTML = '';
   document.getElementById('affDoc').innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
   document.getElementById('affProgress').textContent = '';
   
@@ -3116,103 +1576,15 @@ function showAffAnswer(a) {
 
 function updateAffDraft(draft) {
   if (!draft) return;
-  // Parse the draft into paragraphs
-  // Extract opening line (I, [NAME], of...) and numbered paragraphs
-  const lines = draft.split('\n').filter(l => l.trim());
-  affParas = [];
-  let openingLines = [];
-  let inNumbered = false;
-
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    // Check if it's a numbered paragraph
-    const match = trimmed.match(/^(\d+)\.\s*(.+)/);
-    if (match) {
-      inNumbered = true;
-      affParas.push(match[2].trim());
-    } else if (!inNumbered && trimmed) {
-      openingLines.push(trimmed);
-    } else if (trimmed && !trimmed.match(/^SWORN|^DRAFT|^AFFIRM/)) {
-      // Continuation of last paragraph or closing
-      if (affParas.length > 0) affParas[affParas.length-1] += ' ' + trimmed;
-    }
-  });
-
-  // Store opening
-  affOpening = openingLines.join('\n') || '';
-  renderAffDoc();
-}
-
-function renderAffDoc() {
   const doc = document.getElementById('affDoc');
-  if (!affParas.length && !affOpening) {
-    doc.innerHTML = '<div class="aff-doc-empty" id="affDocEmpty">Your affidavit will appear here as you answer the questions.</div>';
-    return;
-  }
-
-  let html = '';
-  if (affOpening) {
-    html += `<div class="aff-para-opening">${affOpening.replace(/\n/g,'<br>')}</div>`;
-  }
-
-  affParas.forEach((para, i) => {
-    html += `<div class="aff-para" id="aff-p-${i}">
-      <span class="aff-para-num">${i+1}.</span>
-      <div class="aff-para-text" contenteditable="true" 
-           onblur="affParas[${i}]=this.innerText.trim()"
-           onkeydown="affParaKey(event,${i})">${para}</div>
-      <div class="aff-para-actions">
-        <button class="aff-para-btn" onclick="affInsertPara(${i})" title="Insert paragraph below">＋</button>
-        <button class="aff-para-btn" onclick="affMovePara(${i},-1)" title="Move up">↑</button>
-        <button class="aff-para-btn" onclick="affMovePara(${i},1)" title="Move down">↓</button>
-        <button class="aff-para-btn" onclick="affDeletePara(${i})" title="Delete" style="color:#E87070">✕</button>
-      </div>
-    </div>`;
-  });
-
-  // Closing block
-  html += `<div class="aff-para-opening" style="margin-top:12px;border-top:1px solid rgba(255,255,255,.1);padding-top:12px">
-    SWORN before me at __________, in the Province of Ontario, this ___ day of __________, 20___.<br><br>
-    _________________________ &nbsp;&nbsp;&nbsp; _________________________<br>
-    Commissioner for Taking Oaths &nbsp;&nbsp;&nbsp; Signature of Deponent<br><br>
-    <em>DRAFT — AI-ASSISTED. REVIEW CAREFULLY WITH A LICENSED ONTARIO LAWYER BEFORE FILING.</em>
-  </div>`;
-
-  doc.innerHTML = html;
+  doc.innerHTML = '';
+  const pre = document.createElement('div');
+  pre.style.cssText = 'font-family:Inter,sans-serif;font-size:.88rem;line-height:1.75;color:var(--text);white-space:pre-wrap;padding:4px';
+  pre.textContent = draft;
+  doc.appendChild(pre);
 }
 
-function affParaKey(e, idx) {
-  // Enter key at end of paragraph = insert new paragraph below
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    affInsertPara(idx);
-  }
-}
-
-function affInsertPara(idx) {
-  affParas.splice(idx+1, 0, '');
-  renderAffDoc();
-  // Focus new paragraph
-  setTimeout(() => {
-    const el = document.getElementById('aff-p-'+(idx+1));
-    if (el) el.querySelector('.aff-para-text').focus();
-  }, 50);
-}
-
-function affDeletePara(idx) {
-  if (affParas.length <= 1) { toast('Cannot delete the only paragraph'); return; }
-  affParas.splice(idx, 1);
-  renderAffDoc();
-}
-
-function affMovePara(idx, dir) {
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= affParas.length) return;
-  [affParas[idx], affParas[newIdx]] = [affParas[newIdx], affParas[idx]];
-  renderAffDoc();
-}
-
-async function sendAffMessage(userAnswer, isFirst = false, firstMsg = null) {
+async function sendAffMessage(userAnswer, isFirst = false) {
   if (affBusy) return;
   affBusy = true;
   document.getElementById('affSBtn').disabled = true;
@@ -3233,7 +1605,7 @@ async function sendAffMessage(userAnswer, isFirst = false, firstMsg = null) {
 
   try {
     const messages = isFirst 
-      ? [{ role: 'user', content: firstMsg || 'Start the affidavit interview. Ask me what type of affidavit I need.' }]
+      ? [{ role: 'user', content: 'Start the affidavit interview. Ask me what type of affidavit I need.' }]
       : affHistory;
 
     const resp = await fetch('/api/family/chat', {
@@ -3314,19 +1686,11 @@ function copyAffidavit() {
 }
 
 function exportAffidavit() {
-  if (!affParas.length) { toast('No affidavit content yet'); return; }
-  // Build clean numbered text from paragraphs
-  let text = '';
-  if (affOpening) text += affOpening + '\n\n';
-  affParas.forEach((p, i) => {
-    text += (i+1) + '. ' + p + '\n\n';
-  });
-  text += 'SWORN before me at __________, in the Province of Ontario, this ___ day of __________, 20___.\n\n';
-  text += '_________________________ \t _________________________\n';
-  text += 'Commissioner for Taking Oaths \t Signature of Deponent\n\n';
-  text += 'DRAFT — AI-ASSISTED. REVIEW CAREFULLY WITH A LICENSED ONTARIO LAWYER BEFORE FILING.';
+  const doc = document.getElementById('affDoc');
+  if (doc.querySelector('.aff-doc-empty')) { toast('No affidavit content yet'); return; }
+  const content = doc.textContent.trim();
   openPdfSheet();
-  document.getElementById('pdf_content').value = text;
+  document.getElementById('pdf_content').value = content;
   document.getElementById('pdf_title').value = 'Affidavit';
 }
 
@@ -3350,7 +1714,7 @@ async function stopAffVoice() {
   document.getElementById('affVBtn').classList.remove('rec');
   const inp = document.getElementById('aff-ci');
   const raw = inp.value.trim();
-  if (!raw) { document.getElementById('affVBtn').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice'; return; }
+  if (!raw) { document.getElementById('affVBtn').textContent = 'Voice'; return; }
   document.getElementById('affVBtn').textContent = 'Cleaning…';
   inp.disabled = true;
   try {
@@ -3363,86 +1727,33 @@ async function stopAffVoice() {
     if (data.cleaned) { inp.value = data.cleaned; affAr(inp); toast('Dictation cleaned up'); }
   } catch(e) { toast('Voice captured'); }
   inp.disabled = false;
-  document.getElementById('affVBtn').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice';
+  document.getElementById('affVBtn').textContent = 'Voice';
   inp.focus();
 }
 
 // Auto-start interview when panel opens
-// showPanel enhanced above
-
-// ═══════════════════════════════════════════
-// ONBOARDING
-// ═══════════════════════════════════════════
-let obMatter = null;
-
-function showOnboarding() {
-  if (localStorage.getItem('cs_onboarded')) return;
-  document.getElementById('obOv').style.display = 'flex';
-}
-
-function obNext(step) {
-  if (step === 1) {
-    // Save profile from step 1
-    const first = document.getElementById('ob_first').value.trim();
-    const last = document.getElementById('ob_last').value.trim();
-    const city = document.getElementById('ob_city').value.trim();
-    if (first) {
-      caseProfile.first = first;
-      caseProfile.last = last;
-      if (city) caseProfile.city = city;
-      localStorage.setItem('cs_profile', JSON.stringify(caseProfile));
-      // Pre-fill profile fields
-      if (document.getElementById('pr_first')) document.getElementById('pr_first').value = first;
-      if (document.getElementById('pr_last')) document.getElementById('pr_last').value = last;
-    }
-    document.getElementById('ob-s1').classList.remove('on');
-    document.getElementById('ob-s2').classList.add('on');
-    document.getElementById('ob-d2').classList.add('on');
-  } else if (step === 2) {
-    document.getElementById('ob-s2').classList.remove('on');
-    document.getElementById('ob-s3').classList.add('on');
-    document.getElementById('ob-d3').classList.add('on');
+const _origShowPanel = showPanel;
+function showPanel(name) {
+  _origShowPanel(name);
+  if (name === 'affidavit' && document.getElementById('affMsgs').innerHTML === '') {
+    startAffidavit();
   }
-}
-
-function obSelectMatter(matter) {
-  obMatter = matter;
-  document.querySelectorAll('.ob-choice').forEach(b => b.classList.remove('on'));
-  document.getElementById('ob-c-' + matter)?.classList.add('on');
-}
-
-function obFinish(action) {
-  localStorage.setItem('cs_onboarded', '1');
-  document.getElementById('obOv').style.display = 'none';
-  if (action === 'chat') { showPanel('chat'); bnA('chat'); }
-  else if (action === 'analysis') { showPanel('analysis'); bnA('analysis'); }
-  else if (action === 'affidavit') { showPanel('affidavit'); bnA('affidavit'); }
-  else if (action === 'profile') { showPanel('profile'); bnA('profile'); }
-}
-
-function obSkip() {
-  localStorage.setItem('cs_onboarded', '1');
-  document.getElementById('obOv').style.display = 'none';
 }
 
 (async function init() {
   showWelcome();
   if (authToken) {
     try {
-      const d = await api('GET','/auth/me');
+      const d = await api('GET','/auth/me?product=family');
       if (d?.user) {
         currentUser=d.user; usageState=d.usage;
         document.getElementById('authOv').style.display='none';
         renderUsage();
         await loadProfileFromServer();
-        setTimeout(showOnboarding, 600);
-      } else {
-        authToken=null; localStorage.removeItem('ls_tok');
-        document.getElementById('authOv').style.display='flex';
-      }
-    } catch(e) { document.getElementById('authOv').style.display='flex'; }
-  } else {
-    document.getElementById('authOv').style.display='flex';
+      } else { authToken=null; localStorage.removeItem('ls_tok'); }
+    } catch(e) {}
+  }
+  if(!authToken) {
     const stored=localStorage.getItem('ls_family_profile');
     if(stored){caseProfile=JSON.parse(stored);applyProfileToUI(caseProfile);}
   }

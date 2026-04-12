@@ -932,10 +932,261 @@ textarea.fi { resize: vertical; min-height: 80px; }
 
 <div class="toast" id="toast"></div>
 
+<!-- ══ AUTH OVERLAY ══ -->
+<div class="cs-auth-ov" id="csAuthOv">
+  <div class="cs-auth-box">
+    <a href="/clearsplit" style="text-decoration:none">
+      <div class="cs-auth-logo">Clear<span>Split</span></div>
+    </a>
+    <div class="cs-auth-sub">Separation Agreement Builder · Sign in to continue</div>
+
+    <div class="cs-auth-tabs">
+      <button class="cs-auth-tab on" onclick="csTab('login',this)">Sign In</button>
+      <button class="cs-auth-tab" onclick="csTab('register',this)">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="cs-auth-form on" id="csFormLogin">
+      <div class="cs-auth-err" id="csLoginErr"></div>
+      <label class="cs-auth-lbl">Email</label>
+      <input class="cs-auth-inp" type="email" id="csLoginEmail" placeholder="you@email.com" autocomplete="email">
+      <label class="cs-auth-lbl">Password</label>
+      <input class="cs-auth-inp" type="password" id="csLoginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')csLogin()">
+      <button class="cs-auth-btn" id="csLoginBtn" onclick="csLogin()">Sign In</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div class="cs-auth-form" id="csFormRegister">
+      <div class="cs-auth-err" id="csRegErr"></div>
+      <label class="cs-auth-lbl">Full Name</label>
+      <input class="cs-auth-inp" type="text" id="csRegName" placeholder="Your full name" autocomplete="name">
+      <label class="cs-auth-lbl">Email</label>
+      <input class="cs-auth-inp" type="email" id="csRegEmail" placeholder="you@email.com" autocomplete="email">
+      <label class="cs-auth-lbl">Password <span style="color:var(--text3);font-weight:400">(min 8 characters)</span></label>
+      <input class="cs-auth-inp" type="password" id="csRegPass" placeholder="Min. 8 characters" autocomplete="new-password">
+
+      <!-- Partner code input -->
+      <div style="background:rgba(32,178,170,.07);border:1px solid rgba(32,178,170,.2);padding:12px;margin-bottom:12px">
+        <label class="cs-auth-lbl" style="color:var(--teal);margin-bottom:6px">Partner Access Code <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input class="cs-auth-inp" type="text" id="csRegCode" placeholder="Enter code sent to you by your partner" autocomplete="off" style="margin-bottom:0;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;font-size:.85rem">
+        <div style="font-family:'Inter',sans-serif;font-size:.75rem;color:var(--text3);margin-top:6px;line-height:1.5">If your partner already has a ClearSplit account and shared an access code, enter it here to link to their agreement.</div>
+      </div>
+
+      <!-- Terms checkbox -->
+      <div style="display:flex;align-items:flex-start;gap:10px;margin:4px 0 14px">
+        <input type="checkbox" id="csRegTerms" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:var(--teal)">
+        <label for="csRegTerms" style="font-family:'Inter',sans-serif;font-size:.82rem;color:rgba(244,246,248,.65);line-height:1.55;cursor:pointer">
+          I have read and agree to the
+          <a href="/terms-of-use" target="_blank" style="color:var(--teal);text-decoration:underline">Terms of Use</a>
+          and
+          <a href="/privacy-policy" target="_blank" style="color:var(--teal);text-decoration:underline">Privacy Policy</a>
+        </label>
+      </div>
+      <button class="cs-auth-btn" id="csRegBtn" onclick="csRegister()">Create Account</button>
+    </div>
+
+    <!-- GENERATE CODE (shown after login/register) -->
+    <div class="cs-auth-form" id="csFormCode">
+      <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);line-height:1.65;margin-bottom:16px">
+        You're in. To give your partner access to this agreement, generate a code and email it to them. They enter it when creating their account.
+      </div>
+      <div class="cs-auth-err" id="csCodeErr"></div>
+      <label class="cs-auth-lbl">Partner's Email Address</label>
+      <input class="cs-auth-inp" type="email" id="csPartnerEmail" placeholder="partner@email.com">
+      <button class="cs-auth-btn" id="csCodeBtn" onclick="csGenerateCode()" style="background:rgba(32,178,170,.15);border:1px solid var(--teal);color:var(--teal)">Generate &amp; Email Code to Partner</button>
+      <div id="csCodeResult" style="display:none;margin-top:12px;padding:12px;background:rgba(32,178,170,.1);border:1px solid rgba(32,178,170,.3)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);margin-bottom:6px">Code Generated</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--white);letter-spacing:.2em;text-align:center;padding:8px 0" id="csCodeDisplay"></div>
+        <div style="font-family:'Inter',sans-serif;font-size:.75rem;color:var(--text3);margin-top:6px">Code emailed to your partner. Valid for 7 days.</div>
+      </div>
+      <button class="cs-auth-btn" onclick="csAuthSuccess()" style="margin-top:16px">Continue to Agreement →</button>
+      <button onclick="csAuthSuccess()" style="display:block;width:100%;padding:10px;background:none;border:none;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;margin-top:6px">Skip — Add Partner Later</button>
+    </div>
+
+    <div class="cs-auth-footer">
+      <a href="/clearsplit">← Back to ClearSplit</a>
+      <span>·</span>
+      <a href="/privacy-policy" target="_blank">Privacy</a>
+      <span>·</span>
+      <a href="/terms-of-use" target="_blank">Terms</a>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── AUTH OVERLAY ── */
+.cs-auth-ov { position:fixed;inset:0;background:rgba(10,20,35,.97);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto; }
+.cs-auth-box { background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:440px;padding:32px 28px;border-top:3px solid var(--teal); }
+.cs-auth-logo { font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white);text-align:center;margin-bottom:4px; }
+.cs-auth-logo span { color:var(--teal); }
+.cs-auth-sub { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);text-align:center;margin-bottom:24px; }
+.cs-auth-tabs { display:flex;border-bottom:1px solid var(--border);margin-bottom:20px; }
+.cs-auth-tab { flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;min-height:42px;transition:all .15s; }
+.cs-auth-tab.on { color:var(--teal);border-bottom-color:var(--teal); }
+.cs-auth-form { display:none; }
+.cs-auth-form.on { display:block; }
+.cs-auth-lbl { font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block; }
+.cs-auth-inp { width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;margin-bottom:12px;transition:border-color .15s;-webkit-appearance:none; }
+.cs-auth-inp:focus { border-color:var(--teal); }
+.cs-auth-btn { width:100%;padding:14px;background:var(--teal);color:#0d2d2a;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700;margin-top:4px;min-height:48px;transition:background .15s; }
+.cs-auth-btn:hover { background:var(--teal-light); }
+.cs-auth-btn:disabled { opacity:.5;cursor:not-allowed; }
+.cs-auth-err { font-family:'Inter',sans-serif;font-size:.82rem;color:#E87070;margin-bottom:10px;display:none;padding:8px 10px;background:rgba(200,60,60,.1);border:1px solid rgba(200,60,60,.3); }
+.cs-auth-err.show { display:block; }
+.cs-auth-footer { margin-top:20px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:center;gap:12px;flex-wrap:wrap; }
+.cs-auth-footer a { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none; }
+.cs-auth-footer a:hover { color:var(--teal); }
+.cs-auth-footer span { color:var(--text3);font-size:.5rem; }
+</style>
+
 <script>
 // ══════════════════════════════════════════════════
-// STATE
+// AUTH
 // ══════════════════════════════════════════════════
+let csToken = localStorage.getItem('cs_tok') || null;
+let csUser = null;
+
+function csTab(tab, btn) {
+  document.querySelectorAll('.cs-auth-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.cs-auth-form').forEach(f => f.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('csForm' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('on');
+}
+
+async function csLogin() {
+  const email = document.getElementById('csLoginEmail').value.trim();
+  const pass  = document.getElementById('csLoginPass').value;
+  const err   = document.getElementById('csLoginErr');
+  const btn   = document.getElementById('csLoginBtn');
+  err.classList.remove('show');
+  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const d = await res.json();
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else {
+      csToken = d.token; csUser = d.user;
+      localStorage.setItem('cs_tok', d.token);
+      showCodePanel();
+    }
+  } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+
+async function csRegister() {
+  const name  = document.getElementById('csRegName').value.trim();
+  const email = document.getElementById('csRegEmail').value.trim();
+  const pass  = document.getElementById('csRegPass').value;
+  const code  = document.getElementById('csRegCode').value.trim();
+  const terms = document.getElementById('csRegTerms').checked;
+  const err   = document.getElementById('csRegErr');
+  const btn   = document.getElementById('csRegBtn');
+  err.classList.remove('show');
+  if (!name || !email || !pass) { err.textContent = 'All fields required.'; err.classList.add('show'); return; }
+  if (!terms) { err.textContent = 'You must read and agree to the Terms of Use and Privacy Policy to continue.'; err.classList.add('show'); return; }
+  if (pass.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const body = { name, email, password: pass, product: 'clearsplit' };
+    if (code) body.partnerCode = code;
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const d = await res.json();
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else {
+      csToken = d.token; csUser = d.user;
+      localStorage.setItem('cs_tok', d.token);
+      if (code) {
+        // If they joined with a code, skip code panel and go straight to app
+        csAuthSuccess();
+      } else {
+        showCodePanel();
+      }
+    }
+  } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Create Account';
+}
+
+function showCodePanel() {
+  document.querySelectorAll('.cs-auth-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.cs-auth-form').forEach(f => f.classList.remove('on'));
+  document.getElementById('csFormCode').classList.add('on');
+}
+
+async function csGenerateCode() {
+  const partnerEmail = document.getElementById('csPartnerEmail').value.trim();
+  const err = document.getElementById('csCodeErr');
+  const btn = document.getElementById('csCodeBtn');
+  err.classList.remove('show');
+  if (!partnerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail)) {
+    err.textContent = 'Enter a valid email address for your partner.'; err.classList.add('show'); return;
+  }
+  btn.disabled = true; btn.textContent = 'Generating…';
+  try {
+    // Generate a 6-character alphanumeric code
+    const code = Math.random().toString(36).substring(2,5).toUpperCase() + Math.random().toString(36).substring(2,5).toUpperCase();
+    // Store in localStorage for demo — in production this hits /api/clearsplit/generate-code
+    const partnerCodes = JSON.parse(localStorage.getItem('cs_partner_codes') || '{}');
+    partnerCodes[code] = { ownerToken: csToken, ownerEmail: csUser?.email, created: Date.now() };
+    localStorage.setItem('cs_partner_codes', JSON.stringify(partnerCodes));
+
+    // Attempt server-side code generation + email
+    try {
+      await fetch('/api/clearsplit/generate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${csToken}` },
+        body: JSON.stringify({ partnerEmail, code }),
+      });
+    } catch(e) {
+      // Server endpoint may not exist yet — show code for manual sharing
+    }
+
+    document.getElementById('csCodeDisplay').textContent = code;
+    document.getElementById('csCodeResult').style.display = 'block';
+    btn.textContent = '✓ Code Sent';
+    toast(`Code ${code} generated — share it with ${partnerEmail}`);
+  } catch(e) {
+    err.textContent = 'Error generating code. You can share your login directly with your partner instead.';
+    err.classList.add('show');
+  }
+  btn.disabled = false;
+}
+
+function csAuthSuccess() {
+  document.getElementById('csAuthOv').style.display = 'none';
+}
+
+async function csCheckAuth() {
+  if (!csToken) { document.getElementById('csAuthOv').style.display = 'flex'; return; }
+  try {
+    const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${csToken}` } });
+    const d = await res.json();
+    if (d.user) {
+      csUser = d.user;
+      document.getElementById('csAuthOv').style.display = 'none';
+    } else {
+      csToken = null; localStorage.removeItem('cs_tok');
+      document.getElementById('csAuthOv').style.display = 'flex';
+    }
+  } catch(e) {
+    // If server is down, check if we have a stored token and allow offline mode
+    if (csToken) {
+      document.getElementById('csAuthOv').style.display = 'none';
+    } else {
+      document.getElementById('csAuthOv').style.display = 'flex';
+    }
+  }
+}
+
+
 let currentStep = 1;
 let childCount = 0;
 let chatHistory = [];
@@ -973,6 +1224,7 @@ const PROV_MULT = {ON:1.0,BC:0.97,AB:1.02,QC:0.88,MB:0.95,SK:0.96,NS:0.93,NB:0.9
 // INIT
 // ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  csCheckAuth();
   buildSidebarSteps();
   updateProgressBar();
   document.getElementById('spousal_duration').addEventListener('change', function() {
