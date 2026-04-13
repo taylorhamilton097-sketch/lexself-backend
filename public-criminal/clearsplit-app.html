@@ -917,6 +917,10 @@ textarea.fi { resize: vertical; min-height: 80px; }
           <span><strong style="color:var(--teal)">Form 8A</strong> — Application (Divorce)</span>
           <span class="cs-form-tag">Divorce Act →</span>
         </button>
+        <button onclick="loadCsForm('form25a')" class="cs-form-btn">
+          <span><strong style="color:var(--teal)">Form 25A</strong> — Divorce Order</span>
+          <span class="cs-form-tag">Final Order →</span>
+        </button>
       </div>
 
       <div class="section-hdr">Financial Statements</div>
@@ -1104,6 +1108,7 @@ textarea.fi { resize: vertical; min-height: 80px; }
 const CS_FORM_NAMES = {
   form8:   'Form 8 — Application (General)',
   form8a:  'Form 8A — Application (Divorce)',
+  form25a: 'Form 25A — Divorce Order',
   form13:  'Form 13 — Financial Statement (Support Proceedings)',
   form13a: 'Form 13.1 — Financial Statement (Property & Support)',
   form36:  'Form 36 — Affidavit for Divorce',
@@ -1112,6 +1117,7 @@ const CS_FORM_NAMES = {
 const CS_FORM_PROMPTS = {
   form8: `Form 8 is the Application (General) used to start a family law case in Ontario under the Family Law Rules. It covers: the relief claimed (custody, access, support, property), the grounds for the application, and basic party and child information. Using the separation agreement details I've entered in ClearSplit, walk me through what I need to include in Form 8 — what relief to claim, how to describe the children's living arrangements, and what supporting documents to attach.`,
   form8a: `Form 8A is the Application (Divorce) used to apply for a divorce under the Divorce Act. It covers: the grounds for divorce (separation of one year), details of the marriage, children of the marriage, claims for support and property, and whether there are other proceedings. Using my separation details, walk me through completing Form 8A step by step — what to claim, what supporting documents are needed including the marriage certificate, and how to handle the children's claims section.`,
+  form25a: `Form 25A is the Divorce Order — the actual court order that legally ends the marriage under the Divorce Act. It is prepared by the applicant and submitted to the court for a judge to sign. Walk me through completing Form 25A step by step using my separation agreement details. Cover: which sections I fill in versus which the court completes; the divorce terms including custody, access, and child support as set out in my agreement; the effective date (31 days after the order) and when it can be waived; what documents must be filed alongside Form 25A including Form 36 and the marriage certificate; and what happens after the judge signs including how to obtain the Certificate of Divorce.`,
   form13: `Form 13 is the Financial Statement required in all support proceedings in Ontario. It requires full disclosure of income, expenses, assets, and debts. Walk me through completing Form 13 step by step: income from all sources, monthly expenses, property assets and their values, and debts. Explain what documentation I need to attach (tax returns, pay stubs, benefit statements). Using my separation agreement information where available, help me understand what numbers go where.`,
   form13a: `Form 13.1 is the Financial Statement used when property division is at issue in addition to support. It includes everything in Form 13 plus a full listing of property owned at the valuation date, at the date of marriage, and excluded property under the Family Law Act. Using the property values I've entered in ClearSplit, walk me through completing Form 13.1 — particularly the Net Family Property calculation, the matrimonial home section, and the excluded property claims.`,
   form36: `Form 36 is the Affidavit for Divorce — a sworn document that must be filed before a divorce order can be granted. Walk me through each paragraph step by step using my information:

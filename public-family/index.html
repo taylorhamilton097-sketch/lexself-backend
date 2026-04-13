@@ -411,6 +411,7 @@ select.fi { cursor: pointer; }
       <button class="sbt" onclick="loadForm('form8b');sbA(this)"><span class="lbl">Form 8B — Child Protection<span class="tag">CYFSA 2017</span></span></button>
       <button class="sbt" onclick="loadForm('form10');sbA(this)"><span class="lbl">Form 10 — Answer<span class="tag">Response to Application</span></span></button>
       <button class="sbt" onclick="loadForm('form10a');sbA(this)"><span class="lbl">Form 10A — Reply<span class="tag">Reply to Answer</span></span></button>
+      <button class="sbt" onclick="loadForm('form25a');sbA(this)"><span class="lbl">Form 25A — Divorce Order<span class="tag">Final Divorce Order</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Motions</div>
@@ -655,6 +656,7 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadForm('form8');closeDrawer()">Form 8 — Application (General)<span class="dw-tag">Family Law Rules</span></button>
       <button class="drawer-btn" onclick="loadForm('form8a');closeDrawer()">Form 8A — Application (Divorce)<span class="dw-tag">Divorce Act</span></button>
       <button class="drawer-btn" onclick="loadForm('form10');closeDrawer()">Form 10 — Answer<span class="dw-tag">Response to Application</span></button>
+      <button class="drawer-btn" onclick="loadForm('form25a');closeDrawer()">Form 25A — Divorce Order<span class="dw-tag">Final Divorce Order</span></button>
       <div class="dw-hdr">Motions</div>
       <button class="drawer-btn" onclick="loadForm('form14');closeDrawer()">Form 14 — Notice of Motion<span class="dw-tag">Motion with Notice</span></button>
       <button class="drawer-btn" onclick="loadForm('form14b');closeDrawer()">Form 14B — Without Notice<span class="dw-tag">Emergency Motion</span></button>
@@ -773,6 +775,7 @@ const FORM_NAMES = {
   form14c:'Form 14C — Confirmation of Motion',form14a:'Form 14A — Affidavit (Motion)',
   form4d:'Form 4D — General Affidavit',form35:'Form 35.1 — Parenting Affidavit',
   form36:'Form 36 — Affidavit for Divorce',
+  form25a:'Form 25A — Divorce Order',
   form13:'Form 13 — Financial Statement (Support)',form13a:'Form 13.1 — Financial Statement (Property)',
   general:'Ontario Family Law Assistant',
 };
@@ -785,6 +788,7 @@ const TOPIC_PROMPTS = {
   motion:`I need to bring an urgent motion without notice in Ontario Family Court. Please explain when a without-notice order is appropriate, what I need to prove, the test under Rule 14(12), and what disclosure obligations apply after. Help me understand what to include in my affidavit.`,
   caselaw:`Please give me the most important Ontario family law cases I should know. Include cases on: best interests of the child, custody and mobility, child support, spousal support, property division, and procedural fairness for self-represented litigants.`,
   form36:`Form 36 is the Affidavit for Divorce under the Divorce Act. It is sworn by the applicant and must be filed before a divorce order can be granted. It covers: confirmation there is no chance of reconciliation; marriage certificate details; grounds for divorce (typically one year separation); confirmation all information in the application is correct; children of the marriage — custody, access, and support arrangements; confirmation child support meets or deviates from the Federal Child Support Guidelines with reasons; any claim for costs; and the respondent's last known address. Walk me through each paragraph of Form 36 step by step using my profile information where available. Flag any paragraph where I need to make a choice or provide specific details. Note that the form must be sworn before a commissioner for taking affidavits, notary public, justice of the peace, or lawyer before filing.`,
+  form25a:`Form 25A is the Divorce Order — the actual court order that legally ends the marriage under the Divorce Act. It is prepared by the applicant and submitted to the court for a judge to sign. Walk me through completing Form 25A step by step. The form covers: the court file number and judge's name (left blank for the court to complete); the parties' names and addresses; the grounds for the order (one year separation); the divorce terms including custody, access, and child support as agreed or ordered; the effective date of the divorce (31 days after the order unless waived); and any terms about costs. Explain which sections I fill in versus which the court completes, how the divorce takes effect 31 days after the order and when it can be waived, what documents must be filed alongside Form 25A including Form 36, and what happens after the judge signs. Use my profile information where available.`,
 };
 
 </script>
