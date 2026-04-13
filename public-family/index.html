@@ -423,6 +423,7 @@ select.fi { cursor: pointer; }
       <div class="sb-hdr">Affidavits</div>
       <button class="sbt" onclick="loadForm('form4d');sbA(this)"><span class="lbl">Form 4D — General Affidavit<span class="tag">Any Purpose</span></span></button>
       <button class="sbt" onclick="loadForm('form35');sbA(this)"><span class="lbl">Form 35.1 — Parenting Affidavit<span class="tag">Custody & Access</span></span></button>
+      <button class="sbt" onclick="loadForm('form36');sbA(this)"><span class="lbl">Form 36 — Affidavit for Divorce<span class="tag">Divorce Act</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Financial</div>
@@ -660,6 +661,7 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadForm('form14a');closeDrawer()">Form 14A — Affidavit (Motion)<span class="dw-tag">Motion Affidavit</span></button>
       <div class="dw-hdr">Affidavits & Financial</div>
       <button class="drawer-btn" onclick="loadForm('form35');closeDrawer()">Form 35.1 — Parenting Affidavit<span class="dw-tag">Custody & Access</span></button>
+      <button class="drawer-btn" onclick="loadForm('form36');closeDrawer()">Form 36 — Affidavit for Divorce<span class="dw-tag">Divorce Act</span></button>
       <button class="drawer-btn" onclick="loadForm('form13');closeDrawer()">Form 13 — Financial Statement<span class="dw-tag">Support Proceedings</span></button>
       <div class="dw-hdr">Topics</div>
       <button class="drawer-btn" onclick="loadTopic('custody');closeDrawer()">Custody & Parenting</button>
@@ -770,6 +772,7 @@ const FORM_NAMES = {
   form14:'Form 14 — Notice of Motion',form14b:'Form 14B — Motion Without Notice',
   form14c:'Form 14C — Confirmation of Motion',form14a:'Form 14A — Affidavit (Motion)',
   form4d:'Form 4D — General Affidavit',form35:'Form 35.1 — Parenting Affidavit',
+  form36:'Form 36 — Affidavit for Divorce',
   form13:'Form 13 — Financial Statement (Support)',form13a:'Form 13.1 — Financial Statement (Property)',
   general:'Ontario Family Law Assistant',
 };
@@ -781,6 +784,7 @@ const TOPIC_PROMPTS = {
   property:`I need to understand property division in Ontario under the Family Law Act. Please explain Net Family Property, the calculation of equalization payments, excluded property under s.4(2), and the matrimonial home rules. Include key case law.`,
   motion:`I need to bring an urgent motion without notice in Ontario Family Court. Please explain when a without-notice order is appropriate, what I need to prove, the test under Rule 14(12), and what disclosure obligations apply after. Help me understand what to include in my affidavit.`,
   caselaw:`Please give me the most important Ontario family law cases I should know. Include cases on: best interests of the child, custody and mobility, child support, spousal support, property division, and procedural fairness for self-represented litigants.`,
+  form36:`Form 36 is the Affidavit for Divorce under the Divorce Act. It is sworn by the applicant and must be filed before a divorce order can be granted. It covers: confirmation there is no chance of reconciliation; marriage certificate details; grounds for divorce (typically one year separation); confirmation all information in the application is correct; children of the marriage — custody, access, and support arrangements; confirmation child support meets or deviates from the Federal Child Support Guidelines with reasons; any claim for costs; and the respondent's last known address. Walk me through each paragraph of Form 36 step by step using my profile information where available. Flag any paragraph where I need to make a choice or provide specific details. Note that the form must be sworn before a commissioner for taking affidavits, notary public, justice of the peace, or lawyer before filing.`,
 };
 
 </script>
@@ -817,7 +821,11 @@ function loadForm(key) {
   currentForm = key;
   document.getElementById('ctxName').textContent = FORM_NAMES[key] || key;
   clearChat(false);
-  qs(`I need help with ${FORM_NAMES[key]}. Please guide me through what this form requires, what information is needed, common mistakes to avoid, and relevant caselaw for my situation. Use my profile where applicable.`);
+  // Use specific topic prompt if available, otherwise use generic form guidance prompt
+  const prompt = TOPIC_PROMPTS[key]
+    ? TOPIC_PROMPTS[key]
+    : `I need help with ${FORM_NAMES[key]}. Please guide me through what this form requires, what information is needed, common mistakes to avoid, and relevant caselaw for my situation. Use my profile where applicable.`;
+  qs(prompt);
 }
 
 function loadTopic(key) {
