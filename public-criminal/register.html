@@ -445,9 +445,9 @@ async function doRegister() {
   btn.textContent = selectedProduct === 'clearsplit' ? 'Continue to ClearSplit →' : 'Create My Account →';
 }
 
-// If already logged in, redirect
+// If already logged in AND not coming for ClearSplit, redirect straight to app
 const tok = localStorage.getItem('ls_tok');
-if (tok) window.location.href = loginRedirect;
+if (tok && nextParam !== 'clearsplit') window.location.href = loginRedirect;
 </script>
 </body>
 </html>
