@@ -373,6 +373,7 @@ function goToStep2() {
 
 // ── STEP 2 ──
 async function doRegister() {
+  registrationInProgress = true;
   const name  = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const pass  = document.getElementById('regPass').value;
@@ -394,14 +395,16 @@ async function doRegister() {
       body: JSON.stringify({ name, email, password: pass, product: selectedProduct }),
     });
     const d = await r.json();
-    if (d.error) {
-      err.textContent = d.error; err.classList.add('show');
+    if (!r.ok || d.error) {
+      err.textContent = d.error || 'Registration failed. Please try again.'; err.classList.add('show');
+    } else if (!d.token) {
+      err.textContent = 'Account created but authentication failed. Please sign in.'; err.classList.add('show');
     } else {
       localStorage.setItem('ls_tok', d.token);
       if (selectedProduct === 'clearsplit') {
-        // Go straight to ClearSplit checkout
         await startClearSplitCheckout(d.token);
       } else {
+        // Show plan selection — token is already stored, user is authenticated
         buildPlanGrid();
         goToStep(3);
       }
@@ -556,13 +559,17 @@ if (preselect && ['family','criminal','both','clearsplit'].includes(preselect)) 
 // Show sign in if ?signin=1
 if (urlParams.get('signin')) showSignIn();
 
-// If already logged in, go straight to app (non-blocking)
+// If already logged in on initial page load, go straight to app
+// Skip if: product pre-selected via URL (new registration flow)
+//          signin mode, or registration is in progress
+let registrationInProgress = false;
+
 const tok = localStorage.getItem('ls_tok');
-if (tok) {
+if (tok && !preselect && !urlParams.get('signin')) {
   fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + tok } })
     .then(r => r.ok ? r.json() : null)
     .then(d => {
-      if (d?.user) {
+      if (d?.user && !registrationInProgress) {
         const products = d.user.products || 'criminal';
         window.location.href = products === 'family' ? '/family' : '/criminal-app';
       }
