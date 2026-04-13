@@ -2343,9 +2343,11 @@ function obSkip() {
 (async function init(){
   showWelcome();
   if(authToken){
+    // Hide overlay immediately — we have a token, auth check is in progress
+    document.getElementById('authOv').style.display='none';
     try{
       const d=await api('GET','/api/auth/me');
-      if(d.user){currentUser=d.user;usageState=d.usage;document.getElementById('authOv').style.display='none';renderUsage();loadStoredProfile();}
+      if(d.user){currentUser=d.user;usageState=d.usage;renderUsage();loadStoredProfile();}
       else{authToken=null;localStorage.removeItem('ls_tok');document.getElementById('authOv').style.display='flex';}
     }catch(e){document.getElementById('authOv').style.display='flex';}
   } else {
