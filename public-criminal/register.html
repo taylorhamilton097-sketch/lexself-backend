@@ -272,8 +272,8 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:4
 let selectedProduct = null;
 let isAnnual = false;
 
-const PRODUCT_LABELS = { family:'Family Law', criminal:'Criminal Defence', both:'Both Products' };
-const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/family' };
+const PRODUCT_LABELS = { family:'Family Law', criminal:'Criminal Defence', both:'Both Products', clearsplit:'ClearSplit — Separation Agreement' };
+const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/family', clearsplit:'/clearsplit/app' };
 
 const PLANS = {
   family: [
@@ -349,13 +349,36 @@ async function doRegister() {
       err.textContent = d.error; err.classList.add('show');
     } else {
       localStorage.setItem('ls_tok', d.token);
-      buildPlanGrid();
-      goToStep(3);
+      if (selectedProduct === 'clearsplit') {
+        // Go straight to ClearSplit checkout
+        await startClearSplitCheckout(d.token);
+      } else {
+        buildPlanGrid();
+        goToStep(3);
+      }
     }
   } catch(e) {
     err.textContent = 'Connection error. Please try again.'; err.classList.add('show');
   }
-  btn.disabled = false; btn.textContent = 'Create My Account →';
+  btn.disabled = false; btn.textContent = selectedProduct === 'clearsplit' ? 'Create Account & Continue to Payment →' : 'Create My Account →';
+}
+
+async function startClearSplitCheckout(tok) {
+  try {
+    const r = await fetch('/api/billing/clearsplit/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ action: 'new' }),
+    });
+    const d = await r.json();
+    if (d.url) {
+      window.location.href = d.url;
+    } else {
+      showHoldingScreen('clearsplit');
+    }
+  } catch(e) {
+    showHoldingScreen('clearsplit');
+  }
 }
 
 // ── STEP 3 ──
@@ -470,17 +493,21 @@ async function doLogin() {
 
 // ── INIT ──
 
-// Pre-select product from URL param (?product=family|criminal|both)
+// Pre-select product from URL param (?product=family|criminal|both|clearsplit)
 const urlParams = new URLSearchParams(window.location.search);
 const preselect = urlParams.get('product');
-if (preselect && ['family','criminal','both'].includes(preselect)) {
+if (preselect && ['family','criminal','both','clearsplit'].includes(preselect)) {
+  selectedProduct = preselect;
+  // For non-clearsplit, also highlight the card if visible
   const card = document.getElementById('card-' + preselect);
-  if (card) {
-    selectProduct(preselect, card);
-    // Skip Step 1 — go straight to account creation
-    document.getElementById('step2Badge').textContent = 'Setting up: ' + PRODUCT_LABELS[preselect];
-    goToStep(2);
+  if (card) selectProduct(preselect, card);
+  // Skip Step 1 — go straight to account creation
+  document.getElementById('step2Badge').textContent = 'Setting up: ' + PRODUCT_LABELS[preselect];
+  // Update button label for ClearSplit
+  if (preselect === 'clearsplit') {
+    document.getElementById('regBtn').textContent = 'Create Account & Continue to Payment →';
   }
+  goToStep(2);
 }
 
 // Show sign in if ?signin=1

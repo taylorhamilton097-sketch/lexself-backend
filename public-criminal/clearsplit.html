@@ -590,61 +590,9 @@ async function checkNavAccess(e) {
 }
 
 // ── PURCHASE FLOW ──
-async function startPurchase(e) {
+function startPurchase(e) {
   e.preventDefault();
-
-  const partnerEmail = document.getElementById('partnerEmail')?.value?.trim() || '';
-  if (!partnerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail)) {
-    const input = document.getElementById('partnerEmail');
-    if (input) { input.style.borderColor = '#C0392B'; input.focus(); }
-    const err = document.getElementById('joinCodeErr'); // reuse nearby err display
-    // Show inline message
-    alert("Please enter your partner's email address before purchasing.");
-    return;
-  }
-
-  // Check main auth (ls_tok)
-  const tok = localStorage.getItem('ls_tok');
-  if (!tok) {
-    // Not logged in — save intent and go to register/login
-    sessionStorage.setItem('cs_intent', JSON.stringify({ partnerEmail }));
-    window.location.href = '/register?signin=1&next=clearsplit';
-    return;
-  }
-
-  // Logged in — proceed to checkout
-  try {
-    const r = await fetch('/api/billing/clearsplit/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
-      body: JSON.stringify({ action: 'new', partnerEmail }),
-    });
-    const d = await r.json();
-    if (d.url) {
-      window.location.href = d.url;
-    } else {
-      // Stripe not live — show holding screen
-      showCsHoldingScreen(partnerEmail);
-    }
-  } catch(err) {
-    showCsHoldingScreen(partnerEmail);
-  }
-}
-
-function showCsHoldingScreen(partnerEmail) {
-  document.querySelector('.cs-entries').innerHTML = `
-    <div style="max-width:560px;margin:0 auto;padding:60px 24px;text-align:center;">
-      <div style="font-size:2.5rem;margin-bottom:20px">✓</div>
-      <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;color:#0D1B2A;margin-bottom:14px;">You're almost there.</h2>
-      <p style="font-family:'Inter',sans-serif;font-size:.95rem;color:#5A6A7A;line-height:1.75;margin-bottom:20px;">
-        Payment processing will be available shortly. Your account and agreement details have been noted.
-        <br><br>
-        <strong style="color:#0D1B2A">We will email you when payment is ready.</strong>
-        <br><br>
-        An invitation will be sent to <strong>${partnerEmail}</strong> once payment is confirmed.
-      </p>
-      <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:#20B2AA;text-decoration:none;">← Back to ClearStand</a>
-    </div>`;
+  window.location.href = '/register?product=clearsplit';
 }
 
 // ── JOIN WITH CODE ──
