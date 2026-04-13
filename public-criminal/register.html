@@ -167,6 +167,7 @@ main { flex: 1; display: flex; align-items: flex-start; justify-content: center;
     <div class="auth-tabs">
       <button class="auth-tab on" onclick="switchTab('login', this)">Sign In</button>
       <button class="auth-tab" onclick="switchTab('register', this)">Create Account</button>
+      <button class="auth-tab" id="tab-clearsplit" onclick="switchTab('clearsplit', this)" style="color:#20B2AA">ClearSplit</button>
     </div>
 
     <!-- ── SIGN IN ── -->
@@ -177,6 +178,29 @@ main { flex: 1; display: flex; align-items: flex-start; justify-content: center;
       <label class="auth-lbl">Password</label>
       <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <!-- ── CLEARSPLIT ACCESS ── -->
+    <div class="auth-form" id="form-clearsplit">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:6px">Clear<span style="color:#20B2AA">Split</span></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3)">Separation Agreement Access</div>
+      </div>
+      <div class="auth-err" id="csErr"></div>
+      <label class="auth-lbl">Access Code</label>
+      <input class="auth-inp" type="text" id="csCode" maxlength="6" placeholder="· · · · · ·"
+        style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;text-align:center;letter-spacing:.3em;text-transform:uppercase;"
+        autocomplete="off" autocapitalize="characters" spellcheck="false"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);document.getElementById('csAccessBtn').disabled=this.value.length!==6"
+        onkeydown="if(event.key==='Enter')doCSAccess()">
+      <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3);margin:-8px 0 14px;line-height:1.55">
+        Your 6-character code was emailed to you after purchase. Both parties use the same code.
+      </div>
+      <button class="auth-btn" id="csAccessBtn" onclick="doCSAccess()" disabled style="background:#20B2AA;color:#0d2d2a;">Access My Agreement →</button>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);text-align:center">
+        <div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:8px">Don't have a code yet?</div>
+        <a href="/clearsplit" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:#20B2AA;text-decoration:none;">Purchase ClearSplit — $299 →</a>
+      </div>
     </div>
 
     <!-- ── REGISTER — STEP 1: DETAILS ── -->
@@ -254,7 +278,17 @@ const nextParam = params.get('next') || 'criminal';
 // Default redirect for sign-in
 const loginRedirect = nextParam === 'family' ? '/family' : '/criminal-app';
 if (nextParam === 'family') document.getElementById('authSub').textContent = 'Ontario Family Law';
+else if (nextParam === 'clearsplit') document.getElementById('authSub').textContent = 'Separation Agreement';
 else document.getElementById('authSub').textContent = 'Canadian Criminal Defence';
+
+// Auto-select ClearSplit tab if next=clearsplit
+if (nextParam === 'clearsplit') {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('on'));
+  document.getElementById('tab-clearsplit').classList.add('on');
+  document.getElementById('form-clearsplit').classList.add('on');
+  document.getElementById('authFreeNote').style.display = 'none';
+}
 
 let selectedProduct = null;
 
@@ -264,7 +298,7 @@ function switchTab(tab, btn) {
   document.getElementById('prod-step').classList.remove('on');
   btn.classList.add('on');
   document.getElementById('form-' + tab).classList.add('on');
-  document.getElementById('authFreeNote').style.display = '';
+  document.getElementById('authFreeNote').style.display = tab === 'clearsplit' ? 'none' : '';
 }
 
 function goToProductStep() {
@@ -317,6 +351,35 @@ function selectProduct(product) {
     btn.style.background = '';
     btn.style.color = '';
   }
+}
+
+async function doCSAccess() {
+  const code = document.getElementById('csCode').value.trim().toUpperCase();
+  if (code.length !== 6) return;
+  const err = document.getElementById('csErr');
+  const btn = document.getElementById('csAccessBtn');
+  err.classList.remove('show');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  try {
+    const r = await fetch('/api/billing/clearsplit/verify', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const d = await r.json();
+    if (r.ok && d.valid) {
+      sessionStorage.setItem('cs_code', code);
+      window.location.href = `/clearsplit-app?code=${encodeURIComponent(code)}`;
+    } else if (r.status === 410) {
+      err.textContent = d.error === 'expired_grace'
+        ? 'This code has expired and can no longer be extended. Purchase a new agreement at clearstand.ca/clearsplit.'
+        : 'Your 90-day access has ended. Visit clearstand.ca/clearsplit/extend to extend for $74.';
+      err.classList.add('show');
+    } else {
+      err.textContent = 'Code not found. Check your confirmation email for the correct code.';
+      err.classList.add('show');
+    }
+  } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Access My Agreement →';
 }
 
 async function doLogin() {
@@ -385,158 +448,6 @@ async function doRegister() {
 // If already logged in, redirect
 const tok = localStorage.getItem('ls_tok');
 if (tok) window.location.href = loginRedirect;
-</script>
-</body>
-</html>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-<style>
-:root {
-  --navy: #0D1B2A; --navy-mid: #162233; --navy-light: #1E3045;
-  --blue: #2E86C1; --blue-light: #3EA4E4; --blue-dim: #1A4F73;
-  --white: #F4F6F8; --border: #2A3F56; --text: #E8EDF2; --text2: #8BA3BA; --text3: #4A6680;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
-
-nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; }
-.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); text-decoration: none; }
-.nav-logo span { color: var(--blue-light); }
-
-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
-
-.auth-box { background: var(--navy-mid); border: 1px solid var(--border); width: 100%; max-width: 420px; padding: 36px 32px; }
-.auth-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--white); text-align: center; margin-bottom: 4px; }
-.auth-logo span { color: var(--blue-light); }
-.auth-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); text-align: center; margin-bottom: 28px; }
-.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-.auth-tab { flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; min-height: 42px; transition: all 0.15s; }
-.auth-tab.on { color: var(--blue-light); border-bottom-color: var(--blue); }
-.auth-form { display: none; }
-.auth-form.on { display: block; }
-.auth-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
-.auth-inp { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; margin-bottom: 14px; transition: border-color 0.15s; }
-.auth-inp:focus { border-color: var(--blue); }
-.auth-btn { width: 100%; padding: 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; margin-top: 4px; min-height: 50px; transition: background 0.15s; }
-.auth-btn:hover { background: var(--blue-light); }
-.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.auth-err { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E87070; margin-bottom: 12px; display: none; padding: 10px 12px; background: rgba(232,112,112,0.08); border: 1px solid rgba(232,112,112,0.2); }
-.auth-err.show { display: block; }
-.auth-free { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); text-align: center; margin-top: 16px; line-height: 1.8; }
-.back { display: block; text-align: center; margin-top: 20px; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text3); text-decoration: none; }
-.back:hover { color: var(--text2); }
-</style>
-</head>
-<body>
-
-<nav>
-  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
-</nav>
-
-<main>
-  <div class="auth-box">
-    <div class="auth-logo">Clear<span>Stand</span></div>
-    <div class="auth-sub" id="authSub">Your rights. Your case. Your ground.</div>
-
-    <div class="auth-tabs">
-      <button class="auth-tab on" onclick="switchTab('login', this)">Sign In</button>
-      <button class="auth-tab" onclick="switchTab('register', this)">Create Account</button>
-    </div>
-
-    <!-- Sign In -->
-    <div class="auth-form on" id="form-login">
-      <div class="auth-err" id="loginErr"></div>
-      <label class="auth-lbl">Email</label>
-      <input class="auth-inp" type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
-      <label class="auth-lbl">Password</label>
-      <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
-    </div>
-
-    <!-- Register -->
-    <div class="auth-form" id="form-register">
-      <div class="auth-err" id="regErr"></div>
-      <label class="auth-lbl">Full Name</label>
-      <input class="auth-inp" type="text" id="regName" placeholder="Your name" autocomplete="name">
-      <label class="auth-lbl">Email</label>
-      <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
-      <label class="auth-lbl">Password</label>
-      <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
-      <button class="auth-btn" id="regBtn" onclick="doRegister()">Create Free Account</button>
-    </div>
-
-    <div class="auth-free">Free to start · No credit card required · Not legal advice</div>
-    <a href="/" class="back">← Back to ClearStand</a>
-  </div>
-</main>
-
-<script>
-// Figure out where to redirect after login
-// ?next=criminal or ?next=family, defaults to criminal
-const params = new URLSearchParams(window.location.search);
-const next = params.get('next') || 'criminal';
-const redirectUrl = next === 'family' ? '/family' : '/criminal-app';
-
-// Update subtitle based on destination
-if (next === 'family') {
-  document.getElementById('authSub').textContent = 'Ontario Family Law';
-} else {
-  document.getElementById('authSub').textContent = 'Canadian Criminal Defence';
-}
-
-function switchTab(tab, btn) {
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('form-' + tab).classList.add('on');
-}
-
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginErr');
-  const btn = document.getElementById('loginBtn');
-  err.classList.remove('show');
-  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in…';
-  try {
-    const r = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass })
-    });
-    const d = await r.json();
-    if (d.error) { err.textContent = d.error; err.classList.add('show'); btn.disabled = false; btn.textContent = 'Sign In'; }
-    else { localStorage.setItem('ls_tok', d.token); window.location.href = redirectUrl; }
-  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); btn.disabled = false; btn.textContent = 'Sign In'; }
-}
-
-async function doRegister() {
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPass').value;
-  const err = document.getElementById('regErr');
-  const btn = document.getElementById('regBtn');
-  err.classList.remove('show');
-  if (!name || !email || !pass) { err.textContent = 'All fields required.'; err.classList.add('show'); return; }
-  if (pass.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Creating account…';
-  try {
-    const r = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password: pass })
-    });
-    const d = await r.json();
-    if (d.error) { err.textContent = d.error; err.classList.add('show'); btn.disabled = false; btn.textContent = 'Create Free Account'; }
-    else { localStorage.setItem('ls_tok', d.token); window.location.href = redirectUrl; }
-  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); btn.disabled = false; btn.textContent = 'Create Free Account'; }
-}
-
-// If already logged in, redirect straight to app
-const tok = localStorage.getItem('ls_tok');
-if (tok) window.location.href = redirectUrl;
 </script>
 </body>
 </html>
