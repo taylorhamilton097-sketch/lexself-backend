@@ -217,6 +217,11 @@ textarea.fi { resize: vertical; min-height: 80px; }
   .field-row { grid-template-columns: 1fr; }
   .field-row.three { grid-template-columns: 1fr; }
 }
+
+/* Court form buttons */
+.cs-form-btn { width:100%;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s; }
+.cs-form-btn:hover { border-color:var(--teal); }
+.cs-form-tag { font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;margin-left:12px; }
 </style>
 </head>
 <body>
@@ -894,58 +899,51 @@ textarea.fi { resize: vertical; min-height: 80px; }
 
   <!-- COURT FORMS PANEL -->
   <div class="panel" id="panel-forms">
-    <div class="chat-wrap">
-      <div style="background:var(--navy-mid);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;display:flex;align-items:center;gap:10px">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal)">Court Forms — Separation &amp; Divorce</span>
+    <div class="panel-wrap">
+      <div class="panel-title">Court Forms</div>
+      <div class="panel-sub">Separation &amp; Divorce — Ontario</div>
+
+      <div class="info-box">
+        <p>Click any form to get AI-guided help completing it. The AI walks you through each section using your agreement information where available.</p>
       </div>
-      <div style="flex:1;overflow-y:auto;padding:20px 16px">
-        <div style="max-width:680px;margin:0 auto">
 
-          <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);line-height:1.65;margin-bottom:20px;padding:12px 14px;background:rgba(32,178,170,.07);border:1px solid rgba(32,178,170,.2)">
-            Click any form below to get AI-guided help completing it. The AI will walk you through each section using your agreement information where available.
-          </div>
+      <!-- Applications -->
+      <div class="section-hdr">Applications</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
+        <button onclick="loadCsForm('form8')" class="cs-form-btn">
+          <span><strong style="color:var(--white)">Form 8</strong> — Application (General)</span>
+          <span class="cs-form-tag">Family Law Rules →</span>
+        </button>
+        <button onclick="loadCsForm('form8a')" class="cs-form-btn">
+          <span><strong style="color:var(--white)">Form 8A</strong> — Application (Divorce)</span>
+          <span class="cs-form-tag">Divorce Act →</span>
+        </button>
+      </div>
 
-          <!-- Applications -->
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--teal);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--teal-dim)">Applications</div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
-            <button onclick="loadCsForm('form8')" style="width:100%;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span><strong style="color:var(--white)">Form 8</strong> — Application (General)</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Family Law Rules →</span>
-            </button>
-            <button onclick="loadCsForm('form8a')" style="width:100%;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span><strong style="color:var(--white)">Form 8A</strong> — Application (Divorce)</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Divorce Act →</span>
-            </button>
-          </div>
+      <!-- Financial Statements -->
+      <div class="section-hdr">Financial Statements</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
+        <button onclick="loadCsForm('form13')" class="cs-form-btn">
+          <span><strong style="color:var(--white)">Form 13</strong> — Financial Statement (Support Proceedings)</span>
+          <span class="cs-form-tag">Required →</span>
+        </button>
+        <button onclick="loadCsForm('form13a')" class="cs-form-btn">
+          <span><strong style="color:var(--white)">Form 13.1</strong> — Financial Statement (Property &amp; Support)</span>
+          <span class="cs-form-tag">Property Claims →</span>
+        </button>
+      </div>
 
-          <!-- Financial -->
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--teal);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--teal-dim)">Financial Statements</div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
-            <button onclick="loadCsForm('form13')" style="width:100%;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span><strong style="color:var(--white)">Form 13</strong> — Financial Statement (Support Proceedings)</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Required →</span>
-            </button>
-            <button onclick="loadCsForm('form13a')" style="width:100%;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span><strong style="color:var(--white)">Form 13.1</strong> — Financial Statement (Property &amp; Support)</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Property Claims →</span>
-            </button>
-          </div>
+      <!-- Affidavits -->
+      <div class="section-hdr">Affidavits</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
+        <button onclick="loadCsForm('form36')" class="cs-form-btn" style="background:rgba(32,178,170,.1);border-color:rgba(32,178,170,.4)">
+          <span><strong style="color:var(--teal)">Form 36</strong> — Affidavit for Divorce</span>
+          <span class="cs-form-tag" style="color:var(--teal)">Required for Divorce →</span>
+        </button>
+      </div>
 
-          <!-- Affidavits -->
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--teal);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--teal-dim)">Affidavits</div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
-            <button onclick="loadCsForm('form36')" style="width:100%;padding:12px 14px;background:rgba(32,178,170,.08);border:1px solid rgba(32,178,170,.3);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:all .15s" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='rgba(32,178,170,.3)'">
-              <span><strong style="color:var(--teal)">Form 36</strong> — Affidavit for Divorce</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--teal);text-transform:uppercase;letter-spacing:.1em">Required for Divorce →</span>
-            </button>
-          </div>
-
-          <div style="padding:12px 14px;background:var(--navy-light);border:1px solid var(--border)">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:6px">Note</div>
-            <p style="font-family:'Inter',sans-serif;font-size:.8rem;color:var(--text3);line-height:1.6;margin:0">These forms are required to formalize your separation and obtain a divorce order in Ontario. The AI will guide you through each section. Forms must be filed with the court — ClearSplit helps you understand and prepare them, but cannot file on your behalf.</p>
-          </div>
-
-        </div>
+      <div class="info-box">
+        <p>These forms must be filed with the court to formalize your separation and obtain a divorce order. ClearSplit helps you understand and prepare them — they cannot be filed on your behalf. Both parties should obtain independent legal advice before filing.</p>
       </div>
     </div>
   </div>
