@@ -219,9 +219,9 @@ textarea.fi { resize: vertical; min-height: 80px; }
 }
 
 /* Court form buttons */
-.cs-form-btn { width:100%;padding:12px 14px;background:var(--navy-light);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s; }
-.cs-form-btn:hover { border-color:var(--teal); }
-.cs-form-tag { font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;margin-left:12px; }
+.cs-form-btn { width:100%;padding:12px 14px;background:rgba(32,178,170,.08);border:1px solid rgba(32,178,170,.3);color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:all .15s; }
+.cs-form-btn:hover { background:rgba(32,178,170,.15);border-color:var(--teal); }
+.cs-form-tag { font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -907,38 +907,35 @@ textarea.fi { resize: vertical; min-height: 80px; }
         <p>Click any form to get AI-guided help completing it. The AI walks you through each section using your agreement information where available.</p>
       </div>
 
-      <!-- Applications -->
       <div class="section-hdr">Applications</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
         <button onclick="loadCsForm('form8')" class="cs-form-btn">
-          <span><strong style="color:var(--white)">Form 8</strong> — Application (General)</span>
+          <span><strong style="color:var(--teal)">Form 8</strong> — Application (General)</span>
           <span class="cs-form-tag">Family Law Rules →</span>
         </button>
         <button onclick="loadCsForm('form8a')" class="cs-form-btn">
-          <span><strong style="color:var(--white)">Form 8A</strong> — Application (Divorce)</span>
+          <span><strong style="color:var(--teal)">Form 8A</strong> — Application (Divorce)</span>
           <span class="cs-form-tag">Divorce Act →</span>
         </button>
       </div>
 
-      <!-- Financial Statements -->
       <div class="section-hdr">Financial Statements</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
         <button onclick="loadCsForm('form13')" class="cs-form-btn">
-          <span><strong style="color:var(--white)">Form 13</strong> — Financial Statement (Support Proceedings)</span>
+          <span><strong style="color:var(--teal)">Form 13</strong> — Financial Statement (Support Proceedings)</span>
           <span class="cs-form-tag">Required →</span>
         </button>
         <button onclick="loadCsForm('form13a')" class="cs-form-btn">
-          <span><strong style="color:var(--white)">Form 13.1</strong> — Financial Statement (Property &amp; Support)</span>
+          <span><strong style="color:var(--teal)">Form 13.1</strong> — Financial Statement (Property &amp; Support)</span>
           <span class="cs-form-tag">Property Claims →</span>
         </button>
       </div>
 
-      <!-- Affidavits -->
       <div class="section-hdr">Affidavits</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px">
-        <button onclick="loadCsForm('form36')" class="cs-form-btn" style="background:rgba(32,178,170,.1);border-color:rgba(32,178,170,.4)">
+        <button onclick="loadCsForm('form36')" class="cs-form-btn">
           <span><strong style="color:var(--teal)">Form 36</strong> — Affidavit for Divorce</span>
-          <span class="cs-form-tag" style="color:var(--teal)">Required for Divorce →</span>
+          <span class="cs-form-tag">Required for Divorce →</span>
         </button>
       </div>
 
