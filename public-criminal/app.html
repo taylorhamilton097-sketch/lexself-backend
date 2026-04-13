@@ -1077,6 +1077,7 @@ async function api(method, path, body) {
   const h = { 'Content-Type': 'application/json' };
   if (authToken) h['Authorization'] = 'Bearer ' + authToken;
   const r = await fetch(path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 401) { doLogout(); return null; }
   return r.json();
 }
 
@@ -2343,15 +2344,13 @@ function obSkip() {
 (async function init(){
   showWelcome();
   if(authToken){
-    // Hide overlay immediately — we have a token, auth check is in progress
+    // Hide overlay immediately — token exists, auth check in progress
     document.getElementById('authOv').style.display='none';
     try{
       const d=await api('GET','/api/auth/me');
-      if(d.user){currentUser=d.user;usageState=d.usage;renderUsage();loadStoredProfile();}
+      if(d?.user){currentUser=d.user;usageState=d.usage;renderUsage();loadStoredProfile();}
       else{authToken=null;localStorage.removeItem('ls_tok');document.getElementById('authOv').style.display='flex';}
     }catch(e){document.getElementById('authOv').style.display='flex';}
-  } else {
-    document.getElementById('authOv').style.display='flex';
   }
 })();
 </script>
