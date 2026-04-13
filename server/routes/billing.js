@@ -99,18 +99,6 @@ const getStripe = () => {
 const APP_URL = () => process.env.APP_URL || 'http://localhost:3000';
 
 // ══════════════════════════════════════════════════
-// CODE GENERATOR — 6-char alphanumeric, no ambiguous chars
-// ══════════════════════════════════════════════════
-const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-function generateClearSplitCode() {
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
-  }
-  return code;
-}
-
-// ══════════════════════════════════════════════════
 // POST /api/billing/checkout — subscriptions & analysis packs
 // Requires auth
 // ══════════════════════════════════════════════════
@@ -443,77 +431,77 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 // CLEARSPLIT PURCHASE HANDLERS
 // ══════════════════════════════════════════════════
 async function handleClearSplitPurchase(session, productKey, userId) {
-  const { createClearSplitPurchase } = require('../db');
+  const { createClearSplitAgreement, getClearSplitAgreementByPayment, getUserByEmail } = require('../db');
   const { sendClearSplitPurchaseEmail } = require('../utils/email');
 
-  // Generate unique code
-  let code;
-  let attempts = 0;
-  do {
-    code = generateClearSplitCode();
-    attempts++;
-    if (attempts > 20) throw new Error('Code generation failed after 20 attempts');
-  } while (!isCodeUnique(code));
+  // Don't duplicate if webhook fires twice
+  if (getClearSplitAgreementByPayment(session.payment_intent)) {
+    console.log('[ClearSplit] Agreement already exists for payment:', session.payment_intent);
+    return;
+  }
 
-  const purchasedAt = new Date();
-  const expiresAt = new Date(purchasedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const purchaserEmail = session.customer_details?.email || '';
   const amountPaid = productKey === 'clearsplit_subscriber' ? 24900 : 29900;
 
-  const purchase = createClearSplitPurchase({
-    code,
-    purchaserEmail: session.customer_details?.email || session.metadata?.email || '',
+  // Check if purchaser already has an account (subscription or existing ClearSplit)
+  const existingUser = purchaserEmail ? getUserByEmail(purchaserEmail) : null;
+  const party1UserId = existingUser ? existingUser.id : userId;
+
+  if (!party1UserId) {
+    // No user yet — create a placeholder agreement linked to temp user id 0
+    // Will be linked when Party 1 creates their account on the success page
+    console.log('[ClearSplit] Purchase without existing account — pending Party 1 registration');
+  }
+
+  const agreement = createClearSplitAgreement({
+    party1UserId: party1UserId || 0,
     stripePaymentId: session.payment_intent,
     stripeProduct: productKey,
     amountPaid,
-    expiresAt,
-    userId: userId || null,
   });
 
-  // Send confirmation email
+  // Send purchase confirmation email
   try {
     await sendClearSplitPurchaseEmail({
-      email: purchase.purchaser_email,
-      code,
-      expiresAt,
+      email: purchaserEmail,
+      code: agreement.code,
+      activeUntil: agreement.active_until,
+      sessionId: session.id,
     });
   } catch(e) {
-    console.error('[ClearSplit] Email error:', e.message);
+    console.error('[ClearSplit] Purchase email error:', e.message);
   }
 
-  console.log(`[ClearSplit] Purchase created — code: ${code}, expires: ${expiresAt.toISOString()}`);
+  console.log(`[ClearSplit] Agreement created — code: ${agreement.code}`);
 }
 
 async function handleClearSplitExtension(session) {
-  const { extendClearSplitAccess } = require('../db');
+  const { extendClearSplitAgreement, getClearSplitAgreementById, getUserById } = require('../db');
   const { sendClearSplitExtensionEmail } = require('../utils/email');
-  const existingCode = session.metadata?.existingCode;
-  if (!existingCode) return;
+  const agreementId = parseInt(session.metadata?.agreementId);
+  if (!agreementId) return;
 
-  const result = extendClearSplitAccess(existingCode);
+  const result = extendClearSplitAgreement(agreementId);
   if (!result) return;
 
-  try {
-    await sendClearSplitExtensionEmail({
-      email: session.customer_details?.email || '',
-      code: existingCode,
-      previousExpiry: result.previousExpiry,
-      newExpiry: result.newExpiry,
-    });
-  } catch(e) {
-    console.error('[ClearSplit] Extension email error:', e.message);
+  // Send to both parties
+  const agreement = getClearSplitAgreementById(agreementId);
+  if (!agreement) return;
+
+  const party1 = getUserById(agreement.party1_user_id);
+  const party2 = agreement.party2_user_id ? getUserById(agreement.party2_user_id) : null;
+
+  const emailPayload = { previousExpiry: result.previousExpiry, newExpiry: result.newExpiry };
+  if (party1?.email) {
+    sendClearSplitExtensionEmail({ email: party1.email, firstName: party1.name.split(' ')[0], ...emailPayload })
+      .catch(e => console.error('[ClearSplit] Extension email P1:', e.message));
+  }
+  if (party2?.email) {
+    sendClearSplitExtensionEmail({ email: party2.email, firstName: party2.name.split(' ')[0], ...emailPayload })
+      .catch(e => console.error('[ClearSplit] Extension email P2:', e.message));
   }
 
-  console.log(`[ClearSplit] Extended code ${existingCode} → expires ${result.newExpiry.toISOString()}`);
-}
-
-function isCodeUnique(code) {
-  try {
-    const { getClearSplitPurchase } = require('../db');
-    const existing = getClearSplitPurchase(code);
-    return !existing;
-  } catch(e) {
-    return true; // If DB error, assume unique and let DB constraint catch it
-  }
+  console.log(`[ClearSplit] Extended agreement ${agreementId} → expires ${result.newExpiry.toISOString()}`);
 }
 
 module.exports = router;

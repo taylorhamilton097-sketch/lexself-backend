@@ -62,24 +62,33 @@ db.exec(`
 
 // ── CLEARSPLIT SCHEMA ──
 db.exec(`
-  CREATE TABLE IF NOT EXISTS clearsplit_purchases (
-    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
-    code                 TEXT    UNIQUE NOT NULL,
-    purchaser_email      TEXT    NOT NULL,
-    stripe_payment_id    TEXT    NOT NULL,
-    stripe_product       TEXT    NOT NULL,
-    amount_paid          INTEGER NOT NULL,
-    purchased_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
-    expires_at           DATETIME NOT NULL,
-    extended_at          DATETIME,
-    extension_expires_at DATETIME,
-    user_id              INTEGER REFERENCES users(id),
-    access_count         INTEGER DEFAULT 0,
-    last_accessed_at     DATETIME
+  CREATE TABLE IF NOT EXISTS clearsplit_agreements (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    code                TEXT    UNIQUE NOT NULL,
+    party1_user_id      INTEGER NOT NULL REFERENCES users(id),
+    party2_user_id      INTEGER REFERENCES users(id),
+    stripe_payment_id   TEXT    NOT NULL,
+    stripe_product      TEXT    NOT NULL,
+    amount_paid         INTEGER NOT NULL,
+    purchased_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+    active_until        DATETIME NOT NULL,
+    extended_at         DATETIME,
+    extension_until     DATETIME,
+    status              TEXT    NOT NULL DEFAULT 'active',
+    agreement_data      TEXT    NOT NULL DEFAULT '{}',
+    last_modified_at    DATETIME,
+    last_modified_by    INTEGER REFERENCES users(id)
   );
-  CREATE INDEX IF NOT EXISTS idx_cs_code    ON clearsplit_purchases(code);
-  CREATE INDEX IF NOT EXISTS idx_cs_payment ON clearsplit_purchases(stripe_payment_id);
+  CREATE INDEX IF NOT EXISTS idx_csa_code     ON clearsplit_agreements(code);
+  CREATE INDEX IF NOT EXISTS idx_csa_party1   ON clearsplit_agreements(party1_user_id);
+  CREATE INDEX IF NOT EXISTS idx_csa_party2   ON clearsplit_agreements(party2_user_id);
+  CREATE INDEX IF NOT EXISTS idx_csa_payment  ON clearsplit_agreements(stripe_payment_id);
 `);
+
+// Add ClearSplit columns to users if they don't exist
+// (SQLite doesn't support IF NOT EXISTS for columns — use try/catch)
+try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_role TEXT DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_agreement_id INTEGER REFERENCES clearsplit_agreements(id) DEFAULT NULL`); } catch(e) {}
 
 // ── PLAN CONFIG ──
 // products: 'criminal' | 'family' | 'both'
@@ -268,52 +277,134 @@ function getUserUsageSummary(user, product) {
   };
 }
 
-// ── CLEARSPLIT PURCHASES ──
-function ensureClearSplitTable() {
-  // Table is created in schema above — this is a no-op kept for compatibility
+// ── CLEARSPLIT AGREEMENTS ──
+const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+function generateClearSplitCode() {
+  let code, attempts = 0;
+  do {
+    code = Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+    attempts++;
+    if (attempts > 50) throw new Error('Code generation failed');
+  } while (db.prepare('SELECT id FROM clearsplit_agreements WHERE code=?').get(code));
+  return code;
 }
 
-function createClearSplitPurchase({ code, purchaserEmail, stripePaymentId, stripeProduct, amountPaid, expiresAt, userId }) {
+function createClearSplitAgreement({ party1UserId, stripePaymentId, stripeProduct, amountPaid }) {
+  const code = generateClearSplitCode();
+  const now = new Date();
+  const activeUntil = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
   db.prepare(`
-    INSERT INTO clearsplit_purchases
-      (code, purchaser_email, stripe_payment_id, stripe_product, amount_paid, expires_at, user_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(code, purchaserEmail, stripePaymentId, stripeProduct, amountPaid, expiresAt.toISOString(), userId || null);
-  return getClearSplitPurchase(code);
+    INSERT INTO clearsplit_agreements
+      (code, party1_user_id, stripe_payment_id, stripe_product, amount_paid, active_until)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(code, party1UserId, stripePaymentId, stripeProduct, amountPaid, activeUntil.toISOString());
+  const agreement = getClearSplitAgreementByCode(code);
+  // Link party1 user to agreement
+  db.prepare(`UPDATE users SET clearsplit_role='purchaser', clearsplit_agreement_id=? WHERE id=?`)
+    .run(agreement.id, party1UserId);
+  return agreement;
 }
 
-function getClearSplitPurchase(code) {
-  return db.prepare('SELECT * FROM clearsplit_purchases WHERE code = ?').get(code.toUpperCase());
+function getClearSplitAgreementByCode(code) {
+  return db.prepare('SELECT * FROM clearsplit_agreements WHERE code=?').get(code.toUpperCase());
 }
 
-function getClearSplitPurchaseByPayment(stripePaymentId) {
-  return db.prepare('SELECT * FROM clearsplit_purchases WHERE stripe_payment_id = ?').get(stripePaymentId);
+function getClearSplitAgreementById(id) {
+  return db.prepare('SELECT * FROM clearsplit_agreements WHERE id=?').get(id);
 }
 
-function incrementClearSplitAccess(code) {
+function getClearSplitAgreementByPayment(stripePaymentId) {
+  return db.prepare('SELECT * FROM clearsplit_agreements WHERE stripe_payment_id=?').get(stripePaymentId);
+}
+
+function getClearSplitAgreementByUser(userId) {
+  return db.prepare(`
+    SELECT a.* FROM clearsplit_agreements a
+    WHERE a.party1_user_id=? OR a.party2_user_id=?
+    ORDER BY a.purchased_at DESC LIMIT 1
+  `).get(userId, userId);
+}
+
+function joinClearSplitAgreement(code, party2UserId) {
+  const agreement = getClearSplitAgreementByCode(code);
+  if (!agreement) return { error: 'not_found' };
+  if (agreement.party2_user_id) return { error: 'full' };
+  const now = new Date();
+  const activeUntil = new Date(agreement.extension_until || agreement.active_until);
+  if (now > activeUntil) return { error: 'expired' };
+  db.prepare('UPDATE clearsplit_agreements SET party2_user_id=? WHERE code=?')
+    .run(party2UserId, code.toUpperCase());
+  db.prepare(`UPDATE users SET clearsplit_role='participant', clearsplit_agreement_id=? WHERE id=?`)
+    .run(agreement.id, party2UserId);
+  return { success: true, agreement: getClearSplitAgreementByCode(code) };
+}
+
+function saveClearSplitAgreementData(agreementId, data, userId) {
   db.prepare(`
-    UPDATE clearsplit_purchases
-    SET access_count = access_count + 1,
-        last_accessed_at = CURRENT_TIMESTAMP
-    WHERE code = ?
-  `).run(code.toUpperCase());
+    UPDATE clearsplit_agreements
+    SET agreement_data=?, last_modified_at=CURRENT_TIMESTAMP, last_modified_by=?
+    WHERE id=?
+  `).run(JSON.stringify(data), userId, agreementId);
 }
 
-function extendClearSplitAccess(code) {
-  const purchase = getClearSplitPurchase(code);
-  if (!purchase) return null;
-  const currentExpiry = purchase.extension_expires_at
-    ? new Date(purchase.extension_expires_at)
-    : new Date(purchase.expires_at);
-  const newExpiry = new Date(currentExpiry.getTime() + 30 * 24 * 60 * 60 * 1000);
+function extendClearSplitAgreement(agreementId) {
+  const agreement = getClearSplitAgreementById(agreementId);
+  if (!agreement) return null;
+  const base = agreement.extension_until
+    ? new Date(agreement.extension_until)
+    : new Date(agreement.active_until);
+  const newExpiry = new Date(base.getTime() + 30 * 24 * 60 * 60 * 1000);
   const now = new Date();
   db.prepare(`
-    UPDATE clearsplit_purchases
-    SET extended_at = ?, extension_expires_at = ?
-    WHERE code = ?
-  `).run(now.toISOString(), newExpiry.toISOString(), code.toUpperCase());
-  return { previousExpiry: currentExpiry, newExpiry };
+    UPDATE clearsplit_agreements
+    SET extended_at=?, extension_until=?, status='extended'
+    WHERE id=?
+  `).run(now.toISOString(), newExpiry.toISOString(), agreementId);
+  return { previousExpiry: base, newExpiry };
 }
+
+function getClearSplitStatus(agreement) {
+  const now = new Date();
+  const expiry = new Date(agreement.extension_until || agreement.active_until);
+  const isActive = now <= expiry;
+  const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+  return {
+    isActive,
+    isExpired: !isActive,
+    expiry,
+    daysLeft: isActive ? daysLeft : 0,
+    warningZone: isActive && daysLeft <= 14,
+  };
+}
+
+// ClearSplit user creation (separate from subscription users)
+function createClearSplitUser(email, passwordHash, firstName, lastName) {
+  const name = `${firstName} ${lastName}`.trim();
+  const existing = getUserByEmail(email);
+  if (existing) return { existing: true, user: existing };
+  return {
+    existing: false,
+    user: db.prepare(`
+      INSERT INTO users (email, password, name, plan, products)
+      VALUES (?, ?, ?, 'free', 'clearsplit')
+      RETURNING *
+    `).get(email.toLowerCase().trim(), passwordHash, name),
+  };
+}
+
+function updateUserClearSplit(userId, role, agreementId) {
+  db.prepare(`UPDATE users SET clearsplit_role=?, clearsplit_agreement_id=? WHERE id=?`)
+    .run(role, agreementId, userId);
+}
+
+function setClearSplitParty1(agreementId, userId) {
+  db.prepare(`UPDATE clearsplit_agreements SET party1_user_id=? WHERE id=?`)
+    .run(userId, agreementId);
+}
+
+// Ensure old clearsplit_purchases table still accessible if it exists
+function ensureClearSplitTable() { /* no-op — table created in schema above */ }
 
 module.exports = {
   db, PLANS, STRIPE_PRICES,
@@ -322,10 +413,19 @@ module.exports = {
   getCaseProfile, saveCaseProfile,
   checkAccess, checkLimit, recordUsage, markOneTimeUsed,
   getUserUsageSummary,
+  // ClearSplit
+  generateClearSplitCode,
+  createClearSplitAgreement,
+  getClearSplitAgreementByCode,
+  getClearSplitAgreementById,
+  getClearSplitAgreementByPayment,
+  getClearSplitAgreementByUser,
+  joinClearSplitAgreement,
+  saveClearSplitAgreementData,
+  extendClearSplitAgreement,
+  getClearSplitStatus,
+  createClearSplitUser,
+  updateUserClearSplit,
+  setClearSplitParty1,
   ensureClearSplitTable,
-  createClearSplitPurchase,
-  getClearSplitPurchase,
-  getClearSplitPurchaseByPayment,
-  incrementClearSplitAccess,
-  extendClearSplitAccess,
 };

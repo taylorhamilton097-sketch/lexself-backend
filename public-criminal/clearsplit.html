@@ -3,35 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="ClearSplit — Amicable separation agreements for Canadian couples. Child support, property division, and parenting arrangements. $299 flat fee, 90 days of access.">
-<title>ClearSplit — Separation Agreements Made Simple</title>
+<meta name="description" content="ClearSplit — A fair separation agreement built by both of you. No lawyers required. $299 one-time.">
+<title>ClearSplit — Separation Agreements</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <style>
-/* ── ClearSplit teal theme overrides ── */
 :root {
-  --teal:       #20B2AA;
+  --teal: #20B2AA;
   --teal-light: #2DD4CC;
-  --teal-dim:   #0A4A47;
-  --teal-mid:   #0d2d2a;
+  --teal-dark: #0d2d2a;
+  --teal-mid: #0f3632;
 }
 
-/* Hero */
+/* NAV */
+.cs-nav { background: var(--teal-dark); border-bottom: 1px solid rgba(32,178,170,.2); }
+.cs-nav .nav-logo span { color: var(--teal); }
+
+/* HERO */
 .cs-hero {
-  background: var(--teal-mid);
-  padding: 100px 0 80px;
+  background: var(--teal-dark);
+  padding: 96px 0 80px;
   position: relative;
   overflow: hidden;
 }
 .cs-hero::before {
   content: '';
-  position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: 42%;
-  background: rgba(32,178,170,.08);
-  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(32,178,170,.12) 0%, transparent 65%);
 }
 .cs-hero-inner {
   max-width: var(--container);
@@ -39,369 +39,381 @@
   padding: 0 24px;
   display: grid;
   grid-template-columns: 1fr 400px;
-  gap: 80px;
+  gap: 64px;
   align-items: center;
   position: relative;
 }
-.cs-hero-eyebrow {
+.cs-eyebrow {
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: var(--teal);
+  display: block;
+  margin-bottom: 18px;
+}
+.cs-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.cs-sub {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  color: rgba(244,246,248,.65);
+  line-height: 1.75;
+  max-width: 500px;
+}
+
+/* PRICE CARD */
+.cs-price-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(32,178,170,.3);
+  padding: 32px 28px;
+}
+.cs-price-card-label {
+  font-family: var(--font-mono);
+  font-size: .55rem;
   text-transform: uppercase;
   letter-spacing: .14em;
   color: var(--teal);
-  margin-bottom: 20px;
-  display: block;
-}
-.cs-hero h1 {
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
-  color: #fff;
-  line-height: 1.15;
-  margin-bottom: 24px;
-}
-.cs-hero h1 em { font-style: normal; color: var(--teal); }
-.cs-hero-sub {
-  font-family: var(--font-ui);
-  font-size: 1.1rem;
-  color: rgba(244,246,248,.75);
-  line-height: 1.7;
-  margin-bottom: 36px;
-  max-width: 520px;
-}
-.cs-hero-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-
-/* Price card in hero */
-.cs-price-card {
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(32,178,170,.35);
-  padding: 36px 32px;
-  text-align: center;
-  position: relative;
-}
-.cs-price-card::before {
-  content: 'Flat Fee — No Surprises';
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--teal);
-  color: #0d2d2a;
-  font-family: var(--font-mono);
-  font-size: .6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  padding: 3px 16px;
-  white-space: nowrap;
+  margin-bottom: 12px;
 }
 .cs-price-big {
   font-family: var(--font-display);
-  font-size: 3.8rem;
+  font-size: 3.4rem;
   font-weight: 700;
   color: var(--teal);
   line-height: 1;
   margin-bottom: 4px;
 }
-.cs-price-period {
+.cs-price-sub {
+  font-family: var(--font-ui);
+  font-size: .85rem;
+  color: rgba(244,246,248,.5);
+  margin-bottom: 4px;
+}
+.cs-price-note {
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  color: rgba(244,246,248,.35);
+  margin-bottom: 24px;
+  line-height: 1.55;
+}
+.cs-discount-note {
+  background: rgba(32,178,170,.12);
+  border: 1px solid rgba(32,178,170,.3);
+  padding: 8px 12px;
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  color: var(--teal);
+  margin-bottom: 20px;
+  display: none;
+}
+.cs-discount-note.show { display: block; }
+.cs-price-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: var(--teal-dark);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-weight: 700;
+  transition: background .15s;
+  text-align: center;
+  text-decoration: none;
+}
+.cs-price-btn:hover { background: var(--teal-light); }
+
+/* FEATURES */
+.cs-features {
+  background: var(--white-pure, #fff);
+  padding: 72px 0;
+}
+.cs-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.cs-feature {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.cs-feature-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--teal);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.cs-feature-text {
+  font-family: var(--font-ui);
+  font-size: .92rem;
+  color: var(--navy, #0D1B2A);
+  line-height: 1.6;
+}
+
+/* THREE ENTRY POINTS */
+.cs-entries {
+  background: var(--white-off, #f8f9fa);
+  padding: 72px 0;
+}
+.cs-entries-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+  background: rgba(0,0,0,.08);
+}
+.cs-entry {
+  background: #fff;
+  padding: 36px 32px;
+}
+.cs-entry-label {
+  font-family: var(--font-mono);
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--teal);
+  margin-bottom: 10px;
+  display: block;
+}
+.cs-entry-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--navy, #0D1B2A);
+  margin-bottom: 10px;
+}
+.cs-entry-body {
+  font-family: var(--font-ui);
+  font-size: .85rem;
+  color: var(--text-mid, #5A6A7A);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+/* Entry A — Purchase */
+.cs-btn-primary {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--teal);
+  color: var(--teal-dark);
+  border: none;
+  cursor: pointer;
   font-family: var(--font-mono);
   font-size: .62rem;
   text-transform: uppercase;
   letter-spacing: .12em;
-  color: rgba(244,246,248,.5);
-  margin-bottom: 6px;
+  font-weight: 700;
+  transition: background .15s;
+  text-align: center;
+  text-decoration: none;
 }
-.cs-price-detail {
+.cs-btn-primary:hover { background: var(--teal-light); }
+
+/* Entry B — Code entry */
+.cs-code-input {
+  width: 100%;
+  background: #F4F6F8;
+  border: 1.5px solid #d0d8e0;
+  color: #0D1B2A;
+  padding: 11px 14px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  text-align: center;
+  letter-spacing: .2em;
+  outline: none;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.cs-code-input:focus { border-color: var(--teal); }
+.cs-code-input.error { border-color: #C0392B; }
+.cs-code-err {
   font-family: var(--font-ui);
-  font-size: .88rem;
-  color: rgba(244,246,248,.65);
-  margin-bottom: 20px;
+  font-size: .78rem;
+  color: #C0392B;
+  margin-bottom: 8px;
+  display: none;
   line-height: 1.5;
 }
-.cs-price-rule {
-  height: 1px;
-  background: rgba(32,178,170,.2);
-  margin: 20px 0;
-}
-.cs-renewal {
-  background: rgba(32,178,170,.1);
-  border: 1px solid rgba(32,178,170,.3);
-  padding: 12px;
+.cs-code-err.show { display: block; }
+
+/* Entry C — Sign in */
+.cs-btn-outline {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  background: none;
+  border: 1.5px solid rgba(32,178,170,.4);
+  color: var(--teal);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  transition: all .15s;
   text-align: center;
-  margin-top: 16px;
+  text-decoration: none;
 }
-.cs-renewal-amount {
+.cs-btn-outline:hover { background: rgba(32,178,170,.07); border-color: var(--teal); }
+
+/* SIGN IN MODAL */
+.cs-signin-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13,27,42,.9);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.cs-signin-modal.show { display: flex; }
+.cs-signin-box {
+  background: var(--teal-dark);
+  border: 1px solid rgba(32,178,170,.3);
+  border-top: 3px solid var(--teal);
+  width: 100%;
+  max-width: 420px;
+  padding: 36px 32px;
+}
+.cs-signin-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: rgba(244,246,248,.9);
-  margin-bottom: 2px;
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 6px;
 }
-.cs-renewal-label {
+.cs-signin-sub {
+  font-family: var(--font-mono);
+  font-size: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: rgba(32,178,170,.6);
+  margin-bottom: 24px;
+}
+.cs-signin-lbl {
   font-family: var(--font-mono);
   font-size: .52rem;
   text-transform: uppercase;
   letter-spacing: .12em;
-  color: rgba(32,178,170,.8);
+  color: rgba(244,246,248,.4);
+  display: block;
+  margin-bottom: 4px;
 }
-.cs-price-features {
-  list-style: none;
-  margin: 0 0 24px;
-  padding: 0;
-  text-align: left;
-}
-.cs-price-features li {
-  font-family: var(--font-ui);
-  font-size: .88rem;
-  color: rgba(244,246,248,.75);
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.cs-price-features li::before {
-  content: '✓';
-  color: var(--teal);
-  font-weight: 700;
-  font-size: .8rem;
-  flex-shrink: 0;
-}
-
-/* How it works */
-.cs-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  border: 1px solid var(--border-light);
-}
-.cs-step {
-  padding: 40px 28px;
-  border-right: 1px solid var(--border-light);
-  position: relative;
-}
-.cs-step:last-child { border-right: none; }
-.cs-step-num {
-  font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 700;
-  color: rgba(32,178,170,.15);
-  line-height: 1;
-  margin-bottom: 16px;
-}
-.cs-step-title {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  color: var(--navy);
-  margin-bottom: 10px;
-}
-.cs-step-body {
-  font-family: var(--font-ui);
-  font-size: .9rem;
-  color: var(--text-mid);
-  line-height: 1.65;
-}
-
-/* Covers section */
-.covers-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  background: var(--border-light);
-}
-.covers-card {
-  background: var(--white-pure);
-  padding: 32px 28px;
-}
-.covers-icon {
-  width: 44px;
-  height: 44px;
-  color: var(--teal);
-  margin-bottom: 16px;
-}
-.covers-title {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  color: var(--navy);
-  margin-bottom: 10px;
-}
-.covers-body {
-  font-family: var(--font-ui);
-  font-size: .88rem;
-  color: var(--text-mid);
-  line-height: 1.65;
-}
-
-/* Comparison table */
-.vs-table {
+.cs-signin-inp {
   width: 100%;
-  border-collapse: collapse;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.vs-table th, .vs-table td {
-  padding: 14px 20px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-light);
-  font-family: var(--font-ui);
-  font-size: .9rem;
-}
-.vs-table th {
-  font-family: var(--font-mono);
-  font-size: .6rem;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  color: var(--text-light);
-  background: var(--white-off);
-  font-weight: 400;
-}
-.vs-table th:nth-child(2) { background: rgba(32,178,170,.08); color: var(--teal); }
-.vs-table td:nth-child(2) { background: rgba(32,178,170,.04); color: var(--navy); font-weight: 600; }
-.vs-table td:first-child { color: var(--text-mid); }
-.vs-table td:not(:first-child) { text-align: center; }
-.vs-check { color: var(--teal); font-weight: 700; font-size: 1.1rem; }
-.vs-x { color: var(--red, #C0392B); font-size: .85rem; }
-.vs-partial { color: #E67E22; font-size: .85rem; }
-
-/* Testimonial / trust strip */
-.trust-strip-teal {
-  background: var(--teal-mid);
-  padding: 40px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  overflow-x: auto;
-}
-.trust-strip-teal .trust-item-cs {
-  font-family: var(--font-mono);
-  font-size: .65rem;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  color: rgba(32,178,170,.7);
-  padding: 0 32px;
-  border-right: 1px solid rgba(32,178,170,.2);
-  white-space: nowrap;
-}
-.trust-strip-teal .trust-item-cs:last-child { border-right: none; }
-
-/* FAQ */
-.faq-item {
-  border-bottom: 1px solid var(--border-light);
-  padding: 20px 0;
-}
-.faq-q {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--navy);
-  margin-bottom: 10px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-.faq-toggle { color: var(--teal); font-size: 1.2rem; flex-shrink: 0; transition: transform .2s; }
-.faq-a {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  color: #fff;
+  padding: 11px 14px;
   font-family: var(--font-ui);
   font-size: .92rem;
-  color: var(--text-mid);
-  line-height: 1.75;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.cs-signin-inp:focus { border-color: var(--teal); }
+.cs-signin-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: var(--teal-dark);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-weight: 700;
+  transition: background .15s;
+  margin-bottom: 12px;
+}
+.cs-signin-btn:hover { background: var(--teal-light); }
+.cs-signin-btn:disabled { opacity: .5; cursor: not-allowed; }
+.cs-signin-err {
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  color: #E87070;
+  padding: 8px 10px;
+  background: rgba(200,60,60,.1);
+  border: 1px solid rgba(200,60,60,.3);
+  margin-bottom: 12px;
   display: none;
 }
-.faq-item.open .faq-toggle { transform: rotate(45deg); }
-.faq-item.open .faq-a { display: block; }
+.cs-signin-err.show { display: block; }
+.cs-signin-close {
+  display: block;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(244,246,248,.3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  padding: 8px;
+}
+.cs-signin-close:hover { color: rgba(244,246,248,.6); }
 
-/* CTA section */
-.cs-cta {
-  background: var(--teal-mid);
-  padding: 100px 24px;
+/* FOOTER */
+.cs-footer-note {
+  background: var(--teal-dark);
+  padding: 32px 24px;
   text-align: center;
 }
-.cs-cta h2 {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  color: #fff;
-  margin-bottom: 16px;
-}
-.cs-cta p {
+.cs-footer-note p {
   font-family: var(--font-ui);
-  font-size: 1.05rem;
-  color: rgba(244,246,248,.7);
-  max-width: 560px;
-  margin: 0 auto 36px;
+  font-size: .82rem;
+  color: rgba(244,246,248,.35);
   line-height: 1.7;
-}
-
-/* btn overrides for teal context */
-.btn-teal {
-  background: var(--teal);
-  color: #0d2d2a;
-  border: none;
-  font-family: var(--font-ui);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 16px 36px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: background .15s;
-  letter-spacing: .01em;
-}
-.btn-teal:hover { background: var(--teal-light); }
-.btn-ghost-teal {
-  background: none;
-  border: 1px solid rgba(32,178,170,.4);
-  color: var(--teal);
-  font-family: var(--font-ui);
-  font-size: 1rem;
-  padding: 15px 28px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: all .15s;
-}
-.btn-ghost-teal:hover { background: rgba(32,178,170,.1); border-color: var(--teal); }
-
-/* Notice box */
-.notice-box {
-  background: rgba(32,178,170,.07);
-  border-left: 4px solid var(--teal);
-  padding: 14px 18px;
-  margin-top: 16px;
-}
-.notice-box p {
-  font-family: var(--font-ui);
-  font-size: .85rem;
-  color: var(--text-mid);
-  line-height: 1.6;
-  margin: 0;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 @media (max-width: 960px) {
   .cs-hero-inner { grid-template-columns: 1fr; }
-  .cs-steps { grid-template-columns: 1fr 1fr; }
-  .covers-grid { grid-template-columns: 1fr 1fr; }
+  .cs-features-grid { grid-template-columns: 1fr 1fr; }
+  .cs-entries-inner { grid-template-columns: 1fr; }
 }
-@media (max-width: 640px) {
-  .cs-steps { grid-template-columns: 1fr; }
-  .covers-grid { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .cs-features-grid { grid-template-columns: 1fr; }
   .cs-hero { padding: 60px 0; }
 }
 </style>
 </head>
 <body>
 
-<!-- NAVIGATION -->
-<nav class="site-nav" role="navigation" aria-label="Main navigation">
+<!-- NAV -->
+<nav class="site-nav cs-nav" role="navigation">
   <div class="nav-inner">
     <a href="/" class="nav-logo">Clear<span>Stand</span></a>
     <ul class="nav-links" id="navLinks">
       <li><a href="/family-law">Family Law</a></li>
       <li><a href="/criminal-defence">Criminal Defence</a></li>
-      <li><a href="/clearsplit" class="active">ClearSplit</a></li>
+      <li><a href="/clearsplit" class="active" style="color:var(--teal)">ClearSplit</a></li>
       <li><a href="/#pricing">Pricing</a></li>
       <li><a href="/about">About</a></li>
-      <li><a href="/register?next=clearsplit" class="btn nav-cta" style="background:#20B2AA;border-color:#20B2AA;color:#0d2d2a">Start ClearSplit — $299</a></li>
+      <li><a href="/clearsplit/app" style="background:var(--teal);color:var(--teal-dark);padding:8px 18px;font-weight:600" class="btn nav-cta" id="navAppBtn" onclick="checkNavAccess(event)">Access Agreement</a></li>
     </ul>
     <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -413,357 +425,118 @@
 <section class="cs-hero">
   <div class="cs-hero-inner">
     <div>
-      <span class="cs-hero-eyebrow">ClearSplit — Amicable Separation</span>
-      <h1>Separate fairly.<br>Move forward <em>together.</em></h1>
-      <p class="cs-hero-sub">
-        When both parties agree to separate, you shouldn't need a courtroom or a $400/hour lawyer. ClearSplit guides you through a complete, legally sound separation agreement — child support, property, parenting — in plain language.
-      </p>
-      <div class="cs-hero-actions">
-        <a href="/register?next=clearsplit" class="btn-teal">Start Your Agreement — $299</a>
-        <a href="#how-it-works" style="font-family:var(--font-ui);font-size:.95rem;color:rgba(244,246,248,.6);text-decoration:none">See how it works →</a>
-      </div>
-      <div class="notice-box" style="max-width:520px;margin-top:24px">
-        <p><strong style="color:var(--teal)">Both parties use one account.</strong> One party pays $299 for 90 days of access. Share the link — both parties fill in their sections and the agreement is generated together.</p>
-      </div>
+      <span class="cs-eyebrow">Separation Agreement</span>
+      <h1 class="cs-h1">A fair agreement.<br>Built by both of you.<br>No lawyers required.</h1>
+      <p class="cs-sub">ClearSplit generates a complete, legally structured separation agreement for both parties — including support calculations and parenting arrangements. One purchase. 90 days of active editing. Both parties included.</p>
     </div>
 
     <!-- Price card -->
-    <div class="cs-price-card fade-in" style="transition-delay:.3s">
-      <div class="cs-price-big">$299</div>
-      <div class="cs-price-period">CAD — One-time payment</div>
-      <div class="cs-price-detail">90 days of full access for both parties</div>
-      <ul class="cs-price-features">
-        <li>Complete separation agreement</li>
-        <li>Child support — Federal Guidelines</li>
-        <li>Spousal support — SSAG range</li>
-        <li>Property division &amp; equalization</li>
-        <li>Parenting plan &amp; schedule</li>
-        <li>AI advisor — ask anything</li>
-        <li>Unlimited PDF downloads</li>
-        <li>Revise as many times as needed</li>
-      </ul>
-      <a href="/register?next=clearsplit" class="btn-teal" style="display:block;width:100%;text-align:center;box-sizing:border-box">Get Started</a>
-      <div class="cs-renewal">
-        <div class="cs-renewal-amount">$74 / 30 days</div>
-        <div class="cs-renewal-label">Optional renewal after 90 days</div>
-      </div>
-      <div class="cs-price-rule"></div>
-      <p style="font-family:var(--font-mono);font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(244,246,248,.3);text-align:center;margin:0">Not legal advice · Independent legal advice recommended before signing</p>
+    <div class="cs-price-card">
+      <div class="cs-price-card-label" id="priceLabel">Per couple — one time</div>
+      <div class="cs-price-big" id="priceBig">$299</div>
+      <div class="cs-price-sub" id="priceSub">CAD — one-time payment</div>
+      <div class="cs-price-note">Both parties get their own account.<br>Need more time? Extend for $74/30 days.</div>
+      <div class="cs-discount-note" id="discountNote">ClearStand subscriber discount applied — you save $50</div>
+      <a href="#purchase" class="cs-price-btn" onclick="startPurchase(event)">Get Started →</a>
     </div>
   </div>
 </section>
 
-<!-- TRUST STRIP -->
-<div class="trust-strip-teal">
-  <div class="trust-item-cs">Covers All Canadian Provinces</div>
-  <div class="trust-item-cs">Federal Child Support Guidelines</div>
-  <div class="trust-item-cs">Spousal Support Advisory Guidelines</div>
-  <div class="trust-item-cs">Family Law Act (Ontario)</div>
-  <div class="trust-item-cs">Divorce Act (Canada)</div>
-  <div class="trust-item-cs">Plain Language Throughout</div>
+<!-- FEATURES -->
+<section class="cs-features">
+  <div style="text-align:center;max-width:var(--container);margin:0 auto;padding:0 24px 48px">
+    <span class="eyebrow" style="color:var(--teal)">What's Included</span>
+    <h2 style="color:var(--navy,#0D1B2A)">Everything you need to separate fairly.</h2>
+  </div>
+  <div class="cs-features-grid">
+    <div class="cs-feature">
+      <svg class="cs-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="cs-feature-text">Both parties get their own account and work together or separately on their own devices</div>
+    </div>
+    <div class="cs-feature">
+      <svg class="cs-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <div class="cs-feature-text">Integrated child support calculator using the Federal Child Support Guidelines</div>
+    </div>
+    <div class="cs-feature">
+      <svg class="cs-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <div class="cs-feature-text">Unlimited revisions and PDF exports — your court-ready document, your timeline</div>
+    </div>
+    <div class="cs-feature">
+      <svg class="cs-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div class="cs-feature-text">Agreement saved permanently in both accounts — free to access and download forever</div>
+    </div>
+    <div class="cs-feature">
+      <svg class="cs-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <div class="cs-feature-text">Spousal support ranges calculated using the Spousal Support Advisory Guidelines</div>
+    </div>
+    <div class="cs-feature">
+      <svg class="cs-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <div class="cs-feature-text">Complete parenting plan, property division, and debt allocation — all in one agreement</div>
+    </div>
+  </div>
+</section>
+
+<!-- THREE ENTRY POINTS -->
+<section class="cs-entries">
+  <div style="text-align:center;max-width:var(--container);margin:0 auto;padding:0 24px 40px">
+    <span class="eyebrow" style="color:var(--teal)">Get Started</span>
+    <h2 style="color:var(--navy,#0D1B2A)">Choose how you're arriving.</h2>
+  </div>
+  <div class="cs-entries-inner">
+
+    <!-- A: New purchase -->
+    <div class="cs-entry">
+      <span class="cs-entry-label">Starting a New Agreement</span>
+      <div class="cs-entry-title">Purchase ClearSplit and invite the other party.</div>
+      <p class="cs-entry-body">You purchase access, create your account, then share a 6-character code with the other party so they can join.</p>
+      <a href="#" class="cs-btn-primary" onclick="startPurchase(event)">Purchase ClearSplit →</a>
+    </div>
+
+    <!-- B: Join with code -->
+    <div class="cs-entry">
+      <span class="cs-entry-label">Have an Access Code?</span>
+      <div class="cs-entry-title">The other party purchased and shared a code with you.</div>
+      <p class="cs-entry-body">Enter your 6-character code below to create your account and join the agreement.</p>
+      <input class="cs-code-input" id="joinCodeInput" type="text" maxlength="6"
+        placeholder="e.g. K7M2PX" autocomplete="off" autocapitalize="characters" spellcheck="false"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);this.classList.remove('error');document.getElementById('joinCodeErr').classList.remove('show')"
+        onkeydown="if(event.key==='Enter')joinWithCode()">
+      <div class="cs-code-err" id="joinCodeErr"></div>
+      <a href="#" class="cs-btn-primary" onclick="joinWithCode();return false;">Join Agreement →</a>
+    </div>
+
+    <!-- C: Returning user -->
+    <div class="cs-entry">
+      <span class="cs-entry-label">Already Have an Account?</span>
+      <div class="cs-entry-title">Sign in to access your saved agreement.</div>
+      <p class="cs-entry-body">Your agreement is saved permanently in your account — free to access and download forever.</p>
+      <a href="#" class="cs-btn-outline" onclick="openSignIn();return false;">Sign In to ClearSplit →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER NOTE -->
+<div class="cs-footer-note">
+  <p>ClearSplit is a document preparation tool, not legal advice. Both parties are encouraged to obtain independent legal advice before signing their agreement. Legal Aid Ontario: 1-800-668-8258.</p>
 </div>
 
-<!-- IS CLEARSPLIT RIGHT FOR YOU -->
-<section class="section section-white">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:56px">
-      <span class="eyebrow" style="color:var(--teal)">Is ClearSplit Right for You?</span>
-      <h2>Designed for couples who want to separate <em>without a fight.</em></h2>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;margin:0 auto">
-      <div>
-        <div style="font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--teal);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--teal)">ClearSplit Works Best When</div>
-        <ul style="list-style:none;padding:0;margin:0">
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:var(--teal);font-weight:700">✓</span> Both parties agree to separate</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:var(--teal);font-weight:700">✓</span> You want to avoid court entirely</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:var(--teal);font-weight:700">✓</span> You have children and want a parenting plan</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:var(--teal);font-weight:700">✓</span> You own property or have joint debts to divide</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:var(--teal);font-weight:700">✓</span> You want a clear, written agreement both parties sign</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;display:flex;gap:10px"><span style="color:var(--teal);font-weight:700">✓</span> You want to review terms before involving lawyers</li>
-        </ul>
-      </div>
-      <div>
-        <div style="font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:#C0392B;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #C0392B">When You May Need More Support</div>
-        <ul style="list-style:none;padding:0;margin:0">
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:#C0392B">→</span> One party refuses to separate or negotiate</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:#C0392B">→</span> There are allegations of family violence</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:#C0392B">→</span> Complex business assets or pensions requiring valuation</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;border-bottom:1px solid var(--border-light);display:flex;gap:10px"><span style="color:#C0392B">→</span> Significant hidden asset concerns</li>
-          <li style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.6;padding:10px 0;display:flex;gap:10px"><span style="color:#C0392B">→</span> Child protection matters are involved</li>
-        </ul>
-        <div style="margin-top:16px;padding:14px;background:rgba(46,134,193,.06);border:1px solid rgba(46,134,193,.2)">
-          <p style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-mid);margin:0;line-height:1.6">If any of these apply, <a href="/family-law" style="color:var(--blue)">ClearStand Family Law</a> is better suited for your situation.</p>
-        </div>
-      </div>
-    </div>
+<!-- SIGN IN MODAL -->
+<div class="cs-signin-modal" id="csSigninModal">
+  <div class="cs-signin-box">
+    <div class="cs-signin-title">Sign in to ClearSplit</div>
+    <div class="cs-signin-sub">Access your saved agreement</div>
+    <div class="cs-signin-err" id="csSigninErr"></div>
+    <label class="cs-signin-lbl">Email</label>
+    <input class="cs-signin-inp" type="email" id="csSigninEmail" placeholder="you@email.com" autocomplete="email">
+    <label class="cs-signin-lbl">Password</label>
+    <input class="cs-signin-inp" type="password" id="csSigninPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()">
+    <button class="cs-signin-btn" id="csSigninBtn" onclick="doSignIn()">Sign In →</button>
+    <button class="cs-signin-close" onclick="closeSignIn()">✕ Cancel</button>
   </div>
-</section>
+</div>
 
-<!-- HOW IT WORKS -->
-<section class="section section-light" id="how-it-works">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:56px">
-      <span class="eyebrow" style="color:var(--teal)">How It Works</span>
-      <h2>From blank page to signed agreement<br>in four steps.</h2>
-    </div>
-    <div class="cs-steps">
-      <div class="cs-step fade-in">
-        <div class="cs-step-num">01</div>
-        <div class="cs-step-title">Pay Once, Both Access</div>
-        <p class="cs-step-body">One party pays $299 and gets 90 days of full access. Share the agreement link with your partner — no second account needed.</p>
-      </div>
-      <div class="cs-step fade-in" style="transition-delay:.08s">
-        <div class="cs-step-num">02</div>
-        <div class="cs-step-title">Answer Plain-Language Questions</div>
-        <p class="cs-step-body">ClearSplit guides both parties through seven sections — parties, children, parenting, child support, spousal support, property, and other terms. No legalese.</p>
-      </div>
-      <div class="cs-step fade-in" style="transition-delay:.16s">
-        <div class="cs-step-num">03</div>
-        <div class="cs-step-title">AI Drafts Your Agreement</div>
-        <p class="cs-step-body">Based on your inputs, ClearSplit's AI generates a complete, formal separation agreement using actual Canadian law — Federal Guidelines, SSAG, Family Law Act.</p>
-      </div>
-      <div class="cs-step fade-in" style="transition-delay:.24s">
-        <div class="cs-step-num">04</div>
-        <div class="cs-step-title">Download, Review, and Sign</div>
-        <p class="cs-step-body">Download your agreement as a PDF. Review it. Adjust anything. Both parties sign before two witnesses. Optionally have a lawyer review it first — highly recommended.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHAT'S COVERED -->
-<section class="section section-white">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:56px">
-      <span class="eyebrow" style="color:var(--teal)">What's Covered</span>
-      <h2>Every issue a separation raises.<br>Handled in one agreement.</h2>
-    </div>
-    <div class="covers-grid">
-      <div class="covers-card fade-in">
-        <svg class="covers-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="22" cy="14" r="6"/><circle cx="12" cy="30" r="5"/><circle cx="32" cy="30" r="5"/>
-          <path d="M17 30h10M22 20v4"/>
-        </svg>
-        <div class="covers-title">Children &amp; Parenting</div>
-        <p class="covers-body">Decision-making responsibility, parenting schedules, holiday arrangements, summer vacation, and any special provisions for the children's care.</p>
-      </div>
-      <div class="covers-card fade-in" style="transition-delay:.05s">
-        <svg class="covers-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="4" y="20" width="36" height="18" rx="2"/><path d="M14 20v-8a8 8 0 0 1 16 0v8"/>
-          <circle cx="22" cy="29" r="3"/>
-        </svg>
-        <div class="covers-title">Child Support</div>
-        <p class="covers-body">Live calculator using the Federal Child Support Guidelines. Table amount, shared parenting set-off, and Section 7 special expenses — all built in.</p>
-      </div>
-      <div class="covers-card fade-in" style="transition-delay:.1s">
-        <svg class="covers-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M22 6v32M10 18l12-12 12 12M10 26l12 12 12-12"/>
-        </svg>
-        <div class="covers-title">Spousal Support</div>
-        <p class="covers-body">SSAG-based range calculation showing low, mid, and high monthly amounts. Covers agreed amounts, lump sums, waivers, and time-limited support.</p>
-      </div>
-      <div class="covers-card fade-in" style="transition-delay:.15s">
-        <svg class="covers-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="4" y="24" width="16" height="14" rx="1"/><rect x="24" y="14" width="16" height="24" rx="1"/>
-          <path d="M4 18h36M22 6v32"/>
-        </svg>
-        <div class="covers-title">Property Division</div>
-        <p class="covers-body">Net Family Property calculation and equalization payment under the Family Law Act. Covers the matrimonial home, vehicles, RRSPs, pensions, and business interests.</p>
-      </div>
-      <div class="covers-card fade-in" style="transition-delay:.2s">
-        <svg class="covers-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="6" y="10" width="32" height="24" rx="2"/><path d="M6 18h32M14 10v4M30 10v4"/>
-        </svg>
-        <div class="covers-title">Debts &amp; Liabilities</div>
-        <p class="covers-body">Joint debt allocation, credit card balances, lines of credit, and indemnification clauses. Life insurance requirements to secure support obligations.</p>
-      </div>
-      <div class="covers-card fade-in" style="transition-delay:.25s">
-        <svg class="covers-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M10 34V20l12-12 12 12v14"/><rect x="16" y="24" width="12" height="10"/>
-        </svg>
-        <div class="covers-title">Releases &amp; General Terms</div>
-        <p class="covers-body">Full and final mutual releases, estate claim waivers, dispute resolution clauses, governing law, and any additional provisions the parties have agreed to.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- VS COMPARISON -->
-<section class="section section-light">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:48px">
-      <span class="eyebrow" style="color:var(--teal)">ClearSplit vs. the Alternatives</span>
-      <h2>The same agreement — for a fraction of the cost.</h2>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="vs-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th style="font-size:.7rem;letter-spacing:.1em">ClearSplit</th>
-            <th>Lawyer-Drafted</th>
-            <th>Online Template</th>
-            <th>DIY (No Tool)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Cost</td><td><strong>$299</strong></td><td>$3,000–$10,000+</td><td>$50–$300</td><td>$0</td></tr>
-          <tr><td>Canadian law applied automatically</td><td><span class="vs-check">✓</span></td><td><span class="vs-check">✓</span></td><td><span class="vs-partial">Partial</span></td><td><span class="vs-x">✗</span></td></tr>
-          <tr><td>Child support calculated (Guidelines)</td><td><span class="vs-check">✓</span></td><td><span class="vs-check">✓</span></td><td><span class="vs-x">✗</span></td><td><span class="vs-x">✗</span></td></tr>
-          <tr><td>Spousal support range (SSAG)</td><td><span class="vs-check">✓</span></td><td><span class="vs-check">✓</span></td><td><span class="vs-x">✗</span></td><td><span class="vs-x">✗</span></td></tr>
-          <tr><td>Property equalization (FLA)</td><td><span class="vs-check">✓</span></td><td><span class="vs-check">✓</span></td><td><span class="vs-x">✗</span></td><td><span class="vs-x">✗</span></td></tr>
-          <tr><td>AI advisor on demand</td><td><span class="vs-check">✓</span></td><td><span class="vs-partial">At $400+/hr</span></td><td><span class="vs-x">✗</span></td><td><span class="vs-x">✗</span></td></tr>
-          <tr><td>Revise unlimited times</td><td><span class="vs-check">✓</span></td><td><span class="vs-x">Costs more</span></td><td><span class="vs-partial">Limited</span></td><td><span class="vs-check">✓</span></td></tr>
-          <tr><td>Same-day completion possible</td><td><span class="vs-check">✓</span></td><td><span class="vs-x">Weeks/months</span></td><td><span class="vs-check">✓</span></td><td><span class="vs-check">✓</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="font-family:var(--font-ui);font-size:.78rem;color:var(--text-light);text-align:center;margin-top:16px">Independent legal review is recommended before signing any separation agreement. ClearSplit produces a draft — not a substitute for legal advice.</p>
-  </div>
-</section>
-
-<!-- PRICING DETAIL -->
-<section class="section section-white" id="pricing">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:48px">
-      <span class="eyebrow" style="color:var(--teal)">Pricing</span>
-      <h2>One price. Both parties. No surprises.</h2>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;max-width:800px;margin:0 auto;background:var(--border-light)">
-      <!-- Main plan -->
-      <div style="background:var(--white-pure);padding:48px 36px;border-top:4px solid #20B2AA;position:relative">
-        <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#20B2AA;color:#0d2d2a;font-family:var(--font-mono);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:3px 16px;white-space:nowrap">ClearSplit Access</div>
-        <div style="font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:#20B2AA;margin-bottom:16px">90-Day Access</div>
-        <div style="font-family:var(--font-display);font-size:3.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$299</div>
-        <div style="font-family:var(--font-ui);font-size:.9rem;color:var(--text-light);margin-bottom:24px">One-time payment · CAD</div>
-        <ul class="highlights dark" style="margin-bottom:32px">
-          <li>Both parties access one account</li>
-          <li>Complete 7-section guided wizard</li>
-          <li>Child support calculator (Guidelines)</li>
-          <li>Spousal support SSAG range</li>
-          <li>Property division &amp; equalization</li>
-          <li>Parenting plan builder</li>
-          <li>AI separation advisor (unlimited)</li>
-          <li>Unlimited PDF downloads</li>
-          <li>Revise any section any time</li>
-          <li>Access expires after 90 days</li>
-        </ul>
-        <a href="/register?next=clearsplit" class="btn btn-primary" style="width:100%;justify-content:center;background:#20B2AA;border-color:#20B2AA">Get Started</a>
-      </div>
-      <!-- Renewal -->
-      <div style="background:var(--white-off, #f8f9fa);padding:48px 36px;border-top:4px solid #a0c4c2">
-        <div style="font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text-light);margin-bottom:16px">30-Day Renewal</div>
-        <div style="font-family:var(--font-display);font-size:3.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$74</div>
-        <div style="font-family:var(--font-ui);font-size:.9rem;color:var(--text-light);margin-bottom:24px">After your 90 days expire · CAD</div>
-        <p style="font-family:var(--font-ui);font-size:.9rem;color:var(--text-mid);line-height:1.75;margin-bottom:24px">If negotiations take longer than expected — or circumstances change — you can extend access for 30 more days at any time. No automatic renewal. You choose when and if to extend.</p>
-        <ul class="highlights dark" style="margin-bottom:32px">
-          <li>30 days of continued access</li>
-          <li>All the same features</li>
-          <li>No automatic charges</li>
-          <li>Pay only when you need it</li>
-        </ul>
-        <a href="/register?next=clearsplit" class="btn btn-outline-dark" style="width:100%;justify-content:center">Start with 90-Day Access First</a>
-      </div>
-    </div>
-    <div style="max-width:800px;margin:16px auto 0;padding:16px 24px;background:rgba(32,178,170,.06);border:1px solid rgba(32,178,170,.2);text-align:center">
-      <p style="font-family:var(--font-ui);font-size:.88rem;color:var(--navy);margin:0">A family lawyer charges <strong>$400–$600/hour</strong>. A negotiated separation agreement typically takes 10–20+ lawyer hours — <strong>$4,000 to $12,000+</strong>. ClearSplit costs less than one hour.</p>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ -->
-<section class="section section-light">
-  <div class="container" style="max-width:800px">
-    <div style="text-align:center;margin-bottom:48px">
-      <span class="eyebrow" style="color:var(--teal)">Questions</span>
-      <h2>Frequently asked.</h2>
-    </div>
-
-    <div class="faq-item open">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        Is this a real separation agreement? Will it hold up legally?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        ClearSplit produces a complete, properly structured separation agreement based on Canadian law. A separation agreement is a contract — it is legally binding when both parties sign it voluntarily, with full understanding, and with independent legal advice. ClearSplit strongly recommends both parties have a lawyer review the agreement before signing. The agreement references applicable statutes (Family Law Act, Divorce Act, Federal Child Support Guidelines) and is drafted in formal legal language. Courts recognize separation agreements as binding and will generally enforce them.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        Do both parties need separate accounts?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        No. One party pays and creates the account. You share access — either sit together or share your login. The 90-day window gives both parties time to review, discuss, and revise. Your agreement is saved between sessions.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        What happens after 90 days?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        Your account and agreement remain accessible to view and download, but editing is locked until you purchase a 30-day renewal for $74. There are no automatic renewals — you pay only when and if you need more editing time. Most couples complete their agreement well within 90 days.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        Do we need to go to court to make this official?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        Not necessarily. A separation agreement is a private contract and does not require court approval to be valid and binding — as long as it meets the requirements under applicable provincial family law (e.g., in writing, signed, witnessed). If you are applying for a divorce, the agreement can be filed with the court as part of that process. Child support terms that deviate from the Federal Guidelines do require a judge's approval if they are to be incorporated into a court order.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        We don't agree on everything — can we still use ClearSplit?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        ClearSplit works best when the two of you have general agreement on the major issues. It's also a useful tool for negotiation — you can use it to see what the Federal Guidelines say your child support should be, or what the SSAG suggests for spousal support, and use that as a starting point for your conversation. If there are significant unresolved disputes, mediation or legal counsel may be a better starting point.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        Can I use ClearSplit if I'm not in Ontario?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        Yes. ClearSplit covers all Canadian provinces. Child support is federally governed (Federal Child Support Guidelines). Spousal support uses the SSAG, which is used nationally. Property division follows provincial law — ClearSplit's property section applies Ontario's Family Law Act by default but notes where provincial rules differ. If you are in BC, Alberta, or Quebec, review the property clauses carefully with a local lawyer.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">
-        Is my information private?
-        <span class="faq-toggle">+</span>
-      </div>
-      <div class="faq-a">
-        Yes. Your information is used only to generate your agreement and is stored securely. ClearStand does not sell or share your data. See our <a href="/privacy-policy" style="color:var(--teal)">Privacy Policy</a> for full details.
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CLOSING CTA -->
-<section class="cs-cta">
-  <div class="v-rule" style="margin:0 auto 32px;background:rgba(32,178,170,.4)"></div>
-  <h2>Separate on your own terms.</h2>
-  <p>ClearSplit won't replace a lawyer for complex situations. But for couples who are ready to move on — fairly, without conflict, and without spending thousands — it's the most complete tool available in Canada.</p>
-  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
-    <a href="/register?next=clearsplit" class="btn-teal">Start Your Agreement — $299</a>
-    <a href="/family-law" class="btn-ghost-teal">Need court support instead?</a>
-  </div>
-  <p style="font-family:var(--font-mono);font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(244,246,248,.25);margin-top:24px">ClearSplit is not legal advice. Both parties are encouraged to obtain independent legal advice before signing.</p>
-</section>
-
-<!-- FOOTER -->
+<!-- SITE FOOTER -->
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-top">
@@ -780,37 +553,166 @@
         <li><a href="/terms-of-use">Terms of Use</a></li>
       </ul>
     </div>
-    <p class="footer-disclaimer">
-      ClearStand is a legal document and research tool. It does not provide legal advice and is not a substitute for a licensed lawyer. ClearSplit produces draft separation agreements. Both parties should obtain independent legal advice before signing. Legal Aid Ontario: 1-800-668-8258.
-    </p>
+    <p class="footer-disclaimer">ClearStand is a legal document and research tool. It does not provide legal advice and is not a substitute for a licensed lawyer. Legal Aid Ontario: 1-800-668-8258.</p>
   </div>
 </footer>
 
 <script>
-// Mobile nav toggle
-const toggle = document.getElementById('mobileToggle');
-const navLinks = document.getElementById('navLinks');
-toggle.addEventListener('click', () => {
-  const isOpen = navLinks.classList.toggle('open');
-  toggle.setAttribute('aria-expanded', isOpen);
-});
-
-// FAQ accordion
-function toggleFaq(el) {
-  const item = el.parentElement;
-  item.classList.toggle('open');
+// ── CHECK SUBSCRIBER DISCOUNT ──
+async function checkSubscriberStatus() {
+  const tok = localStorage.getItem('ls_tok');
+  if (!tok) return;
+  try {
+    const r = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + tok } });
+    const d = await r.json();
+    if (d.user && d.user.subscriptionStatus === 'active') {
+      document.getElementById('priceBig').textContent = '$249';
+      document.getElementById('priceLabel').textContent = 'Subscriber price';
+      document.getElementById('priceSub').textContent = 'CAD — one-time payment';
+      document.getElementById('discountNote').classList.add('show');
+    }
+  } catch(e) {}
 }
 
-// Fade-in observer
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
-  });
-}, { threshold: 0.12 });
-document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-window.addEventListener('load', () => {
-  document.querySelectorAll('.cs-hero .fade-in').forEach(el => el.classList.add('visible'));
+// ── CHECK IF ALREADY HAS CLEARSPLIT ACCOUNT ──
+async function checkNavAccess(e) {
+  const tok = localStorage.getItem('cs_tok');
+  if (tok) return; // allow navigation
+  e.preventDefault();
+  openSignIn();
+}
+
+// ── PURCHASE FLOW ──
+async function startPurchase(e) {
+  e.preventDefault();
+  const tok = localStorage.getItem('ls_tok');
+  try {
+    const r = await fetch('/api/billing/clearsplit/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(tok ? { 'Authorization': 'Bearer ' + tok } : {}),
+      },
+      body: JSON.stringify({ action: 'new' }),
+    });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else alert('Unable to start checkout. Please try again.');
+  } catch(e) {
+    alert('Connection error. Please try again.');
+  }
+}
+
+// ── JOIN WITH CODE ──
+async function joinWithCode() {
+  const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  const err = document.getElementById('joinCodeErr');
+  const input = document.getElementById('joinCodeInput');
+  err.classList.remove('show');
+  input.classList.remove('error');
+
+  if (code.length !== 6) {
+    err.textContent = 'Please enter your full 6-character code.';
+    err.classList.add('show');
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/clearsplit/validate-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const d = await r.json();
+
+    if (r.ok && d.valid) {
+      // Code valid — route to account creation for Party 2
+      window.location.href = `/clearsplit/join?code=${encodeURIComponent(code)}`;
+    } else if (d.error === 'not_found') {
+      input.classList.add('error');
+      err.textContent = 'Code not found. Check the code shared with you or contact support@clearstand.ca';
+      err.classList.add('show');
+    } else if (d.error === 'expired') {
+      input.classList.add('error');
+      err.textContent = "This agreement's active editing period has ended. Contact the other party about extending access.";
+      err.classList.add('show');
+    } else if (d.error === 'full') {
+      input.classList.add('error');
+      err.textContent = 'This agreement already has two parties linked. If you believe this is an error contact support@clearstand.ca';
+      err.classList.add('show');
+    } else if (d.error === 'already_signed_in') {
+      // Already has an account linked to this agreement — go to app
+      window.location.href = '/clearsplit/app';
+    } else {
+      input.classList.add('error');
+      err.textContent = d.message || 'Invalid code. Please try again.';
+      err.classList.add('show');
+    }
+  } catch(e) {
+    err.textContent = 'Connection error. Please try again.';
+    err.classList.add('show');
+  }
+}
+
+// ── SIGN IN ──
+function openSignIn() {
+  document.getElementById('csSigninModal').classList.add('show');
+  setTimeout(() => document.getElementById('csSigninEmail').focus(), 100);
+}
+function closeSignIn() {
+  document.getElementById('csSigninModal').classList.remove('show');
+}
+
+async function doSignIn() {
+  const email = document.getElementById('csSigninEmail').value.trim();
+  const pass  = document.getElementById('csSigninPass').value;
+  const err   = document.getElementById('csSigninErr');
+  const btn   = document.getElementById('csSigninBtn');
+  err.classList.remove('show');
+  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch('/api/clearsplit/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const d = await r.json();
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else {
+      localStorage.setItem('cs_tok', d.token);
+      window.location.href = '/clearsplit/app';
+    }
+  } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Sign In →';
+}
+
+// Close modal on backdrop click
+document.getElementById('csSigninModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSignIn();
 });
+
+// Mobile nav toggle
+document.getElementById('mobileToggle').addEventListener('click', () => {
+  const nl = document.getElementById('navLinks');
+  const isOpen = nl.classList.toggle('open');
+  document.getElementById('mobileToggle').setAttribute('aria-expanded', isOpen);
+});
+
+// Fade-in observer
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// Check subscriber discount on load
+checkSubscriberStatus();
+
+// Auto-focus code input if ?join=1 in URL
+if (new URLSearchParams(window.location.search).get('join')) {
+  document.getElementById('joinCodeInput').focus();
+  document.querySelector('.cs-entries').scrollIntoView({ behavior: 'smooth' });
+}
 </script>
 </body>
 </html>

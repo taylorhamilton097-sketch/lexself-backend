@@ -26,6 +26,7 @@ app.use(cors({
 // ── ROUTES ──
 app.use('/api/auth',            require('./routes/auth'));
 app.use('/api/billing',         require('./routes/billing'));
+app.use('/api/clearsplit',      require('./routes/clearsplit'));
 app.use('/api/family/chat',     require('./routes/family-chat'));
 app.use('/api/dictation',       require('./routes/dictation'));
 app.use('/api/family/analyze',  require('./routes/family-analyze'));
@@ -67,23 +68,14 @@ app.get('/family-law',       (req, res) => res.sendFile(path.join(__dirname, '..
 app.get('/criminal-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/app.html')));
 
 // ── CLEARSPLIT ROUTES ──
-// Marketing page
-app.get('/clearsplit', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit.html')));
-
-// Code entry screen (no auth)
-app.get('/clearsplit/access', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-access.html')));
-
-// Purchase success screen (no auth)
-app.get('/clearsplit/success', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-success.html')));
-
-// Extension purchase page (no auth)
-app.get('/clearsplit/extend', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-extend.html')));
-
-// Extension success
-app.get('/clearsplit/extended', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-extended.html')));
-
-// The app itself — code-gated, no subscription auth
-app.get('/clearsplit-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-app.html')));
+app.get('/clearsplit',          (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit.html')));
+app.get('/clearsplit/app',      (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-app.html')));
+app.get('/clearsplit/register', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-register.html')));
+app.get('/clearsplit/join',     (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-register.html')));
+app.get('/clearsplit/extend',   (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-extend.html')));
+app.get('/clearsplit/success',  (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-success.html')));
+// Legacy — redirect old /clearsplit-app to new URL
+app.get('/clearsplit-app',      (req, res) => res.redirect(301, '/clearsplit/app'));
 
 // Static files (must come before wildcard)
 app.use(express.static(path.join(__dirname, '../public-criminal')));
