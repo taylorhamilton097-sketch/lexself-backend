@@ -276,27 +276,6 @@ select.fi { cursor: pointer; }
 .sok { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 0.1em; }
 .sok.show { opacity: 1; }
 
-/* ── AUTH OVERLAY ── */
-.auth-ov { position: fixed; inset: 0; background: rgba(13,27,42,0.96); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.auth-box { background: var(--navy-mid); border: 1px solid var(--border); width: 100%; max-width: 400px; padding: 32px 28px; }
-.auth-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--white); text-align: center; margin-bottom: 4px; }
-.auth-logo span { color: var(--blue-light); }
-.auth-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); text-align: center; margin-bottom: 24px; }
-.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-.auth-tab { flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; min-height: 42px; transition: all 0.15s; }
-.auth-tab.on { color: var(--blue-light); border-bottom-color: var(--blue); }
-.auth-form { display: none; }
-.auth-form.on { display: block; }
-.auth-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
-.auth-inp { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; margin-bottom: 12px; transition: border-color 0.15s; }
-.auth-inp:focus { border-color: var(--blue); }
-.auth-btn { width: 100%; padding: 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; margin-top: 4px; min-height: 48px; transition: background 0.15s; }
-.auth-btn:hover { background: var(--blue-light); }
-.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.auth-err { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #E87070; margin-bottom: 10px; display: none; padding: 8px 10px; background: rgba(232,112,112,0.08); border: 1px solid rgba(232,112,112,0.2); }
-.auth-err.show { display: block; }
-.auth-free { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); text-align: center; margin-top: 14px; }
-
 /* ── PAYWALL ── */
 .pw-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 600; display: none; align-items: center; justify-content: center; padding: 20px; }
 .pw-ov.show { display: flex; }
@@ -899,47 +878,6 @@ select.fi { cursor: pointer; }
   <div class="mob-sidebar" id="mobSb" onclick="event.stopPropagation()"></div>
 </div>
 
-<!-- AUTH OVERLAY -->
-<div class="auth-ov" id="authOv">
-  <div class="auth-box">
-    <a href="/" style="text-decoration:none"><div class="auth-logo">Clear<span>Stand</span></div></a>
-    <div class="auth-sub">Canadian Criminal Defence · Sign in to continue</div>
-    <div class="auth-tabs">
-      <button class="auth-tab on" onclick="switchAuth('login',this)">Sign In</button>
-      <button class="auth-tab" onclick="switchAuth('register',this)">Create Account</button>
-    </div>
-    <div class="auth-form on" id="form-login">
-      <div class="auth-err" id="loginErr"></div>
-      <label class="auth-lbl">Email</label>
-      <input class="auth-inp" type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
-      <label class="auth-lbl">Password</label>
-      <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
-    </div>
-    <div class="auth-form" id="form-register">
-      <div class="auth-err" id="regErr"></div>
-      <label class="auth-lbl">Full Name</label>
-      <input class="auth-inp" type="text" id="regName" placeholder="Your name" autocomplete="name">
-      <label class="auth-lbl">Email</label>
-      <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
-      <label class="auth-lbl">Password</label>
-      <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
-      <div style="display:flex;align-items:flex-start;gap:10px;margin:14px 0 12px">
-        <input type="checkbox" id="regTerms" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:#2E86C1">
-        <label for="regTerms" style="font-family:'Inter',sans-serif;font-size:.82rem;color:rgba(244,246,248,.6);line-height:1.5;cursor:pointer">
-          I have read and agree to the <a href="/terms-of-use" target="_blank" style="color:#2E86C1;text-decoration:underline">Terms of Use</a> and <a href="/privacy-policy" target="_blank" style="color:#2E86C1;text-decoration:underline">Privacy Policy</a>
-        </label>
-      </div>
-      <button class="auth-btn" id="regBtn" onclick="doRegister()">Create Free Account</button>
-    </div>
-    <div class="auth-free">Free: 10 chat · 1 analysis · No credit card required · Not legal advice</div>
-    <div style="margin-top:14px;text-align:center;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
-      <a href="/family" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none;display:block;margin-bottom:8px">Switch to Family Law →</a>
-      <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none">← Back to Home</a>
-    </div>
-  </div>
-</div>
-
 <!-- PAYWALL -->
 <div class="pw-ov" id="pwOv">
   <div class="pw-box">
@@ -1127,11 +1065,11 @@ function loadTopic(key) {
 
 function showAuthOrLogout() {
   if (currentUser) openAccountPanel();
-  else document.getElementById('authOv').style.display = 'flex';
+  else window.location.href = '/register?product=criminal';
 }
 
 function openAccountPanel() {
-  if (!currentUser) { document.getElementById('authOv').style.display = 'flex'; return; }
+  if (!currentUser) { window.location.href = '/register?product=criminal'; return; }
   // Populate
   document.getElementById('acctName').textContent = currentUser.name || 'My Account';
   document.getElementById('acctEmail').textContent = currentUser.email || '';
@@ -1171,43 +1109,14 @@ async function openBillingPortal() {
     else toast('Billing portal not available yet');
   } catch(e) { toast('Error opening billing portal'); }
 }
-function switchAuth(tab, btn) {
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('form-' + tab).classList.add('on');
+function doLogout() {
+  authToken = null; currentUser = null; usageState = null;
+  localStorage.removeItem('ls_tok');
+  window.location.href = '/register?product=criminal';
 }
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginErr');
-  const btn = document.getElementById('loginBtn');
-  err.classList.remove('show');
-  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in…';
-  try {
-    const d = await api('POST', '/api/auth/login', { email, password: pass });
-    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
-    else { authToken = d.token; localStorage.setItem('ls_tok', d.token); currentUser = d.user; onAuthSuccess(); }
-  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
-  btn.disabled = false; btn.textContent = 'Sign In';
-}
-async function doRegister() {
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPass').value;
-  const err = document.getElementById('regErr');
-  const btn = document.getElementById('regBtn');
-  err.classList.remove('show');
-  if (!name || !email || !pass) { err.textContent = 'All fields required.'; err.classList.add('show'); return; }
-  if (!document.getElementById('regTerms')?.checked) { err.textContent = 'You must agree to the Terms of Use to create an account.'; err.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Creating account…';
-  try {
-    const d = await api('POST', '/api/auth/register', { name, email, password: pass });
-    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
-    else { authToken = d.token; localStorage.setItem('ls_tok', d.token); currentUser = d.user; onAuthSuccess(); }
-  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
-  btn.disabled = false; btn.textContent = 'Create Free Account';
+async function onAuthSuccess() {
+  await refreshUsage(); loadStoredProfile();
+  setTimeout(showOnboarding, 500);
 }
 let cxFullscreen = false;
 function toggleCxFullscreen() {
@@ -1230,12 +1139,11 @@ function toggleCxFullscreen() {
 function doLogout() {
   authToken = null; currentUser = null; usageState = null;
   localStorage.removeItem('ls_tok');
-  document.getElementById('authOv').style.display = 'flex';
   document.getElementById('usageStrip').classList.remove('show');
   document.getElementById('planBadge').style.display = 'none';
+  window.location.href = '/register?product=criminal';
 }
 async function onAuthSuccess() {
-  document.getElementById('authOv').style.display = 'none';
   await refreshUsage(); loadStoredProfile();
   setTimeout(showOnboarding, 500);
 }
@@ -2343,14 +2251,21 @@ function obSkip() {
 
 (async function init(){
   showWelcome();
-  if(authToken){
-    // Hide overlay immediately — token exists, auth check in progress
-    document.getElementById('authOv').style.display='none';
-    try{
-      const d=await api('GET','/api/auth/me');
-      if(d?.user){currentUser=d.user;usageState=d.usage;renderUsage();loadStoredProfile();}
-      else{authToken=null;localStorage.removeItem('ls_tok');document.getElementById('authOv').style.display='flex';}
-    }catch(e){document.getElementById('authOv').style.display='flex';}
+  if (!authToken) {
+    window.location.href = '/register?product=criminal';
+    return;
+  }
+  try {
+    const d = await api('GET', '/api/auth/me');
+    if (d?.user) {
+      currentUser = d.user; usageState = d.usage;
+      renderUsage(); loadStoredProfile();
+    } else {
+      localStorage.removeItem('ls_tok');
+      window.location.href = '/register?product=criminal';
+    }
+  } catch(e) {
+    window.location.href = '/register?product=criminal';
   }
 })();
 </script>
