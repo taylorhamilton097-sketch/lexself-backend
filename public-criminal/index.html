@@ -364,13 +364,14 @@
 <!-- PRICING -->
 <section class="section section-light" id="pricing">
   <div class="container">
-    <div style="text-align:center;margin-bottom:40px">
+    <div style="text-align:center;margin-bottom:16px">
       <span class="eyebrow">Pricing</span>
       <h2>Start free. Upgrade when you're ready.</h2>
+      <p style="font-family:var(--font-ui);font-size:.95rem;color:var(--text-mid);margin-top:8px">Choose the product that fits your situation. Bundle both and save up to $69 a month.</p>
     </div>
 
     <!-- Annual toggle -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:40px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px">
       <span style="font-family:var(--font-ui);font-size:.85rem;color:var(--navy);font-weight:600" id="lbl-monthly">Monthly</span>
       <label style="position:relative;width:48px;height:26px;cursor:pointer;display:inline-block">
         <input type="checkbox" id="annualToggle" onchange="toggleAnnual()" style="opacity:0;width:0;height:0">
@@ -378,112 +379,204 @@
         <span id="toggle-knob" style="position:absolute;height:18px;width:18px;left:4px;top:4px;background:white;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
       </label>
       <span style="font-family:var(--font-ui);font-size:.85rem;color:var(--text-light)" id="lbl-annual">Annual</span>
-      <span id="save-badge" style="display:none;font-family:var(--font-ui);font-size:.75rem;font-weight:600;background:#e8f4e8;color:#2d7a2d;padding:3px 10px;border-radius:20px">Save up to $510/year</span>
+      <span id="save-badge" style="display:none;font-family:var(--font-ui);font-size:.75rem;font-weight:600;background:#e8f4e8;color:#2d7a2d;padding:3px 10px;border-radius:20px">Save up to $799/year</span>
     </div>
 
-    <div style="text-align:center;max-width:740px;margin:0 auto 28px;padding:16px 24px;background:rgba(46,134,193,.07);border:1px solid rgba(46,134,193,.2)">
-      <p style="font-family:var(--font-ui);font-size:.95rem;color:var(--navy);margin:0">The average Ontario family lawyer charges <strong>$400/hour</strong>. ClearStand Counsel costs less than half a billable hour — for an entire month of unlimited preparation.</p>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border);max-width:1140px;margin:0 auto">
-      <!-- Free -->
-      <div style="background:var(--white-pure);padding:36px 24px">
-        <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text-light);margin-bottom:12px">Free</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$0</div>
-        <div style="font-family:var(--font-ui);font-size:.85rem;color:var(--text-light);margin-bottom:4px">Forever free</div>
-        <div style="font-family:var(--font-ui);font-size:.75rem;color:transparent;margin-bottom:20px">—</div>
-        <ul class="highlights dark" style="margin-bottom:28px">
-          <li>1 disclosure analysis</li>
-          <li>10 chat messages</li>
-          <li>All charge modules</li>
-          <li>PDF export</li>
-        </ul>
-        <a href="/get-started" class="btn btn-outline-dark" style="width:100%;justify-content:center">Get Started Free</a>
+    <!-- ── TRACK 1: FAMILY LAW ── -->
+    <div style="max-width:1140px;margin:0 auto 48px">
+      <div style="margin-bottom:20px">
+        <span style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:var(--blue)">Family Law</span>
+        <p style="font-family:var(--font-ui);font-size:.88rem;color:var(--text-mid);margin-top:4px">For custody, support, and family court proceedings</p>
       </div>
-      <!-- Essential -->
-      <div style="background:var(--white-pure);padding:36px 24px;border-left:2px solid var(--blue)">
-        <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:12px">Essential</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$<span class="price-val" data-monthly="29" data-annual="249">29</span></div>
-        <div style="font-family:var(--font-ui);font-size:.85rem;color:var(--text-light);margin-bottom:4px" id="period-essential">Per month, CAD</div>
-        <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:18px" id="annual-essential"></div>
-        <ul class="highlights dark" style="margin-bottom:28px">
-          <li>3 analyses per month</li>
-          <li>50 chats per day</li>
-          <li>All charge modules</li>
-          <li>Full 5-pass reports</li>
-          <li>PDF export</li>
-        </ul>
-        <a href="/get-started" class="btn btn-primary" style="width:100%;justify-content:center">Start Essential</a>
-      </div>
-      <!-- Complete -->
-      <div style="background:var(--white-pure);padding:36px 24px;border-left:2px solid var(--blue);position:relative">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-family:var(--font-ui);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:3px 14px;white-space:nowrap">Most Popular</div>
-        <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:12px">Complete</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--navy);margin-bottom:4px">$<span class="price-val" data-monthly="79" data-annual="699">79</span></div>
-        <div style="font-family:var(--font-ui);font-size:.85rem;color:var(--text-light);margin-bottom:4px" id="period-complete">Per month, CAD</div>
-        <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:18px" id="annual-complete"></div>
-        <ul class="highlights dark" style="margin-bottom:28px">
-          <li>5 analyses per month</li>
-          <li>100 chats per day</li>
-          <li>All charge modules</li>
-          <li>Full 5-pass reports</li>
-          <li>PDF export</li>
-          <li>Criminal &amp; Family</li>
-        </ul>
-        <a href="/get-started" class="btn btn-primary" style="width:100%;justify-content:center">Start Complete</a>
-      </div>
-      <!-- Counsel -->
-      <div style="background:var(--navy);padding:36px 24px">
-        <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:12px">Counsel</div>
-        <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--white);margin-bottom:4px">$<span class="price-val" data-monthly="159" data-annual="1,399">159</span></div>
-        <div style="font-family:var(--font-ui);font-size:.85rem;color:rgba(244,246,248,0.5);margin-bottom:4px" id="period-counsel">Per month, CAD</div>
-        <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--blue-light);font-weight:600;margin-bottom:20px;min-height:18px" id="annual-counsel"></div>
-        <ul class="highlights" style="margin-bottom:28px">
-          <li>Unlimited analyses</li>
-          <li>Unlimited chat</li>
-          <li>Criminal &amp; Family</li>
-          <li>Dictation + language cleanup</li>
-          <li>Affidavit interview builder</li>
-          <li>Cross-examination prep</li>
-          <li>Defence organization tool</li>
-        </ul>
-        <a href="/get-started" class="btn btn-primary" style="width:100%;justify-content:center;background:var(--blue-light)">Start Counsel</a>
-        <div style="font-family:var(--font-ui);font-size:.75rem;color:rgba(244,246,248,0.35);text-align:center;margin-top:10px">The closest thing to having counsel in your corner.</div>
-      </div>
-    </div>
-
-    <!-- ClearSplit -->
-    <div style="max-width:1140px;margin:24px auto 0;background:var(--white-pure);border:1px solid var(--border);border-top:3px solid #20B2AA;padding:0;position:relative">
-      <div style="position:absolute;top:-13px;left:32px;background:#20B2AA;color:#0d2d2a;font-family:var(--font-ui);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 14px;white-space:nowrap">ClearSplit — Separation Agreements</div>
-      <div style="display:grid;grid-template-columns:1fr 200px 200px;gap:0;align-items:center">
-        <div style="padding:28px 32px">
-          <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:#20B2AA;margin-bottom:6px">For couples separating amicably</div>
-          <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:6px">Complete separation agreement — both parties, one price.</div>
-          <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--text-mid);line-height:1.6">Child support (Federal Guidelines) · Spousal support (SSAG) · Property division &amp; equalization · Parenting plan · AI advisor · Unlimited PDF downloads</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border)">
+        <!-- Free -->
+        <div style="background:var(--white-pure);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text-light);margin-bottom:10px">Free</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$0</div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:20px">Forever free</div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>1 document analysis</li><li>10 chat messages</li><li>Family law forms guide</li><li>PDF export</li></ul>
+          <a href="/register?product=family" class="btn btn-outline-dark" style="width:100%;justify-content:center;font-size:.72rem">Get Started Free</a>
         </div>
-        <div style="padding:28px 24px;border-left:1px solid var(--border);text-align:center;background:rgba(32,178,170,.03)">
-          <div style="font-family:var(--font-mono);font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#20B2AA;margin-bottom:6px">90-Day Access</div>
-          <div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$299</div>
-          <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--text-light);margin-bottom:16px">One-time · CAD</div>
-          <a href="/clearsplit" class="btn btn-primary" style="width:100%;justify-content:center;background:#20B2AA;border-color:#20B2AA;font-size:.72rem">Start ClearSplit</a>
+        <!-- Essential -->
+        <div style="background:var(--white-pure);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:10px">Essential</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="29" data-annual="21">29</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:16px" data-annual-label="$249/yr — save $99"></div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>3 analyses/month</li><li>50 chats/day</li><li>All family law forms</li><li>Full document analysis</li><li>PDF export</li></ul>
+          <a href="/register?product=family&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;font-size:.72rem">Start Essential</a>
         </div>
-        <div style="padding:28px 24px;border-left:1px solid var(--border);text-align:center">
-          <div style="font-family:var(--font-mono);font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-light);margin-bottom:6px">30-Day Renewal</div>
-          <div style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$74</div>
-          <div style="font-family:var(--font-ui);font-size:.78rem;color:var(--text-light);margin-bottom:4px">After 90 days · CAD</div>
-          <div style="font-family:var(--font-ui);font-size:.75rem;color:var(--text-light);margin-bottom:16px">No auto-renewal</div>
-          <a href="/clearsplit" class="btn btn-outline-dark" style="width:100%;justify-content:center;font-size:.72rem">Learn More</a>
+        <!-- Complete -->
+        <div style="background:var(--white-pure);padding:32px 22px;border:2px solid var(--blue);position:relative">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-family:var(--font-ui);font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:2px 12px;white-space:nowrap">Most Popular</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:10px">Complete</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="79" data-annual="58">79</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:16px" data-annual-label="$699/yr — save $249"></div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>5 analyses/month</li><li>100 chats/day</li><li>All family law forms</li><li>Affidavit interview builder</li><li>PDF export</li></ul>
+          <a href="/register?product=family&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;font-size:.72rem">Start Complete</a>
+        </div>
+        <!-- Counsel -->
+        <div style="background:var(--navy);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:10px">Counsel</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--white);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="159" data-annual="116">159</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:rgba(244,246,248,.5);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue-light);font-weight:600;margin-bottom:20px;min-height:16px" data-annual-label="$1,399/yr — save $509"></div>
+          <ul class="highlights" style="margin-bottom:24px"><li>Unlimited analyses</li><li>Unlimited chat</li><li>Dictation + language cleanup</li><li>Affidavit interview builder</li><li>PDF export</li></ul>
+          <a href="/register?product=family&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;background:var(--blue-light);font-size:.72rem">Start Counsel</a>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:rgba(244,246,248,.35);text-align:center;margin-top:10px">The closest thing to having counsel in your corner.</div>
         </div>
       </div>
     </div>
 
-    <!-- One-time pack -->
-    <div style="max-width:1140px;margin:16px auto 0;background:var(--white-pure);border:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+    <!-- DIVIDER -->
+    <div style="max-width:1140px;margin:0 auto 48px;display:flex;align-items:center;gap:16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="width:32px;height:2px;background:var(--blue)"></div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- ── TRACK 2: CRIMINAL DEFENCE ── -->
+    <div style="max-width:1140px;margin:0 auto 48px">
+      <div style="margin-bottom:20px">
+        <span style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:var(--blue)">Criminal Defence</span>
+        <p style="font-family:var(--font-ui);font-size:.88rem;color:var(--text-mid);margin-top:4px">For Crown disclosure, Charter rights, and criminal court preparation</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border)">
+        <div style="background:var(--white-pure);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text-light);margin-bottom:10px">Free</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$0</div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:20px">Forever free</div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>1 Crown disclosure analysis</li><li>10 chat messages</li><li>All charge modules</li><li>PDF export</li></ul>
+          <a href="/register?product=criminal" class="btn btn-outline-dark" style="width:100%;justify-content:center;font-size:.72rem">Get Started Free</a>
+        </div>
+        <div style="background:var(--white-pure);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:10px">Essential</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="29" data-annual="21">29</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:16px" data-annual-label="$249/yr — save $99"></div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>3 analyses/month</li><li>50 chats/day</li><li>All charge modules</li><li>Full 5-pass reports</li><li>PDF export</li></ul>
+          <a href="/register?product=criminal&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;font-size:.72rem">Start Essential</a>
+        </div>
+        <div style="background:var(--white-pure);padding:32px 22px;border:2px solid var(--blue);position:relative">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-family:var(--font-ui);font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:2px 12px;white-space:nowrap">Most Popular</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:10px">Complete</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="79" data-annual="58">79</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue);font-weight:600;margin-bottom:20px;min-height:16px" data-annual-label="$699/yr — save $249"></div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>5 analyses/month</li><li>100 chats/day</li><li>Full 5-pass reports</li><li>Cross-examination builder</li><li>Defence organization tool</li><li>PDF export</li></ul>
+          <a href="/register?product=criminal&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;font-size:.72rem">Start Complete</a>
+        </div>
+        <div style="background:var(--navy);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:10px">Counsel</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--white);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="159" data-annual="116">159</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:rgba(244,246,248,.5);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue-light);font-weight:600;margin-bottom:20px;min-height:16px" data-annual-label="$1,399/yr — save $509"></div>
+          <ul class="highlights" style="margin-bottom:24px"><li>Unlimited analyses</li><li>Unlimited chat</li><li>Dictation + language cleanup</li><li>Cross-examination builder</li><li>Defence organization tool</li><li>People in My Case</li><li>PDF export</li></ul>
+          <a href="/register?product=criminal&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;background:var(--blue-light);font-size:.72rem">Start Counsel</a>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:rgba(244,246,248,.35);text-align:center;margin-top:10px">The closest thing to having counsel in your corner.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div style="max-width:1140px;margin:0 auto 48px;display:flex;align-items:center;gap:16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="width:32px;height:2px;background:var(--blue)"></div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- ── TRACK 3: BUNDLE ── -->
+    <div style="max-width:1140px;margin:0 auto 48px">
+      <div style="margin-bottom:20px;display:flex;align-items:center;gap:12px">
+        <span style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:var(--blue)">Both Products — Bundle</span>
+        <span style="font-family:var(--font-ui);font-size:.65rem;font-weight:600;background:rgba(46,134,193,.1);color:var(--blue);padding:2px 10px;border-radius:20px;border:1px solid rgba(46,134,193,.3)">Save up to $69/month</span>
+      </div>
+      <p style="font-family:var(--font-ui);font-size:.88rem;color:var(--text-mid);margin-bottom:20px">For Canadians navigating both a family matter and criminal charges</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border:1px solid var(--border)">
+        <div style="background:var(--white-pure);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px">Essential Bundle</div>
+          <div style="font-family:var(--font-ui);font-size:.8rem;color:var(--text-mid);margin-bottom:12px">Both products. One plan.</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="49" data-annual="36">49</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue);font-weight:600;margin-bottom:4px;min-height:16px" data-annual-label="$429/yr — save $159"></div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:#2d7a2d;font-weight:600;margin-bottom:20px">Save $9/month vs buying separately</div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>Both products</li><li>3 analyses/month per product</li><li>50 chats/day per product</li><li>PDF export</li></ul>
+          <a href="/register?product=both&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;font-size:.72rem">Start Essential Bundle</a>
+        </div>
+        <div style="background:var(--white-pure);padding:32px 22px;border:2px solid var(--blue);position:relative">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-family:var(--font-ui);font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:2px 12px;white-space:nowrap">Best Value</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px">Complete Bundle</div>
+          <div style="font-family:var(--font-ui);font-size:.8rem;color:var(--text-mid);margin-bottom:12px">Full access to both products.</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="129" data-annual="92">129</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:var(--text-light);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue);font-weight:600;margin-bottom:4px;min-height:16px" data-annual-label="$1,099/yr — save $449"></div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:#2d7a2d;font-weight:600;margin-bottom:20px">Save $29/month vs buying separately</div>
+          <ul class="highlights dark" style="margin-bottom:24px"><li>Both products</li><li>5 analyses/month per product</li><li>100 chats/day per product</li><li>All premium features on both</li><li>PDF export</li></ul>
+          <a href="/register?product=both&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;font-size:.72rem">Start Complete Bundle</a>
+        </div>
+        <div style="background:var(--navy);padding:32px 22px">
+          <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:6px">Counsel Bundle</div>
+          <div style="font-family:var(--font-ui);font-size:.8rem;color:rgba(244,246,248,.5);margin-bottom:12px">Unlimited. Both products. Every feature.</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--white);line-height:1;margin-bottom:4px">$<span class="price-val" data-monthly="249" data-annual="175">249</span></div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:rgba(244,246,248,.5);margin-bottom:4px"><span class="period-label">Per month</span>, CAD</div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:var(--blue-light);font-weight:600;margin-bottom:4px;min-height:16px" data-annual-label="$2,099/yr — save $799"></div>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:#7bcf7b;font-weight:600;margin-bottom:20px">Save $69/month vs buying separately</div>
+          <ul class="highlights" style="margin-bottom:24px"><li>Both products</li><li>Unlimited everything on both</li><li>All premium features on both</li><li>Dictation on both</li><li>All builders and tools</li><li>PDF export</li></ul>
+          <a href="/register?product=both&step=plans" class="btn btn-primary" style="width:100%;justify-content:center;background:var(--blue-light);font-size:.72rem">Start Counsel Bundle</a>
+          <div style="font-family:var(--font-ui);font-size:.72rem;color:rgba(244,246,248,.35);text-align:center;margin-top:10px">The most comprehensive legal preparation available.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div style="max-width:1140px;margin:0 auto 48px;display:flex;align-items:center;gap:16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="width:32px;height:2px;background:#20B2AA"></div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- ── CLEARSPLIT ── -->
+    <div style="max-width:1140px;margin:0 auto 24px">
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start">
+        <div>
+          <span style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:#20B2AA">Separation Agreement</span>
+          <h3 style="font-family:var(--font-display);font-size:1.5rem;color:var(--navy);margin:10px 0 12px;line-height:1.25">Separating amicably?<br>Skip the lawyers entirely.</h3>
+          <p style="font-family:var(--font-ui);font-size:.92rem;color:var(--text-mid);line-height:1.75;margin-bottom:16px">ClearSplit generates a complete, legally structured separation agreement for both parties — including support calculations, asset division, and parenting arrangements. One purchase. Both parties. 90 days to get it right.</p>
+          <ul class="highlights dark" style="columns:2;gap:24px">
+            <li>Shared access code for both parties</li>
+            <li>Each party on their own device</li>
+            <li>Integrated support calculator</li>
+            <li>Unlimited revisions and PDF exports</li>
+            <li>Court-ready document output</li>
+            <li>30-day extension available</li>
+          </ul>
+        </div>
+        <div style="background:var(--navy);padding:32px 28px;border-top:3px solid #20B2AA">
+          <div style="font-family:var(--font-ui);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:#20B2AA;margin-bottom:10px">One-Time Purchase</div>
+          <div style="font-family:var(--font-display);font-size:3rem;font-weight:700;color:var(--white);line-height:1;margin-bottom:4px">$299</div>
+          <div style="font-family:var(--font-ui);font-size:.82rem;color:rgba(244,246,248,.4);margin-bottom:20px">per couple · CAD</div>
+          <ul class="highlights" style="margin-bottom:24px"><li>90 days active editing</li><li>Both parties included</li><li>Unlimited PDF exports</li></ul>
+          <a href="/register?product=clearsplit" class="btn btn-primary" style="width:100%;justify-content:center;background:#20B2AA;border-color:#20B2AA;color:#0d2d2a;font-size:.72rem">Get ClearSplit →</a>
+          <div style="font-family:var(--font-ui);font-size:.75rem;color:rgba(244,246,248,.3);text-align:center;margin-top:10px">Extension available: $74/30 days</div>
+          <div style="font-family:var(--font-ui);font-size:.75rem;color:#20B2AA;text-align:center;margin-top:6px">ClearStand subscribers save $50</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis Pack -->
+    <div style="max-width:1140px;margin:24px auto 0;background:var(--white-pure);border:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
       <div>
-        <div style="font-family:var(--font-ui);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text-light);margin-bottom:6px">Analysis Pack — One Time</div>
-        <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--navy)">$29 <span style="font-family:var(--font-ui);font-size:.9rem;color:var(--text-light);font-weight:400">one-time purchase</span></div>
-        <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--text-mid);margin-top:4px">3 disclosure analyses. No subscription. For Canadians who need it once.</div>
+        <div style="font-family:var(--font-ui);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text-light);margin-bottom:6px">Not ready for a subscription?</div>
+        <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--navy)">Analysis Pack — $29</div>
+        <div style="font-family:var(--font-ui);font-size:.88rem;color:var(--text-mid);margin-top:4px">3 analyses. No subscription. Use any time within 12 months.</div>
       </div>
-      <a href="/get-started" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0;background:#2E86C1">Buy Analysis Pack</a>
+      <a href="/register?product=criminal" class="btn btn-primary" style="white-space:nowrap;flex-shrink:0">Buy Analysis Pack</a>
+    </div>
+
+    <div style="text-align:center;margin-top:32px;font-family:var(--font-ui);font-size:.82rem;color:var(--text-light)">
+      All prices in Canadian dollars. HST applied at checkout for Canadian residents.<br>
+      Questions? <a href="mailto:support@clearstand.ca" style="color:var(--blue)">support@clearstand.ca</a>
     </div>
   </div>
 </section>
@@ -491,30 +584,23 @@
 <script>
 function toggleAnnual() {
   const isAnnual = document.getElementById('annualToggle').checked;
-  const slider = document.getElementById('toggle-slider');
-  const knob = document.getElementById('toggle-knob');
-  slider.style.background = isAnnual ? '#2E86C1' : '#d1d9e0';
-  knob.style.transform = isAnnual ? 'translateX(22px)' : 'translateX(0)';
+  document.getElementById('toggle-slider').style.background = isAnnual ? '#2E86C1' : '#d1d9e0';
+  document.getElementById('toggle-knob').style.transform = isAnnual ? 'translateX(22px)' : '';
   document.getElementById('lbl-monthly').style.color = isAnnual ? '#8899aa' : 'var(--navy)';
-  document.getElementById('lbl-annual').style.color = isAnnual ? 'var(--navy)' : '#8899aa';
+  document.getElementById('lbl-annual').style.color  = isAnnual ? 'var(--navy)' : '#8899aa';
   document.getElementById('save-badge').style.display = isAnnual ? 'inline' : 'none';
 
+  // Update prices
   document.querySelectorAll('.price-val').forEach(el => {
     el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
   });
+  document.querySelectorAll('.period-label').forEach(el => {
+    el.textContent = isAnnual ? 'Per year' : 'Per month';
+  });
 
-  const monthly = { essential: 29, complete: 79, counsel: 159 };
-  const perMonth = { essential: 21, complete: 58, counsel: 116 };
-  ['essential','complete','counsel'].forEach(t => {
-    const p = document.getElementById('period-' + t);
-    const a = document.getElementById('annual-' + t);
-    if (isAnnual) {
-      p.textContent = 'Per year, CAD';
-      a.textContent = 'Just $' + perMonth[t] + '/month — save $' + ((monthly[t]*12) - (perMonth[t]*12)) + '/yr';
-    } else {
-      p.textContent = 'Per month, CAD';
-      a.textContent = '';
-    }
+  // Update annual savings labels
+  document.querySelectorAll('[data-annual-label]').forEach(el => {
+    el.textContent = isAnnual ? el.dataset.annualLabel : '';
   });
 }
 </script>

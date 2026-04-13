@@ -109,6 +109,24 @@ const PORT = process.env.PORT || 3000;
   }
 })();
 
+// Ensure ClearSplit purchases table exists
+(function ensureClearSplitTable() {
+  try {
+    const { ensureClearSplitTable } = require('./db');
+    if (typeof ensureClearSplitTable === 'function') ensureClearSplitTable();
+  } catch(e) {
+    console.error('ClearSplit table setup error:', e.message);
+  }
+})();
+
+// Start ClearSplit expiry warning cron (runs daily)
+try {
+  const { startClearSplitCron } = require('./cron/clearsplit-warnings');
+  startClearSplitCron();
+} catch(e) {
+  console.error('ClearSplit cron error:', e.message);
+}
+
 app.listen(PORT, () => {
   console.log(`ClearStand Unified Backend → http://localhost:${PORT}`);
   console.log(`  Criminal:   http://localhost:${PORT}/criminal-app`);
