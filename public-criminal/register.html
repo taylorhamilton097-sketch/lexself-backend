@@ -104,6 +104,9 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:4
 .plan-btn-counsel:hover{background:rgba(46,134,193,.12);}
 
 /* SHARED */
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.auth-tab{flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;min-height:42px;transition:all .15s;}
+.auth-tab.on{color:var(--blue-light);border-bottom-color:var(--blue);}
 .back-link{display:block;text-align:center;margin-top:18px;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);cursor:pointer;}
 .back-link:hover{color:var(--text2);}
 .home-link{display:block;text-align:center;margin-top:10px;font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);text-decoration:none;}
@@ -189,33 +192,48 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:4
     </div>
   </div>
 
-  <!-- ══ STEP 2: CREATE ACCOUNT ══ -->
+  <!-- ══ STEP 2: CREATE ACCOUNT / SIGN IN (tabbed) ══ -->
   <div class="step" id="step2">
     <div class="s2-inner">
       <div class="auth-box">
         <div class="auth-logo">Clear<span>Stand</span></div>
         <span class="product-badge" id="step2Badge">Create your account</span>
 
-        <div class="auth-err" id="regErr"></div>
-
-        <label class="auth-lbl">Full Name</label>
-        <input class="auth-inp" type="text" id="regName" placeholder="Your full name" autocomplete="name">
-
-        <label class="auth-lbl">Email Address</label>
-        <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
-
-        <label class="auth-lbl">Password</label>
-        <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
-
-        <div class="terms-row">
-          <input type="checkbox" id="regTerms">
-          <label for="regTerms">I have read and agree to the <a href="/terms-of-use" target="_blank">Terms of Use</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a></label>
+        <!-- TABS -->
+        <div class="auth-tabs">
+          <button class="auth-tab" id="tabSignin" onclick="switchAuthTab('signin')">Sign In</button>
+          <button class="auth-tab on" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
         </div>
 
-        <button class="auth-btn" id="regBtn" onclick="doRegister()">Create My Account →</button>
-        <div class="auth-note" id="regNote">Free to start · No credit card required · Not legal advice</div>
+        <!-- SIGN IN FORM -->
+        <div id="paneSignin" style="display:none">
+          <div class="auth-err" id="loginErr"></div>
+          <label class="auth-lbl">Email</label>
+          <input class="auth-inp" type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
+          <label class="auth-lbl">Password</label>
+          <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="paneRegister">
+          <div class="auth-err" id="regErr"></div>
+          <label class="auth-lbl">Full Name</label>
+          <input class="auth-inp" type="text" id="regName" placeholder="Your full name" autocomplete="name">
+          <label class="auth-lbl">Email Address</label>
+          <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
+          <label class="auth-lbl">Password</label>
+          <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+          <div class="terms-row">
+            <input type="checkbox" id="regTerms">
+            <label for="regTerms">I have read and agree to the <a href="/terms-of-use" target="_blank">Terms of Use</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a></label>
+          </div>
+          <button class="auth-btn" id="regBtn" onclick="doRegister()">Create My Account →</button>
+          <div class="auth-note" id="regNote">Free to start · No credit card required · Not legal advice</div>
+        </div>
+
       </div>
-      <span class="back-link" onclick="goToStep(1)">← Back</span>
+      <span class="back-link" id="step2BackLink" onclick="goToStep(1)">← Back</span>
       <a href="/" class="home-link">← Back to ClearStand</a>
     </div>
   </div>
@@ -243,27 +261,6 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:4
     </div>
   </div>
 
-  <!-- ══ SIGN IN ══ -->
-  <div class="step" id="stepSignin">
-    <div class="s2-inner">
-      <div class="auth-box">
-        <div class="auth-logo">Clear<span>Stand</span></div>
-        <span class="product-badge">Sign in to your account</span>
-
-        <div class="auth-err" id="loginErr"></div>
-
-        <label class="auth-lbl">Email</label>
-        <input class="auth-inp" type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
-
-        <label class="auth-lbl">Password</label>
-        <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-
-        <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
-        <div class="auth-note" style="cursor:default">Not a member? <span style="color:var(--blue-light);cursor:pointer" onclick="goToStep(1)">Create a free account →</span></div>
-      </div>
-      <a href="/" class="home-link">← Back to ClearStand</a>
-    </div>
-  </div>
 
 </main>
 
@@ -295,6 +292,41 @@ const PLANS = {
   ],
 };
 
+// ── AUTH TAB SWITCHING ──
+function switchAuthTab(tab) {
+  const isSignin = tab === 'signin';
+  document.getElementById('tabSignin').classList.toggle('on', isSignin);
+  document.getElementById('tabRegister').classList.toggle('on', !isSignin);
+  document.getElementById('paneSignin').style.display = isSignin ? 'block' : 'none';
+  document.getElementById('paneRegister').style.display = isSignin ? 'none' : 'block';
+  // Hide the Back link on signin (no product to go back to if pre-selected)
+  const backLink = document.getElementById('step2BackLink');
+  if (backLink) backLink.style.visibility = isSignin ? 'hidden' : '';
+}
+
+// ── UNIFIED AUTH SUCCESS ──
+// Called by both login and registration — single source of truth
+function handleAuthSuccess(token, user) {
+  localStorage.setItem('ls_tok', token);
+  registrationInProgress = false;
+
+  if (selectedProduct === 'clearsplit') {
+    startClearSplitCheckout(token);
+    return;
+  }
+
+  // For subscription products after registration, show plan selection
+  // For sign-in, go straight to app
+  if (user._fromLogin) {
+    const products = user.products || 'criminal';
+    window.location.href = products === 'family' ? '/family' : '/criminal-app';
+  } else {
+    // Just registered — show plan selection
+    buildPlanGrid();
+    goToStep(3);
+  }
+}
+
 // ── NAVIGATION ──
 function goToStep(n) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
@@ -303,8 +335,8 @@ function goToStep(n) {
 }
 
 function showSignIn() {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
-  document.getElementById('stepSignin').classList.add('on');
+  goToStep(2);
+  switchAuthTab('signin');
   window.scrollTo(0, 0);
 }
 
@@ -400,14 +432,7 @@ async function doRegister() {
     } else if (!d.token) {
       err.textContent = 'Account created but authentication failed. Please sign in.'; err.classList.add('show');
     } else {
-      localStorage.setItem('ls_tok', d.token);
-      if (selectedProduct === 'clearsplit') {
-        await startClearSplitCheckout(d.token);
-      } else {
-        // Show plan selection — token is already stored, user is authenticated
-        buildPlanGrid();
-        goToStep(3);
-      }
+      handleAuthSuccess(d.token, d.user);
     }
   } catch(e) {
     err.textContent = 'Connection error. Please try again.'; err.classList.add('show');
@@ -532,12 +557,11 @@ async function doLogin() {
       body: JSON.stringify({ email, password: pass }),
     });
     const d = await r.json();
-    if (d.error) {
-      err.textContent = d.error; err.classList.add('show');
+    if (!r.ok || d.error) {
+      err.textContent = d.error || 'Sign in failed.'; err.classList.add('show');
     } else {
-      localStorage.setItem('ls_tok', d.token);
-      const products = d.user?.products || 'criminal';
-      window.location.href = products === 'family' ? '/family' : '/criminal-app';
+      d.user._fromLogin = true; // flag so handleAuthSuccess routes to app directly
+      handleAuthSuccess(d.token, d.user);
     }
   } catch(e) { err.textContent = 'Network error. Please try again.'; err.classList.add('show'); }
   btn.disabled = false; btn.textContent = 'Sign In';
