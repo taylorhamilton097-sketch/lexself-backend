@@ -2241,21 +2241,41 @@ function obSkip() {
 
 (async function init(){
   showWelcome();
+
   if (!authToken) {
+    // No token at all — send to login
     window.location.href = '/register?product=criminal';
     return;
   }
+
+  // Token exists — show the app immediately, verify in background
   try {
-    const d = await api('GET', '/api/auth/me');
-    if (d?.user) {
-      currentUser = d.user; usageState = d.usage;
-      renderUsage(); loadStoredProfile();
-    } else {
+    const r = await fetch('/api/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    });
+
+    if (r.status === 401) {
+      // Token definitively rejected by server — clear and redirect
       localStorage.removeItem('ls_tok');
       window.location.href = '/register?product=criminal';
+      return;
     }
+
+    if (r.ok) {
+      const d = await r.json();
+      if (d?.user) {
+        currentUser = d.user;
+        usageState = d.usage;
+        renderUsage();
+        loadStoredProfile();
+      }
+    }
+    // Any other error (500, network, etc) — stay in app with token
+    // Don't redirect on server errors
+
   } catch(e) {
-    window.location.href = '/register?product=criminal';
+    // Network error — stay in app, don't redirect
+    console.warn('Auth check failed (network):', e.message);
   }
 })();
 </script>
