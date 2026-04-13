@@ -3,118 +3,241 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get Started — ClearStand</title>
+<title>ClearStand — Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:#0D1B2A; --navy-mid:#162233; --navy-light:#1E3045;
-  --blue:#2E86C1; --blue-light:#3EA4E4;
-  --white:#F4F6F8; --border:#2A3F56;
-  --text:#E8EDF2; --text2:#8BA3BA; --text3:#4A6680;
+  --navy: #0D1B2A;
+  --navy-mid: #162233;
+  --navy-light: #1E3045;
+  --blue: #2E86C1;
+  --blue-light: #3EA4E4;
+  --border: #2A3F56;
+  --text: #E8EDF2;
+  --text2: #8BA3BA;
+  --text3: #4A6680;
+  --white: #F4F6F8;
+  --red: #E87070;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{min-height:100%;}
-body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-nav{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;}
-.nav-logo span{color:var(--blue-light);}
-.nav-signin{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);text-decoration:none;cursor:pointer;transition:color .15s;}
-.nav-signin:hover{color:var(--text2);}
+/* ── NAV ── */
+nav {
+  background: var(--navy-mid);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--blue-light); }
+.nav-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text3);
+  text-decoration: none;
+  transition: color .15s;
+}
+.nav-back:hover { color: var(--text2); }
 
-main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px 60px;}
-.step{display:none;width:100%;}
-.step.on{display:block;}
+/* ── MAIN ── */
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 60px;
+}
 
-/* STEP 1 */
-.s1-inner{max-width:860px;margin:0 auto;}
-.s1-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blue-light);text-align:center;display:block;margin-bottom:14px;}
-.s1-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.2rem);color:var(--white);text-align:center;margin-bottom:10px;line-height:1.2;}
-.s1-sub{font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text3);text-align:center;margin-bottom:40px;line-height:1.6;}
-.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
-.prod-card{background:var(--navy-mid);border:2px solid var(--border);padding:28px 24px;cursor:pointer;transition:all .15s;position:relative;border-radius:4px;}
-.prod-card:hover{border-color:var(--blue-light);background:var(--navy-light);}
-.prod-card.selected{border-color:var(--blue);border-width:3px;background:rgba(46,134,193,.08);}
-.prod-check{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;background:var(--blue);display:none;align-items:center;justify-content:center;}
-.prod-card.selected .prod-check{display:flex;}
-.prod-icon{margin-bottom:14px;display:flex;gap:6px;align-items:center;}
-.prod-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:8px;}
-.prod-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:8px;}
-.prod-desc{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);line-height:1.6;margin-bottom:14px;}
-.prod-price{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
-.prod-badge{display:inline-block;margin-top:8px;padding:3px 9px;background:rgba(46,134,193,.18);color:var(--blue-light);font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;border-radius:20px;}
-.s1-footer{max-width:860px;margin:0 auto;}
-.btn-continue{width:100%;padding:16px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;font-weight:600;transition:background .15s;border-radius:2px;}
-.btn-continue:hover{background:var(--blue-light);}
-.btn-continue:disabled{opacity:.35;cursor:not-allowed;}
+/* ── AUTH BOX ── */
+.auth-wrap { width: 100%; max-width: 440px; }
 
-/* STEP 2 */
-.s2-inner{max-width:440px;margin:0 auto;}
-.auth-box{background:var(--navy-mid);border:1px solid var(--border);padding:36px 32px;}
-.auth-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white);text-align:center;margin-bottom:6px;}
-.auth-logo span{color:var(--blue-light);}
-.product-badge{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);text-align:center;margin-bottom:24px;padding:6px 12px;background:rgba(46,134,193,.1);border:1px solid rgba(46,134,193,.2);display:block;}
-.auth-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block;}
-.auth-inp{width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:'Inter',sans-serif;font-size:1rem;outline:none;margin-bottom:14px;transition:border-color .15s;-webkit-appearance:none;}
-.auth-inp:focus{border-color:var(--blue);}
-.terms-row{display:flex;align-items:flex-start;gap:10px;margin:2px 0 16px;}
-.terms-row input{width:16px;height:16px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:var(--blue);}
-.terms-row label{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);line-height:1.55;cursor:pointer;}
-.terms-row a{color:var(--blue-light);text-decoration:underline;}
-.auth-btn{width:100%;padding:14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.15em;font-weight:500;margin-top:4px;min-height:50px;transition:background .15s;}
-.auth-btn:hover{background:var(--blue-light);}
-.auth-btn:disabled{opacity:.55;cursor:not-allowed;}
-.auth-err{font-family:'Inter',sans-serif;font-size:.85rem;color:#E87070;margin-bottom:12px;padding:10px 12px;background:rgba(232,112,112,.08);border:1px solid rgba(232,112,112,.2);display:none;}
-.auth-err.show{display:block;}
-.auth-note{font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;margin-top:14px;line-height:1.8;}
+.auth-box {
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  padding: 36px 32px 28px;
+}
 
-/* STEP 3 */
-.s3-inner{max-width:900px;margin:0 auto;}
-.s3-title{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);color:var(--white);text-align:center;margin-bottom:8px;}
-.s3-sub{font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text3);text-align:center;margin-bottom:12px;}
-.toggle-wrap{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:32px;}
-.toggle-lbl{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);}
-.toggle-lbl.active{color:var(--blue-light);}
-.toggle{position:relative;width:44px;height:24px;cursor:pointer;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-sl{position:absolute;inset:0;background:var(--border);border-radius:24px;transition:.3s;}
-.toggle input:checked + .toggle-sl{background:var(--blue);}
-.toggle-sl::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
-.toggle input:checked + .toggle-sl::before{transform:translateX(20px);}
-.save-badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:#4CAF50;background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3);padding:2px 8px;border-radius:20px;display:none;}
-.save-badge.show{display:inline;}
-.plan-grid{display:grid;gap:10px;margin-bottom:24px;}
-.plan-card{background:var(--navy-mid);border:1px solid var(--border);padding:24px 20px;position:relative;border-radius:2px;}
-.plan-card.popular{border-color:var(--blue);border-width:2px;}
-.popular-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 12px;white-space:nowrap;}
-.plan-name{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:10px;}
-.plan-price{font-family:'Playfair Display',serif;font-size:2rem;color:var(--white);line-height:1;margin-bottom:4px;}
-.plan-price span{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--text3);font-weight:400;}
-.plan-annual{font-family:'Inter',sans-serif;font-size:.75rem;color:var(--text3);margin-bottom:16px;min-height:18px;}
-.plan-features{list-style:none;margin-bottom:20px;}
-.plan-features li{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:flex-start;gap:7px;}
-.plan-features li::before{content:'✓';color:var(--blue-light);font-size:.72rem;flex-shrink:0;margin-top:1px;}
-.plan-btn{width:100%;padding:12px;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:all .15s;}
-.plan-btn-free{background:none;border:1px solid var(--border);color:var(--text3);}
-.plan-btn-free:hover{border-color:var(--blue-light);color:var(--blue-light);}
-.plan-btn-paid{background:var(--blue);color:var(--white);}
-.plan-btn-paid:hover{background:var(--blue-light);}
-.plan-btn-counsel{background:var(--navy);border:1px solid var(--blue);color:var(--blue-light);}
-.plan-btn-counsel:hover{background:rgba(46,134,193,.12);}
+.auth-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.auth-logo span { color: var(--blue-light); }
 
-/* SHARED */
-.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;}
-.auth-tab{flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;min-height:42px;transition:all .15s;}
-.auth-tab.on{color:var(--blue-light);border-bottom-color:var(--blue);}
-.back-link{display:block;text-align:center;margin-top:18px;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);cursor:pointer;}
-.back-link:hover{color:var(--text2);}
-.home-link{display:block;text-align:center;margin-top:10px;font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);text-decoration:none;}
-.home-link:hover{color:var(--text2);}
+.auth-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--text3);
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
 
-@media(max-width:700px){
-  .prod-grid{grid-template-columns:1fr;}
-  .auth-box{padding:28px 20px;}
+/* ── TABS ── */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text3);
+  transition: all .15s;
+  min-height: 42px;
+}
+.auth-tab.active {
+  color: var(--blue-light);
+  border-bottom-color: var(--blue);
+}
+
+/* ── FORM FIELDS ── */
+.field-group { margin-bottom: 14px; }
+.field-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text3);
+  display: block;
+  margin-bottom: 5px;
+}
+.field-inp {
+  width: 100%;
+  background: var(--navy);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+.field-inp:focus { border-color: var(--blue); }
+
+/* ── TERMS ── */
+.terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.terms-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--blue);
+}
+.terms-row label {
+  font-family: 'Inter', sans-serif;
+  font-size: .82rem;
+  color: var(--text3);
+  line-height: 1.55;
+  cursor: pointer;
+}
+.terms-row a { color: var(--blue-light); text-decoration: underline; }
+
+/* ── BUTTON ── */
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  font-weight: 600;
+  min-height: 50px;
+  transition: background .15s;
+  margin-bottom: 4px;
+}
+.auth-btn:hover { background: var(--blue-light); }
+.auth-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ── ERROR ── */
+.auth-err {
+  font-family: 'Inter', sans-serif;
+  font-size: .85rem;
+  color: var(--red);
+  padding: 10px 12px;
+  background: rgba(232,112,112,.08);
+  border: 1px solid rgba(232,112,112,.2);
+  margin-bottom: 14px;
+  display: none;
+  line-height: 1.5;
+}
+.auth-err.show { display: block; }
+.auth-err a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+/* ── NOTE ── */
+.auth-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .47rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.8;
+}
+
+/* ── BACK LINK ── */
+.back-home {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: .85rem;
+  color: var(--text3);
+  text-decoration: none;
+}
+.back-home:hover { color: var(--text2); }
+
+@media (max-width: 480px) {
+  .auth-box { padding: 28px 20px 20px; }
 }
 </style>
 </head>
@@ -122,434 +245,223 @@ main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:4
 
 <nav>
   <a href="/" class="nav-logo">Clear<span>Stand</span></a>
-  <a class="nav-signin" onclick="showSignIn()">Already have an account? Sign In</a>
+  <a href="/" class="nav-back">← Back to Home</a>
 </nav>
 
 <main>
+  <div class="auth-wrap">
+    <div class="auth-box">
 
-  <!-- ══ STEP 1: PRODUCT SELECTION ══ -->
-  <div class="step on" id="step1">
-    <div class="s1-inner">
-      <span class="s1-eyebrow">Step 1 of 2 — Choose Your Product</span>
-      <h1 class="s1-title">What brings you to ClearStand today?</h1>
-      <p class="s1-sub">Choose the product that fits your situation. You can adjust your plan any time.</p>
+      <!-- LOGO + SUBTITLE -->
+      <div class="auth-logo" id="authLogo">Clear<span>Stand</span></div>
+      <div class="auth-subtitle" id="authSubtitle">Your rights. Your case. Your ground.</div>
 
-      <div class="prod-grid">
-
-        <!-- Family Law -->
-        <div class="prod-card" id="card-family" onclick="selectProduct('family',this)">
-          <div class="prod-check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>
-          <div class="prod-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2E86C1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3L4 7v5c0 5 4 9 8 10 4-1 8-5 8-10V7L12 3z"/>
-              <path d="M8 12h8M12 8v8"/>
-            </svg>
-          </div>
-          <div class="prod-label">Family Law</div>
-          <div class="prod-title">Fight for what your family deserves.</div>
-          <p class="prod-desc">Custody. Support. Separation. Document analysis and court-ready forms.</p>
-          <div class="prod-price">Free to start · from $29/month</div>
-        </div>
-
-        <!-- Criminal Defence -->
-        <div class="prod-card" id="card-criminal" onclick="selectProduct('criminal',this)">
-          <div class="prod-check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>
-          <div class="prod-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2E86C1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <div class="prod-label">Criminal Defence</div>
-          <div class="prod-title">Know your rights. Use them.</div>
-          <p class="prod-desc">Crown disclosure analysis. Charter rights. Cross-examination preparation.</p>
-          <div class="prod-price">Free to start · from $29/month</div>
-        </div>
-
-        <!-- Both Products -->
-        <div class="prod-card" id="card-both" onclick="selectProduct('both',this)">
-          <div class="prod-check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>
-          <div class="prod-icon">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2E86C1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3L4 7v5c0 5 4 9 8 10 4-1 8-5 8-10V7L12 3z"/><path d="M8 12h8M12 8v8"/>
-            </svg>
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2E86C1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <div class="prod-label">Both Products</div>
-          <div class="prod-title">Family matter and criminal charges.</div>
-          <p class="prod-desc">I need both Family Law and Criminal Defence. Full access to both products.</p>
-          <div class="prod-price">From $49/month bundle</div>
-          <div class="prod-badge">Bundle — Save up to $69/mo</div>
-        </div>
-
+      <!-- TABS — always visible, always both -->
+      <div class="auth-tabs">
+        <button class="auth-tab" id="tabSignin" onclick="showTab('signin')">Sign In</button>
+        <button class="auth-tab active" id="tabRegister" onclick="showTab('register')">Create Account</button>
       </div>
 
-      <div class="s1-footer">
-        <button class="btn-continue" id="continueBtn" onclick="goToStep2()" disabled>Continue →</button>
-        <a href="/" class="home-link">← Back to ClearStand</a>
+      <!-- ── SIGN IN FORM ── -->
+      <div id="formSignin" style="display:none">
+        <div class="auth-err" id="signinErr"></div>
+        <div class="field-group">
+          <label class="field-lbl" for="siEmail">Email</label>
+          <input class="field-inp" type="email" id="siEmail" placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="field-group">
+          <label class="field-lbl" for="siPass">Password</label>
+          <input class="field-inp" type="password" id="siPass" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter')submitSignin()">
+        </div>
+        <button class="auth-btn" id="signinBtn" onclick="submitSignin()">Sign In</button>
       </div>
+
+      <!-- ── REGISTER FORM ── -->
+      <div id="formRegister">
+        <div class="auth-err" id="registerErr"></div>
+        <div class="field-group">
+          <label class="field-lbl" for="regName">Full Name</label>
+          <input class="field-inp" type="text" id="regName" placeholder="Your full name" autocomplete="name">
+        </div>
+        <div class="field-group">
+          <label class="field-lbl" for="regEmail">Email Address</label>
+          <input class="field-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="field-group">
+          <label class="field-lbl" for="regPass">Password</label>
+          <input class="field-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password"
+            onkeydown="if(event.key==='Enter')submitRegister()">
+        </div>
+        <div class="terms-row">
+          <input type="checkbox" id="regTerms">
+          <label for="regTerms">I have read and agree to the
+            <a href="/terms-of-use" target="_blank">Terms of Use</a> and
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+          </label>
+        </div>
+        <button class="auth-btn" id="registerBtn" onclick="submitRegister()">Create Account</button>
+        <div class="auth-note" id="registerNote">Free to start · No credit card required · Not legal advice</div>
+      </div>
+
     </div>
+    <a href="/" class="back-home">← Back to ClearStand Home</a>
   </div>
-
-  <!-- ══ STEP 2: CREATE ACCOUNT / SIGN IN (tabbed) ══ -->
-  <div class="step" id="step2">
-    <div class="s2-inner">
-      <div class="auth-box">
-        <div class="auth-logo">Clear<span>Stand</span></div>
-        <span class="product-badge" id="step2Badge">Create your account</span>
-
-        <!-- TABS -->
-        <div class="auth-tabs">
-          <button class="auth-tab" id="tabSignin" onclick="switchAuthTab('signin')">Sign In</button>
-          <button class="auth-tab on" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
-        </div>
-
-        <!-- SIGN IN FORM -->
-        <div id="paneSignin" style="display:none">
-          <div class="auth-err" id="loginErr"></div>
-          <label class="auth-lbl">Email</label>
-          <input class="auth-inp" type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
-          <label class="auth-lbl">Password</label>
-          <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-          <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
-        </div>
-
-        <!-- REGISTER FORM -->
-        <div id="paneRegister">
-          <div class="auth-err" id="regErr"></div>
-          <label class="auth-lbl">Full Name</label>
-          <input class="auth-inp" type="text" id="regName" placeholder="Your full name" autocomplete="name">
-          <label class="auth-lbl">Email Address</label>
-          <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
-          <label class="auth-lbl">Password</label>
-          <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
-          <div class="terms-row">
-            <input type="checkbox" id="regTerms">
-            <label for="regTerms">I have read and agree to the <a href="/terms-of-use" target="_blank">Terms of Use</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a></label>
-          </div>
-          <button class="auth-btn" id="regBtn" onclick="doRegister()">Create My Account →</button>
-          <div class="auth-note" id="regNote">Free to start · No credit card required · Not legal advice</div>
-        </div>
-
-      </div>
-      <span class="back-link" id="step2BackLink" onclick="goToStep(1)">← Back</span>
-      <a href="/" class="home-link">← Back to ClearStand</a>
-    </div>
-  </div>
-
-  <!-- ══ STEP 3: PLAN SELECTION ══ -->
-  <div class="step" id="step3">
-    <div class="s3-inner">
-      <h2 class="s3-title">Start free or choose a plan.</h2>
-      <p class="s3-sub">You can upgrade any time from inside your account.</p>
-
-      <div class="toggle-wrap">
-        <span class="toggle-lbl active" id="lblMonthly">Monthly</span>
-        <label class="toggle">
-          <input type="checkbox" id="annualToggle" onchange="toggleBilling(this.checked)">
-          <span class="toggle-sl"></span>
-        </label>
-        <span class="toggle-lbl" id="lblAnnual">Annual</span>
-        <span class="save-badge" id="saveBadge">Save up to $509/yr</span>
-      </div>
-
-      <div class="plan-grid" id="planGrid"></div>
-
-      <span class="back-link" onclick="goToStep(2)">← Back</span>
-      <a href="/" class="home-link">← Back to ClearStand</a>
-    </div>
-  </div>
-
-
 </main>
 
 <script>
-// ── STATE ──
-let selectedProduct = null;
-let isAnnual = false;
+// ─────────────────────────────────────────
+// CONFIGURATION
+// ─────────────────────────────────────────
+const params  = new URLSearchParams(window.location.search);
+const product = params.get('product') || '';   // 'family' | 'criminal' | 'clearsplit' | ''
 
-const PRODUCT_LABELS = { family:'Family Law', criminal:'Criminal Defence', both:'Both Products', clearsplit:'ClearSplit — Separation Agreement' };
-const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/family', clearsplit:'/clearsplit/app' };
-
-const PLANS = {
-  family: [
-    { key:'free',     name:'Free',     monthly:0,   annual:0,    annualLabel:'',                 features:['1 document analysis','10 AI chat messages','All family law forms','PDF export'], btn:'plan-btn-free', btnText:'Start Free →', isFree:true },
-    { key:'family_essential', name:'Essential', monthly:29,  annual:249,  annualLabel:'$249/yr — save $99',   features:['3 analyses/month','50 chats/day','All family law forms','Full document analysis','PDF export'], btn:'plan-btn-paid', btnText:'Continue to Payment →' },
-    { key:'family_complete',  name:'Complete',  monthly:79,  annual:699,  annualLabel:'$699/yr — save $249',  features:['5 analyses/month','100 chats/day','All family law forms','Affidavit builder','PDF export'], btn:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
-    { key:'family_counsel',   name:'Counsel',   monthly:159, annual:1399, annualLabel:'$1,399/yr — save $509',features:['Unlimited analyses','Unlimited chat','All premium features','Dictation','PDF export'], btn:'plan-btn-counsel', btnText:'Continue to Payment →' },
-  ],
-  criminal: [
-    { key:'free',     name:'Free',     monthly:0,   annual:0,    annualLabel:'',                 features:['1 Crown disclosure analysis','10 AI chat messages','All charge modules','PDF export'], btn:'plan-btn-free', btnText:'Start Free →', isFree:true },
-    { key:'criminal_essential', name:'Essential', monthly:29,  annual:249,  annualLabel:'$249/yr — save $99',   features:['3 analyses/month','50 chats/day','All charge modules','Full 5-pass reports','PDF export'], btn:'plan-btn-paid', btnText:'Continue to Payment →' },
-    { key:'criminal_complete',  name:'Complete',  monthly:79,  annual:699,  annualLabel:'$699/yr — save $249',  features:['5 analyses/month','100 chats/day','Full 5-pass reports','Cross-exam builder','PDF export'], btn:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
-    { key:'criminal_counsel',   name:'Counsel',   monthly:159, annual:1399, annualLabel:'$1,399/yr — save $509',features:['Unlimited analyses','Unlimited chat','All premium features','Dictation','PDF export'], btn:'plan-btn-counsel', btnText:'Continue to Payment →' },
-  ],
-  both: [
-    { key:'bundle_essential', name:'Essential Bundle', monthly:49,  annual:429,  annualLabel:'$429/yr — save $159',  features:['Both products','3 analyses/month per product','50 chats/day per product','PDF export'], btn:'plan-btn-paid', btnText:'Continue to Payment →' },
-    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, annual:1099, annualLabel:'$1,099/yr — save $449',features:['Both products','5 analyses/month per product','100 chats/day per product','All premium features'], btn:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
-    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:249, annual:2099, annualLabel:'$2,099/yr — save $799',features:['Both products','Unlimited everything','All premium features on both','Dictation on both'], btn:'plan-btn-counsel', btnText:'Continue to Payment →' },
-  ],
+const PRODUCT_CONFIG = {
+  family: {
+    logo:     'Clear<span>Stand</span>',
+    subtitle: 'Ontario Family Law',
+    regBtn:   'Create Free Account',
+    note:     'Free to start · No credit card required · Not legal advice',
+    dest:     '/family',
+  },
+  criminal: {
+    logo:     'Clear<span>Stand</span>',
+    subtitle: 'Canadian Criminal Defence',
+    regBtn:   'Create Free Account',
+    note:     'Free to start · No credit card required · Not legal advice',
+    dest:     '/criminal-app',
+  },
+  clearsplit: {
+    logo:     'Clear<span>Split</span>',
+    subtitle: 'Separation Agreement · Create your account to continue to payment',
+    regBtn:   'Create Account & Continue →',
+    note:     'One-time payment of $299 after account creation',
+    dest:     null, // goes to Stripe checkout
+  },
+  '': {
+    logo:     'Clear<span>Stand</span>',
+    subtitle: 'Your rights. Your case. Your ground.',
+    regBtn:   'Create Account',
+    note:     'Free to start · No credit card required · Not legal advice',
+    dest:     null, // show product selection
+  },
 };
 
-// ── AUTH TAB SWITCHING ──
-function switchAuthTab(tab) {
-  const isSignin = tab === 'signin';
-  document.getElementById('tabSignin').classList.toggle('on', isSignin);
-  document.getElementById('tabRegister').classList.toggle('on', !isSignin);
-  document.getElementById('paneSignin').style.display = isSignin ? 'block' : 'none';
-  document.getElementById('paneRegister').style.display = isSignin ? 'none' : 'block';
-  // Hide the Back link on signin (no product to go back to if pre-selected)
-  const backLink = document.getElementById('step2BackLink');
-  if (backLink) backLink.style.visibility = isSignin ? 'hidden' : '';
+const cfg = PRODUCT_CONFIG[product] || PRODUCT_CONFIG[''];
+
+// Apply config to UI
+document.getElementById('authLogo').innerHTML      = cfg.logo;
+document.getElementById('authSubtitle').textContent = cfg.subtitle;
+document.getElementById('registerBtn').textContent  = cfg.regBtn;
+document.getElementById('registerNote').textContent = cfg.note;
+
+// ─────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────
+function showTab(tab) {
+  const isSignin = (tab === 'signin');
+  document.getElementById('tabSignin').classList.toggle('active', isSignin);
+  document.getElementById('tabRegister').classList.toggle('active', !isSignin);
+  document.getElementById('formSignin').style.display   = isSignin ? 'block' : 'none';
+  document.getElementById('formRegister').style.display = isSignin ? 'none'  : 'block';
 }
 
-// ── UNIFIED AUTH SUCCESS ──
-// Called by both login and registration — single source of truth
-function handleAuthSuccess(token, user) {
-  localStorage.setItem('ls_tok', token);
-  registrationInProgress = false;
+// Default: show register tab (or signin if ?signin=1)
+if (params.get('signin') === '1') {
+  showTab('signin');
+} else {
+  showTab('register');
+}
 
-  if (selectedProduct === 'clearsplit') {
-    startClearSplitCheckout(token);
+// ─────────────────────────────────────────
+// AUTH SUCCESS — single handler for both
+// login and registration
+// ─────────────────────────────────────────
+async function onAuthSuccess(token, user) {
+  // 1. Store token — identical to how apps read it
+  localStorage.setItem('ls_tok', token);
+
+  // 2. Route based on product param
+  if (product === 'clearsplit') {
+    await goClearSplitCheckout(token);
     return;
   }
 
-  // For subscription products after registration, show plan selection
-  // For sign-in, go straight to app
-  if (user._fromLogin) {
-    const products = user.products || 'criminal';
-    window.location.href = products === 'family' ? '/family' : '/criminal-app';
+  if (product === 'family') {
+    window.location.href = '/family';
+    return;
+  }
+
+  if (product === 'criminal') {
+    window.location.href = '/criminal-app';
+    return;
+  }
+
+  // No product param — route by user's registered product
+  const p = user.products || 'criminal';
+  if (p === 'family') {
+    window.location.href = '/family';
   } else {
-    // Just registered — show plan selection
-    buildPlanGrid();
-    goToStep(3);
+    window.location.href = '/criminal-app';
   }
 }
 
-// ── NAVIGATION ──
-function goToStep(n) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
-  document.getElementById('step' + n).classList.add('on');
-  window.scrollTo(0, 0);
-}
-
-function showSignIn() {
-  goToStep(2);
-  switchAuthTab('signin');
-  window.scrollTo(0, 0);
-}
-
-function setStep2Context(product) {
-  const badge  = document.getElementById('step2Badge');
-  const btn    = document.getElementById('regBtn');
-  const note   = document.getElementById('regNote');
-
-  const contexts = {
-    clearsplit: {
-      badge: 'ClearSplit — Separation Agreement',
-      sub:   'Create your account to continue to payment',
-      btn:   'Create Account & Continue →',
-      note:  'One-time payment of $299 after account creation',
-    },
-    family: {
-      badge: 'Setting up: Family Law',
-      btn:   'Create My Account →',
-      note:  'Free to start · No credit card required · Not legal advice',
-    },
-    criminal: {
-      badge: 'Setting up: Criminal Defence',
-      btn:   'Create My Account →',
-      note:  'Free to start · No credit card required · Not legal advice',
-    },
-    both: {
-      badge: 'Setting up: Both Products',
-      btn:   'Create My Account →',
-      note:  'Free to start · No credit card required · Not legal advice',
-    },
-  };
-
-  const ctx = contexts[product] || { badge:'Create your account', btn:'Create My Account →', note:'Free to start · No credit card required · Not legal advice' };
-  if (badge) badge.textContent = ctx.badge;
-  if (btn)   btn.textContent   = ctx.btn;
-  if (note)  note.textContent  = ctx.note;
-
-  // For ClearSplit add sub-header if not already there
-  const existing = document.getElementById('step2Sub');
-  if (product === 'clearsplit') {
-    if (!existing) {
-      const sub = document.createElement('div');
-      sub.id = 'step2Sub';
-      sub.style.cssText = 'font-family:Inter,sans-serif;font-size:.85rem;color:var(--text3);text-align:center;margin-bottom:20px;line-height:1.5;';
-      sub.textContent = ctx.sub || '';
-      badge.insertAdjacentElement('afterend', sub);
-    }
-  } else if (existing) {
-    existing.remove();
-  }
-}
-
-// ── STEP 1 ──
-function selectProduct(product, card) {
-  selectedProduct = product;
-  document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
-  document.getElementById('continueBtn').disabled = false;
-}
-
-function goToStep2() {
-  if (!selectedProduct) return;
-  setStep2Context(selectedProduct);
-  goToStep(2);
-}
-
-// ── STEP 2 ──
-async function doRegister() {
-  registrationInProgress = true;
-  const name  = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass  = document.getElementById('regPass').value;
-  const terms = document.getElementById('regTerms').checked;
-  const err   = document.getElementById('regErr');
-  const btn   = document.getElementById('regBtn');
-  err.classList.remove('show');
-
-  if (!name)  { err.textContent = 'Please enter your full name.'; err.classList.add('show'); return; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Please enter a valid email address.'; err.classList.add('show'); return; }
-  if (pass.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.add('show'); return; }
-  if (!terms) { err.textContent = 'Please agree to the Terms of Use and Privacy Policy to continue.'; err.classList.add('show'); return; }
-
-  btn.disabled = true; btn.textContent = 'Creating account…';
-  try {
-    const r = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password: pass, product: selectedProduct }),
-    });
-    const d = await r.json();
-    if (!r.ok || d.error) {
-      err.textContent = d.error || 'Registration failed. Please try again.'; err.classList.add('show');
-    } else if (!d.token) {
-      err.textContent = 'Account created but authentication failed. Please sign in.'; err.classList.add('show');
-    } else {
-      handleAuthSuccess(d.token, d.user);
-    }
-  } catch(e) {
-    err.textContent = 'Connection error. Please try again.'; err.classList.add('show');
-  }
-  btn.disabled = false; btn.textContent = selectedProduct === 'clearsplit' ? 'Create Account & Continue to Payment →' : 'Create My Account →';
-}
-
-async function startClearSplitCheckout(tok) {
+// ─────────────────────────────────────────
+// CLEARSPLIT CHECKOUT
+// ─────────────────────────────────────────
+async function goClearSplitCheckout(token) {
   try {
     const r = await fetch('/api/billing/clearsplit/checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ action: 'new' }),
     });
     const d = await r.json();
     if (d.url) {
       window.location.href = d.url;
     } else {
-      showHoldingScreen('clearsplit');
+      // Stripe not yet live — holding page
+      showHoldingPage();
     }
   } catch(e) {
-    showHoldingScreen('clearsplit');
+    showHoldingPage();
   }
 }
 
-// ── STEP 3 ──
-function toggleBilling(annual) {
-  isAnnual = annual;
-  document.getElementById('lblMonthly').classList.toggle('active', !annual);
-  document.getElementById('lblAnnual').classList.toggle('active', annual);
-  document.getElementById('saveBadge').classList.toggle('show', annual);
-  buildPlanGrid();
+function showHoldingPage() {
+  document.querySelector('.auth-box').innerHTML = `
+    <div style="text-align:center;padding:8px 0">
+      <div style="font-size:2.2rem;margin-bottom:16px">✓</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:12px;line-height:1.3">Your account is ready.</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text3);line-height:1.75;margin-bottom:24px">
+        Payment processing will be available shortly.<br>
+        Your account has been created and your plan has been noted.<br><br>
+        <strong style="color:var(--text2)">We'll email you when payment is ready.</strong>
+      </div>
+      <a href="/" style="display:inline-block;padding:12px 28px;background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;text-decoration:none;font-weight:600">Back to ClearStand</a>
+    </div>`;
 }
 
-function buildPlanGrid() {
-  const plans = PLANS[selectedProduct] || PLANS.criminal;
-  // Set grid columns based on plan count
-  const grid = document.getElementById('planGrid');
-  grid.style.gridTemplateColumns = `repeat(${plans.length}, 1fr)`;
-  grid.innerHTML = plans.map(p => `
-    <div class="plan-card${p.popular ? ' popular' : ''}">
-      ${p.popular ? '<div class="popular-badge">Most Popular</div>' : ''}
-      <div class="plan-name">${p.name}</div>
-      <div class="plan-price">${p.monthly === 0 ? 'Free' : '$' + (isAnnual ? Math.round(p.annual/12) : p.monthly)}<span>${p.monthly === 0 ? '' : '/mo'}</span></div>
-      <div class="plan-annual">${isAnnual && p.annualLabel ? p.annualLabel : (p.monthly > 0 ? 'billed monthly' : 'forever free')}</div>
-      <ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
-      <button class="plan-btn ${p.btn}" onclick="choosePlan('${p.key}',${!!p.isFree})">${p.btnText}</button>
-    </div>
-  `).join('');
-}
+// ─────────────────────────────────────────
+// SIGN IN
+// ─────────────────────────────────────────
+async function submitSignin() {
+  const email = document.getElementById('siEmail').value.trim();
+  const pass  = document.getElementById('siPass').value;
+  const err   = document.getElementById('signinErr');
+  const btn   = document.getElementById('signinBtn');
 
-async function choosePlan(planKey, isFree) {
-  if (isFree) {
-    window.location.href = APP_URLS[selectedProduct] || '/criminal-app';
+  err.classList.remove('show');
+
+  if (!email || !pass) {
+    err.textContent = 'Email and password required.';
+    err.classList.add('show');
     return;
   }
-  const key = planKey + (isAnnual ? '_annual' : '');
-  const tok = localStorage.getItem('ls_tok');
-  try {
-    const r = await fetch('/api/billing/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
-      body: JSON.stringify({ planKey: key }),
-    });
-    const d = await r.json();
-    if (d.url) {
-      window.location.href = d.url;
-    } else {
-      // Stripe not yet configured — show holding screen
-      showHoldingScreen(planKey);
-    }
-  } catch(e) {
-    showHoldingScreen(planKey);
-  }
-}
 
-function showHoldingScreen(planKey) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
-  // Build holding screen inline
-  const main = document.querySelector('main');
-  const div = document.createElement('div');
-  div.className = 'step on';
-  div.id = 'stepHolding';
-  div.style.cssText = 'width:100%';
-  div.innerHTML = `
-    <div class="s2-inner">
-      <div class="auth-box" style="text-align:center">
-        <div class="auth-logo">Clear<span>Stand</span></div>
-        <div style="margin:24px 0 16px;font-size:2rem">✓</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:14px;line-height:1.3">Your account is ready.</div>
-        <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text3);line-height:1.7;margin-bottom:20px">
-          Payment processing will be available shortly. Your account has been created and your selected plan has been noted.
-          <br><br>
-          <strong style="color:var(--text2)">We will email you when payment is ready.</strong>
-          <br><br>
-          In the meantime, you have free access to get started.
-        </div>
-        <a href="${APP_URLS[selectedProduct] || '/criminal-app'}" style="display:block;padding:14px;background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.15em;text-decoration:none;font-weight:600">Enter the App →</a>
-      </div>
-      <a href="/" class="home-link">← Back to ClearStand</a>
-    </div>`;
-  // Remove any existing holding screen
-  const existing = document.getElementById('stepHolding');
-  if (existing) existing.remove();
-  main.appendChild(div);
-  window.scrollTo(0, 0);
-}
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
 
-// ── SIGN IN ──
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
-  const err   = document.getElementById('loginErr');
-  const btn   = document.getElementById('loginBtn');
-  err.classList.remove('show');
-  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in…';
   try {
     const r = await fetch('/api/auth/login', {
       method: 'POST',
@@ -557,49 +469,122 @@ async function doLogin() {
       body: JSON.stringify({ email, password: pass }),
     });
     const d = await r.json();
+
     if (!r.ok || d.error) {
-      err.textContent = d.error || 'Sign in failed.'; err.classList.add('show');
+      err.textContent = 'Invalid email or password. Please try again.';
+      err.classList.add('show');
     } else {
-      d.user._fromLogin = true; // flag so handleAuthSuccess routes to app directly
-      handleAuthSuccess(d.token, d.user);
+      await onAuthSuccess(d.token, d.user);
     }
-  } catch(e) { err.textContent = 'Network error. Please try again.'; err.classList.add('show'); }
-  btn.disabled = false; btn.textContent = 'Sign In';
+  } catch(e) {
+    err.textContent = 'Connection error. Please try again.';
+    err.classList.add('show');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
 }
 
-// ── INIT ──
+// ─────────────────────────────────────────
+// REGISTER
+// ─────────────────────────────────────────
+async function submitRegister() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const terms = document.getElementById('regTerms').checked;
+  const err   = document.getElementById('registerErr');
+  const btn   = document.getElementById('registerBtn');
 
-// Pre-select product from URL param (?product=family|criminal|both|clearsplit)
-const urlParams = new URLSearchParams(window.location.search);
-const preselect = urlParams.get('product');
-if (preselect && ['family','criminal','both','clearsplit'].includes(preselect)) {
-  selectedProduct = preselect;
-  const card = document.getElementById('card-' + preselect);
-  if (card) selectProduct(preselect, card);
-  setStep2Context(preselect);
-  goToStep(2);
+  err.classList.remove('show');
+
+  if (!name) {
+    err.textContent = 'Please enter your full name.';
+    err.classList.add('show'); return;
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    err.textContent = 'Please enter a valid email address.';
+    err.classList.add('show'); return;
+  }
+  if (pass.length < 8) {
+    err.textContent = 'Password must be at least 8 characters.';
+    err.classList.add('show'); return;
+  }
+  if (!terms) {
+    err.textContent = 'Please agree to the Terms of Use and Privacy Policy to continue.';
+    err.classList.add('show'); return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating account…';
+
+  try {
+    const r = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        password: pass,
+        product: product || 'criminal',
+      }),
+    });
+    const d = await r.json();
+
+    if (!r.ok || d.error) {
+      if (r.status === 409 || (d.error && d.error.toLowerCase().includes('already'))) {
+        // Email already registered
+        err.innerHTML = 'An account with this email already exists. <a onclick="prefillSignin(\'' + email.replace(/'/g, "\\'") + '\')">Sign in instead →</a>';
+      } else {
+        err.textContent = d.error || 'Registration failed. Please try again.';
+      }
+      err.classList.add('show');
+    } else if (!d.token) {
+      err.textContent = 'Account created but sign-in failed. Please use the Sign In tab.';
+      err.classList.add('show');
+    } else {
+      // SUCCESS — same path as login
+      await onAuthSuccess(d.token, d.user);
+    }
+  } catch(e) {
+    err.textContent = 'Connection error. Please try again.';
+    err.classList.add('show');
+  }
+
+  btn.disabled = false;
+  btn.textContent = cfg.regBtn;
 }
 
-// Show sign in if ?signin=1
-if (urlParams.get('signin')) showSignIn();
+// Pre-fill sign in tab when email already exists
+function prefillSignin(email) {
+  showTab('signin');
+  document.getElementById('siEmail').value = email;
+  document.getElementById('siPass').focus();
+}
 
-// If already logged in on initial page load, go straight to app
-// Skip if: product pre-selected via URL (new registration flow)
-//          signin mode, or registration is in progress
-let registrationInProgress = false;
+// ─────────────────────────────────────────
+// ALREADY LOGGED IN — go straight to app
+// Only on initial page load, not during flow
+// ─────────────────────────────────────────
+(function checkExistingSession() {
+  const tok = localStorage.getItem('ls_tok');
+  if (!tok) return;
 
-const tok = localStorage.getItem('ls_tok');
-if (tok && !preselect && !urlParams.get('signin')) {
+  // Don't auto-redirect if they explicitly came to register
+  // (presence of ?product means they want to start fresh or switch product)
+  // Only auto-redirect on bare /register or /login with no params
+  if (product) return;
+
   fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + tok } })
     .then(r => r.ok ? r.json() : null)
     .then(d => {
-      if (d?.user && !registrationInProgress) {
-        const products = d.user.products || 'criminal';
-        window.location.href = products === 'family' ? '/family' : '/criminal-app';
+      if (d && d.user) {
+        const p = d.user.products || 'criminal';
+        window.location.href = p === 'family' ? '/family' : '/criminal-app';
       }
     })
     .catch(() => {});
-}
+})();
 </script>
 </body>
 </html>
