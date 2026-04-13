@@ -250,4 +250,160 @@ async function sendWelcomeEmail(user) {
   }
 }
 
-module.exports = { sendWelcomeEmail };
+module.exports = { sendWelcomeEmail, sendClearSplitPurchaseEmail, sendClearSplitExtensionEmail };
+
+// ══════════════════════════════════════════════════
+// CLEARSPLIT PURCHASE CONFIRMATION EMAIL
+// ══════════════════════════════════════════════════
+async function sendClearSplitPurchaseEmail({ email, code, expiresAt }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) { console.log('[Email] RESEND_API_KEY not set — skipping ClearSplit email'); return; }
+
+  const expiryStr = new Date(expiresAt).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' });
+  const codeSpaced = code.split('').join(' ');
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Your ClearSplit Access Code</title></head>
+<body style="margin:0;padding:0;background-color:#F4F6F8;font-family:Arial,Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4F6F8;">
+  <tr><td align="center" style="padding:32px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;border-radius:8px;overflow:hidden;">
+
+      <!-- HEADER -->
+      <tr><td align="center" style="background:#0D1B2A;padding:24px;border-radius:8px 8px 0 0;">
+        <span style="font-family:Georgia,serif;font-size:24px;font-weight:700;">
+          <span style="color:#fff;">Clear</span><span style="color:#20B2AA;">Split</span>
+        </span>
+      </td></tr>
+
+      <!-- CODE SECTION -->
+      <tr><td align="center" style="background:#0D1B2A;padding:40px 40px 48px;">
+        <p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:#20B2AA;">Your Access Code</p>
+        <div style="background:rgba(32,178,170,.1);border:2px solid rgba(32,178,170,.4);padding:24px 32px;margin:0 auto 20px;display:inline-block;">
+          <span style="font-family:Courier New,monospace;font-size:36px;font-weight:700;color:#fff;letter-spacing:0.3em;">${codeSpaced}</span>
+        </div>
+        <p style="margin:0;font-family:Arial,sans-serif;font-size:15px;line-height:1.65;color:rgba(244,246,248,0.7);">Share this code with the other party.<br>Both of you will use this same code to access your agreement.</p>
+      </td></tr>
+
+      <!-- HOW TO GET STARTED -->
+      <tr><td style="background:#fff;padding:40px;">
+        <p style="margin:0 0 20px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:#2E86C1;">How to Get Started</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="padding:10px 0;border-bottom:1px solid #F0F2F4;">
+            <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 1</span>
+            <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Share code <strong>${code}</strong> with the other party by text or email</span>
+          </td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #F0F2F4;">
+            <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 2</span>
+            <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Both visit: <strong>clearstand.ca/clearsplit/access</strong></span>
+          </td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #F0F2F4;">
+            <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 3</span>
+            <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Enter your code on your own device and work on the agreement together or separately</span>
+          </td></tr>
+          <tr><td style="padding:10px 0;">
+            <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 4</span>
+            <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">When ready, export your final agreement as a PDF</span>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- ACCESS DETAILS -->
+      <tr><td style="background:#F4F6F8;padding:28px 40px;">
+        <p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#6B7A8D;">Access Details</p>
+        <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;">Code: <strong style="font-family:Courier New,monospace;letter-spacing:0.1em;">${code}</strong></p>
+        <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;">Access expires: <strong>${expiryStr}</strong></p>
+        <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#6B7A8D;">Need more time? Extend for $74 at: clearstand.ca/clearsplit/extend</p>
+      </td></tr>
+
+      <!-- SUPPORT -->
+      <tr><td align="center" style="background:#fff;padding:24px 40px;">
+        <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#6B7A8D;">Questions? <a href="mailto:support@clearstand.ca" style="color:#20B2AA;text-decoration:none;font-weight:600;">support@clearstand.ca</a></p>
+      </td></tr>
+
+      <!-- FOOTER -->
+      <tr><td align="center" style="background:#0D1B2A;padding:28px 24px;border-radius:0 0 8px 8px;">
+        <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:16px;font-weight:700;"><span style="color:#fff;">Clear</span><span style="color:#20B2AA;">Stand</span></p>
+        <p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:11px;color:rgba(244,246,248,0.35);">Your rights. Your case. Your ground.</p>
+        <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:rgba(244,246,248,0.25);">clearstand.ca &nbsp;·&nbsp; ClearStand — Ontario, Canada</p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+
+  const text = `Your ClearSplit Access Code: ${code}
+
+Share this code with the other party. Both of you visit:
+clearstand.ca/clearsplit/access
+
+HOW TO GET STARTED:
+1. Share code ${code} with the other party
+2. Both visit: clearstand.ca/clearsplit/access
+3. Enter your code on your own device
+4. Export your final agreement as a PDF
+
+ACCESS DETAILS:
+Code: ${code}
+Access expires: ${expiryStr}
+Need more time? Extend for $74 at: clearstand.ca/clearsplit/extend
+
+Questions? support@clearstand.ca
+ClearStand — Ontario, Canada — clearstand.ca`;
+
+  try {
+    const resp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'ClearStand <hello@clearstand.ca>',
+        to: email,
+        subject: `Your ClearSplit access code: ${code}`,
+        html,
+        text,
+      }),
+    });
+    const data = await resp.json();
+    if (resp.ok) console.log(`[Email] ClearSplit purchase email sent to ${email} — ID: ${data.id}`);
+    else console.error(`[Email] ClearSplit email error: ${JSON.stringify(data)}`);
+  } catch(err) {
+    console.error(`[Email] ClearSplit email failed: ${err.message}`);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// CLEARSPLIT EXTENSION CONFIRMATION EMAIL
+// ══════════════════════════════════════════════════
+async function sendClearSplitExtensionEmail({ email, code, previousExpiry, newExpiry }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return;
+
+  const fmt = (d) => new Date(d).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' });
+
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'ClearStand <hello@clearstand.ca>',
+        to: email,
+        subject: 'Your ClearSplit access has been extended',
+        text: `Your ClearSplit access has been extended.
+
+Code: ${code}
+Previous expiry: ${fmt(previousExpiry)}
+New expiry: ${fmt(newExpiry)}
+
+Access your agreement at:
+clearstand.ca/clearsplit/access
+
+Questions? support@clearstand.ca
+ClearStand — clearstand.ca`,
+      }),
+    });
+    console.log(`[Email] ClearSplit extension email sent to ${email}`);
+  } catch(err) {
+    console.error(`[Email] Extension email failed: ${err.message}`);
+  }
+}

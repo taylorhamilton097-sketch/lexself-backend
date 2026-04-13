@@ -10,6 +10,390 @@
 :root {
   --navy: #0D1B2A; --navy-mid: #162233; --navy-light: #1E3045;
   --blue: #2E86C1; --blue-light: #3EA4E4; --blue-dim: #1A4F73;
+  --teal: #20B2AA;
+  --white: #F4F6F8; --border: #2A3F56; --text: #E8EDF2; --text2: #8BA3BA; --text3: #4A6680;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+
+nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); text-decoration: none; }
+.nav-logo span { color: var(--blue-light); }
+
+main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 40px 24px 60px; }
+
+/* ── AUTH BOX ── */
+.auth-box { background: var(--navy-mid); border: 1px solid var(--border); width: 100%; max-width: 440px; padding: 36px 32px; }
+.auth-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--white); text-align: center; margin-bottom: 4px; }
+.auth-logo span { color: var(--blue-light); }
+.auth-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); text-align: center; margin-bottom: 28px; }
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.auth-tab { flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; min-height: 42px; transition: all 0.15s; }
+.auth-tab.on { color: var(--blue-light); border-bottom-color: var(--blue); }
+.auth-form { display: none; }
+.auth-form.on { display: block; }
+.auth-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
+.auth-inp { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; margin-bottom: 14px; transition: border-color 0.15s; -webkit-appearance: none; }
+.auth-inp:focus { border-color: var(--blue); }
+.auth-btn { width: 100%; padding: 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; margin-top: 4px; min-height: 50px; transition: background 0.15s; }
+.auth-btn:hover { background: var(--blue-light); }
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-err { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #E87070; margin-bottom: 12px; display: none; padding: 10px 12px; background: rgba(232,112,112,0.08); border: 1px solid rgba(232,112,112,0.2); }
+.auth-err.show { display: block; }
+.auth-free { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); text-align: center; margin-top: 16px; line-height: 1.8; }
+.back { display: block; text-align: center; margin-top: 20px; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text3); text-decoration: none; }
+.back:hover { color: var(--text2); }
+
+/* ── TERMS CHECKBOX ── */
+.terms-row { display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 16px; }
+.terms-row input { width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; cursor: pointer; accent-color: var(--blue); }
+.terms-row label { font-family: 'Inter', sans-serif; font-size: .82rem; color: rgba(244,246,248,.6); line-height: 1.55; cursor: pointer; }
+.terms-row a { color: var(--blue-light); text-decoration: underline; }
+
+/* ── PRODUCT SELECTION STEP ── */
+.prod-step { display: none; }
+.prod-step.on { display: block; }
+.prod-step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: var(--white);
+  margin-bottom: 6px;
+  text-align: center;
+}
+.prod-step-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: .82rem;
+  color: var(--text3);
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+.prod-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.prod-card {
+  background: var(--navy);
+  border: 1.5px solid var(--border);
+  padding: 16px 14px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+  border-radius: 4px;
+  user-select: none;
+}
+.prod-card:hover { border-color: var(--blue-light); background: var(--navy-light); }
+.prod-card.selected { border-color: var(--blue); background: rgba(46,134,193,.1); }
+.prod-card.selected.teal { border-color: var(--teal); background: rgba(32,178,170,.08); }
+.prod-check {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--blue);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.prod-card.selected .prod-check { display: flex; }
+.prod-card.selected.teal .prod-check { background: var(--teal); }
+.prod-check svg { width: 10px; height: 10px; }
+.prod-icon { font-size: 1.4rem; margin-bottom: 8px; display: block; }
+.prod-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--blue-light);
+  margin-bottom: 4px;
+}
+.prod-card.teal .prod-name { color: var(--teal); }
+.prod-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: .78rem;
+  color: var(--text3);
+  line-height: 1.5;
+}
+.prod-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 7px;
+  background: rgba(46,134,193,.2);
+  color: var(--blue-light);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .44rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  border-radius: 20px;
+}
+.prod-note {
+  font-family: 'Inter', sans-serif;
+  font-size: .75rem;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+.prod-note a { color: var(--teal); text-decoration: none; }
+.prod-back-btn {
+  width: 100%; padding: 10px; background: none; border: 1px solid var(--border);
+  color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem; text-transform: uppercase; letter-spacing: .1em;
+  margin-top: 10px; transition: all .15s;
+}
+.prod-back-btn:hover { border-color: var(--text2); color: var(--text2); }
+
+@media (max-width: 420px) {
+  .auth-box { padding: 28px 20px; }
+  .prod-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+</nav>
+
+<main>
+  <div class="auth-box">
+    <div class="auth-logo">Clear<span>Stand</span></div>
+    <div class="auth-sub" id="authSub">Your rights. Your case. Your ground.</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="switchTab('login', this)">Sign In</button>
+      <button class="auth-tab" onclick="switchTab('register', this)">Create Account</button>
+    </div>
+
+    <!-- ── SIGN IN ── -->
+    <div class="auth-form on" id="form-login">
+      <div class="auth-err" id="loginErr"></div>
+      <label class="auth-lbl">Email</label>
+      <input class="auth-inp" type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email">
+      <label class="auth-lbl">Password</label>
+      <input class="auth-inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <!-- ── REGISTER — STEP 1: DETAILS ── -->
+    <div class="auth-form" id="form-register">
+      <div class="auth-err" id="regErr"></div>
+      <label class="auth-lbl">Full Name</label>
+      <input class="auth-inp" type="text" id="regName" placeholder="Your name" autocomplete="name">
+      <label class="auth-lbl">Email</label>
+      <input class="auth-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
+      <label class="auth-lbl">Password</label>
+      <input class="auth-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password">
+      <div class="terms-row">
+        <input type="checkbox" id="regTerms">
+        <label for="regTerms">I have read and agree to the <a href="/terms-of-use" target="_blank">Terms of Use</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a></label>
+      </div>
+      <button class="auth-btn" id="regNextBtn" onclick="goToProductStep()">Next — Choose Your Product →</button>
+    </div>
+
+    <!-- ── REGISTER — STEP 2: PRODUCT SELECTION ── -->
+    <div class="prod-step" id="prod-step">
+      <div class="prod-step-title">What brings you to ClearStand?</div>
+      <div class="prod-step-sub">Choose the product that fits your situation. You can adjust your plan later.</div>
+
+      <div class="prod-grid">
+        <!-- Family Law -->
+        <div class="prod-card" id="card-family" onclick="selectProduct('family')">
+          <div class="prod-check"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+          <span class="prod-icon">⚖️</span>
+          <div class="prod-name">Family Law</div>
+          <div class="prod-desc">Custody. Support. Separation. Document analysis and court-ready forms.</div>
+        </div>
+
+        <!-- Criminal Defence -->
+        <div class="prod-card" id="card-criminal" onclick="selectProduct('criminal')">
+          <div class="prod-check"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+          <span class="prod-icon">🛡️</span>
+          <div class="prod-name">Criminal Defence</div>
+          <div class="prod-desc">Crown disclosure analysis. Charter rights. Cross-examination preparation.</div>
+        </div>
+
+        <!-- Both -->
+        <div class="prod-card" id="card-both" onclick="selectProduct('both')">
+          <div class="prod-check"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+          <span class="prod-icon">⚖️🛡️</span>
+          <div class="prod-name">Both Products</div>
+          <div class="prod-desc">I have a family matter and criminal charges. I need both.</div>
+          <span class="prod-badge">Bundle — Save up to $69/mo</span>
+        </div>
+
+        <!-- ClearSplit -->
+        <div class="prod-card teal" id="card-clearsplit" onclick="selectProduct('clearsplit')">
+          <div class="prod-check"><svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+          <span class="prod-icon">🤝</span>
+          <div class="prod-name" style="color:var(--teal)">Separation Agreement</div>
+          <div class="prod-desc">My partner and I want to create a separation agreement without lawyers.</div>
+        </div>
+      </div>
+
+      <div class="prod-note" id="prod-note"></div>
+
+      <div class="auth-err" id="prodErr"></div>
+      <button class="auth-btn" id="regBtn" onclick="doRegister()" disabled>Create My Account →</button>
+      <button class="prod-back-btn" onclick="backToDetails()">← Back</button>
+    </div>
+
+    <div class="auth-free" id="authFreeNote">Free to start · No credit card required · Not legal advice</div>
+    <a href="/" class="back">← Back to ClearStand</a>
+  </div>
+</main>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const nextParam = params.get('next') || 'criminal';
+
+// Default redirect for sign-in
+const loginRedirect = nextParam === 'family' ? '/family' : '/criminal-app';
+if (nextParam === 'family') document.getElementById('authSub').textContent = 'Ontario Family Law';
+else document.getElementById('authSub').textContent = 'Canadian Criminal Defence';
+
+let selectedProduct = null;
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('on'));
+  document.getElementById('prod-step').classList.remove('on');
+  btn.classList.add('on');
+  document.getElementById('form-' + tab).classList.add('on');
+  document.getElementById('authFreeNote').style.display = '';
+}
+
+function goToProductStep() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const terms = document.getElementById('regTerms').checked;
+  const err   = document.getElementById('regErr');
+  err.classList.remove('show');
+
+  if (!name || !email || !pass) { err.textContent = 'All fields required.'; err.classList.add('show'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Enter a valid email address.'; err.classList.add('show'); return; }
+  if (pass.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.add('show'); return; }
+  if (!terms) { err.textContent = 'You must agree to the Terms of Use and Privacy Policy.'; err.classList.add('show'); return; }
+
+  // Show product step
+  document.getElementById('form-register').classList.remove('on');
+  document.getElementById('prod-step').classList.add('on');
+  document.getElementById('authFreeNote').style.display = 'none';
+}
+
+function backToDetails() {
+  document.getElementById('prod-step').classList.remove('on');
+  document.getElementById('form-register').classList.add('on');
+  document.getElementById('authFreeNote').style.display = '';
+}
+
+function selectProduct(product) {
+  selectedProduct = product;
+  document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card-' + product).classList.add('selected');
+
+  const note = document.getElementById('prod-note');
+  const btn  = document.getElementById('regBtn');
+  btn.disabled = false;
+
+  if (product === 'clearsplit') {
+    note.innerHTML = 'ClearSplit is a one-time purchase of $299. No subscription required. <a href="/clearsplit">Learn more →</a>';
+    btn.textContent = 'Continue to ClearSplit →';
+    btn.style.background = 'var(--teal)';
+    btn.style.color = '#0d2d2a';
+  } else if (product === 'both') {
+    note.textContent = 'Free tier gives access to one product. Upgrade to a Bundle plan to access both.';
+    btn.textContent = 'Create My Account →';
+    btn.style.background = '';
+    btn.style.color = '';
+  } else {
+    note.textContent = '';
+    btn.textContent = 'Create My Account →';
+    btn.style.background = '';
+    btn.style.color = '';
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginErr');
+  const btn   = document.getElementById('loginBtn');
+  err.classList.remove('show');
+  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const d = await r.json();
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else {
+      localStorage.setItem('ls_tok', d.token);
+      // Route based on user's products
+      const products = d.user?.products || 'criminal';
+      if (products === 'family') window.location.href = '/family';
+      else if (products === 'both') window.location.href = '/criminal-app';
+      else window.location.href = '/criminal-app';
+    }
+  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+
+async function doRegister() {
+  if (!selectedProduct) return;
+
+  // ClearSplit — no account needed, send to purchase page
+  if (selectedProduct === 'clearsplit') {
+    window.location.href = '/clearsplit';
+    return;
+  }
+
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const err   = document.getElementById('prodErr');
+  const btn   = document.getElementById('regBtn');
+  err.classList.remove('show');
+
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const r = await fetch('/api/auth/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password: pass, product: selectedProduct }),
+    });
+    const d = await r.json();
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else {
+      localStorage.setItem('ls_tok', d.token);
+      // Route based on selected product
+      if (selectedProduct === 'family') window.location.href = '/family';
+      else if (selectedProduct === 'both') window.location.href = '/criminal-app';
+      else window.location.href = '/criminal-app';
+    }
+  } catch(e) { err.textContent = 'Network error.'; err.classList.add('show'); }
+  btn.disabled = false;
+  btn.textContent = selectedProduct === 'clearsplit' ? 'Continue to ClearSplit →' : 'Create My Account →';
+}
+
+// If already logged in, redirect
+const tok = localStorage.getItem('ls_tok');
+if (tok) window.location.href = loginRedirect;
+</script>
+</body>
+</html>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0D1B2A; --navy-mid: #162233; --navy-light: #1E3045;
+  --blue: #2E86C1; --blue-light: #3EA4E4; --blue-dim: #1A4F73;
   --white: #F4F6F8; --border: #2A3F56; --text: #E8EDF2; --text2: #8BA3BA; --text3: #4A6680;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -60,6 +60,27 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_users_email   ON users(email);
 `);
 
+// ── CLEARSPLIT SCHEMA ──
+db.exec(`
+  CREATE TABLE IF NOT EXISTS clearsplit_purchases (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    code                 TEXT    UNIQUE NOT NULL,
+    purchaser_email      TEXT    NOT NULL,
+    stripe_payment_id    TEXT    NOT NULL,
+    stripe_product       TEXT    NOT NULL,
+    amount_paid          INTEGER NOT NULL,
+    purchased_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at           DATETIME NOT NULL,
+    extended_at          DATETIME,
+    extension_expires_at DATETIME,
+    user_id              INTEGER REFERENCES users(id),
+    access_count         INTEGER DEFAULT 0,
+    last_accessed_at     DATETIME
+  );
+  CREATE INDEX IF NOT EXISTS idx_cs_code    ON clearsplit_purchases(code);
+  CREATE INDEX IF NOT EXISTS idx_cs_payment ON clearsplit_purchases(stripe_payment_id);
+`);
+
 // ── PLAN CONFIG ──
 // products: 'criminal' | 'family' | 'both'
 // plan:     'free' | 'essential' | 'complete'
@@ -247,6 +268,53 @@ function getUserUsageSummary(user, product) {
   };
 }
 
+// ── CLEARSPLIT PURCHASES ──
+function ensureClearSplitTable() {
+  // Table is created in schema above — this is a no-op kept for compatibility
+}
+
+function createClearSplitPurchase({ code, purchaserEmail, stripePaymentId, stripeProduct, amountPaid, expiresAt, userId }) {
+  db.prepare(`
+    INSERT INTO clearsplit_purchases
+      (code, purchaser_email, stripe_payment_id, stripe_product, amount_paid, expires_at, user_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(code, purchaserEmail, stripePaymentId, stripeProduct, amountPaid, expiresAt.toISOString(), userId || null);
+  return getClearSplitPurchase(code);
+}
+
+function getClearSplitPurchase(code) {
+  return db.prepare('SELECT * FROM clearsplit_purchases WHERE code = ?').get(code.toUpperCase());
+}
+
+function getClearSplitPurchaseByPayment(stripePaymentId) {
+  return db.prepare('SELECT * FROM clearsplit_purchases WHERE stripe_payment_id = ?').get(stripePaymentId);
+}
+
+function incrementClearSplitAccess(code) {
+  db.prepare(`
+    UPDATE clearsplit_purchases
+    SET access_count = access_count + 1,
+        last_accessed_at = CURRENT_TIMESTAMP
+    WHERE code = ?
+  `).run(code.toUpperCase());
+}
+
+function extendClearSplitAccess(code) {
+  const purchase = getClearSplitPurchase(code);
+  if (!purchase) return null;
+  const currentExpiry = purchase.extension_expires_at
+    ? new Date(purchase.extension_expires_at)
+    : new Date(purchase.expires_at);
+  const newExpiry = new Date(currentExpiry.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  db.prepare(`
+    UPDATE clearsplit_purchases
+    SET extended_at = ?, extension_expires_at = ?
+    WHERE code = ?
+  `).run(now.toISOString(), newExpiry.toISOString(), code.toUpperCase());
+  return { previousExpiry: currentExpiry, newExpiry };
+}
+
 module.exports = {
   db, PLANS, STRIPE_PRICES,
   createUser, getUserByEmail, getUserById,
@@ -254,4 +322,10 @@ module.exports = {
   getCaseProfile, saveCaseProfile,
   checkAccess, checkLimit, recordUsage, markOneTimeUsed,
   getUserUsageSummary,
+  ensureClearSplitTable,
+  createClearSplitPurchase,
+  getClearSplitPurchase,
+  getClearSplitPurchaseByPayment,
+  incrementClearSplitAccess,
+  extendClearSplitAccess,
 };
