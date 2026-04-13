@@ -488,7 +488,14 @@
     <div class="cs-entry">
       <span class="cs-entry-label">Starting a New Agreement</span>
       <div class="cs-entry-title">Purchase ClearSplit and invite the other party.</div>
-      <p class="cs-entry-body">You purchase access, create your account, then share a 6-character code with the other party so they can join.</p>
+      <p class="cs-entry-body">You purchase access, then share a code with the other party so they can join the agreement.</p>
+      <div style="margin-bottom:8px">
+        <div style="font-family:var(--font-mono,monospace);font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#6B7A8D;margin-bottom:4px;">Partner's Email Address</div>
+        <input type="email" id="partnerEmail" placeholder="partner@email.com"
+          style="width:100%;background:#F4F6F8;border:1.5px solid #d0d8e0;color:#0D1B2A;padding:10px 12px;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;margin-bottom:8px;transition:border-color .15s;-webkit-appearance:none;"
+          onfocus="this.style.borderColor='#20B2AA'" onblur="this.style.borderColor='#d0d8e0'">
+        <div style="font-family:'Inter',sans-serif;font-size:.75rem;color:#8B9AAA;line-height:1.5;margin-bottom:12px;">We'll send them an invitation to access your shared agreement.</div>
+      </div>
       <a href="#" class="cs-btn-primary" onclick="startPurchase(event)">Purchase ClearSplit →</a>
     </div>
 
@@ -585,22 +592,59 @@ async function checkNavAccess(e) {
 // ── PURCHASE FLOW ──
 async function startPurchase(e) {
   e.preventDefault();
+
+  const partnerEmail = document.getElementById('partnerEmail')?.value?.trim() || '';
+  if (!partnerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail)) {
+    const input = document.getElementById('partnerEmail');
+    if (input) { input.style.borderColor = '#C0392B'; input.focus(); }
+    const err = document.getElementById('joinCodeErr'); // reuse nearby err display
+    // Show inline message
+    alert("Please enter your partner's email address before purchasing.");
+    return;
+  }
+
+  // Check main auth (ls_tok)
   const tok = localStorage.getItem('ls_tok');
+  if (!tok) {
+    // Not logged in — save intent and go to register/login
+    sessionStorage.setItem('cs_intent', JSON.stringify({ partnerEmail }));
+    window.location.href = '/register?signin=1&next=clearsplit';
+    return;
+  }
+
+  // Logged in — proceed to checkout
   try {
     const r = await fetch('/api/billing/clearsplit/checkout', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(tok ? { 'Authorization': 'Bearer ' + tok } : {}),
-      },
-      body: JSON.stringify({ action: 'new' }),
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ action: 'new', partnerEmail }),
     });
     const d = await r.json();
-    if (d.url) window.location.href = d.url;
-    else alert('Unable to start checkout. Please try again.');
-  } catch(e) {
-    alert('Connection error. Please try again.');
+    if (d.url) {
+      window.location.href = d.url;
+    } else {
+      // Stripe not live — show holding screen
+      showCsHoldingScreen(partnerEmail);
+    }
+  } catch(err) {
+    showCsHoldingScreen(partnerEmail);
   }
+}
+
+function showCsHoldingScreen(partnerEmail) {
+  document.querySelector('.cs-entries').innerHTML = `
+    <div style="max-width:560px;margin:0 auto;padding:60px 24px;text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:20px">✓</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;color:#0D1B2A;margin-bottom:14px;">You're almost there.</h2>
+      <p style="font-family:'Inter',sans-serif;font-size:.95rem;color:#5A6A7A;line-height:1.75;margin-bottom:20px;">
+        Payment processing will be available shortly. Your account and agreement details have been noted.
+        <br><br>
+        <strong style="color:#0D1B2A">We will email you when payment is ready.</strong>
+        <br><br>
+        An invitation will be sent to <strong>${partnerEmail}</strong> once payment is confirmed.
+      </p>
+      <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:#20B2AA;text-decoration:none;">← Back to ClearStand</a>
+    </div>`;
 }
 
 // ── JOIN WITH CODE ──
@@ -672,7 +716,7 @@ async function doSignIn() {
   if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
   btn.disabled = true; btn.textContent = 'Signing in…';
   try {
-    const r = await fetch('/api/clearsplit/signin', {
+    const r = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password: pass }),
@@ -680,7 +724,9 @@ async function doSignIn() {
     const d = await r.json();
     if (d.error) { err.textContent = d.error; err.classList.add('show'); }
     else {
-      localStorage.setItem('cs_tok', d.token);
+      localStorage.setItem('ls_tok', d.token);
+      closeSignIn();
+      // Check if they have a ClearSplit agreement
       window.location.href = '/clearsplit/app';
     }
   } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }

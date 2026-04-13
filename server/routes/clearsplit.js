@@ -3,23 +3,8 @@
 const express  = require('express');
 const router   = express.Router();
 const bcrypt   = require('bcryptjs');
-const { requireAuth, signToken, verifyToken } = require('../middleware/auth');
+const { requireAuth, signToken } = require('../middleware/auth');
 const db = require('../db');
-
-// ── ClearSplit-specific auth middleware ──
-function requireCsAuth(req, res, next) {
-  const header = req.headers.authorization;
-  if (!header || !header.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated.' });
-  try {
-    const decoded = verifyToken(header.slice(7));
-    const user = db.getUserById(decoded.userId);
-    if (!user) return res.status(401).json({ error: 'User not found.' });
-    req.user = user;
-    next();
-  } catch(e) {
-    res.status(401).json({ error: 'Invalid or expired session.' });
-  }
-}
 
 // ══════════════════════════════════════════════════
 // POST /api/clearsplit/validate-code
@@ -126,32 +111,11 @@ router.post('/register', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
-// POST /api/clearsplit/signin
-// ClearSplit-specific sign in
-// No auth required
-// ══════════════════════════════════════════════════
-router.post('/signin', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ error: 'Email and password required.' });
-
-  const user = db.getUserByEmail(email);
-  if (!user || !(await bcrypt.compare(password, user.password)))
-    return res.status(401).json({ error: 'Invalid email or password.' });
-
-  // Check user has a ClearSplit agreement
-  const agreement = db.getClearSplitAgreementByUser(user.id);
-  if (!agreement) return res.status(403).json({ error: 'No ClearSplit agreement found for this account.' });
-
-  const token = signToken(user.id);
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
-});
-
-// ══════════════════════════════════════════════════
 // GET /api/clearsplit/agreement
 // Get current user's agreement + status
 // Requires ClearSplit auth
 // ══════════════════════════════════════════════════
-router.get('/agreement', requireCsAuth, (req, res) => {
+router.get('/agreement', requireAuth, (req, res) => {
   const agreement = db.getClearSplitAgreementByUser(req.user.id);
   if (!agreement) return res.status(404).json({ error: 'No agreement found.' });
 
@@ -182,7 +146,7 @@ router.get('/agreement', requireCsAuth, (req, res) => {
 // Save agreement data
 // Requires ClearSplit auth + active status
 // ══════════════════════════════════════════════════
-router.post('/agreement', requireCsAuth, (req, res) => {
+router.post('/agreement', requireAuth, (req, res) => {
   const { data } = req.body;
   if (!data) return res.status(400).json({ error: 'Agreement data required.' });
 
@@ -201,7 +165,7 @@ router.post('/agreement', requireCsAuth, (req, res) => {
 // Purchase extension — Party 1 only
 // Requires ClearSplit auth
 // ══════════════════════════════════════════════════
-router.post('/extend', requireCsAuth, async (req, res) => {
+router.post('/extend', requireAuth, async (req, res) => {
   const user = req.user;
   if (user.clearsplit_role !== 'purchaser')
     return res.status(403).json({ error: 'party2_cannot_extend', party1Name: '' });
@@ -263,7 +227,7 @@ router.get('/session', async (req, res) => {
 // POST /api/clearsplit/chat
 // AI chat for ClearSplit — requires active agreement
 // ══════════════════════════════════════════════════
-router.post('/chat', requireCsAuth, async (req, res) => {
+router.post('/chat', requireAuth, async (req, res) => {
   const { messages } = req.body;
   const agreement = db.getClearSplitAgreementByUser(req.user.id);
   if (!agreement) return res.status(404).json({ error: 'No agreement found.' });
