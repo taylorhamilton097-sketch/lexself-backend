@@ -309,6 +309,32 @@ main {
   </div>
 </main>
 
+<!-- PLAN SELECTION STEP (shown after registration) -->
+<div id="planStep" style="display:none;width:100%;padding:40px 24px 60px;max-width:960px;margin:0 auto">
+  <div style="text-align:center;margin-bottom:8px">
+    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);color:var(--white)">Start free or choose a plan.</div>
+    <div style="font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text3);margin-top:8px">You can upgrade any time from inside your account.</div>
+  </div>
+
+  <!-- Monthly / Annual toggle -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:24px 0 32px">
+    <span id="lblMonthly" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light)">Monthly</span>
+    <label style="position:relative;width:44px;height:24px;cursor:pointer">
+      <input type="checkbox" id="annualToggle" onchange="setAnnual(this.checked)" style="opacity:0;width:0;height:0">
+      <span id="toggleSlider" style="position:absolute;inset:0;background:var(--border);border-radius:24px;transition:.3s"></span>
+      <span id="toggleKnob" style="position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
+    </label>
+    <span id="lblAnnual" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3)">Annual</span>
+    <span id="saveBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:#4CAF50;background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3);padding:2px 8px;border-radius:20px">Save up to $509/yr</span>
+  </div>
+
+  <div id="planGrid" style="display:grid;gap:10px;margin-bottom:24px"></div>
+
+  <div style="text-align:center">
+    <a href="/" style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);text-decoration:none">← Back to ClearStand</a>
+  </div>
+</div>
+
 <script>
 // ─────────────────────────────────────────
 // CONFIGURATION
@@ -377,33 +403,32 @@ if (params.get('signin') === '1') {
 // AUTH SUCCESS — single handler for both
 // login and registration
 // ─────────────────────────────────────────
-async function onAuthSuccess(token, user) {
-  // 1. Store token — identical to how apps read it
+async function onAuthSuccess(token, user, fromRegistration = false) {
   localStorage.setItem('ls_tok', token);
 
-  // 2. Route based on product param
   if (product === 'clearsplit') {
     await goClearSplitCheckout(token);
     return;
   }
 
-  if (product === 'family') {
-    window.location.href = '/family';
+  // After registration for subscription products — show plan selection
+  if (fromRegistration && (product === 'family' || product === 'criminal' || product === 'both' || product === '')) {
+    // Store which product for plan grid
+    selectedProduct = product || user.products || 'criminal';
+    buildPlanGrid();
+    showStep(3);
     return;
   }
 
-  if (product === 'criminal') {
-    window.location.href = '/criminal-app';
-    return;
-  }
+  // Login or direct routing — go straight to app
+  routeToApp(user);
+}
 
-  // No product param — route by user's registered product
-  const p = user.products || 'criminal';
-  if (p === 'family') {
-    window.location.href = '/family';
-  } else {
-    window.location.href = '/criminal-app';
-  }
+function routeToApp(user) {
+  const p = user?.products || selectedProduct || 'criminal';
+  if (p === 'family') window.location.href = '/family';
+  else if (p === 'both') window.location.href = '/criminal-app';
+  else window.location.href = '/criminal-app';
 }
 
 // ─────────────────────────────────────────
@@ -474,7 +499,7 @@ async function submitSignin() {
       err.textContent = 'Invalid email or password. Please try again.';
       err.classList.add('show');
     } else {
-      await onAuthSuccess(d.token, d.user);
+      await onAuthSuccess(d.token, d.user, false);
     }
   } catch(e) {
     err.textContent = 'Connection error. Please try again.';
@@ -544,7 +569,7 @@ async function submitRegister() {
       err.classList.add('show');
     } else {
       // SUCCESS — same path as login
-      await onAuthSuccess(d.token, d.user);
+      await onAuthSuccess(d.token, d.user, true);
     }
   } catch(e) {
     err.textContent = 'Connection error. Please try again.';
@@ -560,6 +585,117 @@ function prefillSignin(email) {
   showTab('signin');
   document.getElementById('siEmail').value = email;
   document.getElementById('siPass').focus();
+}
+
+// ─────────────────────────────────────────
+// STEP NAVIGATION
+// ─────────────────────────────────────────
+function showStep(n) {
+  if (n === 3) {
+    document.querySelector('main').style.display = 'none';
+    document.getElementById('planStep').style.display = 'block';
+    window.scrollTo(0, 0);
+  } else {
+    document.querySelector('main').style.display = '';
+    document.getElementById('planStep').style.display = 'none';
+  }
+}
+
+// ─────────────────────────────────────────
+// PLAN DATA & GRID
+// ─────────────────────────────────────────
+let isAnnual = false;
+let selectedProduct = product || 'criminal';
+
+const PLAN_DATA = {
+  family: [
+    { key:'free', name:'Free', monthly:0, annual:0, annualLabel:'', features:['1 document analysis','10 AI chat messages','All family law forms','PDF export'], btnClass:'plan-btn-free', btnText:'Start Free →', isFree:true },
+    { key:'family_essential', name:'Essential', monthly:29, annual:249, annualLabel:'$249/yr — save $99', features:['3 analyses/month','50 chats/day','All family law forms','Full document analysis','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →' },
+    { key:'family_complete',  name:'Complete',  monthly:79, annual:699, annualLabel:'$699/yr — save $249', features:['5 analyses/month','100 chats/day','All forms','Affidavit builder','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
+    { key:'family_counsel',   name:'Counsel',   monthly:159,annual:1399,annualLabel:'$1,399/yr — save $509',features:['Unlimited analyses','Unlimited chat','All premium features','Dictation','PDF export'], btnClass:'plan-btn-counsel', btnText:'Continue to Payment →' },
+  ],
+  criminal: [
+    { key:'free', name:'Free', monthly:0, annual:0, annualLabel:'', features:['1 Crown disclosure analysis','10 AI chat messages','All charge modules','PDF export'], btnClass:'plan-btn-free', btnText:'Start Free →', isFree:true },
+    { key:'criminal_essential', name:'Essential', monthly:29, annual:249, annualLabel:'$249/yr — save $99', features:['3 analyses/month','50 chats/day','All charge modules','Full 5-pass reports','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →' },
+    { key:'criminal_complete',  name:'Complete',  monthly:79, annual:699, annualLabel:'$699/yr — save $249', features:['5 analyses/month','100 chats/day','Full 5-pass reports','Cross-exam builder','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
+    { key:'criminal_counsel',   name:'Counsel',   monthly:159,annual:1399,annualLabel:'$1,399/yr — save $509',features:['Unlimited analyses','Unlimited chat','All premium features','Dictation','PDF export'], btnClass:'plan-btn-counsel', btnText:'Continue to Payment →' },
+  ],
+  both: [
+    { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429, annualLabel:'$429/yr — save $159', features:['Both products','3 analyses/month per product','50 chats/day per product','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →' },
+    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129,annual:1099,annualLabel:'$1,099/yr — save $449',features:['Both products','5 analyses/month per product','100 chats/day per product','All premium features'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
+    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:249,annual:2099,annualLabel:'$2,099/yr — save $799',features:['Both products','Unlimited everything','All premium on both','Dictation on both'], btnClass:'plan-btn-counsel', btnText:'Continue to Payment →' },
+  ],
+};
+const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/criminal-app', '':'/criminal-app' };
+
+function routeToApp(user) {
+  const p = user?.products || selectedProduct || 'criminal';
+  window.location.href = p === 'family' ? '/family' : '/criminal-app';
+}
+
+function setAnnual(annual) {
+  isAnnual = annual;
+  document.getElementById('lblMonthly').style.color = annual ? 'var(--text3)' : 'var(--blue-light)';
+  document.getElementById('lblAnnual').style.color  = annual ? 'var(--blue-light)' : 'var(--text3)';
+  document.getElementById('saveBadge').style.display = annual ? 'inline' : 'none';
+  const knob = document.getElementById('toggleKnob');
+  const slider = document.getElementById('toggleSlider');
+  knob.style.transform = annual ? 'translateX(20px)' : '';
+  slider.style.background = annual ? 'var(--blue)' : 'var(--border)';
+  buildPlanGrid();
+}
+
+function buildPlanGrid() {
+  const plans = PLAN_DATA[selectedProduct] || PLAN_DATA.criminal;
+  const grid = document.getElementById('planGrid');
+  grid.style.gridTemplateColumns = `repeat(${plans.length}, 1fr)`;
+  grid.innerHTML = plans.map(p => `
+    <div style="background:var(--navy-mid);border:${p.popular ? '2px solid var(--blue)' : '1px solid var(--border)'};padding:24px 20px;position:relative;border-radius:2px">
+      ${p.popular ? '<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 12px;white-space:nowrap">Most Popular</div>' : ''}
+      <div style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:10px">${p.name}</div>
+      <div style="font-family:\'Playfair Display\',serif;font-size:2rem;color:var(--white);line-height:1;margin-bottom:4px">${p.monthly === 0 ? 'Free' : '$' + (isAnnual ? Math.round(p.annual/12) : p.monthly)}<span style="font-family:\'Inter\',sans-serif;font-size:.8rem;color:var(--text3);font-weight:400">${p.monthly === 0 ? '' : '/mo'}</span></div>
+      <div style="font-family:\'Inter\',sans-serif;font-size:.75rem;color:var(--text3);margin-bottom:16px;min-height:18px">${isAnnual && p.annualLabel ? p.annualLabel : (p.monthly > 0 ? 'billed monthly' : 'forever free')}</div>
+      <ul style="list-style:none;margin-bottom:20px">${p.features.map(f => `<li style="font-family:\'Inter\',sans-serif;font-size:.78rem;color:var(--text2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:flex-start;gap:7px"><span style="color:var(--blue-light);flex-shrink:0">✓</span>${f}</li>`).join('')}</ul>
+      <button onclick="choosePlan('${p.key}',${!!p.isFree})" style="width:100%;padding:12px;border:none;cursor:pointer;font-family:\'JetBrains Mono\',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:all .15s;background:${p.btnClass==='plan-btn-free'?'none':'var(--blue)'};border:${p.btnClass==='plan-btn-free'?'1px solid var(--border)':'none'};color:${p.btnClass==='plan-btn-free'?'var(--text3)':'#fff'}">${p.btnText}</button>
+    </div>
+  `).join('');
+}
+
+async function choosePlan(planKey, isFree) {
+  if (isFree) {
+    window.location.href = APP_URLS[selectedProduct] || '/criminal-app';
+    return;
+  }
+  const key = planKey + (isAnnual ? '_annual' : '');
+  const tok = localStorage.getItem('ls_tok');
+  try {
+    const r = await fetch('/api/billing/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ planKey: key }),
+    });
+    const d = await r.json();
+    if (d.url) {
+      window.location.href = d.url;
+    } else {
+      // Stripe not live — holding screen then route to app
+      document.getElementById('planStep').innerHTML = `
+        <div style="max-width:440px;margin:60px auto;text-align:center">
+          <div style="font-family:\'Playfair Display\',serif;font-size:1.4rem;color:var(--white);margin-bottom:12px">Your account is ready.</div>
+          <div style="font-family:\'Inter\',sans-serif;font-size:.88rem;color:var(--text3);line-height:1.75;margin-bottom:24px">Payment processing will be available shortly. Your selected plan has been noted.<br><br><strong style="color:var(--text2)">We'll email you when payment is ready.</strong><br><br>In the meantime, you have free access.</div>
+          <a href="${APP_URLS[selectedProduct]||'/criminal-app'}" style="display:inline-block;padding:14px 32px;background:var(--blue);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;text-decoration:none;font-weight:600">Enter the App →</a>
+        </div>`;
+    }
+  } catch(e) {
+    window.location.href = APP_URLS[selectedProduct] || '/criminal-app';
+  }
+}
+
+// Handle ?step=plans for returning users upgrading from account panel
+if (params.get('step') === 'plans' && localStorage.getItem('ls_tok')) {
+  selectedProduct = product || 'criminal';
+  buildPlanGrid();
+  showStep(3);
 }
 
 // ─────────────────────────────────────────

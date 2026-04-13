@@ -757,6 +757,16 @@ select.fi { cursor: pointer; }
   </div>
 </div>
 
+<!-- PRODUCT GATE MODAL -->
+<div id="productGateOv" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#162233;border:1px solid #2A3F56;border-top:3px solid #2E86C1;max-width:420px;width:100%;padding:36px 32px;text-align:center;">
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#F4F6F8;margin-bottom:12px;line-height:1.3">Family Law is a separate product</div>
+    <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:#8BA3BA;line-height:1.7;margin-bottom:24px">Your current plan covers Criminal Defence. Add Family Law to your account or upgrade to a Bundle plan to access both.</div>
+    <a href="/register?product=both" style="display:block;padding:13px;background:#2E86C1;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.13em;text-decoration:none;font-weight:600;margin-bottom:10px;">View Bundle Plans →</a>
+    <a href="/criminal-app" style="display:block;padding:11px;background:none;border:1px solid #2A3F56;color:#4A6680;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;text-decoration:none;">Stay on Criminal Defence</a>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -1759,6 +1769,13 @@ function showPanel(name) {
       const d = await api('GET','/auth/me?product=family');
       if (d?.user) {
         currentUser=d.user; usageState=d.usage;
+
+        // Product gatekeeping — Criminal-only users can't access Family
+        if (currentUser.products === 'criminal') {
+          document.getElementById('productGateOv').style.display = 'flex';
+          return;
+        }
+
         document.getElementById('authOv').style.display='none';
         renderUsage();
         await loadProfileFromServer();
