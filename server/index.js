@@ -26,7 +26,6 @@ app.use(cors({
 // ── ROUTES ──
 app.use('/api/auth',            require('./routes/auth'));
 app.use('/api/billing',         require('./routes/billing'));
-app.use('/api/clearsplit',      require('./routes/clearsplit'));
 app.use('/api/family/chat',     require('./routes/family-chat'));
 app.use('/api/dictation',       require('./routes/dictation'));
 app.use('/api/family/analyze',  require('./routes/family-analyze'));
@@ -118,14 +117,6 @@ const PORT = process.env.PORT || 3000;
     console.error('ClearSplit table setup error:', e.message);
   }
 })();
-
-// Start ClearSplit expiry warning cron (runs daily)
-try {
-  const { startClearSplitCron } = require('./cron/clearsplit-warnings');
-  startClearSplitCron();
-} catch(e) {
-  console.error('ClearSplit cron error:', e.message);
-}
 
 app.listen(PORT, () => {
   console.log(`ClearStand Unified Backend → http://localhost:${PORT}`);
