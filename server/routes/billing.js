@@ -99,6 +99,17 @@ const getStripe = () => {
 const APP_URL = () => process.env.APP_URL || 'http://localhost:3000';
 
 // ══════════════════════════════════════════════════
+// TEMPORARY DEBUG — remove after testing
+router.get('/debug-users', (req, res) => {
+  try {
+    const { db } = require('../db');
+    const users = db.prepare('SELECT id, email, plan, subscription_status, products FROM users').all();
+    res.json(users);
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 // POST /api/billing/checkout — subscriptions & analysis packs
 // Requires auth
 // ══════════════════════════════════════════════════
@@ -217,6 +228,9 @@ router.post('/clearsplit/checkout', async (req, res) => {
         if (user && (user.subscription_status === 'active' || user.subscription_status === 'trialing' || (user.plan && user.plan !== 'free'))) {
           userId = user.id;
           isSubscriber = true;
+          console.log(`[ClearSplit] Subscriber discount applied for user ${user.email} (plan: ${user.plan}, status: ${user.subscription_status})`);
+        } else {
+          console.log(`[ClearSplit] No discount — user: ${user?.email}, plan: ${user?.plan}, status: ${user?.subscription_status}`);
         }
       }
     } catch(e) { /* not authenticated — proceed without discount */ }
