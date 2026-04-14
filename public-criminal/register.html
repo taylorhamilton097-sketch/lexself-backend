@@ -436,7 +436,7 @@ function routeToApp(user) {
 // ─────────────────────────────────────────
 async function goClearSplitCheckout(token) {
   try {
-    const r = await fetch('/api/billing/clearsplit/checkout', {
+    const r = await fetch('https://www.clearstand.ca/api/billing/clearsplit/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify({ action: 'new' }),
@@ -445,7 +445,7 @@ async function goClearSplitCheckout(token) {
     if (d.url) {
       window.location.href = d.url;
     } else {
-      alert('Unable to start checkout: ' + (d.error || 'Unknown error. Please try again or contact support@clearstand.ca'));
+      alert('Unable to start checkout: ' + (d.error || 'Please try again or contact support@clearstand.ca'));
     }
   } catch(e) {
     alert('Connection error. Please try again.');
