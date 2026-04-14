@@ -59,6 +59,19 @@ app.get('/api/debug-users', (req, res) => {
   }
 });
 
+// TEMP FIX — remove after use
+app.get('/api/fix-plan', (req, res) => {
+  try {
+    const Database = require('better-sqlite3');
+    const db = new Database(process.env.DB_PATH || '/app/data/lexself.db');
+    db.prepare(`UPDATE users SET plan='essential', subscription_status='active', products='criminal' WHERE email='taylorjesshamilton@gmail.com'`).run();
+    const user = db.prepare(`SELECT id, email, plan, subscription_status FROM users WHERE email='taylorjesshamilton@gmail.com'`).get();
+    res.json({ success: true, user });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 // ── STATIC FRONTENDS ──
 // Family app at /family or on its own subdomain
 app.use('/family', express.static(path.join(__dirname, '../public-family')));
