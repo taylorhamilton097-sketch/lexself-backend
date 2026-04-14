@@ -69,11 +69,15 @@ app.get('/family-law', (req, res) => res.sendFile(path.join(__dirname, '../publi
 // Criminal app route
 app.get('/criminal-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/app.html')));
 
-// Static files
-app.use(express.static(path.join(__dirname, '../public-criminal')));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/index.html')));
-app.get('/clearsplit', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit.html')));
+// ClearSplit routes
+app.get('/clearsplit',     (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit.html')));
 app.get('/clearsplit-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-app.html')));
+
+// Static files — must come before wildcard
+app.use(express.static(path.join(__dirname, '../public-criminal')));
+
+// Wildcard MUST be last — catches all unmatched routes
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/index.html')));
 const PORT = process.env.PORT || 3000;
 // Ensure admin account has counsel plan on every startup
 (async function ensureAdmin() {
