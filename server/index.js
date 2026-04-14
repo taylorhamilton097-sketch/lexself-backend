@@ -11,7 +11,7 @@ const app = express();
 app.use('/api/billing/webhook', require('./routes/billing').webhookHandler ||
   (() => { const r = express.Router(); r.post('/', express.raw({type:'application/json'}), (req,res)=>res.json({received:true})); return r; })()
 );
-
+// force redeploy
 app.use(express.json({ limit: '2mb' }));
 app.use(cors({
   origin: [
@@ -24,64 +24,57 @@ app.use(cors({
 }));
 
 // ── ROUTES ──
-app.use('/api/auth',            require('./routes/auth'));
-app.use('/api/billing',         require('./routes/billing'));
-app.use('/api/family/chat',     require('./routes/family-chat'));
+app.use('/api/auth',           require('./routes/auth'));
+app.use('/api/billing',        require('./routes/billing'));
+app.use('/api/family/chat',    require('./routes/family-chat'));
 app.use('/api/dictation',       require('./routes/dictation'));
 app.use('/api/family/analyze',  require('./routes/family-analyze'));
 app.use('/api/admin',           require('./routes/admin'));
 app.use('/api/forms',           require('./routes/forms'));
-app.use('/api/chat',            require('./routes/criminal-chat'));
-app.use('/api/analyze',         require('./routes/analyze'));
+
+// Criminal routes
+app.use('/api/chat',        require('./routes/criminal-chat'));
+app.use('/api/analyze',        require('./routes/analyze'));
+
+// Admin
+// app.use('/api/admin',       require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({
   status: 'ok',
-  version: '2.0.0',
-  products: ['criminal', 'family', 'clearsplit'],
+  version: '1.0.0',
+  products: ['criminal', 'family'],
   time: new Date().toISOString(),
 }));
 
 // ── STATIC FRONTENDS ──
-
-// Family app
+// Family app at /family or on its own subdomain
 app.use('/family', express.static(path.join(__dirname, '../public-family')));
 app.get('/family/*', (req, res) => res.sendFile(path.join(__dirname, '../public-family/index.html')));
 
-// Auth / account pages
+// Auth page
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
-app.get('/login',    (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
 
-// Static pages
-app.get('/get-started',    (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/get-started.html')));
-app.get('/about',          (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/about.html')));
+// Get started selection page
+app.get('/get-started', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/get-started.html')));
+app.get('/about', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/about.html')));
 app.get('/privacy-policy', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/privacy-policy.html')));
-app.get('/terms-of-use',   (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/terms-of-use.html')));
-app.get('/unsubscribe',    (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/unsubscribe.html')));
+app.get('/terms-of-use', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/terms-of-use.html')));
 
 // Marketing subpages
 app.get('/criminal-defence', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/criminal.html')));
-app.get('/family-law',       (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/family.html')));
+app.get('/family-law', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/family.html')));
 
-// Criminal app
+// Criminal app route
 app.get('/criminal-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/app.html')));
 
-// ── CLEARSPLIT ROUTES ──
-app.get('/clearsplit',          (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit.html')));
-app.get('/clearsplit/app',      (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-app.html')));
-app.get('/clearsplit/register', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-register.html')));
-app.get('/clearsplit/join',     (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-register.html')));
-app.get('/clearsplit/extend',   (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-extend.html')));
-app.get('/clearsplit/success',  (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-success.html')));
-// Legacy — redirect old /clearsplit-app to new URL
-app.get('/clearsplit-app',      (req, res) => res.redirect(301, '/clearsplit/app'));
-
-// Static files (must come before wildcard)
+// Static files
 app.use(express.static(path.join(__dirname, '../public-criminal')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/index.html')));
-
+app.get('/clearsplit', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit.html')));
+app.get('/clearsplit-app', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/clearsplit-app.html')));
 const PORT = process.env.PORT || 3000;
-
 // Ensure admin account has counsel plan on every startup
 (async function ensureAdmin() {
   try {
@@ -98,29 +91,8 @@ const PORT = process.env.PORT || 3000;
   }
 })();
 
-// Ensure ClearSplit purchases table exists
-(function ensureClearSplitTable() {
-  try {
-    const { ensureClearSplitTable } = require('./db');
-    if (typeof ensureClearSplitTable === 'function') ensureClearSplitTable();
-  } catch(e) {
-    console.error('ClearSplit table setup error:', e.message);
-  }
-})();
-
-// Ensure ClearSplit purchases table exists
-(function ensureClearSplitTable() {
-  try {
-    const { ensureClearSplitTable } = require('./db');
-    if (typeof ensureClearSplitTable === 'function') ensureClearSplitTable();
-  } catch(e) {
-    console.error('ClearSplit table setup error:', e.message);
-  }
-})();
-
 app.listen(PORT, () => {
   console.log(`ClearStand Unified Backend → http://localhost:${PORT}`);
-  console.log(`  Criminal:   http://localhost:${PORT}/criminal-app`);
-  console.log(`  Family:     http://localhost:${PORT}/family`);
-  console.log(`  ClearSplit: http://localhost:${PORT}/clearsplit`);
+  console.log(`  Criminal: http://localhost:${PORT}/`);
+  console.log(`  Family:   http://localhost:${PORT}/family`);
 });
