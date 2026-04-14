@@ -214,7 +214,7 @@ router.post('/clearsplit/checkout', async (req, res) => {
       if (decoded) {
         const { getUserById } = require('../db');
         const user = getUserById(decoded.userId);
-        if (user && user.subscription_status === 'active') {
+        if (user && (user.subscription_status === 'active' || user.subscription_status === 'trialing' || (user.plan && user.plan !== 'free'))) {
           userId = user.id;
           isSubscriber = true;
         }
