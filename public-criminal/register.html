@@ -685,9 +685,13 @@ if (params.get('step') === 'plans' && localStorage.getItem('ls_tok')) {
   const tok = localStorage.getItem('ls_tok');
   if (!tok) return;
 
-  // Don't auto-redirect if they explicitly came to register
-  // (presence of ?product means they want to start fresh or switch product)
-  // Only auto-redirect on bare /register or /login with no params
+  // If already logged in and coming for ClearSplit — go straight to checkout
+  if (product === 'clearsplit') {
+    goClearSplitCheckout(tok);
+    return;
+  }
+
+  // Don't auto-redirect for other product params (they want to register/switch)
   if (product) return;
 
   fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + tok } })
