@@ -445,26 +445,11 @@ async function goClearSplitCheckout(token) {
     if (d.url) {
       window.location.href = d.url;
     } else {
-      // Stripe not yet live — holding page
-      showHoldingPage();
+      alert('Unable to start checkout: ' + (d.error || 'Unknown error. Please try again or contact support@clearstand.ca'));
     }
   } catch(e) {
-    showHoldingPage();
+    alert('Connection error. Please try again.');
   }
-}
-
-function showHoldingPage() {
-  document.querySelector('.auth-box').innerHTML = `
-    <div style="text-align:center;padding:8px 0">
-      <div style="font-size:2.2rem;margin-bottom:16px">✓</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:12px;line-height:1.3">Your account is ready.</div>
-      <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text3);line-height:1.75;margin-bottom:24px">
-        Payment processing will be available shortly.<br>
-        Your account has been created and your plan has been noted.<br><br>
-        <strong style="color:var(--text2)">We'll email you when payment is ready.</strong>
-      </div>
-      <a href="/" style="display:inline-block;padding:12px 28px;background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;text-decoration:none;font-weight:600">Back to ClearStand</a>
-    </div>`;
 }
 
 // ─────────────────────────────────────────
@@ -678,13 +663,7 @@ async function choosePlan(planKey, isFree) {
     if (d.url) {
       window.location.href = d.url;
     } else {
-      // Stripe not live — holding screen then route to app
-      document.getElementById('planStep').innerHTML = `
-        <div style="max-width:440px;margin:60px auto;text-align:center">
-          <div style="font-family:\'Playfair Display\',serif;font-size:1.4rem;color:var(--white);margin-bottom:12px">Your account is ready.</div>
-          <div style="font-family:\'Inter\',sans-serif;font-size:.88rem;color:var(--text3);line-height:1.75;margin-bottom:24px">Payment processing will be available shortly. Your selected plan has been noted.<br><br><strong style="color:var(--text2)">We'll email you when payment is ready.</strong><br><br>In the meantime, you have free access.</div>
-          <a href="${APP_URLS[selectedProduct]||'/criminal-app'}" style="display:inline-block;padding:14px 32px;background:var(--blue);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;text-decoration:none;font-weight:600">Enter the App →</a>
-        </div>`;
+      alert("Unable to start checkout: " + (d.error || "Please try again or contact support@clearstand.ca"));
     }
   } catch(e) {
     window.location.href = APP_URLS[selectedProduct] || '/criminal-app';
