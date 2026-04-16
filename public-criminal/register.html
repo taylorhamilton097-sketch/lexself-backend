@@ -3,241 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClearStand — Sign In</title>
+<title>ClearStand — Create Account</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy: #0D1B2A;
-  --navy-mid: #162233;
-  --navy-light: #1E3045;
-  --blue: #2E86C1;
-  --blue-light: #3EA4E4;
-  --border: #2A3F56;
-  --text: #E8EDF2;
-  --text2: #8BA3BA;
-  --text3: #4A6680;
-  --white: #F4F6F8;
-  --red: #E87070;
+  --navy:#0D1B2A;--navy-mid:#162233;--navy-light:#1E3045;
+  --blue:#2E86C1;--blue-light:#3EA4E4;--teal:#20B2AA;
+  --border:#2A3F56;--text:#E8EDF2;--text2:#8BA3BA;--text3:#4A6680;
+  --white:#F4F6F8;--red:#E87070;--green:#4CAF50;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; }
-body {
-  background: var(--navy);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ── NAV ── */
-nav {
-  background: var(--navy-mid);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.nav-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--white);
-  text-decoration: none;
-}
-.nav-logo span { color: var(--blue-light); }
-.nav-back {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .55rem;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  color: var(--text3);
-  text-decoration: none;
-  transition: color .15s;
-}
-.nav-back:hover { color: var(--text2); }
-
-/* ── MAIN ── */
-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px 60px;
-}
-
-/* ── AUTH BOX ── */
-.auth-wrap { width: 100%; max-width: 440px; }
-
-.auth-box {
-  background: var(--navy-mid);
-  border: 1px solid var(--border);
-  padding: 36px 32px 28px;
-}
-
-.auth-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--white);
-  text-align: center;
-  margin-bottom: 4px;
-}
-.auth-logo span { color: var(--blue-light); }
-
-.auth-subtitle {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .5rem;
-  text-transform: uppercase;
-  letter-spacing: .14em;
-  color: var(--text3);
-  text-align: center;
-  margin-bottom: 24px;
-  line-height: 1.6;
-}
-
-/* ── TABS ── */
-.auth-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
-}
-.auth-tab {
-  flex: 1;
-  padding: 10px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .58rem;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  color: var(--text3);
-  transition: all .15s;
-  min-height: 42px;
-}
-.auth-tab.active {
-  color: var(--blue-light);
-  border-bottom-color: var(--blue);
-}
-
-/* ── FORM FIELDS ── */
-.field-group { margin-bottom: 14px; }
-.field-lbl {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .52rem;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  color: var(--text3);
-  display: block;
-  margin-bottom: 5px;
-}
-.field-inp {
-  width: 100%;
-  background: var(--navy);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 12px 14px;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color .15s;
-  -webkit-appearance: none;
-  border-radius: 0;
-}
-.field-inp:focus { border-color: var(--blue); }
-
-/* ── TERMS ── */
-.terms-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.terms-row input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  flex-shrink: 0;
-  cursor: pointer;
-  accent-color: var(--blue);
-}
-.terms-row label {
-  font-family: 'Inter', sans-serif;
-  font-size: .82rem;
-  color: var(--text3);
-  line-height: 1.55;
-  cursor: pointer;
-}
-.terms-row a { color: var(--blue-light); text-decoration: underline; }
-
-/* ── BUTTON ── */
-.auth-btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--blue);
-  color: var(--white);
-  border: none;
-  cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .68rem;
-  text-transform: uppercase;
-  letter-spacing: .15em;
-  font-weight: 600;
-  min-height: 50px;
-  transition: background .15s;
-  margin-bottom: 4px;
-}
-.auth-btn:hover { background: var(--blue-light); }
-.auth-btn:disabled { opacity: .55; cursor: not-allowed; }
-
-/* ── ERROR ── */
-.auth-err {
-  font-family: 'Inter', sans-serif;
-  font-size: .85rem;
-  color: var(--red);
-  padding: 10px 12px;
-  background: rgba(232,112,112,.08);
-  border: 1px solid rgba(232,112,112,.2);
-  margin-bottom: 14px;
-  display: none;
-  line-height: 1.5;
-}
-.auth-err.show { display: block; }
-.auth-err a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: underline; }
-
-/* ── NOTE ── */
-.auth-note {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .47rem;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text3);
-  text-align: center;
-  margin-top: 12px;
-  line-height: 1.8;
-}
-
-/* ── BACK LINK ── */
-.back-home {
-  display: block;
-  text-align: center;
-  margin-top: 16px;
-  font-family: 'Inter', sans-serif;
-  font-size: .85rem;
-  color: var(--text3);
-  text-decoration: none;
-}
-.back-home:hover { color: var(--text2); }
-
-@media (max-width: 480px) {
-  .auth-box { padding: 28px 20px 20px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--blue-light);}
+.nav-back{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);text-decoration:none;}
+.nav-back:hover{color:var(--text2);}
+.progress-bar{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:center;gap:0;flex-shrink:0;}
+.prog-step{display:flex;align-items:center;gap:8px;}
+.prog-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3);transition:all .2s;}
+.prog-dot.active{border-color:var(--blue);color:var(--blue);}
+.prog-dot.done{border-color:var(--blue);background:var(--blue);color:#fff;}
+.prog-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);}
+.prog-label.active{color:var(--blue-light);}
+.prog-line{width:40px;height:1px;background:var(--border);margin:0 4px;}
+.prog-line.done{background:var(--blue);}
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px 60px;}
+.step{display:none;width:100%;max-width:520px;}
+.step.on{display:block;}
+.step.wide{max-width:580px;}
+.auth-box{background:var(--navy-mid);border:1px solid var(--border);padding:36px 32px 28px;}
+.auth-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--white);text-align:center;margin-bottom:4px;}
+.auth-logo span{color:var(--blue-light);}
+.auth-subtitle{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);text-align:center;margin-bottom:24px;line-height:1.6;}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.auth-tab{flex:1;padding:10px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);transition:all .15s;min-height:42px;}
+.auth-tab.active{color:var(--blue-light);border-bottom-color:var(--blue);}
+.field{margin-bottom:14px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.field-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);display:block;margin-bottom:5px;}
+.field-inp{width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:'Inter',sans-serif;font-size:1rem;outline:none;transition:border-color .15s;-webkit-appearance:none;border-radius:0;}
+.field-inp:focus{border-color:var(--blue);}
+.terms-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;}
+.terms-row input{width:16px;height:16px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:var(--blue);}
+.terms-row label{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);line-height:1.55;cursor:pointer;}
+.terms-row a{color:var(--blue-light);text-decoration:underline;}
+.auth-btn{width:100%;padding:14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.15em;font-weight:600;min-height:50px;transition:background .15s;margin-bottom:4px;}
+.auth-btn:hover{background:var(--blue-light);}
+.auth-btn:disabled{opacity:.4;cursor:not-allowed;}
+.auth-err{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--red);padding:10px 12px;background:rgba(232,112,112,.08);border:1px solid rgba(232,112,112,.2);margin-bottom:14px;display:none;line-height:1.5;}
+.auth-err.show{display:block;}
+.auth-err a{color:var(--red);font-weight:600;cursor:pointer;text-decoration:underline;}
+.auth-note{font-family:'JetBrains Mono',monospace;font-size:.47rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;margin-top:12px;line-height:1.8;}
+.back-home{display:block;text-align:center;margin-top:16px;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);text-decoration:none;}
+.step-back{background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);margin-top:12px;display:block;padding:0;}
+.step-back:hover{color:var(--text2);}
+/* Product cards */
+.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.prod-card{background:var(--navy);border:2px solid var(--border);padding:20px 16px;cursor:pointer;transition:all .15s;position:relative;text-align:left;}
+.prod-card:hover{border-color:var(--blue);}
+.prod-card.selected{border-color:var(--blue);background:var(--navy-light);}
+.prod-card.selected::after{content:'✓';position:absolute;top:10px;right:12px;color:var(--blue);font-size:1rem;font-weight:700;}
+.prod-icon{font-size:1.4rem;margin-bottom:8px;}
+.prod-name{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:6px;}
+.prod-desc{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);line-height:1.5;margin-bottom:10px;}
+.prod-badge{font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:20px;display:inline-block;}
+.badge-blue{background:rgba(46,134,193,.15);color:var(--blue-light);border:1px solid rgba(46,134,193,.3);}
+.badge-green{background:rgba(76,175,80,.12);color:#7bcf7b;border:1px solid rgba(76,175,80,.3);}
+.badge-teal{background:rgba(32,178,170,.12);color:var(--teal);border:1px solid rgba(32,178,170,.3);}
+.prod-card.recommended{border-color:var(--blue);}
+.recommended-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap;}
+.helper-text{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;margin-bottom:12px;}
+/* Plan cards */
+.billing-toggle{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;}
+.toggle-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);transition:color .15s;}
+.toggle-lbl.active{color:var(--blue-light);}
+.toggle-switch{position:relative;width:44px;height:24px;cursor:pointer;display:inline-block;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:24px;transition:.3s;}
+.toggle-knob{position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+.save-badge{font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green);background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);padding:2px 8px;border-radius:20px;display:none;}
+.save-badge.show{display:inline;}
+.plan-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.plan-card{background:var(--navy);border:1px solid var(--border);padding:20px;position:relative;}
+.plan-card.popular{border-color:var(--blue);}
+.plan-pop-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap;}
+.plan-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.plan-name{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);}
+.plan-annual-note{font-family:'Inter',sans-serif;font-size:.7rem;color:var(--green);min-height:16px;margin-top:2px;}
+.plan-price{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);line-height:1;text-align:right;}
+.plan-period{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--text3);text-align:right;}
+.plan-features{list-style:none;margin-bottom:16px;}
+.plan-features li{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);padding:3px 0;display:flex;align-items:flex-start;gap:7px;}
+.plan-features li::before{content:'✓';color:var(--blue-light);flex-shrink:0;}
+.plan-cta{width:100%;padding:12px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:background .15s;min-height:44px;}
+.plan-cta:hover{background:var(--blue-light);}
+.free-link{display:block;text-align:center;font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);cursor:pointer;text-decoration:underline;margin-top:4px;}
+.picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;}
+.picker-card{display:block;padding:24px 20px;background:var(--navy);border:1px solid var(--border);text-decoration:none;transition:border-color .15s;text-align:center;}
+.picker-card:hover{border-color:var(--blue);}
+.picker-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:6px;}
+.picker-sub{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);}
+@media(max-width:480px){
+  .auth-box{padding:24px 18px 20px;}
+  .product-grid{grid-template-columns:1fr;}
+  .field-row{grid-template-columns:1fr;}
+  .plan-top{flex-direction:column;gap:8px;}
+  .plan-price{text-align:left;}
+  .plan-period{text-align:left;}
+  .prog-label{display:none;}
+  .prog-line{width:20px;}
 }
 </style>
 </head>
@@ -248,456 +125,428 @@ main {
   <a href="/" class="nav-back">← Back to Home</a>
 </nav>
 
+<div class="progress-bar">
+  <div class="prog-step"><div class="prog-dot active" id="pd1">1</div><span class="prog-label active" id="pl1">Account</span></div>
+  <div class="prog-line" id="line12"></div>
+  <div class="prog-step"><div class="prog-dot" id="pd2">2</div><span class="prog-label" id="pl2">Product</span></div>
+  <div class="prog-line" id="line23"></div>
+  <div class="prog-step"><div class="prog-dot" id="pd3">3</div><span class="prog-label" id="pl3">Plan</span></div>
+  <div class="prog-line" id="line34"></div>
+  <div class="prog-step"><div class="prog-dot" id="pd4">4</div><span class="prog-label" id="pl4">Done</span></div>
+</div>
+
 <main>
-  <div class="auth-wrap">
+
+  <!-- STEP 1: ACCOUNT / SIGN IN -->
+  <div class="step on" id="step1">
     <div class="auth-box">
-
-      <!-- LOGO + SUBTITLE -->
-      <div class="auth-logo" id="authLogo">Clear<span>Stand</span></div>
-      <div class="auth-subtitle" id="authSubtitle">Your rights. Your case. Your ground.</div>
-
-      <!-- TABS — always visible, always both -->
+      <div class="auth-logo">Clear<span>Stand</span></div>
+      <div class="auth-subtitle" id="s1Sub">Create your account or sign in</div>
       <div class="auth-tabs">
-        <button class="auth-tab" id="tabSignin" onclick="showTab('signin')">Sign In</button>
-        <button class="auth-tab active" id="tabRegister" onclick="showTab('register')">Create Account</button>
+        <button class="auth-tab" id="tabSI" onclick="showTab('si')">Sign In</button>
+        <button class="auth-tab active" id="tabReg" onclick="showTab('reg')">Create Account</button>
       </div>
-
-      <!-- ── SIGN IN FORM ── -->
-      <div id="formSignin" style="display:none">
-        <div class="auth-err" id="signinErr"></div>
-        <div class="field-group">
-          <label class="field-lbl" for="siEmail">Email</label>
-          <input class="field-inp" type="email" id="siEmail" placeholder="you@email.com" autocomplete="email">
-        </div>
-        <div class="field-group">
-          <label class="field-lbl" for="siPass">Password</label>
-          <input class="field-inp" type="password" id="siPass" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter')submitSignin()">
-        </div>
-        <button class="auth-btn" id="signinBtn" onclick="submitSignin()">Sign In</button>
+      <!-- Sign In -->
+      <div id="fSI" style="display:none">
+        <div class="auth-err" id="siErr"></div>
+        <div class="field"><label class="field-lbl">Email</label><input class="field-inp" type="email" id="siEmail" placeholder="you@email.com" autocomplete="email"></div>
+        <div class="field"><label class="field-lbl">Password</label><input class="field-inp" type="password" id="siPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignin()"></div>
+        <button class="auth-btn" id="siBtn" onclick="doSignin()">Sign In</button>
+        <div class="auth-note">Sign in to your ClearStand account</div>
       </div>
-
-      <!-- ── REGISTER FORM ── -->
-      <div id="formRegister">
-        <div class="auth-err" id="registerErr"></div>
-        <div class="field-group">
-          <label class="field-lbl" for="regName">Full Name</label>
-          <input class="field-inp" type="text" id="regName" placeholder="Your full name" autocomplete="name">
+      <!-- Register -->
+      <div id="fReg">
+        <div class="auth-err" id="regErr"></div>
+        <div class="field-row">
+          <div><label class="field-lbl">First Name</label><input class="field-inp" type="text" id="regFirst" placeholder="First" autocomplete="given-name"></div>
+          <div><label class="field-lbl">Last Name</label><input class="field-inp" type="text" id="regLast" placeholder="Last" autocomplete="family-name"></div>
         </div>
-        <div class="field-group">
-          <label class="field-lbl" for="regEmail">Email Address</label>
-          <input class="field-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email">
-        </div>
-        <div class="field-group">
-          <label class="field-lbl" for="regPass">Password</label>
-          <input class="field-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password"
-            onkeydown="if(event.key==='Enter')submitRegister()">
-        </div>
+        <div class="field"><label class="field-lbl">Email Address</label><input class="field-inp" type="email" id="regEmail" placeholder="you@email.com" autocomplete="email"></div>
+        <div class="field"><label class="field-lbl">Password</label><input class="field-inp" type="password" id="regPass" placeholder="Min. 8 characters" autocomplete="new-password"></div>
+        <div class="field"><label class="field-lbl">Confirm Password</label><input class="field-inp" type="password" id="regPass2" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
         <div class="terms-row">
           <input type="checkbox" id="regTerms">
-          <label for="regTerms">I have read and agree to the
-            <a href="/terms-of-use" target="_blank">Terms of Use</a> and
-            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
-          </label>
+          <label for="regTerms">By creating an account you agree to our <a href="/terms-of-use" target="_blank">Terms of Use</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a></label>
         </div>
-        <button class="auth-btn" id="registerBtn" onclick="submitRegister()">Create Account</button>
-        <div class="auth-note" id="registerNote">Free to start · No credit card required · Not legal advice</div>
+        <button class="auth-btn" id="regBtn" onclick="doRegister()">Continue →</button>
+        <div class="auth-note">Free to start · No credit card required</div>
       </div>
-
     </div>
     <a href="/" class="back-home">← Back to ClearStand Home</a>
   </div>
+
+  <!-- STEP 2: PRODUCT SELECTION -->
+  <div class="step wide" id="step2">
+    <div class="auth-box" style="max-width:100%">
+      <div class="auth-logo">Clear<span>Stand</span></div>
+      <div class="auth-subtitle">What do you need help with?</div>
+      <p style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);text-align:center;margin-bottom:20px">Choose your product. You can add or change anytime from your account.</p>
+      <div class="product-grid">
+        <div class="prod-card" id="pc-family" onclick="selectProduct('family',this)">
+          <div class="prod-icon">⚖️</div>
+          <div class="prod-name">Family Law</div>
+          <div class="prod-desc">Custody, support, separation, and all Ontario family court documents</div>
+          <span class="prod-badge badge-blue">Ontario</span>
+        </div>
+        <div class="prod-card" id="pc-criminal" onclick="selectProduct('criminal',this)">
+          <div class="prod-icon">🛡️</div>
+          <div class="prod-name">Criminal Defence</div>
+          <div class="prod-desc">Crown disclosure, cross-examination prep, Charter rights, and criminal court documents</div>
+          <span class="prod-badge badge-blue">Canada-wide</span>
+        </div>
+        <div class="prod-card recommended" id="pc-both" onclick="selectProduct('both',this)" style="grid-column:1/-1;position:relative">
+          <div class="recommended-badge">Recommended</div>
+          <div class="prod-icon">⚖️🛡️</div>
+          <div class="prod-name">Family Law + Criminal Defence</div>
+          <div class="prod-desc">Full access to both products at a discounted bundle rate</div>
+          <span class="prod-badge badge-green">Best Value</span>
+        </div>
+        <div class="prod-card" id="pc-clearsplit" onclick="selectProduct('clearsplit',this)" style="grid-column:1/-1">
+          <div class="prod-icon">📄</div>
+          <div class="prod-name">ClearSplit</div>
+          <div class="prod-desc">Collaborative separation agreement tool for uncontested separations</div>
+          <span class="prod-badge badge-teal">One-time $299</span>
+        </div>
+      </div>
+      <div class="helper-text" id="s2Helper">Select one to continue</div>
+      <button class="auth-btn" id="s2Btn" onclick="goToStep3()" disabled>Continue →</button>
+      <button class="step-back" onclick="goToStep(1)">← Back</button>
+    </div>
+    <a href="/" class="back-home">← Back to ClearStand Home</a>
+  </div>
+
+  <!-- STEP 3: PLAN SELECTION -->
+  <div class="step" id="step3">
+    <div class="auth-box">
+      <div class="auth-logo">Clear<span>Stand</span></div>
+      <div class="auth-subtitle" id="s3Sub">Choose your plan</div>
+      <div class="billing-toggle">
+        <span class="toggle-lbl active" id="lblM">Monthly</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="annualToggle" onchange="setAnnual(this.checked)">
+          <span class="toggle-track" id="tTrack"></span>
+          <span class="toggle-knob" id="tKnob"></span>
+        </label>
+        <span class="toggle-lbl" id="lblA">Annual</span>
+        <span class="save-badge" id="saveBadge">Save up to 20%</span>
+      </div>
+      <div id="planCards" class="plan-cards"></div>
+      <a class="free-link" id="freeLink" onclick="chooseFree()">Not ready to commit? Continue with our Free plan →</a>
+      <button class="step-back" onclick="goToStep(2)" style="margin-top:16px">← Back</button>
+    </div>
+    <a href="/" class="back-home">← Back to ClearStand Home</a>
+  </div>
+
+  <!-- STEP 4: DONE -->
+  <div class="step" id="step4">
+    <div class="auth-box" style="text-align:center">
+      <div class="auth-logo">Clear<span>Stand</span></div>
+      <div id="s4Content" style="margin-top:16px"></div>
+    </div>
+    <a href="/" class="back-home">← Back to ClearStand Home</a>
+  </div>
+
 </main>
 
-<!-- PLAN SELECTION STEP (shown after registration) -->
-<div id="planStep" style="display:none;width:100%;padding:40px 24px 60px;max-width:960px;margin:0 auto">
-  <div style="text-align:center;margin-bottom:8px">
-    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2rem);color:var(--white)">Start free or choose a plan.</div>
-    <div style="font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text3);margin-top:8px">You can upgrade any time from inside your account.</div>
-  </div>
-
-  <!-- Monthly / Annual toggle -->
-  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:24px 0 32px">
-    <span id="lblMonthly" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light)">Monthly</span>
-    <label style="position:relative;width:44px;height:24px;cursor:pointer">
-      <input type="checkbox" id="annualToggle" onchange="setAnnual(this.checked)" style="opacity:0;width:0;height:0">
-      <span id="toggleSlider" style="position:absolute;inset:0;background:var(--border);border-radius:24px;transition:.3s"></span>
-      <span id="toggleKnob" style="position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
-    </label>
-    <span id="lblAnnual" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3)">Annual</span>
-    <span id="saveBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:#4CAF50;background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3);padding:2px 8px;border-radius:20px">Save up to $509/yr</span>
-  </div>
-
-  <div id="planGrid" style="display:grid;gap:10px;margin-bottom:24px"></div>
-
-  <div style="text-align:center">
-    <a href="/" style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);text-decoration:none">← Back to ClearStand</a>
-  </div>
-</div>
-
 <script>
-// ─────────────────────────────────────────
-// CONFIGURATION
-// ─────────────────────────────────────────
-const params  = new URLSearchParams(window.location.search);
-const product = params.get('product') || '';   // 'family' | 'criminal' | 'clearsplit' | ''
+'use strict';
 
-const PRODUCT_CONFIG = {
-  family: {
-    logo:     'Clear<span>Stand</span>',
-    subtitle: 'Ontario Family Law',
-    regBtn:   'Create Free Account',
-    note:     'Free to start · No credit card required · Not legal advice',
-    dest:     '/family',
-  },
-  criminal: {
-    logo:     'Clear<span>Stand</span>',
-    subtitle: 'Canadian Criminal Defence',
-    regBtn:   'Create Free Account',
-    note:     'Free to start · No credit card required · Not legal advice',
-    dest:     '/criminal-app',
-  },
-  clearsplit: {
-    logo:     'Clear<span>Split</span>',
-    subtitle: 'Separation Agreement · Create your account to continue to payment',
-    regBtn:   'Create Account & Continue →',
-    note:     'One-time payment of $299 after account creation',
-    dest:     null, // goes to Stripe checkout
-  },
-  '': {
-    logo:     'Clear<span>Stand</span>',
-    subtitle: 'Your rights. Your case. Your ground.',
-    regBtn:   'Create Account',
-    note:     'Free to start · No credit card required · Not legal advice',
-    dest:     null, // show product selection
-  },
-};
+// ── STATE ──
+const params       = new URLSearchParams(window.location.search);
+const urlProduct   = params.get('product') || '';
+const urlSignin    = params.get('signin') === '1';
+const urlStepPlans = params.get('step') === 'plans';
+let selectedProduct = urlProduct || '';
+let isAnnual = false;
+let authToken = localStorage.getItem('ls_tok') || null;
+let authUser  = null;
 
-const cfg = PRODUCT_CONFIG[product] || PRODUCT_CONFIG[''];
+// ── PROGRESS ──
+function updateProgress(step) {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    const lbl = document.getElementById('pl' + i);
+    dot.classList.remove('active','done');
+    lbl.classList.remove('active');
+    if (i < step)  { dot.classList.add('done'); dot.textContent = '✓'; }
+    if (i === step){ dot.classList.add('active'); lbl.classList.add('active'); dot.textContent = i; }
+    if (i > step)  { dot.textContent = i; }
+  }
+  for (let i = 1; i <= 3; i++) {
+    const ln = document.getElementById('line' + i + (i+1));
+    if (ln) ln.classList.toggle('done', i < step);
+  }
+}
 
-// Apply config to UI
-document.getElementById('authLogo').innerHTML      = cfg.logo;
-document.getElementById('authSubtitle').textContent = cfg.subtitle;
-document.getElementById('registerBtn').textContent  = cfg.regBtn;
-document.getElementById('registerNote').textContent = cfg.note;
+// ── NAVIGATION ──
+function goToStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
+  document.getElementById('step' + n)?.classList.add('on');
+  updateProgress(n);
+  window.scrollTo(0,0);
+}
 
-// ─────────────────────────────────────────
-// TAB SWITCHING
-// ─────────────────────────────────────────
+// ── TABS ──
 function showTab(tab) {
-  const isSignin = (tab === 'signin');
-  document.getElementById('tabSignin').classList.toggle('active', isSignin);
-  document.getElementById('tabRegister').classList.toggle('active', !isSignin);
-  document.getElementById('formSignin').style.display   = isSignin ? 'block' : 'none';
-  document.getElementById('formRegister').style.display = isSignin ? 'none'  : 'block';
+  const isSI = tab === 'si';
+  document.getElementById('tabSI').classList.toggle('active', isSI);
+  document.getElementById('tabReg').classList.toggle('active', !isSI);
+  document.getElementById('fSI').style.display  = isSI ? 'block' : 'none';
+  document.getElementById('fReg').style.display = isSI ? 'none'  : 'block';
 }
 
-// Default: show register tab (or signin if ?signin=1)
-if (params.get('signin') === '1') {
-  showTab('signin');
-} else {
-  showTab('register');
-}
-
-// ─────────────────────────────────────────
-// AUTH SUCCESS — single handler for both
-// login and registration
-// ─────────────────────────────────────────
-async function onAuthSuccess(token, user, fromRegistration = false) {
-  localStorage.setItem('ls_tok', token);
-
-  if (product === 'clearsplit') {
-    await goClearSplitCheckout(token);
-    return;
-  }
-
-  // After registration for subscription products — show plan selection
-  if (fromRegistration && (product === 'family' || product === 'criminal' || product === 'both' || product === '')) {
-    // Store which product for plan grid
-    selectedProduct = product || user.products || 'criminal';
-    buildPlanGrid();
-    showStep(3);
-    return;
-  }
-
-  // Login or direct routing — go straight to app
-  routeToApp(user);
-}
-
-function routeToApp(user) {
-  const p = user?.products || selectedProduct || 'criminal';
-  if (p === 'family') window.location.href = '/family';
-  else if (p === 'both') window.location.href = '/criminal-app';
-  else window.location.href = '/criminal-app';
-}
-
-// ─────────────────────────────────────────
-// CLEARSPLIT CHECKOUT
-// ─────────────────────────────────────────
-async function goClearSplitCheckout(token) {
-  try {
-    const r = await fetch('https://www.clearstand.ca/api/billing/clearsplit/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ action: 'new' }),
-    });
-    const d = await r.json();
-    if (d.url) {
-      window.location.href = d.url;
-    } else {
-      alert('Unable to start checkout: ' + (d.error || 'Please try again or contact support@clearstand.ca'));
-    }
-  } catch(e) {
-    alert('Connection error. Please try again.');
-  }
-}
-
-// ─────────────────────────────────────────
-// SIGN IN
-// ─────────────────────────────────────────
-async function submitSignin() {
+// ── SIGN IN ──
+async function doSignin() {
   const email = document.getElementById('siEmail').value.trim();
   const pass  = document.getElementById('siPass').value;
-  const err   = document.getElementById('signinErr');
-  const btn   = document.getElementById('signinBtn');
-
+  const err   = document.getElementById('siErr');
+  const btn   = document.getElementById('siBtn');
   err.classList.remove('show');
-
-  if (!email || !pass) {
-    err.textContent = 'Email and password required.';
-    err.classList.add('show');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Signing in…';
-
+  if (!email || !pass) { err.textContent = 'Email and password required.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
   try {
     const r = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ email, password: pass }),
     });
     const d = await r.json();
-
-    if (!r.ok || d.error) {
-      err.textContent = 'Invalid email or password. Please try again.';
-      err.classList.add('show');
-    } else {
-      await onAuthSuccess(d.token, d.user, false);
-    }
-  } catch(e) {
-    err.textContent = 'Connection error. Please try again.';
-    err.classList.add('show');
-  }
-
-  btn.disabled = false;
-  btn.textContent = 'Sign In';
+    if (!r.ok || d.error) { err.textContent = d.error || 'Invalid email or password.'; err.classList.add('show'); }
+    else { authToken = d.token; authUser = d.user; localStorage.setItem('ls_tok', d.token); await onAuthSuccess(false); }
+  } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Sign In';
 }
 
-// ─────────────────────────────────────────
-// REGISTER
-// ─────────────────────────────────────────
-async function submitRegister() {
-  const name  = document.getElementById('regName').value.trim();
+// ── REGISTER ──
+async function doRegister() {
+  const first = document.getElementById('regFirst').value.trim();
+  const last  = document.getElementById('regLast').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
   const terms = document.getElementById('regTerms').checked;
-  const err   = document.getElementById('registerErr');
-  const btn   = document.getElementById('registerBtn');
-
+  const err   = document.getElementById('regErr');
+  const btn   = document.getElementById('regBtn');
   err.classList.remove('show');
-
-  if (!name) {
-    err.textContent = 'Please enter your full name.';
-    err.classList.add('show'); return;
-  }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    err.textContent = 'Please enter a valid email address.';
-    err.classList.add('show'); return;
-  }
-  if (pass.length < 8) {
-    err.textContent = 'Password must be at least 8 characters.';
-    err.classList.add('show'); return;
-  }
-  if (!terms) {
-    err.textContent = 'Please agree to the Terms of Use and Privacy Policy to continue.';
-    err.classList.add('show'); return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Creating account…';
-
+  if (!first||!last)    { err.textContent='Please enter your full name.'; err.classList.add('show'); return; }
+  if (!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent='Please enter a valid email address.'; err.classList.add('show'); return; }
+  if (pass.length < 8)  { err.textContent='Password must be at least 8 characters.'; err.classList.add('show'); return; }
+  if (pass !== pass2)   { err.textContent='Passwords do not match.'; err.classList.add('show'); return; }
+  if (!terms)           { err.textContent='Please agree to the Terms of Use and Privacy Policy.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account…';
   try {
     const r = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        email,
-        password: pass,
-        product: product || 'criminal',
-      }),
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: first + ' ' + last, email, password: pass, product: selectedProduct || 'criminal' }),
     });
     const d = await r.json();
-
-    if (!r.ok || d.error) {
-      if (r.status === 409 || (d.error && d.error.toLowerCase().includes('already'))) {
-        // Email already registered
-        err.innerHTML = 'An account with this email already exists. <a onclick="prefillSignin(\'' + email.replace(/'/g, "\\'") + '\')">Sign in instead →</a>';
-      } else {
-        err.textContent = d.error || 'Registration failed. Please try again.';
-      }
+    if (r.status === 409) {
+      err.innerHTML = 'An account with this email already exists. <a onclick="showTab(\'si\');document.getElementById(\'siEmail\').value=\'' + email.replace(/'/g,"\\'") + '\'">Sign in instead →</a>';
       err.classList.add('show');
+    } else if (!r.ok || d.error) {
+      err.textContent = d.error || 'Registration failed. Please try again.'; err.classList.add('show');
     } else if (!d.token) {
-      err.textContent = 'Account created but sign-in failed. Please use the Sign In tab.';
-      err.classList.add('show');
+      err.textContent = 'Account created but sign-in failed. Please use the Sign In tab.'; err.classList.add('show');
     } else {
-      // SUCCESS — same path as login
-      await onAuthSuccess(d.token, d.user, true);
+      authToken = d.token; authUser = d.user; localStorage.setItem('ls_tok', d.token);
+      await onAuthSuccess(true);
     }
-  } catch(e) {
-    err.textContent = 'Connection error. Please try again.';
-    err.classList.add('show');
+  } catch(e) { err.textContent = 'Connection error. Please try again.'; err.classList.add('show'); }
+  btn.disabled = false; btn.textContent = 'Continue →';
+}
+
+// ── AUTH SUCCESS ──
+async function onAuthSuccess(fromRegistration) {
+  // ClearSplit → checkout immediately
+  if (selectedProduct === 'clearsplit' || authUser?.products === 'clearsplit') {
+    await goClearSplitCheckout(); return;
   }
-
-  btn.disabled = false;
-  btn.textContent = cfg.regBtn;
-}
-
-// Pre-fill sign in tab when email already exists
-function prefillSignin(email) {
-  showTab('signin');
-  document.getElementById('siEmail').value = email;
-  document.getElementById('siPass').focus();
-}
-
-// ─────────────────────────────────────────
-// STEP NAVIGATION
-// ─────────────────────────────────────────
-function showStep(n) {
-  if (n === 3) {
-    document.querySelector('main').style.display = 'none';
-    document.getElementById('planStep').style.display = 'block';
-    window.scrollTo(0, 0);
-  } else {
-    document.querySelector('main').style.display = '';
-    document.getElementById('planStep').style.display = 'none';
+  // ?step=plans → show plan grid
+  if (urlStepPlans) {
+    selectedProduct = urlProduct || authUser?.products || 'criminal';
+    if (selectedProduct === 'both') selectedProduct = 'both';
+    buildPlanGrid(); goToStep(3); return;
   }
+  // After registration
+  if (fromRegistration) {
+    if (selectedProduct && selectedProduct !== 'clearsplit') {
+      buildPlanGrid(); goToStep(3);
+    } else {
+      goToStep(2);
+    }
+    return;
+  }
+  // After login → route by products
+  routeToApp(authUser);
 }
 
-// ─────────────────────────────────────────
-// PLAN DATA & GRID
-// ─────────────────────────────────────────
-let isAnnual = false;
-let selectedProduct = product || 'criminal';
+// ── PRODUCT SELECTION ──
+function selectProduct(product, el) {
+  document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedProduct = product;
+  const btn = document.getElementById('s2Btn');
+  btn.disabled = false; btn.style.opacity = '1';
+  document.getElementById('s2Helper').textContent = '';
+}
 
-const PLAN_DATA = {
+function goToStep3() {
+  if (!selectedProduct) return;
+  if (selectedProduct === 'clearsplit') { goClearSplitCheckout(); return; }
+  buildPlanGrid(); goToStep(3);
+}
+
+// ── PLANS ──
+const PLANS = {
   family: [
-    { key:'free', name:'Free', monthly:0, annual:0, annualLabel:'', features:['1 document analysis','10 AI chat messages','All family law forms','PDF export'], btnClass:'plan-btn-free', btnText:'Start Free →', isFree:true },
-    { key:'family_essential', name:'Essential', monthly:29, annual:249, annualLabel:'$249/yr — save $99', features:['3 analyses/month','50 chats/day','All family law forms','Full document analysis','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →' },
-    { key:'family_complete',  name:'Complete',  monthly:79, annual:699, annualLabel:'$699/yr — save $249', features:['5 analyses/month','100 chats/day','All forms','Affidavit builder','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
-    { key:'family_counsel',   name:'Counsel',   monthly:159,annual:1399,annualLabel:'$1,399/yr — save $509',features:['Unlimited analyses','Unlimited chat','All premium features','Dictation','PDF export'], btnClass:'plan-btn-counsel', btnText:'Continue to Payment →' },
+    { key:'family_essential', name:'Essential', monthly:29, annual:249, save:99,
+      features:['50 chats per day','3 document analyses per month','Document builder','Case law access','PDF export'] },
+    { key:'family_complete', name:'Complete', monthly:79, annual:699, save:249,
+      features:['100 chats per day','5 document analyses per month','All Essential features'], popular:true },
+    { key:'family_counsel', name:'Counsel', monthly:159, annual:1399, save:509,
+      features:['Unlimited chats and analyses','Voice dictation with AI cleanup','Affidavit interview builder'] },
   ],
   criminal: [
-    { key:'free', name:'Free', monthly:0, annual:0, annualLabel:'', features:['1 Crown disclosure analysis','10 AI chat messages','All charge modules','PDF export'], btnClass:'plan-btn-free', btnText:'Start Free →', isFree:true },
-    { key:'criminal_essential', name:'Essential', monthly:29, annual:249, annualLabel:'$249/yr — save $99', features:['3 analyses/month','50 chats/day','All charge modules','Full 5-pass reports','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →' },
-    { key:'criminal_complete',  name:'Complete',  monthly:79, annual:699, annualLabel:'$699/yr — save $249', features:['5 analyses/month','100 chats/day','Full 5-pass reports','Cross-exam builder','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
-    { key:'criminal_counsel',   name:'Counsel',   monthly:159,annual:1399,annualLabel:'$1,399/yr — save $509',features:['Unlimited analyses','Unlimited chat','All premium features','Dictation','PDF export'], btnClass:'plan-btn-counsel', btnText:'Continue to Payment →' },
+    { key:'criminal_essential', name:'Essential', monthly:29, annual:249, save:99,
+      features:['50 chats per day','3 disclosure analyses per month','All charge modules','Full 5-pass reports','PDF export'] },
+    { key:'criminal_complete', name:'Complete', monthly:79, annual:699, save:249,
+      features:['100 chats per day','5 analyses per month','Cross-examination builder','Defence organization tool'], popular:true },
+    { key:'criminal_counsel', name:'Counsel', monthly:159, annual:1399, save:509,
+      features:['Unlimited chats and analyses','Voice dictation with AI cleanup','Cross-examination builder','Defence organization tool'] },
   ],
   both: [
-    { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429, annualLabel:'$429/yr — save $159', features:['Both products','3 analyses/month per product','50 chats/day per product','PDF export'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →' },
-    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129,annual:1099,annualLabel:'$1,099/yr — save $449',features:['Both products','5 analyses/month per product','100 chats/day per product','All premium features'], btnClass:'plan-btn-paid', btnText:'Continue to Payment →', popular:true },
-    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:249,annual:2099,annualLabel:'$2,099/yr — save $799',features:['Both products','Unlimited everything','All premium on both','Dictation on both'], btnClass:'plan-btn-counsel', btnText:'Continue to Payment →' },
+    { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429, save:159,
+      features:['Both Family Law + Criminal Defence','50 chats per day per product','3 analyses per month per product','Save $9/month vs standalone'] },
+    { key:'bundle_complete', name:'Complete Bundle', monthly:129, annual:1099, save:449,
+      features:['Both products','100 chats per day per product','5 analyses per month per product','Save $29/month vs standalone'], popular:true },
+    { key:'bundle_counsel', name:'Counsel Bundle', monthly:279, annual:2499, save:549,
+      features:['Both products','Unlimited everything','All Counsel features on both','Save $39/month vs standalone'] },
   ],
 };
-const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/criminal-app', '':'/criminal-app' };
+const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/criminal-app' };
+const FREE_TEXT = { family:'Not ready? Continue with our Free plan →', criminal:'Not ready? Continue with our Free plan →', both:'Start free on both products →' };
 
-function setAnnual(annual) {
-  isAnnual = annual;
-  document.getElementById('lblMonthly').style.color = annual ? 'var(--text3)' : 'var(--blue-light)';
-  document.getElementById('lblAnnual').style.color  = annual ? 'var(--blue-light)' : 'var(--text3)';
-  document.getElementById('saveBadge').style.display = annual ? 'inline' : 'none';
-  const knob = document.getElementById('toggleKnob');
-  const slider = document.getElementById('toggleSlider');
-  knob.style.transform = annual ? 'translateX(20px)' : '';
-  slider.style.background = annual ? 'var(--blue)' : 'var(--border)';
+function setAnnual(v) {
+  isAnnual = v;
+  document.getElementById('lblM').classList.toggle('active', !v);
+  document.getElementById('lblA').classList.toggle('active', v);
+  document.getElementById('saveBadge').classList.toggle('show', v);
+  document.getElementById('tTrack').style.background = v ? 'var(--blue)' : 'var(--border)';
+  document.getElementById('tKnob').style.transform = v ? 'translateX(20px)' : '';
   buildPlanGrid();
 }
 
 function buildPlanGrid() {
-  const plans = PLAN_DATA[selectedProduct] || PLAN_DATA.criminal;
-  const grid = document.getElementById('planGrid');
-  grid.style.gridTemplateColumns = `repeat(${plans.length}, 1fr)`;
-  grid.innerHTML = plans.map(p => `
-    <div style="background:var(--navy-mid);border:${p.popular ? '2px solid var(--blue)' : '1px solid var(--border)'};padding:24px 20px;position:relative;border-radius:2px">
-      ${p.popular ? '<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 12px;white-space:nowrap">Most Popular</div>' : ''}
-      <div style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:10px">${p.name}</div>
-      <div style="font-family:\'Playfair Display\',serif;font-size:2rem;color:var(--white);line-height:1;margin-bottom:4px">${p.monthly === 0 ? 'Free' : '$' + (isAnnual ? Math.round(p.annual/12) : p.monthly)}<span style="font-family:\'Inter\',sans-serif;font-size:.8rem;color:var(--text3);font-weight:400">${p.monthly === 0 ? '' : '/mo'}</span></div>
-      <div style="font-family:\'Inter\',sans-serif;font-size:.75rem;color:var(--text3);margin-bottom:16px;min-height:18px">${isAnnual && p.annualLabel ? p.annualLabel : (p.monthly > 0 ? 'billed monthly' : 'forever free')}</div>
-      <ul style="list-style:none;margin-bottom:20px">${p.features.map(f => `<li style="font-family:\'Inter\',sans-serif;font-size:.78rem;color:var(--text2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:flex-start;gap:7px"><span style="color:var(--blue-light);flex-shrink:0">✓</span>${f}</li>`).join('')}</ul>
-      <button onclick="choosePlan('${p.key}',${!!p.isFree})" style="width:100%;padding:12px;border:none;cursor:pointer;font-family:\'JetBrains Mono\',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:all .15s;background:${p.btnClass==='plan-btn-free'?'none':'var(--blue)'};border:${p.btnClass==='plan-btn-free'?'1px solid var(--border)':'none'};color:${p.btnClass==='plan-btn-free'?'var(--text3)':'#fff'}">${p.btnText}</button>
-    </div>
-  `).join('');
+  const plans = PLANS[selectedProduct] || PLANS.criminal;
+  document.getElementById('s3Sub').textContent = { family:'Family Law Plans', criminal:'Criminal Defence Plans', both:'Bundle Plans' }[selectedProduct] || 'Choose your plan';
+  document.getElementById('freeLink').textContent = FREE_TEXT[selectedProduct] || FREE_TEXT.criminal;
+  document.getElementById('planCards').innerHTML = plans.map(p => {
+    const price = isAnnual ? Math.round(p.annual/12) : p.monthly;
+    const note  = isAnnual ? `$${p.annual}/yr — save $${p.save}` : '';
+    return `<div class="plan-card${p.popular?' popular':''}">
+      ${p.popular ? '<div class="plan-pop-badge">Most Popular</div>' : ''}
+      <div class="plan-top">
+        <div><div class="plan-name">${p.name}</div><div class="plan-annual-note">${note}</div></div>
+        <div><div class="plan-price">$${price}</div><div class="plan-period">/month CAD</div></div>
+      </div>
+      <ul class="plan-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <button class="plan-cta" onclick="choosePlan('${p.key}')">Choose ${p.name}</button>
+    </div>`;
+  }).join('');
 }
 
-async function choosePlan(planKey, isFree) {
-  if (isFree) {
-    window.location.href = APP_URLS[selectedProduct] || '/criminal-app';
-    return;
-  }
+async function choosePlan(planKey) {
   const key = planKey + (isAnnual ? '_annual' : '');
   const tok = localStorage.getItem('ls_tok');
   try {
     const r = await fetch('/api/billing/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
       body: JSON.stringify({ planKey: key }),
     });
     const d = await r.json();
-    if (d.url) {
-      window.location.href = d.url;
-    } else {
-      alert("Unable to start checkout: " + (d.error || "Please try again or contact support@clearstand.ca"));
-    }
-  } catch(e) {
-    window.location.href = APP_URLS[selectedProduct] || '/criminal-app';
-  }
+    if (d.url) { window.location.href = d.url; }
+    else { alert('Checkout error: ' + (d.error || 'Please try again or contact support@clearstand.ca')); }
+  } catch(e) { alert('Connection error. Please try again.'); }
 }
 
-// Handle ?step=plans for returning users upgrading from account panel
-if (params.get('step') === 'plans' && localStorage.getItem('ls_tok')) {
-  selectedProduct = product || 'criminal';
-  buildPlanGrid();
-  showStep(3);
+function chooseFree() {
+  const dest = APP_URLS[selectedProduct] || '/criminal-app';
+  document.getElementById('s4Content').innerHTML = `
+    <div style="font-size:2rem;margin-bottom:16px">✓</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:12px">You're all set.</div>
+    <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text3);line-height:1.7;margin-bottom:24px">No credit card required. Upgrade anytime from your account.</div>
+    <a href="${dest}" style="display:block;padding:14px;background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.15em;text-decoration:none;font-weight:600">Enter ClearStand →</a>`;
+  goToStep(4);
 }
 
-// ─────────────────────────────────────────
-// ALREADY LOGGED IN — go straight to app
-// Only on initial page load, not during flow
-// ─────────────────────────────────────────
-(function checkExistingSession() {
+// ── CLEARSPLIT CHECKOUT ──
+async function goClearSplitCheckout() {
   const tok = localStorage.getItem('ls_tok');
-  if (!tok) return;
+  try {
+    const r = await fetch('https://www.clearstand.ca/api/billing/clearsplit/checkout', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(tok||'')},
+      body: JSON.stringify({ action:'new' }),
+    });
+    const d = await r.json();
+    if (d.url) { window.location.href = d.url; }
+    else { alert('Checkout error: ' + (d.error || 'Please try again or contact support@clearstand.ca')); }
+  } catch(e) { alert('Connection error. Please try again.'); }
+}
 
-  // If already logged in and coming for ClearSplit — go straight to checkout
-  if (product === 'clearsplit') {
-    goClearSplitCheckout(tok);
+// ── ROUTE TO APP ──
+function routeToApp(user) {
+  const p = user?.products || selectedProduct || 'criminal';
+  if (p === 'family')  { window.location.href = '/family'; return; }
+  if (p === 'both') {
+    document.getElementById('s4Content').innerHTML = `
+      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white);margin-bottom:6px">Where would you like to go?</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:20px">Your account has access to both products.</div>
+      <div class="picker-grid">
+        <a href="/family" class="picker-card"><div class="picker-label">Family Law</div><div class="picker-sub">Ontario Family Court</div></a>
+        <a href="/criminal-app" class="picker-card"><div class="picker-label">Criminal Defence</div><div class="picker-sub">Canadian Criminal Court</div></a>
+      </div>`;
+    goToStep(4); return;
+  }
+  window.location.href = '/criminal-app';
+}
+
+// ── INIT ──
+// Apply subtitle from URL product
+const SUBS = { family:'Ontario Family Law', criminal:'Canadian Criminal Defence', clearsplit:'ClearSplit — Separation Agreement', both:'Family Law + Criminal Defence' };
+if (urlProduct && SUBS[urlProduct]) document.getElementById('s1Sub').textContent = SUBS[urlProduct];
+if (urlSignin) showTab('si');
+if (urlProduct) {
+  const card = document.getElementById('pc-' + urlProduct);
+  if (card) selectProduct(urlProduct, card);
+}
+
+// Check existing session
+(async function init() {
+  if (!authToken) return;
+  // ClearSplit with token → checkout
+  if (urlProduct === 'clearsplit') { await goClearSplitCheckout(); return; }
+  // step=plans with token → show plans
+  if (urlStepPlans) {
+    try {
+      const r = await fetch('/api/auth/me', { headers:{'Authorization':'Bearer '+authToken} });
+      if (r.ok) {
+        const d = await r.json();
+        if (d?.user) { authUser = d.user; selectedProduct = urlProduct || authUser.products || 'criminal'; buildPlanGrid(); goToStep(3); return; }
+      }
+      if (r.status === 401) { localStorage.removeItem('ls_tok'); authToken = null; }
+    } catch(e) {}
     return;
   }
-
-  // Don't auto-redirect for other product params (they want to register/switch)
-  if (product) return;
-
-  fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + tok } })
-    .then(r => r.ok ? r.json() : null)
-    .then(d => {
-      if (d && d.user) {
-        const p = d.user.products || 'criminal';
-        window.location.href = p === 'family' ? '/family' : '/criminal-app';
-      }
-    })
-    .catch(() => {});
+  // Product param with token → let them add product (don't auto-redirect)
+  if (urlProduct) return;
+  // No product param → route to app if logged in
+  try {
+    const r = await fetch('/api/auth/me', { headers:{'Authorization':'Bearer '+authToken} });
+    if (r.status === 401) { localStorage.removeItem('ls_tok'); authToken = null; return; }
+    if (r.ok) {
+      const d = await r.json();
+      if (d?.user) { authUser = d.user; routeToApp(authUser); }
+    }
+  } catch(e) {}
 })();
 </script>
 </body>
