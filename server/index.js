@@ -61,7 +61,7 @@ app.get('/api/debug-users', (req, res) => {
   try {
     const Database = require('better-sqlite3');
     const db = new Database(process.env.DB_PATH || '/app/data/lexself.db');
-    const users = db.prepare('SELECT id, email, plan, subscription_status FROM users').all();
+    const users = db.prepare('SELECT id, email, plan, subscription_status, products FROM users').all();
     res.json(users);
   } catch(e) {
     res.json({ error: e.message });
