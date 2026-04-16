@@ -6,88 +6,112 @@ const { requireAuth } = require('../middleware/auth');
 const { getUserById, updateUserPlan, updateStripeCustomer, addOneTimePurchase } = require('../db');
 
 // ══════════════════════════════════════════════════
-// STRIPE PRICE IDs — all 24 products + ClearSplit
-// Set via environment variables in Railway
+// STRIPE_PRICES — central price ID configuration
+// Single source of truth for all Stripe price IDs.
+// Reads from Railway environment variables.
+// New naming convention: STRIPE_PRICE_*_MONTHLY
+// Falls back to old naming for backward compatibility.
+// Never hardcode price IDs anywhere else in the app.
 // ══════════════════════════════════════════════════
-const P = {
-  // ── Family Law ──
-  family_essential_monthly:  () => process.env.STRIPE_PRICE_FAMILY_ESSENTIAL,
-  family_complete_monthly:   () => process.env.STRIPE_PRICE_FAMILY_COMPLETE,
-  family_counsel_monthly:    () => process.env.STRIPE_PRICE_FAMILY_COUNSEL,
-  family_essential_annual:   () => process.env.STRIPE_PRICE_FAMILY_ESSENTIAL_ANNUAL,
-  family_complete_annual:    () => process.env.STRIPE_PRICE_FAMILY_COMPLETE_ANNUAL,
-  family_counsel_annual:     () => process.env.STRIPE_PRICE_FAMILY_COUNSEL_ANNUAL,
-
-  // ── Criminal Defence ──
-  criminal_essential_monthly: () => process.env.STRIPE_PRICE_CRIMINAL_ESSENTIAL,
-  criminal_complete_monthly:  () => process.env.STRIPE_PRICE_CRIMINAL_COMPLETE,
-  criminal_counsel_monthly:   () => process.env.STRIPE_PRICE_CRIMINAL_COUNSEL,
-  criminal_essential_annual:  () => process.env.STRIPE_PRICE_CRIMINAL_ESSENTIAL_ANNUAL,
-  criminal_complete_annual:   () => process.env.STRIPE_PRICE_CRIMINAL_COMPLETE_ANNUAL,
-  criminal_counsel_annual:    () => process.env.STRIPE_PRICE_CRIMINAL_COUNSEL_ANNUAL,
-
-  // ── Bundle (both products) ──
-  bundle_essential_monthly:  () => process.env.STRIPE_PRICE_BUNDLE_ESSENTIAL,
-  bundle_complete_monthly:   () => process.env.STRIPE_PRICE_BUNDLE_COMPLETE,
-  bundle_counsel_monthly:    () => process.env.STRIPE_PRICE_BUNDLE_COUNSEL,
-  bundle_essential_annual:   () => process.env.STRIPE_PRICE_BUNDLE_ESSENTIAL_ANNUAL,
-  bundle_complete_annual:    () => process.env.STRIPE_PRICE_BUNDLE_COMPLETE_ANNUAL,
-  bundle_counsel_annual:     () => process.env.STRIPE_PRICE_BUNDLE_COUNSEL_ANNUAL,
-
+const STRIPE_PRICES = {
+  // ── Standalone Monthly ──
+  family_essential_monthly:   process.env.STRIPE_PRICE_FAMILY_ESSENTIAL_MONTHLY   || process.env.STRIPE_PRICE_FAMILY_ESSENTIAL,
+  family_complete_monthly:    process.env.STRIPE_PRICE_FAMILY_COMPLETE_MONTHLY    || process.env.STRIPE_PRICE_FAMILY_COMPLETE,
+  family_counsel_monthly:     process.env.STRIPE_PRICE_FAMILY_COUNSEL_MONTHLY     || process.env.STRIPE_PRICE_FAMILY_COUNSEL,
+  criminal_essential_monthly: process.env.STRIPE_PRICE_CRIMINAL_ESSENTIAL_MONTHLY || process.env.STRIPE_PRICE_CRIMINAL_ESSENTIAL,
+  criminal_complete_monthly:  process.env.STRIPE_PRICE_CRIMINAL_COMPLETE_MONTHLY  || process.env.STRIPE_PRICE_CRIMINAL_COMPLETE,
+  criminal_counsel_monthly:   process.env.STRIPE_PRICE_CRIMINAL_COUNSEL_MONTHLY   || process.env.STRIPE_PRICE_CRIMINAL_COUNSEL,
+  // ── Standalone Annual ──
+  family_essential_annual:    process.env.STRIPE_PRICE_FAMILY_ESSENTIAL_ANNUAL,
+  family_complete_annual:     process.env.STRIPE_PRICE_FAMILY_COMPLETE_ANNUAL,
+  family_counsel_annual:      process.env.STRIPE_PRICE_FAMILY_COUNSEL_ANNUAL,
+  criminal_essential_annual:  process.env.STRIPE_PRICE_CRIMINAL_ESSENTIAL_ANNUAL,
+  criminal_complete_annual:   process.env.STRIPE_PRICE_CRIMINAL_COMPLETE_ANNUAL,
+  criminal_counsel_annual:    process.env.STRIPE_PRICE_CRIMINAL_COUNSEL_ANNUAL,
+  // ── Bundle Monthly ──
+  bundle_essential_monthly:   process.env.STRIPE_PRICE_BUNDLE_ESSENTIAL_MONTHLY   || process.env.STRIPE_PRICE_BUNDLE_ESSENTIAL,
+  bundle_complete_monthly:    process.env.STRIPE_PRICE_BUNDLE_COMPLETE_MONTHLY    || process.env.STRIPE_PRICE_BUNDLE_COMPLETE,
+  bundle_counsel_monthly:     process.env.STRIPE_PRICE_BUNDLE_COUNSEL_MONTHLY     || process.env.STRIPE_PRICE_BUNDLE_COUNSEL,
+  // ── Bundle Annual ──
+  bundle_essential_annual:    process.env.STRIPE_PRICE_BUNDLE_ESSENTIAL_ANNUAL,
+  bundle_complete_annual:     process.env.STRIPE_PRICE_BUNDLE_COMPLETE_ANNUAL,
+  bundle_counsel_annual:      process.env.STRIPE_PRICE_BUNDLE_COUNSEL_ANNUAL,
   // ── One-time ──
-  family_analysis_pack:      () => process.env.STRIPE_PRICE_FAMILY_ANALYSIS_PACK,
-  criminal_analysis_pack:    () => process.env.STRIPE_PRICE_CRIMINAL_ANALYSIS_PACK,
-  clearsplit_standard:       () => process.env.STRIPE_PRICE_CLEARSPLIT_STANDARD,
-  clearsplit_subscriber:     () => process.env.STRIPE_PRICE_CLEARSPLIT_SUBSCRIBER,
-  clearsplit_extension:      () => process.env.STRIPE_PRICE_CLEARSPLIT_EXTENSION,
+  analysis_pack:              process.env.STRIPE_PRICE_ANALYSIS_PACK,
+  family_analysis_pack:       process.env.STRIPE_PRICE_FAMILY_ANALYSIS_PACK,
+  criminal_analysis_pack:     process.env.STRIPE_PRICE_CRIMINAL_ANALYSIS_PACK,
+  // ── ClearSplit ──
+  clearsplit_monthly:         process.env.STRIPE_PRICE_CLEARSPLIT_MONTHLY         || process.env.STRIPE_PRICE_CLEARSPLIT_STANDARD,
+  clearsplit_annual:          process.env.STRIPE_PRICE_CLEARSPLIT_ANNUAL,
+  clearsplit_standard:        process.env.STRIPE_PRICE_CLEARSPLIT_STANDARD,
+  clearsplit_subscriber:      process.env.STRIPE_PRICE_CLEARSPLIT_SUBSCRIBER,
+  clearsplit_extension:       process.env.STRIPE_PRICE_CLEARSPLIT_EXTENSION,
 };
 
+// Startup validation — warn on missing price IDs, never crash
+const validateStripePrices = () => {
+  const missing = Object.entries(STRIPE_PRICES)
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  if (missing.length > 0) {
+    console.warn('[Stripe] Missing price IDs:', missing.join(', '));
+  } else {
+    console.log('[Stripe] Price configuration: all IDs loaded ✓');
+  }
+};
+validateStripePrices();
+
 // ══════════════════════════════════════════════════
-// PLAN METADATA — maps planKey → Stripe price + DB fields
+// STRIPE_COUPONS — central coupon configuration
+// Never hardcode coupon IDs anywhere else.
+// ══════════════════════════════════════════════════
+const STRIPE_COUPONS = {
+  clearsplit_discount: process.env.STRIPE_COUPON_CLEARSPLIT,
+};
+
+
+// All priceId values reference STRIPE_PRICES only.
 // ══════════════════════════════════════════════════
 const PLAN_META = {
   // Family Law subscriptions
-  family_essential:         { priceId: P.family_essential_monthly,  plan: 'essential', products: 'family',   label: 'Family Law — Essential' },
-  family_complete:          { priceId: P.family_complete_monthly,   plan: 'complete',  products: 'family',   label: 'Family Law — Complete' },
-  family_counsel:           { priceId: P.family_counsel_monthly,    plan: 'counsel',   products: 'family',   label: 'Family Law — Counsel' },
-  family_essential_annual:  { priceId: P.family_essential_annual,   plan: 'essential', products: 'family',   label: 'Family Law — Essential Annual' },
-  family_complete_annual:   { priceId: P.family_complete_annual,    plan: 'complete',  products: 'family',   label: 'Family Law — Complete Annual' },
-  family_counsel_annual:    { priceId: P.family_counsel_annual,     plan: 'counsel',   products: 'family',   label: 'Family Law — Counsel Annual' },
-
+  family_essential:        { priceId: () => STRIPE_PRICES.family_essential_monthly,  plan: 'essential', products: 'family',   label: 'Family Law — Essential' },
+  family_complete:         { priceId: () => STRIPE_PRICES.family_complete_monthly,   plan: 'complete',  products: 'family',   label: 'Family Law — Complete' },
+  family_counsel:          { priceId: () => STRIPE_PRICES.family_counsel_monthly,    plan: 'counsel',   products: 'family',   label: 'Family Law — Counsel' },
+  family_essential_annual: { priceId: () => STRIPE_PRICES.family_essential_annual,   plan: 'essential', products: 'family',   label: 'Family Law — Essential Annual' },
+  family_complete_annual:  { priceId: () => STRIPE_PRICES.family_complete_annual,    plan: 'complete',  products: 'family',   label: 'Family Law — Complete Annual' },
+  family_counsel_annual:   { priceId: () => STRIPE_PRICES.family_counsel_annual,     plan: 'counsel',   products: 'family',   label: 'Family Law — Counsel Annual' },
   // Criminal Defence subscriptions
-  criminal_essential:         { priceId: P.criminal_essential_monthly,  plan: 'essential', products: 'criminal', label: 'Criminal Defence — Essential' },
-  criminal_complete:          { priceId: P.criminal_complete_monthly,   plan: 'complete',  products: 'criminal', label: 'Criminal Defence — Complete' },
-  criminal_counsel:           { priceId: P.criminal_counsel_monthly,    plan: 'counsel',   products: 'criminal', label: 'Criminal Defence — Counsel' },
-  criminal_essential_annual:  { priceId: P.criminal_essential_annual,   plan: 'essential', products: 'criminal', label: 'Criminal Defence — Essential Annual' },
-  criminal_complete_annual:   { priceId: P.criminal_complete_annual,    plan: 'complete',  products: 'criminal', label: 'Criminal Defence — Complete Annual' },
-  criminal_counsel_annual:    { priceId: P.criminal_counsel_annual,     plan: 'counsel',   products: 'criminal', label: 'Criminal Defence — Counsel Annual' },
-
+  criminal_essential:        { priceId: () => STRIPE_PRICES.criminal_essential_monthly,  plan: 'essential', products: 'criminal', label: 'Criminal Defence — Essential' },
+  criminal_complete:         { priceId: () => STRIPE_PRICES.criminal_complete_monthly,   plan: 'complete',  products: 'criminal', label: 'Criminal Defence — Complete' },
+  criminal_counsel:          { priceId: () => STRIPE_PRICES.criminal_counsel_monthly,    plan: 'counsel',   products: 'criminal', label: 'Criminal Defence — Counsel' },
+  criminal_essential_annual: { priceId: () => STRIPE_PRICES.criminal_essential_annual,   plan: 'essential', products: 'criminal', label: 'Criminal Defence — Essential Annual' },
+  criminal_complete_annual:  { priceId: () => STRIPE_PRICES.criminal_complete_annual,    plan: 'complete',  products: 'criminal', label: 'Criminal Defence — Complete Annual' },
+  criminal_counsel_annual:   { priceId: () => STRIPE_PRICES.criminal_counsel_annual,     plan: 'counsel',   products: 'criminal', label: 'Criminal Defence — Counsel Annual' },
   // Bundle subscriptions
-  bundle_essential:         { priceId: P.bundle_essential_monthly,  plan: 'essential', products: 'both', label: 'Bundle — Essential' },
-  bundle_complete:          { priceId: P.bundle_complete_monthly,   plan: 'complete',  products: 'both', label: 'Bundle — Complete' },
-  bundle_counsel:           { priceId: P.bundle_counsel_monthly,    plan: 'counsel',   products: 'both', label: 'Bundle — Counsel' },
-  bundle_essential_annual:  { priceId: P.bundle_essential_annual,   plan: 'essential', products: 'both', label: 'Bundle — Essential Annual' },
-  bundle_complete_annual:   { priceId: P.bundle_complete_annual,    plan: 'complete',  products: 'both', label: 'Bundle — Complete Annual' },
-  bundle_counsel_annual:    { priceId: P.bundle_counsel_annual,     plan: 'counsel',   products: 'both', label: 'Bundle — Counsel Annual' },
-
-  // Legacy keys — keep for backward compatibility
-  essential:         { priceId: P.criminal_essential_monthly,  plan: 'essential', products: 'criminal', label: 'ClearStand Essential' },
-  complete:          { priceId: P.criminal_complete_monthly,   plan: 'complete',  products: 'criminal', label: 'ClearStand Complete' },
-  counsel:           { priceId: P.criminal_counsel_monthly,    plan: 'counsel',   products: 'criminal', label: 'ClearStand Counsel' },
+  bundle_essential:        { priceId: () => STRIPE_PRICES.bundle_essential_monthly,  plan: 'essential', products: 'both', label: 'Bundle — Essential' },
+  bundle_complete:         { priceId: () => STRIPE_PRICES.bundle_complete_monthly,   plan: 'complete',  products: 'both', label: 'Bundle — Complete' },
+  bundle_counsel:          { priceId: () => STRIPE_PRICES.bundle_counsel_monthly,    plan: 'counsel',   products: 'both', label: 'Bundle — Counsel' },
+  bundle_essential_annual: { priceId: () => STRIPE_PRICES.bundle_essential_annual,   plan: 'essential', products: 'both', label: 'Bundle — Essential Annual' },
+  bundle_complete_annual:  { priceId: () => STRIPE_PRICES.bundle_complete_annual,    plan: 'complete',  products: 'both', label: 'Bundle — Complete Annual' },
+  bundle_counsel_annual:   { priceId: () => STRIPE_PRICES.bundle_counsel_annual,     plan: 'counsel',   products: 'both', label: 'Bundle — Counsel Annual' },
+  // Legacy keys — backward compatibility
+  essential: { priceId: () => STRIPE_PRICES.criminal_essential_monthly, plan: 'essential', products: 'criminal', label: 'ClearStand Essential' },
+  complete:  { priceId: () => STRIPE_PRICES.criminal_complete_monthly,  plan: 'complete',  products: 'criminal', label: 'ClearStand Complete' },
+  counsel:   { priceId: () => STRIPE_PRICES.criminal_counsel_monthly,   plan: 'counsel',   products: 'criminal', label: 'ClearStand Counsel' },
 };
 
-// One-time products
+// One-time products — all reference STRIPE_PRICES
 const ONE_TIME = {
-  family_analysis_pack:   { priceId: P.family_analysis_pack,   label: 'Family Law — 3 Analyses',    product: 'family_analysis' },
-  criminal_analysis_pack: { priceId: P.criminal_analysis_pack, label: 'Criminal Defence — 3 Analyses', product: 'criminal_analysis' },
-  analysis_pack:          { priceId: P.criminal_analysis_pack, label: 'Analysis Pack — 3 Analyses',  product: 'criminal_analysis' }, // legacy
+  family_analysis_pack:   { priceId: () => STRIPE_PRICES.family_analysis_pack,   label: 'Family Law — 3 Analyses',       product: 'family_analysis' },
+  criminal_analysis_pack: { priceId: () => STRIPE_PRICES.criminal_analysis_pack, label: 'Criminal Defence — 3 Analyses', product: 'criminal_analysis' },
+  analysis_pack:          { priceId: () => STRIPE_PRICES.criminal_analysis_pack, label: 'Analysis Pack — 3 Analyses',    product: 'criminal_analysis' },
 };
 
-// ClearSplit one-time (no auth required)
+// ClearSplit — all reference STRIPE_PRICES
 const CLEARSPLIT_PRODUCTS = {
-  clearsplit_standard:   { priceId: P.clearsplit_standard,   amount: 29900, label: 'ClearSplit — Standard' },
-  clearsplit_subscriber: { priceId: P.clearsplit_subscriber,  amount: 24900, label: 'ClearSplit — Subscriber' },
-  clearsplit_extension:  { priceId: P.clearsplit_extension,   amount: 7400,  label: 'ClearSplit — 30-Day Extension' },
+  clearsplit_standard:   { priceId: () => STRIPE_PRICES.clearsplit_standard,   amount: 29900, label: 'ClearSplit — Standard' },
+  clearsplit_subscriber: { priceId: () => STRIPE_PRICES.clearsplit_subscriber,  amount: 24900, label: 'ClearSplit — Subscriber' },
+  clearsplit_extension:  { priceId: () => STRIPE_PRICES.clearsplit_extension,   amount: 7400,  label: 'ClearSplit — 30-Day Extension' },
 };
 
 let stripe;
@@ -153,7 +177,10 @@ router.post('/checkout', requireAuth, async (req, res) => {
       const meta = PLAN_META[planKey];
       const priceId = meta.priceId();
       if (!priceId) return res.status(500).json({ error: `Stripe price ID not set for ${planKey}. Check environment variables.` });
-      session = await s.checkout.sessions.create({
+
+      // Check ClearSplit discount eligibility
+      const isClearSplitEligible = !!(user.clearsplit_subscriber || user.plan === 'clearsplit');
+      const sessionParams = {
         customer: customerId,
         mode: 'subscription',
         payment_method_types: ['card'],
@@ -164,7 +191,11 @@ router.post('/checkout', requireAuth, async (req, res) => {
         subscription_data: {
           metadata: { userId: String(user.id), plan: meta.plan, products: meta.products },
         },
-      });
+      };
+      if (isClearSplitEligible) {
+        sessionParams.discounts = [{ coupon: STRIPE_COUPONS.clearsplit_discount }];
+      }
+      session = await s.checkout.sessions.create(sessionParams);
     } else {
       return res.status(400).json({ error: `Unknown plan: ${planKey}` });
     }
@@ -374,6 +405,114 @@ router.get('/plans', (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+// POST /api/billing/preview-upgrade
+// Calculate proration before committing upgrade
+// ══════════════════════════════════════════════════
+router.post('/preview-upgrade', requireAuth, async (req, res) => {
+  const { newPlanKey } = req.body;
+  const user = req.user;
+  const s = getStripe();
+
+  const meta = PLAN_META[newPlanKey];
+  if (!meta) return res.status(400).json({ error: 'Invalid plan.' });
+  const newPriceId = meta.priceId();
+  if (!newPriceId) return res.status(500).json({ error: 'Price not configured.' });
+
+  if (!user.stripe_customer_id || !user.stripe_subscription_id) {
+    return res.status(400).json({ error: 'No active subscription found.' });
+  }
+
+  try {
+    const subscription = await s.subscriptions.retrieve(user.stripe_subscription_id);
+    const currentItemId = subscription.items.data[0]?.id;
+    if (!currentItemId) return res.status(400).json({ error: 'Subscription item not found.' });
+
+    const preview = await s.invoices.retrieveUpcoming({
+      customer: user.stripe_customer_id,
+      subscription: user.stripe_subscription_id,
+      subscription_items: [{ id: currentItemId, price: newPriceId }],
+      subscription_proration_behavior: 'create_prorations',
+    });
+
+    const dueToday = preview.amount_due / 100;
+    const nextAmount = preview.lines.data.find(l => !l.proration)?.amount / 100 || meta.price;
+    const creditLine = preview.lines.data.find(l => l.proration && l.amount < 0);
+    const creditAmount = creditLine ? Math.abs(creditLine.amount / 100) : 0;
+    const nextDate = new Date(preview.period_end * 1000).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    // Check ClearSplit discount eligibility
+    const isClearSplitEligible = !!(user.clearsplit_subscriber || user.plan === 'clearsplit');
+    const discountAmount = isClearSplitEligible ? parseFloat((nextAmount * 0.2).toFixed(2)) : 0;
+    const discountedPrice = isClearSplitEligible ? parseFloat((nextAmount - discountAmount).toFixed(2)) : nextAmount;
+
+    res.json({
+      creditAmount:       `$${creditAmount.toFixed(2)}`,
+      dueToday:           `$${Math.max(0, dueToday).toFixed(2)}`,
+      nextBillingDate:    nextDate,
+      nextBillingAmount:  `$${discountedPrice.toFixed(2)}`,
+      newPlanName:        meta.label,
+      newPlanKey,
+      newPriceId,
+      currentItemId,
+      isClearSplitEligible,
+      discountAmount:     discountAmount > 0 ? `$${discountAmount.toFixed(2)}` : null,
+    });
+  } catch(err) {
+    console.error('[Preview upgrade error]', err.message);
+    res.status(500).json({ error: 'Could not calculate upgrade preview. Please try again.' });
+  }
+});
+
+// ══════════════════════════════════════════════════
+// POST /api/billing/upgrade-subscription
+// Execute immediate subscription upgrade
+// ══════════════════════════════════════════════════
+router.post('/upgrade-subscription', requireAuth, async (req, res) => {
+  const { newPlanKey, currentItemId } = req.body;
+  const user = req.user;
+  const s = getStripe();
+
+  const meta = PLAN_META[newPlanKey];
+  if (!meta) return res.status(400).json({ error: 'Invalid plan.' });
+  const newPriceId = meta.priceId();
+  if (!newPriceId) return res.status(500).json({ error: 'Price not configured.' });
+
+  if (!user.stripe_subscription_id) {
+    return res.status(400).json({ error: 'No active subscription found.' });
+  }
+
+  try {
+    const updateParams = {
+      items: [{ id: currentItemId, price: newPriceId }],
+      proration_behavior: 'create_prorations',
+      billing_cycle_anchor: 'unchanged',
+      metadata: { userId: String(user.id), plan: meta.plan, products: meta.products },
+    };
+
+    // Apply ClearSplit discount if eligible
+    if (user.clearsplit_subscriber) {
+      updateParams.discounts = [{ coupon: STRIPE_COUPONS.clearsplit_discount }];
+    }
+
+    await s.subscriptions.update(user.stripe_subscription_id, updateParams);
+
+    // Immediately update user record
+    updateUserPlan(user.id, meta.plan, meta.products, user.stripe_subscription_id, null, 'active');
+
+    console.log(`[Upgrade] User ${user.id} → ${newPlanKey}`);
+    res.json({
+      success: true,
+      newPlan: meta.label,
+      products: meta.products,
+      accessUnlocked: meta.products === 'both' ? ['family', 'criminal'] : [meta.products],
+    });
+  } catch(err) {
+    console.error('[Upgrade error]', err.message);
+    res.status(500).json({ error: 'Upgrade failed. Your plan has not been changed. Please try again.' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 // POST /api/billing/webhook — raw body required
 // ══════════════════════════════════════════════════
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -414,12 +553,15 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         const sub = event.data.object;
         const userId = parseInt(sub.metadata?.userId);
         if (!userId) break;
-        const plan = sub.metadata?.plan || 'essential';
+        const plan     = sub.metadata?.plan     || 'essential';
         const products = sub.metadata?.products || 'criminal';
-        const status = sub.status;
+        const status   = sub.status;
+        const nextBilling = sub.current_period_end
+          ? new Date(sub.current_period_end * 1000).toISOString()
+          : null;
         if (status === 'active' || status === 'trialing') {
           updateUserPlan(userId, plan, products, sub.id, sub.current_period_end, status);
-        } else if (status === 'canceled' || status === 'unpaid') {
+        } else if (status === 'canceled' || status === 'unpaid' || status === 'past_due') {
           updateUserPlan(userId, 'free', products, sub.id, null, status);
         }
         break;
@@ -429,8 +571,32 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         const sub = event.data.object;
         const userId = parseInt(sub.metadata?.userId);
         if (!userId) break;
-        const products = sub.metadata?.products || 'criminal';
-        updateUserPlan(userId, 'free', products, null, null, 'canceled');
+        updateUserPlan(userId, 'free', sub.metadata?.products || 'criminal', null, null, 'canceled');
+        console.log(`[Webhook] Subscription canceled for user ${userId}`);
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const inv = event.data.object;
+        const custId = inv.customer;
+        console.error(`[Webhook] Payment failed — customer: ${custId}, invoice: ${inv.id}`);
+        // Grace period handled by Stripe Smart Retries — we log only
+        // Access restriction happens via subscription.updated → past_due
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const inv = event.data.object;
+        if (inv.billing_reason === 'subscription_cycle') {
+          // Renewal — confirm access is active
+          const sub = await getStripe().subscriptions.retrieve(inv.subscription);
+          const userId = parseInt(sub.metadata?.userId);
+          if (userId && (sub.status === 'active')) {
+            const plan     = sub.metadata?.plan     || 'essential';
+            const products = sub.metadata?.products || 'criminal';
+            updateUserPlan(userId, plan, products, sub.id, sub.current_period_end, 'active');
+          }
+        }
         break;
       }
     }
@@ -519,3 +685,6 @@ async function handleClearSplitExtension(session) {
 }
 
 module.exports = router;
+module.exports.STRIPE_PRICES = STRIPE_PRICES;
+module.exports.STRIPE_COUPONS = STRIPE_COUPONS;
+module.exports.webhookHandler = router;

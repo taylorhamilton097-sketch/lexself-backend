@@ -89,6 +89,9 @@ db.exec(`
 // (SQLite doesn't support IF NOT EXISTS for columns — use try/catch)
 try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_role TEXT DEFAULT NULL`); } catch(e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_agreement_id INTEGER REFERENCES clearsplit_agreements(id) DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_subscriber INTEGER DEFAULT 0`); } catch(e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN stripe_price_id TEXT DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN next_billing_date TEXT DEFAULT NULL`); } catch(e) {}
 
 // ── PLAN CONFIG ──
 // products: 'criminal' | 'family' | 'both'

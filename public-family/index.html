@@ -759,15 +759,36 @@ select.fi { cursor: pointer; }
   </div>
 </div>
 
-<!-- PRODUCT GATE MODAL -->
-<div id="productGateOv" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;align-items:center;justify-content:center;padding:24px;">
-  <div style="background:#162233;border:1px solid #2A3F56;border-top:3px solid #2E86C1;max-width:420px;width:100%;padding:36px 32px;text-align:center;">
-    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:#F4F6F8;margin-bottom:12px;line-height:1.3">Family Law is a separate product</div>
-    <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:#8BA3BA;line-height:1.7;margin-bottom:24px">Your current plan covers Criminal Defence. Add Family Law to your account or upgrade to a Bundle plan to access both.</div>
-    <a href="/register?product=both" style="display:block;padding:13px;background:#2E86C1;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.13em;text-decoration:none;font-weight:600;margin-bottom:10px;">View Bundle Plans →</a>
-    <a href="/criminal-app" style="display:block;padding:11px;background:none;border:1px solid #2A3F56;color:#4A6680;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;text-decoration:none;">Stay on Criminal Defence</a>
+<!-- BUNDLE UPGRADE MODAL -->
+<div id="upgradeModalOv" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:800;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;">
+  <div style="background:#162233;border:1px solid #2A3F56;border-top:3px solid #2E86C1;max-width:560px;width:100%;padding:0;margin:auto;position:relative;">
+    <button onclick="closeUpgradeModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#4A6680;font-size:1.2rem;cursor:pointer;z-index:1">✕</button>
+    <div style="padding:28px 28px 0">
+      <div style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#F4F6F8;margin-bottom:6px" id="umTitle">Unlock Criminal Defence</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:#8BA3BA;line-height:1.65;margin-bottom:20px" id="umDesc">The best way to add Criminal Defence is to upgrade to a Bundle.</div>
+      <div id="umProration" style="background:#0D1B2A;border:1px solid #2A3F56;padding:18px 20px;margin-bottom:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#3EA4E4;margin-bottom:12px">Your Upgrade Summary</div>
+        <div id="umProrationContent" style="color:#4A6680;font-size:.82rem">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:16px;height:16px;border:2px solid #2E86C1;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0"></div>
+            Calculating your upgrade cost…
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:#4A6680" id="umLblM">Monthly</span>
+        <label style="position:relative;width:40px;height:22px;cursor:pointer;display:inline-block">
+          <input type="checkbox" id="umAnnualToggle" onchange="umSetAnnual(this.checked)" style="opacity:0;width:0;height:0">
+          <span id="umTrack" style="position:absolute;inset:0;background:#2A3F56;border-radius:22px;transition:.3s"></span>
+          <span id="umKnob" style="position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
+        </label>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:#3EA4E4" id="umLblA">Annual — Save 20%</span>
+      </div>
+    </div>
+    <div id="umCards" style="padding:0 28px 28px;display:flex;flex-direction:column;gap:10px"></div>
   </div>
 </div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -963,6 +984,116 @@ function renderUsage() {
 function switchToCriminal() {
   localStorage.setItem('cs_last_product', 'criminal');
   window.location.href = '/criminal-app';
+}
+
+// ── BUNDLE UPGRADE MODAL ──
+let umAnnual = false;
+let umPreviewData = null;
+const UM_BUNDLES = [
+  { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429, annualKey:'bundle_essential_annual',
+    features:['50 chats/day per product','3 analyses/month per product','Both Family Law and Criminal Defence'] },
+  { key:'bundle_complete', name:'Complete Bundle', monthly:129, annual:1099, annualKey:'bundle_complete_annual',
+    features:['100 chats/day per product','5 analyses/month per product','Both products'], popular:true },
+  { key:'bundle_counsel', name:'Counsel Bundle', monthly:279, annual:2499, annualKey:'bundle_counsel_annual',
+    features:['Unlimited everything','All premium features on both products','Voice dictation, interview builder, cross-exam prep'] },
+];
+
+async function openUpgradeModal(targetProduct) {
+  document.getElementById('umTitle').textContent = 'Unlock Criminal Defence';
+  document.getElementById('umDesc').textContent = 'The best way to add Criminal Defence is to upgrade to a Bundle. You get both products at a lower combined rate, and we\'ll credit you for the days remaining on your current plan.';
+  document.getElementById('upgradeModalOv').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  umSetAnnual(false);
+  buildUmCards();
+  await loadUmPreview('bundle_essential');
+}
+
+function closeUpgradeModal() {
+  document.getElementById('upgradeModalOv').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function umSetAnnual(v) {
+  umAnnual = v;
+  document.getElementById('umLblM').style.color = v ? '#4A6680' : '#3EA4E4';
+  document.getElementById('umLblA').style.color  = v ? '#3EA4E4' : '#4A6680';
+  document.getElementById('umTrack').style.background = v ? '#2E86C1' : '#2A3F56';
+  document.getElementById('umKnob').style.transform = v ? 'translateX(18px)' : '';
+  buildUmCards();
+}
+
+function buildUmCards() {
+  const userPlan = currentUser?.plan || 'free';
+  const isClearSplit = !!(currentUser?.clearsplit_subscriber);
+  document.getElementById('umCards').innerHTML = UM_BUNDLES.map(b => {
+    const price = umAnnual ? Math.round(b.annual / 12) : b.monthly;
+    const isRecommended = b.key.includes(userPlan) && userPlan !== 'free';
+    const discountNote = isClearSplit ? `<div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:#3EA4E4;margin-top:4px">ClearSplit discount — 20% off</div>` : '';
+    return `<div style="border:${b.popular ? '2px solid #2E86C1' : '1px solid #2A3F56'};padding:18px 20px;position:relative;background:#0D1B2A;">
+      ${isRecommended ? '<div style="position:absolute;top:-10px;left:16px;background:#2E86C1;color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap">Recommended</div>' : ''}
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:#3EA4E4">${b.name}</div>${discountNote}</div>
+        <div style="text-align:right">
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#F4F6F8;line-height:1">$${price}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:.7rem;color:#4A6680">/month CAD</div>
+          ${umAnnual ? `<div style="font-family:'Inter',sans-serif;font-size:.7rem;color:#4CAF50">$${b.annual}/yr</div>` : ''}
+        </div>
+      </div>
+      <ul style="list-style:none;margin-bottom:14px">${b.features.map(f => `<li style="font-family:'Inter',sans-serif;font-size:.78rem;color:#8BA3BA;padding:2px 0;display:flex;gap:7px"><span style="color:#3EA4E4">✓</span>${f}</li>`).join('')}</ul>
+      <button onclick="selectUmBundle('${umAnnual ? b.annualKey : b.key}', this)" style="width:100%;padding:11px;background:#2E86C1;color:#fff;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;min-height:44px">Select ${b.name}</button>
+    </div>`;
+  }).join('');
+}
+
+async function loadUmPreview(planKey) {
+  const tok = localStorage.getItem('ls_tok');
+  try {
+    const r = await fetch('/api/billing/preview-upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ newPlanKey: planKey }),
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    umPreviewData = d;
+    const csDisc = d.isClearSplitEligible && d.discountAmount;
+    document.getElementById('umProrationContent').innerHTML = `
+      <div style="display:grid;gap:6px;font-size:.82rem">
+        <div style="display:flex;justify-content:space-between"><span>Current plan</span><span style="color:#8BA3BA">${currentUser?.plan || 'Free'}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Upgrading to</span><span style="color:#F4F6F8">${d.newPlanName}</span></div>
+        ${csDisc ? `<div style="display:flex;justify-content:space-between"><span style="color:#3EA4E4">ClearSplit discount (20%)</span><span style="color:#3EA4E4">-${d.discountAmount}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between"><span>Credit for unused days</span><span style="color:#4CAF50">-${d.creditAmount}</span></div>
+        <div style="border-top:1px solid #2A3F56;padding-top:8px;margin-top:2px;display:flex;justify-content:space-between"><span style="font-weight:600;color:#F4F6F8">Due today</span><span style="font-weight:600;color:#F4F6F8">${d.dueToday}</span></div>
+        <div style="display:flex;justify-content:space-between;color:#4A6680;font-size:.76rem"><span>From ${d.nextBillingDate} forward</span><span>${d.nextBillingAmount}/mo</span></div>
+      </div>`;
+  } catch(e) {
+    umPreviewData = null;
+    document.getElementById('umProrationContent').innerHTML = `<span style="color:#4A6680;font-size:.82rem">Your current plan will be prorated. Exact amount confirmed at checkout.</span>`;
+  }
+}
+
+async function selectUmBundle(planKey, btn) {
+  const tok = localStorage.getItem('ls_tok');
+  const origText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    const r = await fetch('/api/billing/upgrade-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ newPlanKey: planKey, currentItemId: umPreviewData?.currentItemId }),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) throw new Error(d.error || 'Upgrade failed.');
+    closeUpgradeModal();
+    if (currentUser) currentUser.products = 'both';
+    const sb = document.getElementById('switchToCriminalBtn');
+    if (sb) sb.style.display = 'block';
+    toast(`${d.newPlan} activated. Both products are now unlocked.`);
+    setTimeout(refreshUsage, 500);
+  } catch(e) {
+    document.getElementById('umProrationContent').innerHTML += `<div style="color:#E87070;font-size:.82rem;margin-top:8px">Something went wrong: ${e.message}</div>`;
+    btn.disabled = false; btn.textContent = origText;
+  }
 }
 
 function handleAuthBtn() {
@@ -1807,9 +1938,9 @@ function showPanel(name) {
       if (d?.user) {
         currentUser=d.user; usageState=d.usage;
 
-        // Product gatekeeping — Criminal-only users can't access Family
+        // Product gatekeeping — Criminal-only users see bundle upgrade modal
         if (currentUser.products === 'criminal') {
-          document.getElementById('productGateOv').style.display = 'flex';
+          openUpgradeModal('family');
           return;
         }
 
