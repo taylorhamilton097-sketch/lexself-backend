@@ -11,6 +11,15 @@ const app = express();
 app.use('/api/billing/webhook', require('./routes/billing').webhookHandler ||
   (() => { const r = express.Router(); r.post('/', express.raw({type:'application/json'}), (req,res)=>res.json({received:true})); return r; })()
 );
+// Force www — redirect clearstand.ca to www.clearstand.ca
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  if (host === 'clearstand.ca') {
+    return res.redirect(301, 'https://www.clearstand.ca' + req.originalUrl);
+  }
+  next();
+});
+
 // force redeploy
 app.use(express.json({ limit: '2mb' }));
 app.use(cors({

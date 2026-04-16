@@ -613,11 +613,6 @@ const PLAN_DATA = {
 };
 const APP_URLS = { family:'/family', criminal:'/criminal-app', both:'/criminal-app', '':'/criminal-app' };
 
-function routeToApp(user) {
-  const p = user?.products || selectedProduct || 'criminal';
-  window.location.href = p === 'family' ? '/family' : '/criminal-app';
-}
-
 function setAnnual(annual) {
   isAnnual = annual;
   document.getElementById('lblMonthly').style.color = annual ? 'var(--text3)' : 'var(--blue-light)';
