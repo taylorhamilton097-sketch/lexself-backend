@@ -239,55 +239,68 @@ router.get('/clearsplit/session', async (req, res) => {
 
 // ══════════════════════════════════════════════════
 // POST /api/billing/clearsplit/checkout — no auth required
-// Detects subscriber discount automatically
+// Detects subscriber discount automatically via price ID selection
 // ══════════════════════════════════════════════════
 router.post('/clearsplit/checkout', async (req, res) => {
-  const { existingCode } = req.body; // for extensions
+  const { existingCode } = req.body;
   const s = getStripe();
 
-  // Check if user is authenticated subscriber (for discount)
+  // ── ELIGIBILITY CHECK ──
   let userId = null;
   let isSubscriber = false;
+  let diagUser = null;
+
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     try {
       const { verifyToken } = require('../middleware/auth');
       const decoded = verifyToken(authHeader.slice(7));
       if (decoded) {
-        const { getUserById } = require('../db');
+        const { getUserById, db } = require('../db');
         const user = getUserById(decoded.userId);
-        if (user && (user.subscription_status === 'active' || user.subscription_status === 'trialing' || (user.plan && user.plan !== 'free'))) {
+        diagUser = user;
+
+        // Fix 2: Self-heal subscription_status for paid users affected by webhook failures
+        if (user && user.plan && user.plan !== 'free' && user.subscription_status === 'inactive') {
+          db.prepare(`UPDATE users SET subscription_status='active' WHERE id=?`).run(user.id);
+          user.subscription_status = 'active';
+          console.log(`[ClearSplit] Healed subscription_status for user ${user.email}`);
+        }
+
+        // Fix 2: Exact eligibility condition
+        isSubscriber = !!(
+          user && (
+            user.subscription_status === 'active' ||
+            user.subscription_status === 'trialing' ||
+            (user.plan && user.plan !== 'free')
+          )
+        );
+
+        if (isSubscriber) {
           userId = user.id;
-          isSubscriber = true;
-          console.log(`[ClearSplit] Subscriber discount applied for user ${user.email} (plan: ${user.plan}, status: ${user.subscription_status})`);
-        } else {
-          console.log(`[ClearSplit] No discount — user: ${user?.email}, plan: ${user?.plan}, status: ${user?.subscription_status}`);
         }
       }
-    } catch(e) { /* not authenticated — proceed without discount */ }
+    } catch(e) {
+      console.warn('[ClearSplit] Token verification failed:', e.message);
+    }
   }
 
   try {
     let productKey, successUrl, cancelUrl;
 
     if (existingCode) {
-      // Extension flow
       const { getClearSplitPurchase } = require('../db');
       const purchase = getClearSplitPurchase(existingCode);
       if (!purchase) return res.status(404).json({ error: 'Code not found.' });
-
       const now = new Date();
       const expiry = new Date(purchase.expires_at);
       const gracePeriod = new Date(expiry.getTime() + 30 * 24 * 60 * 60 * 1000);
-      if (now > gracePeriod) {
-        return res.status(400).json({ error: 'Code expired more than 30 days ago. Cannot extend.' });
-      }
-
+      if (now > gracePeriod) return res.status(400).json({ error: 'Code expired more than 30 days ago. Cannot extend.' });
       productKey = 'clearsplit_extension';
       successUrl = `${APP_URL()}/clearsplit/extended?code=${existingCode}&session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl  = `${APP_URL()}/clearsplit/extend`;
     } else {
-      // New purchase
+      // Fix 3: Explicit price ID selection via STRIPE_PRICES
       productKey = isSubscriber ? 'clearsplit_subscriber' : 'clearsplit_standard';
       successUrl = `${APP_URL()}/clearsplit/success?session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl  = `${APP_URL()}/clearsplit`;
@@ -295,7 +308,26 @@ router.post('/clearsplit/checkout', async (req, res) => {
 
     const product = CLEARSPLIT_PRODUCTS[productKey];
     const priceId = product.priceId();
-    if (!priceId) return res.status(500).json({ error: `Stripe price ID not set for ${productKey}.` });
+
+    // Fix 3: Explicit price ID validation with clear error
+    if (!priceId) {
+      console.error(`[ClearSplit] Missing price ID for ${productKey} — isSubscriber: ${isSubscriber}`);
+      console.error(`[ClearSplit] STRIPE_PRICES.clearsplit_subscriber = ${STRIPE_PRICES.clearsplit_subscriber}`);
+      console.error(`[ClearSplit] STRIPE_PRICES.clearsplit_standard = ${STRIPE_PRICES.clearsplit_standard}`);
+      return res.status(500).json({ error: `Price configuration error for ${productKey}. Please contact support.` });
+    }
+
+    // Fix 4: Diagnostic logging — visible in Railway logs on every checkout attempt
+    console.log('[ClearSplit] Checkout initiated', {
+      userId:             diagUser?.id || 'no token',
+      userEmail:          diagUser?.email || 'no user found',
+      userPlan:           diagUser?.plan || 'no user found',
+      subscriptionStatus: diagUser?.subscription_status || 'unknown',
+      isSubscriber,
+      productKey,
+      priceIdSelected:    priceId ? 'found ✓' : 'MISSING ✗',
+      timestamp:          new Date().toISOString(),
+    });
 
     const sessionParams = {
       mode: 'payment',
@@ -313,7 +345,7 @@ router.post('/clearsplit/checkout', async (req, res) => {
     const session = await s.checkout.sessions.create(sessionParams);
     res.json({ url: session.url, isSubscriber, productKey });
   } catch(err) {
-    console.error('ClearSplit checkout error:', err);
+    console.error('[ClearSplit] Checkout error:', err);
     res.status(500).json({ error: err.message || 'Failed to create checkout session.' });
   }
 });

@@ -15,12 +15,12 @@ process.on('uncaughtException', (err) => {
 
 const app = express();
 
-// ── FORCE WWW ──
-// Redirect clearstand.ca → www.clearstand.ca so localStorage tokens
-// are always on the same origin
+// ── CANONICAL DOMAIN — www → clearstand.ca ──
+// Forces all www traffic to non-www so localStorage
+// tokens are always on the same origin (clearstand.ca)
 app.use((req, res, next) => {
-  if (req.headers.host === 'clearstand.ca') {
-    return res.redirect(301, 'https://www.clearstand.ca' + req.originalUrl);
+  if (req.headers.host === 'www.clearstand.ca') {
+    return res.redirect(301, 'https://clearstand.ca' + req.originalUrl);
   }
   next();
 });

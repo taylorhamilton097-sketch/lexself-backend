@@ -93,6 +93,23 @@ try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_subscriber INTEGER DEFAUL
 try { db.exec(`ALTER TABLE users ADD COLUMN stripe_price_id TEXT DEFAULT NULL`); } catch(e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN next_billing_date TEXT DEFAULT NULL`); } catch(e) {}
 
+// ── STARTUP HEAL — fix users with paid plan but inactive status ──
+// Self-heals any accounts affected by past webhook failures
+try {
+  const healed = db.prepare(`
+    UPDATE users
+    SET subscription_status = 'active'
+    WHERE plan != 'free'
+      AND plan IS NOT NULL
+      AND subscription_status = 'inactive'
+  `).run();
+  if (healed.changes > 0) {
+    console.log(`[DB] Healed subscription_status for ${healed.changes} user(s)`);
+  }
+} catch(e) {
+  console.error('[DB] Healing query error:', e.message);
+}
+
 // ── PLAN CONFIG ──
 // products: 'criminal' | 'family' | 'both'
 // plan:     'free' | 'essential' | 'complete'
