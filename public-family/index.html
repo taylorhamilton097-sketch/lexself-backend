@@ -385,6 +385,7 @@ select.fi { cursor: pointer; }
     <button class="tn-btn" onclick="openFormDrawer()">Forms</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
     <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA">ClearSplit</a>
+    <button class="tn-btn" id="switchToCriminalBtn" style="display:none;border-color:var(--blue);color:var(--blue-light)" onclick="switchToCriminal()">Criminal Defence →</button>
     <button class="tn-btn" id="authBtn" onclick="handleAuthBtn()">Account</button>
   </div>
 </nav>
@@ -901,6 +902,11 @@ async function onAuthSuccess() {
   document.getElementById('authOv').style.display='none';
   await refreshUsage();
   await loadProfileFromServer();
+  // Show switch button for bundle users
+  if (currentUser?.products === 'both') {
+    const btn = document.getElementById('switchToCriminalBtn');
+    if (btn) btn.style.display = 'block';
+  }
   showWelcome();
 }
 
@@ -926,6 +932,11 @@ function renderUsage() {
     document.getElementById('cCnt').textContent=`${cL-cU} left`;
   }
   document.getElementById('upgradeBtn').style.display=currentUser.plan==='free'?'block':'none';
+}
+
+function switchToCriminal() {
+  localStorage.setItem('cs_last_product', 'criminal');
+  window.location.href = '/criminal-app';
 }
 
 function handleAuthBtn() {
@@ -1779,6 +1790,11 @@ function showPanel(name) {
         document.getElementById('authOv').style.display='none';
         renderUsage();
         await loadProfileFromServer();
+        // Show switch button for bundle users
+        if (currentUser.products === 'both') {
+          const btn = document.getElementById('switchToCriminalBtn');
+          if (btn) btn.style.display = 'block';
+        }
       } else { authToken=null; localStorage.removeItem('ls_tok'); }
     } catch(e) {}
   }

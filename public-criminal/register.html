@@ -496,14 +496,25 @@ async function goClearSplitCheckout() {
 function routeToApp(user) {
   const p = user?.products || selectedProduct || 'criminal';
   if (p === 'family')  { window.location.href = '/family'; return; }
+  if (p === 'criminal'){ window.location.href = '/criminal-app'; return; }
   if (p === 'both') {
+    // Check if user has a remembered last product
+    const last = localStorage.getItem('cs_last_product');
+    if (last === 'family')   { window.location.href = '/family'; return; }
+    if (last === 'criminal') { window.location.href = '/criminal-app'; return; }
+    // First time with both — show picker
     document.getElementById('s4Content').innerHTML = `
       <div style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white);margin-bottom:6px">Where would you like to go?</div>
       <div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:20px">Your account has access to both products.</div>
       <div class="picker-grid">
-        <a href="/family" class="picker-card"><div class="picker-label">Family Law</div><div class="picker-sub">Ontario Family Court</div></a>
-        <a href="/criminal-app" class="picker-card"><div class="picker-label">Criminal Defence</div><div class="picker-sub">Canadian Criminal Court</div></a>
-      </div>`;
+        <a href="/family" class="picker-card" onclick="localStorage.setItem('cs_last_product','family')">
+          <div class="picker-label">Family Law</div><div class="picker-sub">Ontario Family Court</div>
+        </a>
+        <a href="/criminal-app" class="picker-card" onclick="localStorage.setItem('cs_last_product','criminal')">
+          <div class="picker-label">Criminal Defence</div><div class="picker-sub">Canadian Criminal Court</div>
+        </a>
+      </div>
+      <div style="font-family:'Inter',sans-serif;font-size:.75rem;color:var(--text3);margin-top:16px">We'll remember your choice next time.</div>`;
     goToStep(4); return;
   }
   window.location.href = '/criminal-app';

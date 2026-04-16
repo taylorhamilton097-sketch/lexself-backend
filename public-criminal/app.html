@@ -926,6 +926,7 @@ select.fi { cursor: pointer; }
       <button class="acct-link" onclick="closeAccountPanel();showPanel('profile');bnActive('profile')">My Case Profile</button>
       <button class="acct-link" onclick="closeAccountPanel();window.location.href='/pricing'">View All Plans</button>
       <button class="acct-link" onclick="openBillingPortal()">Manage Billing</button>
+      <button class="acct-link" id="switchProductBtn" style="display:none" onclick="switchProduct()">Switch to Family Law →</button>
     </div>
     <div class="acct-section">
       <button class="acct-link danger" onclick="doLogout()">Sign Out</button>
@@ -1122,6 +1123,10 @@ function openAccountPanel() {
       }
     });
   }
+  // Show switch product button for bundle users
+  const switchBtn = document.getElementById('switchProductBtn');
+  if (switchBtn) switchBtn.style.display = (currentUser.products === 'both') ? 'block' : 'none';
+
   document.getElementById('acctOv').classList.add('show');
 }
 
@@ -1135,6 +1140,11 @@ async function openBillingPortal() {
     else toast('Billing portal not available yet');
   } catch(e) { toast('Error opening billing portal'); }
 }
+function switchProduct() {
+  localStorage.setItem('cs_last_product', 'family');
+  window.location.href = '/family';
+}
+
 function doLogout() {
   authToken = null; currentUser = null; usageState = null;
   localStorage.removeItem('ls_tok');
@@ -2297,6 +2307,13 @@ function obSkip() {
         if (currentUser.products === 'family') {
           document.getElementById('productGateOv').style.display = 'flex';
           return;
+        }
+
+        // Remember last used product for bundle users
+        if (currentUser.products === 'both') {
+          localStorage.setItem('cs_last_product', 'criminal');
+          const btn = document.getElementById('switchProductBtn');
+          if (btn) btn.style.display = 'block';
         }
 
         renderUsage();
