@@ -394,6 +394,7 @@ select.fi { cursor: pointer; }
     <button class="tn-btn" onclick="openChargeDrawer()">Charges</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
     <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA" title="ClearSplit — Separation Agreements">ClearSplit</a>
+    <button class="tn-btn" id="switchProductBtn" style="display:none;border-color:var(--blue);color:var(--blue-light)" onclick="switchProduct()">Family Law →</button>
     <button class="tn-btn" onclick="openAccountPanel()">Account</button>
   </div>
 </nav>
@@ -926,7 +927,6 @@ select.fi { cursor: pointer; }
       <button class="acct-link" onclick="closeAccountPanel();showPanel('profile');bnActive('profile')">My Case Profile</button>
       <button class="acct-link" onclick="closeAccountPanel();window.location.href='/pricing'">View All Plans</button>
       <button class="acct-link" onclick="openBillingPortal()">Manage Billing</button>
-      <button class="acct-link" id="switchProductBtn" style="display:none" onclick="switchProduct()">Switch to Family Law →</button>
     </div>
     <div class="acct-section">
       <button class="acct-link danger" onclick="doLogout()">Sign Out</button>
