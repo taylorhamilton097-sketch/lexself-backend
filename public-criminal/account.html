@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStand — My Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0D1B2A;
+  --navy-mid:  #162233;
+  --navy-light:#1E3045;
+  --blue:      #2E86C1;
+  --blue-light:#3EA4E4;
+  --border:    #2A3F56;
+  --text:      #E8EDF2;
+  --text2:     #8BA3BA;
+  --text3:     #4A6680;
+  --white:     #F4F6F8;
+  --red:       #E87070;
+  --green:     #4CAF50;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── NAV ── */
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--blue-light);}
+.nav-links{display:flex;align-items:center;gap:16px;}
+.nav-link{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);text-decoration:none;transition:color .15s;}
+.nav-link:hover{color:var(--text2);}
+.nav-link.active{color:var(--blue-light);}
+
+/* ── LAYOUT ── */
+main{flex:1;max-width:860px;margin:0 auto;padding:40px 24px 80px;width:100%;}
+h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);margin-bottom:4px;}
+.page-sub{font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text3);margin-bottom:40px;}
+
+/* ── SECTIONS ── */
+.section{margin-bottom:32px;}
+.section-hdr{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.card{background:var(--navy-mid);border:1px solid var(--border);padding:24px;}
+.card + .card{margin-top:2px;}
+
+/* ── PLAN DISPLAY ── */
+.plan-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.plan-name{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:4px;}
+.plan-meta{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);line-height:1.6;}
+.plan-badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px;}
+.badge-free{background:var(--blue);color:#fff;}
+.badge-paid{background:transparent;color:var(--blue-light);border:1px solid var(--blue);}
+.badge-active{background:rgba(76,175,80,.15);color:var(--green);border:1px solid rgba(76,175,80,.3);}
+
+/* ── USAGE BARS ── */
+.usage-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+.usage-item{}
+.usage-label{font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:5px;}
+.usage-bar-wrap{background:var(--navy);border:1px solid var(--border);height:6px;border-radius:3px;overflow:hidden;margin-bottom:4px;}
+.usage-bar-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .4s ease;}
+.usage-bar-fill.warn{background:#F0A500;}
+.usage-bar-fill.danger{background:var(--red);}
+.usage-count{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3);}
+
+/* ── UPGRADE CARDS ── */
+.upgrade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.upgrade-card{background:var(--navy);border:1px solid var(--border);padding:18px;position:relative;transition:border-color .15s;cursor:pointer;}
+.upgrade-card:hover{border-color:var(--blue);}
+.upgrade-card.recommended{border-color:var(--blue);}
+.upgrade-rec-badge{position:absolute;top:-10px;left:14px;background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;white-space:nowrap;}
+.upgrade-name{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:8px;}
+.upgrade-price{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--white);line-height:1;margin-bottom:2px;}
+.upgrade-period{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--text3);margin-bottom:10px;}
+.upgrade-features{list-style:none;margin-bottom:14px;}
+.upgrade-features li{font-family:'Inter',sans-serif;font-size:.75rem;color:var(--text2);padding:2px 0;display:flex;gap:6px;}
+.upgrade-features li::before{content:'✓';color:var(--blue-light);flex-shrink:0;}
+.upgrade-btn{width:100%;padding:10px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;min-height:40px;transition:background .15s;}
+.upgrade-btn:hover{background:var(--blue-light);}
+.upgrade-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── FORM FIELDS ── */
+.field-group{margin-bottom:16px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-lbl{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);display:block;margin-bottom:5px;}
+.field-inp{width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:11px 14px;font-family:'Inter',sans-serif;font-size:.95rem;outline:none;transition:border-color .15s;border-radius:0;}
+.field-inp:focus{border-color:var(--blue);}
+.field-inp:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── BUTTONS ── */
+.btn{padding:11px 22px;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;min-height:42px;transition:all .15s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-light);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text3);}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text2);}
+.btn-danger{background:none;border:1px solid rgba(232,112,112,.3);color:var(--red);}
+.btn-danger:hover{background:rgba(232,112,112,.1);}
+
+/* ── MESSAGES ── */
+.msg{font-family:'Inter',sans-serif;font-size:.85rem;padding:10px 14px;margin-bottom:12px;display:none;line-height:1.5;border-radius:2px;}
+.msg.show{display:block;}
+.msg-ok{background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:var(--green);}
+.msg-err{background:rgba(232,112,112,.08);border:1px solid rgba(232,112,112,.2);color:var(--red);}
+
+/* ── BILLING TABLE ── */
+.billing-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.billing-row:last-child{border-bottom:none;}
+.billing-label{color:var(--text2);}
+.billing-val{color:var(--white);font-weight:500;}
+
+/* ── DANGER ZONE ── */
+.danger-zone{border:1px solid rgba(232,112,112,.2);padding:24px;}
+.danger-title{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.14em;color:var(--red);margin-bottom:12px;}
+.danger-body{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text3);line-height:1.65;margin-bottom:16px;}
+
+/* ── CONFIRM MODAL ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:900;align-items:center;justify-content:center;padding:24px;}
+.modal-ov.show{display:flex;}
+.modal-box{background:var(--navy-mid);border:1px solid var(--border);border-top:3px solid var(--red);max-width:440px;width:100%;padding:32px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white);margin-bottom:10px;}
+.modal-body{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);line-height:1.65;margin-bottom:20px;}
+.modal-confirm-input{width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;margin-bottom:16px;}
+.modal-confirm-input:focus{border-color:var(--red);}
+.modal-actions{display:flex;gap:10px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;padding:12px 24px;z-index:1000;transition:transform .3s ease;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;gap:10px;color:var(--text3);font-family:'Inter',sans-serif;font-size:.85rem;}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:640px){
+  .upgrade-grid{grid-template-columns:1fr;}
+  .usage-grid{grid-template-columns:1fr;}
+  .field-row{grid-template-columns:1fr;}
+  .modal-actions{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+  <div class="nav-links">
+    <a href="/criminal-app" class="nav-link" id="criminalLink">Criminal Defence</a>
+    <a href="/family" class="nav-link" id="familyLink">Family Law</a>
+    <a href="/account" class="nav-link active">My Account</a>
+    <a href="#" class="nav-link" onclick="doLogout();return false;">Sign Out</a>
+  </div>
+</nav>
+
+<main>
+  <div id="loadingState" class="loading" style="margin:60px auto;justify-content:center">
+    <div class="spinner"></div> Loading your account…
+  </div>
+
+  <div id="accountContent" style="display:none">
+    <h1 id="acctName">My Account</h1>
+    <p class="page-sub" id="acctEmail"></p>
+
+    <!-- ── MY PLAN ── -->
+    <div class="section">
+      <div class="section-hdr">My Plan</div>
+      <div class="card">
+        <div class="plan-row">
+          <div>
+            <span class="plan-badge" id="planBadge">Free</span>
+            <div class="plan-name" id="planName">Free Plan</div>
+            <div class="plan-meta" id="planMeta"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <button class="btn btn-ghost" id="manageBillingBtn" onclick="openBillingPortal()" style="display:none">Manage Billing</button>
+            <a href="#" class="nav-link" style="font-size:.65rem" onclick="window.location.href='/register?step=plans&product='+currentUser.products;return false" id="changePlanLink">Change Plan →</a>
+          </div>
+        </div>
+
+        <!-- Usage bars -->
+        <div class="usage-grid" id="usageGrid" style="display:none"></div>
+
+        <!-- Next billing -->
+        <div id="nextBillingRow" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="billing-row" style="border:none;padding:0">
+            <span class="billing-label">Next billing date</span>
+            <span class="billing-val" id="nextBillingDate">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AVAILABLE UPGRADES ── -->
+    <div class="section" id="upgradeSection" style="display:none">
+      <div class="section-hdr">Available Upgrades</div>
+      <div id="upgradeCards"></div>
+    </div>
+
+    <!-- ── BILLING ── -->
+    <div class="section" id="billingSection" style="display:none">
+      <div class="section-hdr">Billing</div>
+      <div class="card">
+        <div id="billingInfo">
+          <div class="loading"><div class="spinner"></div> Loading billing info…</div>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <button class="btn btn-ghost" onclick="openBillingPortal()">Open Billing Portal →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ANALYSIS PACK ── -->
+    <div class="section" id="analysisPackSection">
+      <div class="section-hdr">Analysis Pack</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">Buy 3 Analyses — $29</div>
+            <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2)">No subscription required. Use any time.</div>
+            <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3);margin-top:4px" id="analysisRemaining"></div>
+          </div>
+          <button class="btn btn-primary" id="analysisPackBtn" onclick="buyAnalysisPack()">Buy Analysis Pack</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div class="section">
+      <div class="section-hdr">Profile</div>
+      <div class="card">
+        <div class="msg msg-ok" id="profileOk">Changes saved successfully.</div>
+        <div class="msg msg-err" id="profileErr"></div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-lbl">First Name</label>
+            <input class="field-inp" type="text" id="profFirst" placeholder="First name">
+          </div>
+          <div class="field-group">
+            <label class="field-lbl">Last Name</label>
+            <input class="field-inp" type="text" id="profLast" placeholder="Last name">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-lbl">Email Address</label>
+          <input class="field-inp" type="email" id="profEmail" placeholder="you@email.com">
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+      </div>
+
+      <!-- Password change -->
+      <div class="card" style="margin-top:2px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:14px">Change Password</div>
+        <div class="msg msg-ok" id="passOk">Password updated successfully.</div>
+        <div class="msg msg-err" id="passErr"></div>
+        <div class="field-group">
+          <label class="field-lbl">Current Password</label>
+          <input class="field-inp" type="password" id="curPass" placeholder="••••••••">
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-lbl">New Password</label>
+            <input class="field-inp" type="password" id="newPass" placeholder="Min. 8 characters">
+          </div>
+          <div class="field-group">
+            <label class="field-lbl">Confirm New Password</label>
+            <input class="field-inp" type="password" id="newPass2" placeholder="Repeat password">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+
+    <!-- ── DANGER ZONE ── -->
+    <div class="section">
+      <div class="section-hdr" style="color:var(--red)">Danger Zone</div>
+      <div class="danger-zone">
+        <div class="danger-title">Delete Account</div>
+        <div class="danger-body">This will permanently delete your account and all associated data. This cannot be undone. Your subscription will be cancelled immediately with no refund.</div>
+        <button class="btn btn-danger" onclick="openDeleteModal()">Delete My Account</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-ov" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-title">Delete Your Account</div>
+    <div class="modal-body">This will permanently delete your account and all data. This cannot be undone.<br><br>Type <strong style="color:var(--white)">DELETE</strong> to confirm.</div>
+    <input class="modal-confirm-input" type="text" id="deleteConfirmInput" placeholder="Type DELETE to confirm">
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="confirmDelete()" style="flex:1">Delete My Account</button>
+      <button class="btn btn-ghost" onclick="closeDeleteModal()" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const tok = localStorage.getItem('ls_tok');
+let currentUser = null;
+let usageState  = null;
+
+// ── REDIRECT IF NOT LOGGED IN ──
+if (!tok) window.location.href = '/register?signin=1';
+
+// ── HELPERS ──
+function toast(msg, duration = 3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function fmt(cents) {
+  return '$' + (cents / 100).toFixed(2);
+}
+
+async function api(method, path, body) {
+  const r = await fetch(path, {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return r.json();
+}
+
+function doLogout() {
+  localStorage.removeItem('ls_tok');
+  localStorage.removeItem('cs_last_product');
+  window.location.href = '/';
+}
+
+// ── LOAD ACCOUNT ──
+async function loadAccount() {
+  try {
+    const d = await api('GET', '/api/auth/me');
+    if (!d?.user) { doLogout(); return; }
+    currentUser = d.user;
+    usageState  = d.usage;
+    renderAccount();
+  } catch(e) {
+    document.getElementById('loadingState').innerHTML = '<span style="color:var(--red)">Failed to load account. Please refresh.</span>';
+  }
+}
+
+function renderAccount() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('accountContent').style.display = 'block';
+
+  const u = currentUser;
+  const nameParts = (u.name || '').split(' ');
+  document.getElementById('acctName').textContent = u.name || 'My Account';
+  document.getElementById('acctEmail').textContent = u.email || '';
+  document.getElementById('profFirst').value = nameParts[0] || '';
+  document.getElementById('profLast').value  = nameParts.slice(1).join(' ') || '';
+  document.getElementById('profEmail').value = u.email || '';
+
+  // Nav links — show only accessible products
+  if (u.products === 'family') document.getElementById('criminalLink').style.display = 'none';
+  if (u.products === 'criminal') document.getElementById('familyLink').style.display = 'none';
+
+  // Plan badge & name
+  const plan = u.plan || 'free';
+  const products = u.products || 'criminal';
+  const PRODUCT_LABELS = { family:'Family Law', criminal:'Criminal Defence', both:'Bundle — Both Products' };
+  const PLAN_LABELS = { free:'Free', essential:'Essential', complete:'Complete', counsel:'Counsel' };
+  const badge = document.getElementById('planBadge');
+  badge.textContent = PLAN_LABELS[plan] || plan;
+  badge.className = 'plan-badge ' + (plan === 'free' ? 'badge-free' : 'badge-paid');
+
+  document.getElementById('planName').textContent =
+    `${PRODUCT_LABELS[products] || products} — ${PLAN_LABELS[plan] || plan}`;
+
+  // Plan meta
+  const status = u.subscriptionStatus || u.subscription_status || 'inactive';
+  const statusBadge = (status === 'active' || status === 'trialing')
+    ? `<span class="plan-badge badge-active" style="margin-left:8px">${status}</span>` : '';
+  document.getElementById('planMeta').innerHTML =
+    plan === 'free'
+      ? '10 chats · 1 analysis · No credit card required'
+      : `Active subscription${statusBadge}`;
+
+  // Billing portal button
+  if (plan !== 'free') {
+    document.getElementById('manageBillingBtn').style.display = 'block';
+    document.getElementById('billingSection').style.display = 'block';
+    loadBillingInfo();
+  }
+
+  // Next billing date
+  if (u.planPeriodEnd) {
+    const date = new Date(u.planPeriodEnd * 1000).toLocaleDateString('en-CA', { month:'long', day:'numeric', year:'numeric' });
+    document.getElementById('nextBillingDate').textContent = date;
+    document.getElementById('nextBillingRow').style.display = 'block';
+  }
+
+  // Usage
+  renderUsage();
+
+  // Upgrades
+  renderUpgrades();
+
+  // Analysis pack remaining
+  if (usageState?.analysis) {
+    const { used, limit } = usageState.analysis;
+    if (limit !== null && limit !== Infinity) {
+      document.getElementById('analysisRemaining').textContent =
+        `${limit - used} of ${limit} analyses remaining this month`;
+    }
+  }
+}
+
+function renderUsage() {
+  if (!usageState) return;
+  const grid = document.getElementById('usageGrid');
+  const rows = [
+    { label: 'Analyses this month', stat: usageState.analysis },
+    { label: 'Chats today',         stat: usageState.chat },
+  ];
+  const html = rows.map(r => {
+    const { used, limit } = r.stat || {};
+    if (limit === null || limit === Infinity) {
+      return `<div class="usage-item">
+        <div class="usage-label">${r.label}</div>
+        <div class="usage-bar-wrap"><div class="usage-bar-fill" style="width:30%;opacity:.4"></div></div>
+        <div class="usage-count" style="color:var(--blue-light)">Unlimited</div>
+      </div>`;
+    }
+    const pct = Math.min(100, Math.round(((used||0) / limit) * 100));
+    const cls = pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : '';
+    return `<div class="usage-item">
+      <div class="usage-label">${r.label}</div>
+      <div class="usage-bar-wrap"><div class="usage-bar-fill ${cls}" style="width:${pct}%"></div></div>
+      <div class="usage-count">${limit - (used||0)} of ${limit} remaining</div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = html;
+  grid.style.display = 'grid';
+}
+
+function renderUpgrades() {
+  const plan = currentUser.plan || 'free';
+  const products = currentUser.products || 'criminal';
+  if (plan === 'counsel' && products === 'both') return; // already at max
+
+  const section = document.getElementById('upgradeSection');
+  const container = document.getElementById('upgradeCards');
+  section.style.display = 'block';
+
+  // If on free — show plan selection link
+  if (plan === 'free') {
+    container.innerHTML = `
+      <div class="card" style="text-align:center;padding:32px">
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:8px">Ready to upgrade?</div>
+        <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:20px">Choose a plan that fits your needs. Start from $29/month.</div>
+        <a href="/register?step=plans&product=${products}" class="btn btn-primary" style="text-decoration:none;display:inline-flex">View Plans →</a>
+      </div>`;
+    return;
+  }
+
+  // If on standalone — show bundle upgrade options
+  if (products !== 'both') {
+    const targetProduct = products === 'family' ? 'Criminal Defence' : 'Family Law';
+    const BUNDLES = [
+      { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429,
+        features:['Both products','50 chats/day per product','3 analyses/month per product'], rec: plan==='essential' },
+      { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, annual:1099,
+        features:['Both products','100 chats/day per product','5 analyses/month per product'], rec: plan==='complete' },
+      { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:279, annual:2499,
+        features:['Both products','Unlimited everything','All premium features'], rec: plan==='counsel' },
+    ];
+    container.innerHTML = `
+      <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:16px;line-height:1.65">
+        Add <strong style="color:var(--white)">${targetProduct}</strong> to your account by upgrading to a Bundle.
+        You'll be credited for the unused days on your current plan.
+      </div>
+      <div class="upgrade-grid">
+        ${BUNDLES.map(b => `
+          <div class="upgrade-card${b.rec ? ' recommended' : ''}">
+            ${b.rec ? '<div class="upgrade-rec-badge">Recommended</div>' : ''}
+            <div class="upgrade-name">${b.name}</div>
+            <div class="upgrade-price">$${b.monthly}</div>
+            <div class="upgrade-period">/month CAD</div>
+            <ul class="upgrade-features">${b.features.map(f => `<li>${f}</li>`).join('')}</ul>
+            <button class="upgrade-btn" onclick="upgradeToBundle('${b.key}', this)">Select ${b.name}</button>
+          </div>`).join('')}
+      </div>`;
+    return;
+  }
+
+  // On bundle but not counsel — show tier upgrade
+  if (plan !== 'counsel') {
+    const next = plan === 'essential' ? { key:'bundle_complete', name:'Complete Bundle', price:129 } :
+                                        { key:'bundle_counsel',  name:'Counsel Bundle',  price:279 };
+    container.innerHTML = `
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">Upgrade to ${next.name}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2)">$${next.price}/month — Unlock more chats, analyses, and premium features.</div>
+        </div>
+        <button class="btn btn-primary" onclick="upgradeToBundle('${next.key}', this)">Upgrade Now →</button>
+      </div>`;
+  }
+}
+
+async function upgradeToBundle(planKey, btn) {
+  const origText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    // First get proration preview
+    const preview = await api('POST', '/api/billing/preview-upgrade', { newPlanKey: planKey });
+    if (preview.error) throw new Error(preview.error);
+
+    // Confirm with user
+    const confirmed = confirm(
+      `Upgrade to ${preview.newPlanName}?\n\n` +
+      `Credit for unused days: ${preview.creditAmount}\n` +
+      `Due today: ${preview.dueToday}\n` +
+      `From ${preview.nextBillingDate}: ${preview.nextBillingAmount}/month\n\n` +
+      `Proceed?`
+    );
+    if (!confirmed) { btn.disabled = false; btn.textContent = origText; return; }
+
+    // Execute upgrade
+    const r = await api('POST', '/api/billing/upgrade-subscription', {
+      newPlanKey: planKey,
+      currentItemId: preview.currentItemId,
+    });
+    if (r.error) throw new Error(r.error);
+    toast(`${r.newPlan} activated. Reloading…`);
+    setTimeout(() => window.location.reload(), 2000);
+  } catch(e) {
+    toast('Upgrade failed: ' + e.message);
+    btn.disabled = false; btn.textContent = origText;
+  }
+}
+
+async function loadBillingInfo() {
+  try {
+    const d = await api('POST', '/api/billing/portal', {});
+    // We just need to show the portal link — actual invoice data requires Stripe API
+    document.getElementById('billingInfo').innerHTML = `
+      <div class="billing-row">
+        <span class="billing-label">Current plan</span>
+        <span class="billing-val">${currentUser.plan} — ${currentUser.products === 'both' ? 'Bundle' : currentUser.products}</span>
+      </div>
+      <div class="billing-row">
+        <span class="billing-label">Status</span>
+        <span class="billing-val">${currentUser.subscriptionStatus || 'Active'}</span>
+      </div>
+      <div class="billing-row">
+        <span class="billing-label">Payment method &amp; invoices</span>
+        <span class="billing-val"><a href="${d.url || '#'}" target="_blank" style="color:var(--blue-light);text-decoration:none">View in Stripe Portal →</a></span>
+      </div>`;
+  } catch(e) {
+    document.getElementById('billingInfo').innerHTML = `<span style="color:var(--text3);font-size:.85rem">Billing details available in the <a href="#" onclick="openBillingPortal();return false" style="color:var(--blue-light)">Stripe portal</a>.</span>`;
+  }
+}
+
+async function openBillingPortal() {
+  try {
+    const d = await api('POST', '/api/billing/portal', {});
+    if (d.url) window.open(d.url, '_blank');
+    else toast('Billing portal not available. Contact support@clearstand.ca');
+  } catch(e) { toast('Connection error. Please try again.'); }
+}
+
+async function buyAnalysisPack() {
+  const products = currentUser.products || 'criminal';
+  const planKey = products === 'family' ? 'family_analysis_pack' : 'criminal_analysis_pack';
+  const btn = document.getElementById('analysisPackBtn');
+  btn.disabled = true; btn.textContent = 'Loading…';
+  try {
+    const d = await api('POST', '/api/billing/checkout', { planKey });
+    if (d.url) window.location.href = d.url;
+    else toast('Error: ' + (d.error || 'Please try again.'));
+  } catch(e) { toast('Connection error. Please try again.'); }
+  btn.disabled = false; btn.textContent = 'Buy Analysis Pack';
+}
+
+// ── PROFILE ──
+async function saveProfile() {
+  const first = document.getElementById('profFirst').value.trim();
+  const last  = document.getElementById('profLast').value.trim();
+  const email = document.getElementById('profEmail').value.trim();
+  const ok  = document.getElementById('profileOk');
+  const err = document.getElementById('profileErr');
+  ok.classList.remove('show'); err.classList.remove('show');
+
+  if (!first || !last) { err.textContent = 'Please enter your full name.'; err.classList.add('show'); return; }
+
+  try {
+    const d = await api('POST', '/api/auth/update-profile', { name: first + ' ' + last, email });
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else { ok.classList.add('show'); currentUser.name = d.user?.name || currentUser.name; document.getElementById('acctName').textContent = currentUser.name; }
+  } catch(e) { err.textContent = 'Connection error.'; err.classList.add('show'); }
+}
+
+// ── PASSWORD ──
+async function changePassword() {
+  const cur  = document.getElementById('curPass').value;
+  const next = document.getElementById('newPass').value;
+  const next2= document.getElementById('newPass2').value;
+  const ok  = document.getElementById('passOk');
+  const err = document.getElementById('passErr');
+  ok.classList.remove('show'); err.classList.remove('show');
+
+  if (!cur || !next) { err.textContent = 'All fields required.'; err.classList.add('show'); return; }
+  if (next.length < 8) { err.textContent = 'New password must be at least 8 characters.'; err.classList.add('show'); return; }
+  if (next !== next2) { err.textContent = 'Passwords do not match.'; err.classList.add('show'); return; }
+
+  try {
+    const d = await api('POST', '/api/auth/change-password', { currentPassword: cur, newPassword: next });
+    if (d.error) { err.textContent = d.error; err.classList.add('show'); }
+    else {
+      ok.classList.add('show');
+      document.getElementById('curPass').value = '';
+      document.getElementById('newPass').value = '';
+      document.getElementById('newPass2').value = '';
+    }
+  } catch(e) { err.textContent = 'Connection error.'; err.classList.add('show'); }
+}
+
+// ── DELETE ACCOUNT ──
+function openDeleteModal() { document.getElementById('deleteModal').classList.add('show'); }
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  document.getElementById('deleteConfirmInput').value = '';
+}
+
+async function confirmDelete() {
+  const input = document.getElementById('deleteConfirmInput').value.trim();
+  if (input !== 'DELETE') {
+    toast('Type DELETE in all caps to confirm.');
+    return;
+  }
+  try {
+    // For now just log out — full account deletion endpoint can be added later
+    toast('Account deletion request received. Contact support@clearstand.ca to complete.');
+    closeDeleteModal();
+    setTimeout(doLogout, 3000);
+  } catch(e) { toast('Error. Please contact support@clearstand.ca'); }
+}
+
+// ── INIT ──
+loadAccount();
+</script>
+</body>
+</html>
