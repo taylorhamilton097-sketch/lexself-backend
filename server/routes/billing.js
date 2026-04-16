@@ -205,6 +205,29 @@ router.post('/checkout', requireAuth, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+// POST /api/billing/portal — create Stripe billing portal session
+// ══════════════════════════════════════════════════
+router.post('/portal', requireAuth, async (req, res) => {
+  const user = req.user;
+  const s = getStripe();
+
+  if (!user.stripe_customer_id) {
+    return res.status(400).json({ error: 'No billing account found. Please contact support@clearstand.ca' });
+  }
+
+  try {
+    const session = await s.billingPortal.sessions.create({
+      customer:   user.stripe_customer_id,
+      return_url: `${APP_URL()}/account`,
+    });
+    res.json({ url: session.url });
+  } catch(err) {
+    console.error('[Billing portal error]', err.message);
+    res.status(500).json({ error: 'Could not open billing portal. Please try again.' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 // GET /api/billing/clearsplit/session — lookup purchase by Stripe session
 // Called by success screen to display code
 // ══════════════════════════════════════════════════
