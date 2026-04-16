@@ -37,12 +37,10 @@ const STRIPE_PRICES = {
   bundle_complete_annual:     process.env.STRIPE_PRICE_BUNDLE_COMPLETE_ANNUAL,
   bundle_counsel_annual:      process.env.STRIPE_PRICE_BUNDLE_COUNSEL_ANNUAL,
   // ── One-time ──
-  analysis_pack:              process.env.STRIPE_PRICE_ANALYSIS_PACK,
   family_analysis_pack:       process.env.STRIPE_PRICE_FAMILY_ANALYSIS_PACK,
   criminal_analysis_pack:     process.env.STRIPE_PRICE_CRIMINAL_ANALYSIS_PACK,
   // ── ClearSplit ──
   clearsplit_monthly:         process.env.STRIPE_PRICE_CLEARSPLIT_MONTHLY         || process.env.STRIPE_PRICE_CLEARSPLIT_STANDARD,
-  clearsplit_annual:          process.env.STRIPE_PRICE_CLEARSPLIT_ANNUAL,
   clearsplit_standard:        process.env.STRIPE_PRICE_CLEARSPLIT_STANDARD,
   clearsplit_subscriber:      process.env.STRIPE_PRICE_CLEARSPLIT_SUBSCRIBER,
   clearsplit_extension:       process.env.STRIPE_PRICE_CLEARSPLIT_EXTENSION,
@@ -104,7 +102,6 @@ const PLAN_META = {
 const ONE_TIME = {
   family_analysis_pack:   { priceId: () => STRIPE_PRICES.family_analysis_pack,   label: 'Family Law — 3 Analyses',       product: 'family_analysis' },
   criminal_analysis_pack: { priceId: () => STRIPE_PRICES.criminal_analysis_pack, label: 'Criminal Defence — 3 Analyses', product: 'criminal_analysis' },
-  analysis_pack:          { priceId: () => STRIPE_PRICES.criminal_analysis_pack, label: 'Analysis Pack — 3 Analyses',    product: 'criminal_analysis' },
 };
 
 // ClearSplit — all reference STRIPE_PRICES
@@ -253,8 +250,9 @@ router.post('/clearsplit/checkout', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     try {
-      const { verifyToken } = require('../middleware/auth');
-      const decoded = verifyToken(authHeader.slice(7));
+      const jwt = require('jsonwebtoken');
+      const secret = process.env.JWT_SECRET || 'changeme';
+      const decoded = jwt.verify(authHeader.slice(7), secret);
       if (decoded) {
         const { getUserById, db } = require('../db');
         const user = getUserById(decoded.userId);
