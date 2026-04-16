@@ -38,12 +38,15 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .tn-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); letter-spacing: -0.01em; text-decoration: none; }
 .tn-logo span { color: var(--blue-light); }
 .tn-divider { width: 1px; height: 20px; background: var(--border); }
-.tn-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); border: 1px solid var(--border); padding: 2px 8px; }
-.tn-mode { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); border: 1px solid var(--border); padding: 2px 8px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tn-tag { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--white); background: rgba(13,27,42,0.8); border: 1.5px solid #2E86C1; padding: 6px 16px; border-radius: 4px; }
+.tn-mode { display: none; }
 .tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.tn-plan { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue-light); border: 1px solid var(--blue-dim); padding: 2px 8px; display: none; }
-.tn-btn { height: 36px; padding: 0 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); color: var(--text); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.15s; white-space: nowrap; }
-.tn-btn:hover { border-color: #2E86C1; color: var(--white); background: rgba(46,134,193,.2); }
+.tn-plan { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; display: none; }
+.tn-plan.free { background: #2E86C1; color: #fff; border: 1px solid #2E86C1; }
+.tn-plan.paid { background: transparent; color: var(--blue-light); border: 1px solid #2E86C1; }
+.tn-btn { height: 36px; padding: 0 16px; background: transparent; border: 1px solid #2E86C1; color: #F4F6F8; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s ease; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; text-decoration: none; }
+.tn-btn:hover { background: rgba(46,134,193,0.2); color: #FFFFFF; }
+.tn-btn.active { background: #2E86C1; color: #FFFFFF; border-color: #2E86C1; }
 .report-badge { display: none; font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; background: var(--blue); color: var(--white); padding: 1px 5px; border-radius: 2px; margin-left: 4px; }
 .report-badge.show { display: inline; }
 
@@ -51,9 +54,11 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .usage-strip { background: var(--navy); border-bottom: 1px solid var(--border); padding: 5px 16px; display: none; align-items: center; gap: 12px; flex-shrink: 0; }
 .usage-strip.show { display: flex; }
 .us-item { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
-.us-pips { display: flex; gap: 2px; }
-.us-pip { width: 8px; height: 8px; background: var(--navy-border); border-radius: 2px; }
+.us-pips { display: flex; gap: 3px; }
+.us-pip { width: 10px; height: 10px; background: var(--navy-border); border-radius: 2px; transition: background 0.2s; }
 .us-pip.on { background: var(--blue-light); }
+.us-pip.warn { background: #F0A500; }
+.us-pip.danger { background: #E87070; }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
 .us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
 
@@ -71,12 +76,12 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .hamburger span { width:20px;height:2px;background:var(--text2);display:block;border-radius:2px; }
 @media (min-width: 768px) { .hamburger { display:none; } }
 .sb-sec { border-bottom: 1px solid var(--border); }
-.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
-.sbt { width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text2); cursor: pointer; display: flex; align-items: flex-start; gap: 8px; text-align: left; transition: all 0.15s; border-left: 3px solid transparent; }
-.sbt:hover { background: var(--navy-light); color: var(--text); }
+.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #2E86C1; font-weight: 600; margin-bottom: 2px; }
+.sbt { width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text2); cursor: pointer; display: flex; align-items: flex-start; gap: 8px; text-align: left; transition: all 0.15s ease; border-left: 3px solid transparent; }
+.sbt:hover { background: rgba(46,134,193,0.15); border-left-color: #2E86C1; color: var(--white); }
 .sbt.on { background: var(--navy-light); color: var(--white); border-left: 3px solid #2E86C1; }
-.sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; line-height: 1.35; color: var(--text); }
-.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sbt .lbl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.35; color: #F4F6F8; }
+.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav { height: var(--bot); background: var(--navy-mid); border-top: 1px solid var(--border); display: flex; flex-shrink: 0; padding-bottom: var(--safe-bot); }
@@ -384,17 +389,18 @@ select.fi { cursor: pointer; }
 
 <!-- TOP NAV -->
 <nav class="topnav">
-  <button class="hamburger" onclick="toggleMobSidebar()" aria-label="Menu"><span></span><span></span><span></span></button><a href="/" class="tn-logo">Clear<span>Stand</span></a>
+  <button class="hamburger" onclick="toggleMobSidebar()" aria-label="Menu"><span></span><span></span><span></span></button>
+  <a href="/" class="tn-logo">Clear<span>Stand</span></a>
   <div class="tn-divider"></div>
   <span class="tn-tag">Criminal Defence</span>
-  <span class="tn-mode" id="modeLabel">Defence Assistant</span>
   <div class="tn-right">
     <button class="tn-btn" onclick="showPanel('upload');bnActive('upload')">Disclosure</button>
     <button class="tn-btn" onclick="showPanel('report');bnActive('report')">Report <span class="report-badge" id="reportBadge">New</span></button>
     <button class="tn-btn" onclick="openChargeDrawer()">Charges</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
-    <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA" title="ClearSplit — Separation Agreements">ClearSplit</a>
-    <button class="tn-btn" id="switchProductBtn" style="display:none;border-color:var(--blue);color:var(--blue-light)" onclick="switchProduct()">Family Law →</button>
+    <a href="/clearsplit" class="tn-btn" style="border-color:#20B2AA;color:#20B2AA;">ClearSplit</a>
+    <button class="tn-btn" id="switchProductBtn" style="display:none;border-color:#2E86C1;color:#3EA4E4" onclick="switchProduct()">Family Law →</button>
+    <span class="tn-plan free" id="planBadge" style="display:none">Free</span>
     <button class="tn-btn" onclick="openAccountPanel()">Account</button>
   </div>
 </nav>
@@ -1200,16 +1206,39 @@ function renderUsage() {
     document.getElementById('usageStrip').classList.remove('show');
   } else {
     const remaining = cL - cU;
-    const threshold = Math.ceil(cL * 0.2); // show at 80% consumed
-    if (remaining <= threshold) {
-      const show = Math.min(cL, 10);
-      for(let i=0;i<show;i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,show)?' on':'');cPips.appendChild(p);}
-      document.getElementById('cCnt').textContent = `${remaining} left`;
+    const pct = remaining / cL;
+    const DOTS = 5;
+    // Determine pip state
+    let pipClass = 'on'; // blue
+    if (pct <= 0.05) pipClass = 'danger';      // 5% or less = red
+    else if (pct <= 0.2) pipClass = 'warn';    // 20% or less = amber
+    // Always show 5 dots, fill from left
+    const filled = Math.round((remaining / cL) * DOTS);
+    for (let i = 0; i < DOTS; i++) {
+      const p = document.createElement('div');
+      p.className = 'us-pip' + (i < filled ? ' ' + pipClass : '');
+      cPips.appendChild(p);
+    }
+    // Only show number when 20% or fewer remain
+    const cCnt = document.getElementById('cCnt');
+    if (pct <= 0.2) {
+      cCnt.textContent = remaining + ' remaining';
       document.getElementById('usageStrip').classList.add('show');
     } else {
+      cCnt.textContent = '';
+      // Still show strip but subtly — hide unless paid user wants to see it
       document.getElementById('usageStrip').classList.remove('show');
     }
   }
+  // Plan badge
+  const planBadge = document.getElementById('planBadge');
+  if (planBadge && currentUser) {
+    const plan = currentUser.plan || 'free';
+    planBadge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+    planBadge.className = 'tn-plan ' + (plan === 'free' ? 'free' : 'paid');
+    planBadge.style.display = 'inline';
+  }
+
   document.getElementById('upgradeBtn').style.display = currentUser.plan === 'free' ? 'block' : 'none';
 }
 

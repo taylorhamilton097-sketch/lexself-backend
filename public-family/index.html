@@ -55,51 +55,50 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .tn-logo span { color: var(--blue-light); }
 .tn-divider { width: 1px; height: 20px; background: var(--border); }
 .tn-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text3);
-  border: 1px solid var(--border);
-  padding: 2px 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #F4F6F8;
+  background: rgba(13,27,42,0.8);
+  border: 1.5px solid #2E86C1;
+  padding: 6px 16px;
+  border-radius: 4px;
 }
 .tn-mode {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.52rem;
-  color: var(--text3);
-  border: 1px solid var(--border);
-  padding: 2px 8px;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: none;
 }
 .tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .tn-plan {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.5rem;
+  font-size: 0.48rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--blue-light);
-  border: 1px solid var(--blue-dim);
-  padding: 2px 8px;
+  padding: 3px 10px;
+  border-radius: 20px;
   display: none;
 }
+.tn-plan.free { background: #2E86C1; color: #fff; border: 1px solid #2E86C1; }
+.tn-plan.paid { background: transparent; color: var(--blue-light); border: 1px solid #2E86C1; }
 .tn-btn {
-  height: 32px;
-  padding: 0 12px;
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text2);
+  height: 36px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1px solid #2E86C1;
+  color: #F4F6F8;
   cursor: pointer;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.52rem;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: all 0.15s;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  text-decoration: none;
 }
-.tn-btn:hover { border-color: var(--blue); color: var(--text); }
+.tn-btn:hover { background: rgba(46,134,193,0.2); color: #FFFFFF; }
 
 /* ── USAGE STRIP ── */
 .usage-strip {
@@ -113,9 +112,11 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 }
 .usage-strip.show { display: flex; }
 .us-item { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
-.us-pips { display: flex; gap: 2px; }
-.us-pip { width: 8px; height: 8px; background: var(--navy-border); border-radius: 2px; }
+.us-pips { display: flex; gap: 3px; }
+.us-pip { width: 10px; height: 10px; background: var(--navy-border); border-radius: 2px; transition: background 0.2s; }
 .us-pip.on { background: var(--blue-light); }
+.us-pip.warn { background: #F0A500; }
+.us-pip.danger { background: #E87070; }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
 .us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); cursor: pointer; background: none; border: none; text-decoration: underline; text-underline-offset: 2px; }
 
@@ -126,17 +127,17 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .sidebar { width: 288px; background: var(--navy-mid); border-right: 1px solid var(--border); display: none; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
 @media (min-width: 768px) { .sidebar { display: flex; } }
 .sb-sec { border-bottom: 1px solid var(--border); }
-.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue-light); }
+.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #2E86C1; font-weight: 600; margin-bottom: 2px; }
 .sbt {
   width: 100%; padding: 9px 16px; background: none; border: none;
   color: var(--text2); cursor: pointer; display: flex; align-items: flex-start;
-  gap: 8px; text-align: left; transition: all 0.15s;
+  gap: 8px; text-align: left; transition: all 0.15s ease;
   border-left: 3px solid transparent;
 }
-.sbt:hover { background: var(--navy-light); color: var(--text); }
+.sbt:hover { background: rgba(46,134,193,0.15); border-left-color: #2E86C1; color: var(--white); }
 .sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
-.sbt .lbl { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; line-height: 1.35; color: var(--text); }
-.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sbt .lbl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; line-height: 1.35; color: #F4F6F8; }
+.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav {
@@ -385,7 +386,7 @@ select.fi { cursor: pointer; }
     <button class="tn-btn" onclick="openFormDrawer()">Forms</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
     <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA">ClearSplit</a>
-    <button class="tn-btn" id="switchToCriminalBtn" style="display:none;border-color:var(--blue);color:var(--blue-light)" onclick="switchToCriminal()">Criminal Defence →</button>
+    <button class="tn-btn" id="switchToCriminalBtn" style="display:none;border-color:#2E86C1;color:#3EA4E4" onclick="switchToCriminal()">Criminal Defence →</button>
     <button class="tn-btn" id="authBtn" onclick="handleAuthBtn()">Account</button>
   </div>
 </nav>
@@ -917,21 +918,48 @@ async function refreshUsage() {
 
 function renderUsage() {
   if (!currentUser||!usageState) return;
-  document.getElementById('usageStrip').classList.add('show');
-  document.getElementById('planBadge').textContent=usageState.planLabel||usageState.plan;
-  document.getElementById('planBadge').style.display='block';
-  document.getElementById('usrName').textContent=currentUser.name;
+
+  // Plan badge
+  const planBadge = document.getElementById('planBadge');
+  if (planBadge) {
+    const plan = currentUser.plan || 'free';
+    planBadge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+    planBadge.className = 'tn-plan ' + (plan === 'free' ? 'free' : 'paid');
+    planBadge.style.display = 'inline';
+  }
+
+  if (document.getElementById('usrName')) document.getElementById('usrName').textContent = currentUser.name;
+
   const { used:cU, limit:cL } = usageState.chat;
   const cPips = document.getElementById('cPips');
   cPips.innerHTML='';
+
   if (cL===null||cL===Infinity) {
-    for(let i=0;i<3;i++){const p=document.createElement('div');p.className='us-pip inf';cPips.appendChild(p);}
-    document.getElementById('cCnt').textContent='∞';
+    document.getElementById('usageStrip').classList.remove('show');
   } else {
-    for(let i=0;i<Math.min(cL,10);i++){const p=document.createElement('div');p.className='us-pip'+(i<Math.min(cU,10)?' on':'');cPips.appendChild(p);}
-    document.getElementById('cCnt').textContent=`${cL-cU} left`;
+    const remaining = cL - cU;
+    const pct = remaining / cL;
+    const DOTS = 5;
+    let pipClass = 'on';
+    if (pct <= 0.05) pipClass = 'danger';
+    else if (pct <= 0.2) pipClass = 'warn';
+    const filled = Math.round((remaining / cL) * DOTS);
+    for (let i = 0; i < DOTS; i++) {
+      const p = document.createElement('div');
+      p.className = 'us-pip' + (i < filled ? ' ' + pipClass : '');
+      cPips.appendChild(p);
+    }
+    const cCnt = document.getElementById('cCnt');
+    if (pct <= 0.2) {
+      cCnt.textContent = remaining + ' remaining';
+      document.getElementById('usageStrip').classList.add('show');
+    } else {
+      cCnt.textContent = '';
+      document.getElementById('usageStrip').classList.remove('show');
+    }
   }
   document.getElementById('upgradeBtn').style.display=currentUser.plan==='free'?'block':'none';
+}
 }
 
 function switchToCriminal() {
