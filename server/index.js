@@ -73,8 +73,8 @@ app.get('/api/fix-plan', (req, res) => {
   try {
     const Database = require('better-sqlite3');
     const db = new Database(process.env.DB_PATH || '/app/data/lexself.db');
-    db.prepare(`UPDATE users SET plan='essential', subscription_status='active', products='criminal' WHERE email='taylorjesshamilton@gmail.com'`).run();
-    const user = db.prepare(`SELECT id, email, plan, subscription_status FROM users WHERE email='taylorjesshamilton@gmail.com'`).get();
+    db.prepare(`UPDATE users SET plan='essential', subscription_status='active', products='both' WHERE email='taylorjesshamilton@gmail.com'`).run();
+    const user = db.prepare(`SELECT id, email, plan, subscription_status, products FROM users WHERE email='taylorjesshamilton@gmail.com'`).get();
     res.json({ success: true, user });
   } catch(e) {
     res.json({ error: e.message });
