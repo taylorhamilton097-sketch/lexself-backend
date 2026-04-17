@@ -116,6 +116,22 @@ app.use('/api/family/chat',   aiLimiter);
 app.use('/api/analyze',       aiLimiter);
 app.use('/api/family/analyze',aiLimiter);
 
+// ── FAILED LOGIN MONITORING ──
+app.use('/api/auth/login', (req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (data) => {
+    if (res.statusCode === 401) {
+      console.warn('[Security] FAILED LOGIN ATTEMPT', {
+        email:     req.body?.email || 'unknown',
+        ip:        req.ip || req.headers['x-forwarded-for'] || 'unknown',
+        timestamp: new Date().toISOString(),
+      });
+    }
+    return originalJson(data);
+  };
+  next();
+});
+
 // ── STRIPE WEBHOOK — raw body BEFORE json middleware ──
 app.use('/api/billing/webhook',
   express.raw({ type: 'application/json' }),
