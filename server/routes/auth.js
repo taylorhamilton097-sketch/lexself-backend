@@ -1,9 +1,8 @@
 'use strict';
 
-const express  = require('express');
-const bcrypt   = require('bcryptjs');
-const router   = express.Router();
-const validator = require('validator');
+const express = require('express');
+const bcrypt  = require('bcryptjs');
+const router  = express.Router();
 const {
   createUser, getUserByEmail, getUserById,
   getCaseProfile, saveCaseProfile,
@@ -12,32 +11,19 @@ const {
 const { signToken, requireAuth } = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
 
-// ── INPUT SANITIZATION ──
-const sanitize = (input, maxLen = 500) => {
-  if (typeof input !== 'string') return '';
-  return input.trim().substring(0, maxLen);
-};
-
-const validateEmail = (email) =>
-  typeof email === 'string' && validator.isEmail(email.trim()) && email.length <= 254;
-
-const validatePassword = (pass) =>
-  typeof pass === 'string' && pass.length >= 8 && pass.length <= 128;
-
 // ──────────────────────────────────────────────────
 // POST /api/auth/register
 // ──────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
   const { email, password, name, product = 'criminal' } = req.body;
-  const cleanName  = sanitize(name, 100);
-  const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
 
-  if (!cleanEmail || !password || !cleanName)
+  // Validation
+  if (!email || !password || !name)
     return res.status(400).json({ error: 'Name, email, and password are required.' });
-  if (!validateEmail(cleanEmail))
+  if (password.length < 8)
+    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     return res.status(400).json({ error: 'Please enter a valid email address.' });
-  if (!validatePassword(password))
-    return res.status(400).json({ error: 'Password must be between 8 and 128 characters.' });
 
   // Check for existing account
   const existing = getUserByEmail(email);
@@ -95,13 +81,10 @@ router.post('/register', async (req, res) => {
 // ──────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
-  if (!cleanEmail || !password)
+  if (!email || !password)
     return res.status(400).json({ error: 'Email and password required.' });
-  if (!validateEmail(cleanEmail))
-    return res.status(400).json({ error: 'Invalid email or password. Please try again.' });
 
-  const user = getUserByEmail(cleanEmail);
+  const user = getUserByEmail(email);
   if (!user || !(await bcrypt.compare(password, user.password)))
     return res.status(401).json({ error: 'Invalid email or password. Please try again.' });
 
@@ -186,8 +169,8 @@ router.post('/change-password', requireAuth, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword)
     return res.status(400).json({ error: 'Current and new password required.' });
-  if (!validatePassword(newPassword))
-    return res.status(400).json({ error: 'New password must be between 8 and 128 characters.' });
+  if (newPassword.length < 8)
+    return res.status(400).json({ error: 'New password must be at least 8 characters.' });
 
   try {
     const user = getUserById(req.user.id);
@@ -196,12 +179,10 @@ router.post('/change-password', requireAuth, async (req, res) => {
 
     const hash = await bcrypt.hash(newPassword, 12);
     const { db } = require('../db');
-    // Store password_changed_at to invalidate existing tokens on other devices
-    db.prepare('UPDATE users SET password=?, password_changed_at=unixepoch() WHERE id=?')
-      .run(hash, req.user.id);
-    res.json({ success: true, message: 'Password updated. Please sign in again on other devices.' });
+    db.prepare('UPDATE users SET password=? WHERE id=?').run(hash, req.user.id);
+    res.json({ success: true });
   } catch(e) {
-    console.error('[Change password error]', e.message);
+    console.error('[Change password error]', e);
     res.status(500).json({ error: 'Password change failed. Please try again.' });
   }
 });
