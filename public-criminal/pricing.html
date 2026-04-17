@@ -3,98 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricing — ClearStand</title>
+<title>ClearStand — Pricing</title>
+<meta name="description" content="ClearStand pricing — Family Law, Criminal Defence, and Bundle plans for Canadians who can't afford to stay silent.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:#0D1B2A;--navy-mid:#162233;--navy-light:#1E3045;
-  --blue:#2E86C1;--blue-light:#3EA4E4;--blue-dim:#1A4F73;
-  --white:#F4F6F8;--border:#2A3F56;--text:#E8EDF2;--text2:#8BA3BA;--text3:#4A6680;
+  --navy:      #0D1B2A;
+  --navy-mid:  #162233;
+  --navy-light:#1E3045;
+  --blue:      #2E86C1;
+  --blue-light:#3EA4E4;
+  --teal:      #20B2AA;
+  --border:    #2A3F56;
+  --text:      #E8EDF2;
+  --text2:     #8BA3BA;
+  --text3:     #4A6680;
+  --white:     #F4F6F8;
+  --red:       #E87070;
+  --green:     #4CAF50;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{min-height:100%;}
-body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
 
-nav{background:var(--navy-mid);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
-.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;}
+/* ── NAV ── */
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 24px;gap:24px;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;margin-right:auto;}
 .nav-logo span{color:var(--blue-light);}
-.nav-links{display:flex;gap:24px;list-style:none;}
-.nav-links a{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);text-decoration:none;}
-.nav-links a:hover{color:var(--text);}
-.nav-cta{padding:8px 16px;background:var(--blue);color:var(--white)!important;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;text-decoration:none;transition:background .15s;}
-.nav-cta:hover{background:var(--blue-light)!important;}
+.nav-link{font-family:'Source Serif 4',serif;font-size:.85rem;color:var(--text2);text-decoration:none;transition:color .15s;}
+.nav-link:hover{color:var(--white);}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;padding:8px 18px;background:var(--blue);color:#fff;text-decoration:none;transition:background .15s;}
+.nav-cta:hover{background:var(--blue-light);}
+.nav-signin{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--white);text-decoration:none;}
 
-main{max-width:1100px;margin:0 auto;padding:64px 24px;}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.16em;color:var(--blue);display:block;margin-bottom:12px;text-align:center;}
-h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:700;color:var(--white);text-align:center;margin-bottom:12px;}
-.sub{font-family:'Inter',sans-serif;font-size:1rem;color:var(--text2);text-align:center;margin-bottom:40px;}
+/* ── HERO ── */
+.hero{padding:72px 24px 48px;text-align:center;border-bottom:1px solid var(--border);}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blue-light);display:block;margin-bottom:16px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3rem);color:var(--white);line-height:1.15;margin-bottom:16px;}
+.hero p{font-family:'Source Serif 4',serif;font-size:1.05rem;color:var(--text2);max-width:560px;margin:0 auto 32px;line-height:1.7;}
 
-/* Toggle */
+/* ── TOGGLE ── */
 .toggle-wrap{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px;}
-.toggle-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);}
-.toggle-label.on{color:var(--white);}
-.toggle{position:relative;width:48px;height:26px;cursor:pointer;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;inset:0;background:var(--navy-border,#2A3F56);border:1px solid var(--border);transition:.3s;border-radius:13px;}
-.toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;top:3px;background:var(--text3);transition:.3s;border-radius:50%;}
-.toggle input:checked + .toggle-slider{background:var(--blue-dim);}
-.toggle input:checked + .toggle-slider::before{transform:translateX(22px);background:var(--blue-light);}
-.save-badge{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;background:rgba(46,134,193,.15);color:var(--blue-light);border:1px solid var(--blue-dim);padding:3px 8px;}
+.toggle-lbl{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);transition:color .2s;}
+.toggle-lbl.active{color:var(--blue-light);}
+.toggle-switch{position:relative;width:48px;height:26px;cursor:pointer;display:inline-block;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:26px;transition:.3s;}
+.toggle-knob{position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+.save-pill{font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green);background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);padding:3px 10px;border-radius:20px;display:none;}
+.save-pill.show{display:inline;}
 
-/* Grid */
-.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border);margin-bottom:16px;}
-.tier{background:var(--navy-mid);padding:36px 24px;display:flex;flex-direction:column;position:relative;}
-.tier.featured{background:var(--navy);}
-.tier-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 12px;white-space:nowrap;}
-.tier-name{font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;margin-bottom:16px;}
-.tier-name.free{color:var(--text3);}
-.tier-name.essential{color:var(--blue);}
-.tier-name.complete{color:var(--blue);}
-.tier-name.counsel{color:var(--blue-light);}
-.tier-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--white);margin-bottom:4px;}
-.tier-price sup{font-size:1rem;vertical-align:top;margin-top:8px;font-family:'Inter',sans-serif;font-weight:400;}
-.tier-period{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:8px;}
-.tier-annual-note{font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);margin-bottom:24px;min-height:16px;}
-.tier-features{flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
-.tf{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);display:flex;align-items:flex-start;gap:6px;line-height:1.4;}
-.tf::before{content:'→';color:var(--blue);flex-shrink:0;font-size:.75rem;margin-top:1px;}
-.tf.dim::before{color:var(--text3);}
-.tf.dim{color:var(--text3);}
-.tf-section{font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-top:8px;margin-bottom:2px;}
-.tier-cta{padding:13px;background:var(--navy-light);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;text-align:center;text-decoration:none;display:block;transition:all .15s;}
-.tier-cta:hover{border-color:var(--blue);color:var(--text);}
-.tier-cta.primary{background:var(--blue);color:var(--white);border-color:var(--blue);}
-.tier-cta.primary:hover{background:var(--blue-light);}
+/* ── CONTAINER ── */
+.container{max-width:1100px;margin:0 auto;padding:0 24px;}
 
-/* One-time pack */
-.pack{background:var(--navy-mid);border:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:48px;}
-.pack-left{}
-.pack-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);margin-bottom:6px;}
-.pack-price{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--white);margin-bottom:4px;}
-.pack-desc{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);}
-.pack-cta{padding:12px 24px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;text-decoration:none;white-space:nowrap;transition:all .15s;}
-.pack-cta:hover{border-color:var(--blue);color:var(--text);}
+/* ── SECTION LABELS ── */
+.section{padding:56px 0;}
+.section-hdr{text-align:center;margin-bottom:40px;}
+.section-hdr h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--white);margin-bottom:8px;}
+.section-hdr p{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);max-width:480px;margin:0 auto;}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blue-light);display:block;margin-bottom:10px;}
 
-/* FAQ */
-.faq{max-width:680px;margin:0 auto 64px;}
-.faq h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:32px;text-align:center;}
-.faq-item{border-bottom:1px solid var(--border);padding:16px 0;}
-.faq-q{font-family:'Inter',sans-serif;font-size:.95rem;font-weight:500;color:var(--white);margin-bottom:8px;}
-.faq-a{font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);line-height:1.65;}
+/* ── PLAN GRID — 3 columns ── */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.plan-col{background:var(--navy-mid);border:1px solid var(--border);padding:28px 22px;position:relative;}
+.plan-col.featured{border-color:var(--blue);border-width:2px;}
+.plan-col.dark{background:var(--navy);}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:3px 14px;white-space:nowrap;}
+.plan-tier{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:12px;}
+.plan-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:var(--white);line-height:1;margin-bottom:2px;}
+.plan-price sup{font-size:1rem;vertical-align:top;margin-top:6px;display:inline-block;}
+.plan-period{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3);margin-bottom:4px;}
+.plan-annual-note{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--green);min-height:18px;margin-bottom:20px;}
+.plan-features{list-style:none;margin-bottom:24px;}
+.plan-features li{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);padding:5px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid rgba(42,63,86,.5);}
+.plan-features li:last-child{border-bottom:none;}
+.plan-features li::before{content:'✓';color:var(--blue-light);flex-shrink:0;font-weight:600;}
+.plan-features li.na{color:var(--text3);}
+.plan-features li.na::before{content:'—';color:var(--text3);}
+.plan-cta{display:block;width:100%;padding:13px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;font-weight:600;text-decoration:none;transition:all .15s;border:none;cursor:pointer;}
+.plan-cta.primary{background:var(--blue);color:#fff;}
+.plan-cta.primary:hover{background:var(--blue-light);}
+.plan-cta.outline{background:none;border:1px solid var(--border);color:var(--text3);}
+.plan-cta.outline:hover{border-color:var(--blue);color:var(--blue-light);}
 
-/* Disclaimer */
-.disclaimer{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding-bottom:48px;}
+/* ── TWO-COLUMN PRODUCT LAYOUT ── */
+.product-split{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px;}
+.product-label{background:var(--navy-light);border:1px solid var(--border);padding:16px 22px;display:flex;align-items:center;gap:12px;}
+.product-label-icon{font-size:1.2rem;}
+.product-label-name{font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);}
+.product-label-sub{font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
 
-footer{background:var(--navy-mid);border-top:1px solid var(--border);padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
-footer a{color:var(--text3);text-decoration:none;}
+/* ── BUNDLE BANNER ── */
+.bundle-banner{background:var(--navy-light);border:1px solid var(--blue);border-left:4px solid var(--blue);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:2px;}
+.bundle-banner-text{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);line-height:1.6;}
+.bundle-banner-text strong{color:var(--white);}
+.bundle-savings{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);padding:4px 12px;white-space:nowrap;}
+
+/* ── CLEARSPLIT ── */
+.clearsplit-card{background:var(--navy-mid);border:1px solid rgba(32,178,170,.3);padding:32px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
+.cs-name{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);margin-bottom:6px;}
+.cs-sub{font-family:'Source Serif 4',serif;font-size:.9rem;color:var(--text2);line-height:1.65;margin-bottom:12px;max-width:520px;}
+.cs-price{font-family:'Playfair Display',serif;font-size:2rem;color:var(--white);text-align:right;white-space:nowrap;}
+.cs-price-sub{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3);text-align:right;margin-bottom:4px;}
+.cs-discount{font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);background:rgba(32,178,170,.1);border:1px solid rgba(32,178,170,.3);padding:2px 8px;display:inline-block;margin-bottom:12px;}
+.cs-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.cs-tag{font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);border:1px solid var(--border);padding:2px 8px;}
+.cs-cta{display:inline-flex;padding:13px 24px;background:var(--teal);color:#0d2d2a;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;font-weight:700;text-decoration:none;transition:opacity .15s;white-space:nowrap;}
+.cs-cta:hover{opacity:.85;}
+
+/* ── VALUE CALLOUT ── */
+.value-callout{background:rgba(46,134,193,.07);border:1px solid rgba(46,134,193,.2);padding:20px 28px;text-align:center;margin-bottom:48px;}
+.value-callout p{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);line-height:1.7;}
+.value-callout strong{color:var(--white);}
+
+/* ── FAQ ── */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.faq-item{background:var(--navy-mid);border:1px solid var(--border);padding:24px;}
+.faq-q{font-family:'Source Serif 4',serif;font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:8px;line-height:1.4;}
+.faq-a{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);line-height:1.7;}
+.faq-a a{color:var(--blue-light);text-decoration:none;}
+
+/* ── CTA STRIP ── */
+.cta-strip{background:var(--navy-mid);border-top:1px solid var(--border);padding:56px 24px;text-align:center;}
+.cta-strip h2{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--white);margin-bottom:10px;}
+.cta-strip p{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);margin-bottom:28px;}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);border-top:1px solid var(--border);padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
+footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
 footer a:hover{color:var(--text2);}
 
 @media(max-width:768px){
-  .pricing-grid{grid-template-columns:1fr;}
-  .tier{padding:28px 20px;}
-  .pack{flex-direction:column;align-items:flex-start;}
-  nav .nav-links{display:none;}
+  .plan-grid{grid-template-columns:1fr;}
+  .product-split{grid-template-columns:1fr;}
+  .faq-grid{grid-template-columns:1fr;}
+  .clearsplit-card{grid-template-columns:1fr;}
+  .cs-price{text-align:left;}
+  .cs-price-sub{text-align:left;}
+  nav .nav-link{display:none;}
 }
 </style>
 </head>
@@ -102,178 +150,388 @@ footer a:hover{color:var(--text2);}
 
 <nav>
   <a href="/" class="nav-logo">Clear<span>Stand</span></a>
-  <ul class="nav-links">
-    <li><a href="/criminal-defence">Criminal Defence</a></li>
-    <li><a href="/family-law">Family Law</a></li>
-    <li><a href="/get-started" class="nav-cta">Get Started Free</a></li>
-  </ul>
+  <a href="/" class="nav-link">Home</a>
+  <a href="/family-law" class="nav-link">Family Law</a>
+  <a href="/criminal-defence" class="nav-link">Criminal Defence</a>
+  <a href="/clearsplit" class="nav-link">ClearSplit</a>
+  <a href="/register?signin=1" class="nav-signin">Sign In</a>
+  <a href="/get-started" class="nav-cta">Get Started Free</a>
 </nav>
 
-<main>
+<!-- HERO -->
+<div class="hero">
   <span class="eyebrow">Pricing</span>
-  <h1>Start free. Upgrade when you're ready.</h1>
-  <p class="sub">No credit card required to start. Cancel any time. All prices in CAD.</p>
+  <h1>Start free.<br>Upgrade when you're ready.</h1>
+  <p>No credit card required to start. Every plan includes a free tier so you can see exactly what ClearStand can do before you commit.</p>
 
   <!-- Annual toggle -->
   <div class="toggle-wrap">
-    <span class="toggle-label on" id="lbl-monthly">Monthly</span>
-    <label class="toggle">
-      <input type="checkbox" id="annualToggle" onchange="toggleAnnual()">
-      <span class="toggle-slider"></span>
+    <span class="toggle-lbl active" id="lblM">Monthly</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="annualToggle" onchange="setAnnual(this.checked)">
+      <span class="toggle-track" id="tTrack"></span>
+      <span class="toggle-knob" id="tKnob"></span>
     </label>
-    <span class="toggle-label" id="lbl-annual">Annual</span>
-    <span class="save-badge" id="save-badge" style="display:none">Save up to $510/year</span>
+    <span class="toggle-lbl" id="lblA">Annual</span>
+    <span class="save-pill" id="savePill">Save up to 20%</span>
   </div>
+</div>
 
-  <!-- Pricing grid -->
-  <div class="pricing-grid">
+<div class="container">
 
-    <!-- Free -->
-    <div class="tier">
-      <div class="tier-name free">Free</div>
-      <div class="tier-price"><sup>$</sup>0</div>
-      <div class="tier-period">Forever free</div>
-      <div class="tier-annual-note"></div>
-      <div class="tier-features">
-        <div class="tf">1 disclosure analysis</div>
-        <div class="tf">10 chat messages</div>
-        <div class="tf">All charge modules</div>
-        <div class="tf">PDF export</div>
-        <div class="tf">No credit card required</div>
-      </div>
-      <a href="/get-started" class="tier-cta">Get Started</a>
+  <!-- ══ FAMILY LAW ══ -->
+  <div class="section" id="family">
+    <div class="section-hdr">
+      <span class="section-tag">Family Law — Ontario</span>
+      <h2>Ontario Family Court preparation</h2>
+      <p>Custody, support, separation agreements, and all Ontario family court documents — built for self-represented litigants.</p>
     </div>
 
-    <!-- Essential -->
-    <div class="tier">
-      <div class="tier-name essential">Essential</div>
-      <div class="tier-price"><sup>$</sup><span class="price-val" data-monthly="29" data-annual="21">29</span></div>
-      <div class="tier-period" id="period-essential">per month, CAD</div>
-      <div class="tier-annual-note" id="annual-essential"></div>
-      <div class="tier-features">
-        <div class="tf">3 analyses per month</div>
-        <div class="tf">50 chats per day</div>
-        <div class="tf">All charge modules</div>
-        <div class="tf">Full 5-pass reports</div>
-        <div class="tf">PDF export</div>
-        <div class="tf dim">Premium features not included</div>
-      </div>
-      <a href="/register?next=criminal" class="tier-cta">Start Essential</a>
+    <div class="value-callout">
+      <p>The average Ontario family lawyer charges <strong>$400/hour</strong>. ClearStand Counsel costs less than half a billable hour — for an entire month of unlimited preparation.</p>
     </div>
 
-    <!-- Complete -->
-    <div class="tier featured" style="border:2px solid var(--blue)">
-      <div class="tier-badge">Most Popular</div>
-      <div class="tier-name complete">Complete</div>
-      <div class="tier-price"><sup>$</sup><span class="price-val" data-monthly="79" data-annual="58">79</span></div>
-      <div class="tier-period" id="period-complete">per month, CAD</div>
-      <div class="tier-annual-note" id="annual-complete"></div>
-      <div class="tier-features">
-        <div class="tf">5 analyses per month</div>
-        <div class="tf">100 chats per day</div>
-        <div class="tf">Criminal &amp; Family Law</div>
-        <div class="tf">Full 5-pass reports</div>
-        <div class="tf">PDF export</div>
-        <div class="tf dim">Premium features not included</div>
+    <div class="plan-grid">
+      <!-- Free -->
+      <div class="plan-col">
+        <div class="plan-tier">Free</div>
+        <div class="plan-price"><sup>$</sup>0</div>
+        <div class="plan-period">forever</div>
+        <div class="plan-annual-note"></div>
+        <ul class="plan-features">
+          <li>10 chat messages total</li>
+          <li>1 document analysis</li>
+          <li>Document builder access</li>
+          <li class="na">PDF export</li>
+          <li class="na">Case law access</li>
+          <li class="na">Priority features</li>
+        </ul>
+        <a href="/register?product=family" class="plan-cta outline">Get Started Free</a>
       </div>
-      <a href="/register?next=criminal" class="tier-cta primary">Start Complete</a>
+      <!-- Essential -->
+      <div class="plan-col">
+        <div class="plan-tier">Essential</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="29" data-a="21">29</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$249/year — save $99">​</div>
+        <ul class="plan-features">
+          <li>50 chats per day</li>
+          <li>3 document analyses/month</li>
+          <li>Document builder</li>
+          <li>PDF export</li>
+          <li>Case law access</li>
+          <li class="na">Voice dictation</li>
+        </ul>
+        <a href="/register?product=family&step=plans" class="plan-cta primary">Start Essential</a>
+      </div>
+      <!-- Complete -->
+      <div class="plan-col featured" style="position:relative">
+        <div class="popular-badge">Most Popular</div>
+        <div class="plan-tier">Complete</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="79" data-a="58">79</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$699/year — save $249">​</div>
+        <ul class="plan-features">
+          <li>100 chats per day</li>
+          <li>5 document analyses/month</li>
+          <li>All Essential features</li>
+          <li>Priority response</li>
+          <li>Advanced document tools</li>
+          <li class="na">Voice dictation</li>
+        </ul>
+        <a href="/register?product=family&step=plans" class="plan-cta primary">Start Complete</a>
+      </div>
     </div>
-
     <!-- Counsel -->
-    <div class="tier" style="background:var(--navy)">
-      <div class="tier-name counsel">Counsel</div>
-      <div class="tier-price"><sup>$</sup><span class="price-val" data-monthly="159" data-annual="116">159</span></div>
-      <div class="tier-period" id="period-counsel">per month, CAD</div>
-      <div class="tier-annual-note" id="annual-counsel"></div>
-      <div class="tier-features">
-        <div class="tf">Unlimited analyses</div>
-        <div class="tf">Unlimited chat</div>
-        <div class="tf">Criminal &amp; Family Law</div>
-        <div class="tf-section">Premium Counsel Features</div>
-        <div class="tf">🎙 Voice dictation + language cleanup</div>
-        <div class="tf">📋 Affidavit interview builder</div>
-        <div class="tf">⚖️ Cross-examination prep builder</div>
-        <div class="tf">📁 Defence organization tool</div>
+    <div class="plan-grid" style="margin-top:2px">
+      <div style="grid-column:1/-1">
+        <div class="plan-col dark" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:20px;align-items:center;padding:24px 28px">
+          <div>
+            <div class="plan-tier" style="margin-bottom:6px">Counsel</div>
+            <div style="font-family:'Source Serif 4',serif;font-size:.9rem;color:var(--text2);line-height:1.6">Everything in Complete, plus voice dictation with AI cleanup, affidavit interview builder, and unlimited everything.</div>
+          </div>
+          <ul class="plan-features" style="margin-bottom:0">
+            <li>Unlimited chats and analyses</li>
+            <li>Voice dictation with AI cleanup</li>
+            <li>Affidavit interview builder</li>
+          </ul>
+          <div>
+            <div class="plan-price"><sup>$</sup><span class="pv" data-m="159" data-a="116">159</span></div>
+            <div class="plan-period">/month CAD</div>
+            <div class="plan-annual-note pv-note" style="color:var(--green)" data-m="" data-a="$1,399/year — save $509">​</div>
+          </div>
+          <a href="/register?product=family&step=plans" class="plan-cta primary" style="width:auto;padding:13px 28px">Start Counsel</a>
+        </div>
       </div>
-      <a href="/register?next=criminal" class="tier-cta primary" style="background:var(--blue-light);border-color:var(--blue-light)">Start Counsel</a>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);text-align:center;margin-top:10px">The closest thing to having counsel in your corner.</div>
-    </div>
-
-  </div>
-
-  <!-- Analysis Pack -->
-  <div class="pack">
-    <div class="pack-left">
-      <div class="pack-label">Analysis Pack — One Time Purchase</div>
-      <div class="pack-price">$29 <span style="font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text3);font-weight:400">one-time</span></div>
-      <div class="pack-desc">3 document analyses. No subscription required. Perfect for a single matter.</div>
-    </div>
-    <a href="/register?next=criminal" class="pack-cta">Buy Analysis Pack</a>
-  </div>
-
-  <!-- FAQ -->
-  <div class="faq">
-    <h2>Common Questions</h2>
-    <div class="faq-item">
-      <div class="faq-q">Is ClearStand legal advice?</div>
-      <div class="faq-a">No. ClearStand is a legal preparation tool that helps you understand your situation, organize your case, and prepare documents. It is not a substitute for advice from a licensed lawyer. For serious matters, we always recommend consulting duty counsel or Legal Aid Ontario (1-800-668-8258).</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Which provinces does ClearStand cover?</div>
-      <div class="faq-a">ClearStand Criminal Defence covers all of Canada under the Criminal Code. ClearStand Family Law is currently optimized for Ontario proceedings, including all Ontario family court forms and the Family Law Rules.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Can I cancel my subscription anytime?</div>
-      <div class="faq-a">Yes. You can cancel at any time through your account settings. Your access continues until the end of the billing period.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">What is the 5-pass Crown disclosure analysis?</div>
-      <div class="faq-a">When you upload your Crown disclosure package, ClearStand runs five separate AI analyses: narrative inconsistencies, Charter rights violations, witness credibility issues, missing disclosure items, and an overall defence strategy. The full report is exportable as a PDF.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">What are the Counsel-only features?</div>
-      <div class="faq-a">Counsel includes four premium tools not available on other plans: voice dictation with AI language cleanup, the affidavit interview builder (which converts your spoken answers into court-ready numbered paragraphs with integrated case law), the cross-examination prep builder, and the defence organization tool.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Is my data secure?</div>
-      <div class="faq-a">Documents you upload are processed in memory only and are not stored on our servers. Your case profile is stored locally in your browser. We do not sell your data.</div>
     </div>
   </div>
 
-  <div class="disclaimer">ClearStand is a legal preparation tool, not a substitute for legal advice. · Not affiliated with any law society or government body.</div>
-</main>
+  <!-- ══ CRIMINAL DEFENCE ══ -->
+  <div class="section" id="criminal" style="border-top:1px solid var(--border)">
+    <div class="section-hdr">
+      <span class="section-tag">Criminal Defence — Canada-wide</span>
+      <h2>Canadian criminal court preparation</h2>
+      <p>Crown disclosure analysis, cross-examination preparation, Charter rights, and full Criminal Code coverage — the only tool of its kind in Canada.</p>
+    </div>
+
+    <div class="value-callout">
+      <p>No comparable cross-examination preparation tool exists in Canada at <strong>any price point</strong>. ClearStand Criminal gives self-represented accused the same preparation advantage as retained counsel.</p>
+    </div>
+
+    <div class="plan-grid">
+      <!-- Free -->
+      <div class="plan-col">
+        <div class="plan-tier">Free</div>
+        <div class="plan-price"><sup>$</sup>0</div>
+        <div class="plan-period">forever</div>
+        <div class="plan-annual-note"></div>
+        <ul class="plan-features">
+          <li>10 chat messages total</li>
+          <li>1 disclosure analysis</li>
+          <li>All charge modules</li>
+          <li class="na">Full 5-pass reports</li>
+          <li class="na">PDF export</li>
+          <li class="na">Cross-examination builder</li>
+        </ul>
+        <a href="/register?product=criminal" class="plan-cta outline">Get Started Free</a>
+      </div>
+      <!-- Essential -->
+      <div class="plan-col">
+        <div class="plan-tier">Essential</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="29" data-a="21">29</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$249/year — save $99">​</div>
+        <ul class="plan-features">
+          <li>50 chats per day</li>
+          <li>3 disclosure analyses/month</li>
+          <li>All charge modules</li>
+          <li>Full 5-pass reports</li>
+          <li>PDF export</li>
+          <li class="na">Cross-examination builder</li>
+        </ul>
+        <a href="/register?product=criminal&step=plans" class="plan-cta primary">Start Essential</a>
+      </div>
+      <!-- Complete -->
+      <div class="plan-col featured" style="position:relative">
+        <div class="popular-badge">Most Popular</div>
+        <div class="plan-tier">Complete</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="79" data-a="58">79</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$699/year — save $249">​</div>
+        <ul class="plan-features">
+          <li>100 chats per day</li>
+          <li>5 disclosure analyses/month</li>
+          <li>All Essential features</li>
+          <li>Cross-examination builder</li>
+          <li>Defence organization tool</li>
+          <li class="na">Voice dictation</li>
+        </ul>
+        <a href="/register?product=criminal&step=plans" class="plan-cta primary">Start Complete</a>
+      </div>
+    </div>
+    <div class="plan-grid" style="margin-top:2px">
+      <div style="grid-column:1/-1">
+        <div class="plan-col dark" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:20px;align-items:center;padding:24px 28px">
+          <div>
+            <div class="plan-tier" style="margin-bottom:6px">Counsel</div>
+            <div style="font-family:'Source Serif 4',serif;font-size:.9rem;color:var(--text2);line-height:1.6">Everything in Complete, plus voice dictation, cross-examination prep, and defence organization tools — all unlimited.</div>
+          </div>
+          <ul class="plan-features" style="margin-bottom:0">
+            <li>Unlimited chats and analyses</li>
+            <li>Voice dictation with AI cleanup</li>
+            <li>Cross-examination builder</li>
+          </ul>
+          <div>
+            <div class="plan-price"><sup>$</sup><span class="pv" data-m="159" data-a="116">159</span></div>
+            <div class="plan-period">/month CAD</div>
+            <div class="plan-annual-note pv-note" style="color:var(--green)" data-m="" data-a="$1,399/year — save $509">​</div>
+          </div>
+          <a href="/register?product=criminal&step=plans" class="plan-cta primary" style="width:auto;padding:13px 28px">Start Counsel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BUNDLE ══ -->
+  <div class="section" id="bundle" style="border-top:1px solid var(--border)">
+    <div class="section-hdr">
+      <span class="section-tag">Bundle — Both Products</span>
+      <h2>Family Law + Criminal Defence</h2>
+      <p>Full access to both products at a lower combined rate. One account, one subscription, everything included.</p>
+    </div>
+
+    <div class="bundle-banner">
+      <div class="bundle-banner-text">
+        <strong>Best value for complete coverage.</strong> Bundle plans cost less than two standalone subscriptions — save up to $39/month on Counsel.
+      </div>
+      <span class="bundle-savings">Save up to $39/month</span>
+    </div>
+
+    <div class="plan-grid">
+      <!-- Essential Bundle -->
+      <div class="plan-col">
+        <div class="plan-tier">Essential Bundle</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="49" data-a="36">49</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$429/year — save $159">​</div>
+        <ul class="plan-features">
+          <li>Both Family Law + Criminal Defence</li>
+          <li>50 chats/day per product</li>
+          <li>3 analyses/month per product</li>
+          <li>All charge modules</li>
+          <li>PDF export</li>
+          <li class="na">Cross-examination builder</li>
+        </ul>
+        <a href="/register?product=both&step=plans" class="plan-cta primary">Start Essential Bundle</a>
+      </div>
+      <!-- Complete Bundle -->
+      <div class="plan-col featured" style="position:relative">
+        <div class="popular-badge">Best Value</div>
+        <div class="plan-tier">Complete Bundle</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="129" data-a="92">129</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$1,099/year — save $449">​</div>
+        <ul class="plan-features">
+          <li>Both Family Law + Criminal Defence</li>
+          <li>100 chats/day per product</li>
+          <li>5 analyses/month per product</li>
+          <li>Cross-examination builder</li>
+          <li>Defence organization tool</li>
+          <li class="na">Voice dictation</li>
+        </ul>
+        <a href="/register?product=both&step=plans" class="plan-cta primary">Start Complete Bundle</a>
+      </div>
+      <!-- Counsel Bundle -->
+      <div class="plan-col dark">
+        <div class="plan-tier">Counsel Bundle</div>
+        <div class="plan-price"><sup>$</sup><span class="pv" data-m="279" data-a="208">279</span></div>
+        <div class="plan-period">/month CAD</div>
+        <div class="plan-annual-note pv-note" data-m="" data-a="$2,499/year — save $549">​</div>
+        <ul class="plan-features">
+          <li>Both Family Law + Criminal Defence</li>
+          <li>Unlimited chats and analyses</li>
+          <li>Voice dictation with AI cleanup</li>
+          <li>Cross-examination builder</li>
+          <li>Affidavit interview builder</li>
+          <li>All premium features — both products</li>
+        </ul>
+        <a href="/register?product=both&step=plans" class="plan-cta primary">Start Counsel Bundle</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CLEARSPLIT ══ -->
+  <div class="section" id="clearsplit" style="border-top:1px solid var(--border)">
+    <div class="section-hdr">
+      <span class="section-tag">ClearSplit — Separation Agreements</span>
+      <h2>Uncontested separation, done together</h2>
+      <p>A collaborative tool for couples who've already agreed — just need it documented properly.</p>
+    </div>
+
+    <div class="clearsplit-card">
+      <div>
+        <div class="cs-name">ClearSplit</div>
+        <div class="cs-sub">One-time access for both parties. Work through your separation agreement together, section by section, with AI guidance. No subscription — pay once, access for 90 days.</div>
+        <div class="cs-tags">
+          <span class="cs-tag">90-day access</span>
+          <span class="cs-tag">Both parties included</span>
+          <span class="cs-tag">Ontario</span>
+          <span class="cs-tag">One-time payment</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="cs-discount">ClearStand subscribers — $249</div>
+        <div class="cs-price">$299</div>
+        <div class="cs-price-sub">one-time, CAD</div>
+        <a href="/clearsplit" class="cs-cta">Get ClearSplit →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FAQ ══ -->
+  <div class="section" style="border-top:1px solid var(--border)">
+    <div class="section-hdr">
+      <span class="section-tag">Questions</span>
+      <h2>Frequently asked</h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-q">Is there really a free plan?</div>
+        <div class="faq-a">Yes — no credit card required. The free plan gives you 10 chat messages and 1 document analysis to see exactly what ClearStand can do before committing to a paid plan.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I switch between monthly and annual?</div>
+        <div class="faq-a">Yes. You can switch at any time from your account. Switching to annual is prorated — you're credited for unused days on your current billing cycle.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What's the difference between standalone and bundle?</div>
+        <div class="faq-a">Standalone plans cover one product — either Family Law or Criminal Defence. Bundle plans cover both at a discounted combined rate. If you have both legal matters, the bundle is always better value.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I upgrade or downgrade anytime?</div>
+        <div class="faq-a">Yes. Upgrades apply immediately with prorated billing. Downgrades take effect at the end of your current billing period — you keep full access until then.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What is the ClearSplit subscriber discount?</div>
+        <div class="faq-a">If you have an active ClearStand subscription (any paid plan), ClearSplit is available to you at $249 instead of $299 — automatically applied at checkout.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is ClearStand a replacement for a lawyer?</div>
+        <div class="faq-a">No. ClearStand is a legal preparation tool. It helps you understand your situation, organize your case, and prepare documents — but it is not legal advice and does not create a lawyer-client relationship. For complex matters, consult a lawyer.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What payment methods do you accept?</div>
+        <div class="faq-a">All major credit and debit cards via Stripe. Payments are processed securely — ClearStand never stores your card details.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What happens if I cancel?</div>
+        <div class="faq-a">You keep access until the end of your billing period. After that your account moves to the free tier — your data is never deleted. You can reactivate anytime.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CTA STRIP -->
+<div class="cta-strip">
+  <h2>Know where you stand.</h2>
+  <p>Start free — no credit card required.</p>
+  <div class="cta-btns">
+    <a href="/register?product=family" class="plan-cta primary" style="width:auto;padding:14px 28px">Family Law →</a>
+    <a href="/register?product=criminal" class="plan-cta primary" style="width:auto;padding:14px 28px">Criminal Defence →</a>
+    <a href="/register?product=both" class="plan-cta outline" style="width:auto;padding:14px 28px">View Bundle Plans →</a>
+  </div>
+</div>
 
 <footer>
-  <a href="/">ClearStand</a> · <a href="/criminal-defence">Criminal Defence</a> · <a href="/family-law">Family Law</a> · <a href="/get-started">Get Started</a>
+  <a href="/">ClearStand</a>
+  <a href="/about">About</a>
+  <a href="/privacy-policy">Privacy Policy</a>
+  <a href="/terms-of-use">Terms of Use</a>
+  <a href="mailto:support@clearstand.ca">Support</a>
+  <span style="margin-left:16px">© 2025 ClearStand. Not legal advice.</span>
 </footer>
 
 <script>
+'use strict';
 let isAnnual = false;
 
-function toggleAnnual() {
-  isAnnual = document.getElementById('annualToggle').checked;
-  document.getElementById('lbl-monthly').classList.toggle('on', !isAnnual);
-  document.getElementById('lbl-annual').classList.toggle('on', isAnnual);
-  document.getElementById('save-badge').style.display = isAnnual ? 'inline' : 'none';
+function setAnnual(v) {
+  isAnnual = v;
+  document.getElementById('lblM').classList.toggle('active', !v);
+  document.getElementById('lblA').classList.toggle('active', v);
+  document.getElementById('savePill').classList.toggle('show', v);
+  document.getElementById('tTrack').style.background = v ? 'var(--blue)' : 'var(--border)';
+  document.getElementById('tKnob').style.transform = v ? 'translateX(22px)' : '';
 
-  document.querySelectorAll('.price-val').forEach(el => {
-    el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+  // Update prices
+  document.querySelectorAll('.pv').forEach(el => {
+    el.textContent = v ? el.dataset.a : el.dataset.m;
   });
 
-  const tiers = ['essential', 'complete', 'counsel'];
-  const annual = { essential: 249, complete: 699, counsel: 1399 };
-  const monthly = { essential: 29, complete: 79, counsel: 159 };
-
-  tiers.forEach(t => {
-    const periodEl = document.getElementById('period-' + t);
-    const annualEl = document.getElementById('annual-' + t);
-    if (isAnnual) {
-      periodEl.textContent = 'per month, billed annually';
-      annualEl.textContent = '$' + annual[t] + '/year — save $' + ((monthly[t] * 12) - annual[t]) + '/year';
-    } else {
-      periodEl.textContent = 'per month, CAD';
-      annualEl.textContent = '';
-    }
+  // Update annual notes
+  document.querySelectorAll('.pv-note').forEach(el => {
+    el.textContent = v ? el.dataset.a : (el.dataset.m || '');
   });
 }
 </script>

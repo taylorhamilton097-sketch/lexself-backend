@@ -94,6 +94,7 @@ app.get('/family/*', (req, res) =>
 app.get('/register',        (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
 app.get('/login',           (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
 app.get('/account',         (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/account.html')));
+app.get('/pricing',         (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/pricing.html')));
 app.get('/get-started',     (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/get-started.html')));
 app.get('/about',           (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/about.html')));
 app.get('/privacy-policy',  (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/privacy-policy.html')));
