@@ -124,14 +124,18 @@ function buildWelcomeHtml(firstName) {
               </td></tr>
               <tr><td style="padding:14px 0;border-bottom:1px solid #EEF0F2;">
                 <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0D1B2A;">Complete <span style="color:#2E86C1;">&#8212; $79/month</span></p>
-                <p style="margin:4px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#6B7A8D;">5 analyses &middot; 100 chats &middot; Criminal &amp; Family</p>
+                <p style="margin:4px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#6B7A8D;">5 analyses &middot; 100 chats per day</p>
+              </td></tr>
+              <tr><td style="padding:14px 0;border-bottom:1px solid #EEF0F2;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0D1B2A;">Counsel <span style="color:#2E86C1;">&#8212; $159/month</span></p>
+                <p style="margin:4px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#6B7A8D;">Unlimited everything &middot; Dictation &middot; Affidavit builder &middot; Cross-examination prep</p>
               </td></tr>
               <tr><td style="padding:14px 0;">
-                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0D1B2A;">Counsel <span style="color:#2E86C1;">&#8212; $159/month</span></p>
-                <p style="margin:4px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#6B7A8D;">Unlimited everything + premium features<br>Dictation &middot; Affidavit builder &middot; Cross-examination prep</p>
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#0D1B2A;">Bundle Plans <span style="color:#2E86C1;">&#8212; from $49/month</span></p>
+                <p style="margin:4px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#6B7A8D;">Both Family Law + Criminal Defence &middot; Save up to $39/month</p>
               </td></tr>
             </table>
-            <a href="https://clearstand.ca/#pricing" style="display:inline-block;background-color:#2E86C1;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:3px;" class="btn-full">View All Plans</a>
+            <a href="https://clearstand.ca/pricing" style="display:inline-block;background-color:#2E86C1;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:3px;" class="btn-full">View All Plans</a>
           </td>
         </tr>
 
@@ -190,13 +194,15 @@ Essential — $29/month
 3 analyses · 50 chats per day
 
 Complete — $79/month
-5 analyses · 100 chats · Criminal & Family
+5 analyses · 100 chats per day
 
 Counsel — $159/month
-Unlimited everything + premium features
-Dictation · Affidavit builder · Cross-examination prep
+Unlimited everything · Dictation · Affidavit builder · Cross-examination prep
 
-View all plans: https://clearstand.ca/#pricing
+Bundle Plans — from $49/month
+Both Family Law + Criminal Defence · Save up to $39/month
+
+View all plans: https://clearstand.ca/pricing
 
 ---
 Questions? support@clearstand.ca
