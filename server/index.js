@@ -1,10 +1,12 @@
 'use strict';
 
 require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
-const path    = require('path');
-const jwt     = require('jsonwebtoken');
+const express   = require('express');
+const cors      = require('cors');
+const path      = require('path');
+const rateLimit = require('express-rate-limit');
+const helmet    = require('helmet');
+const jwt       = require('jsonwebtoken');
 
 // ── UNHANDLED REJECTION SAFETY ──
 process.on('unhandledRejection', (err) => {
@@ -24,9 +26,33 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── CORS ──
+// ── SECURITY HEADERS (helmet) ──
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+      styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:       ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:        ["'self'", "data:", "https:"],
+      connectSrc:    ["'self'", "https://api.stripe.com", "https://api.anthropic.com"],
+      frameSrc:      ["https://js.stripe.com", "https://hooks.stripe.com"],
+      objectSrc:     ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
+
+// ── CORS — restrict to clearstand.ca ──
 const corsOptions = {
   origin: (origin, callback) => {
+    // Allow same-origin requests (no origin header) and clearstand.ca
     if (!origin) return callback(null, true);
     const allowed = ['https://clearstand.ca', 'https://www.clearstand.ca', 'http://localhost:3000'];
     if (allowed.includes(origin)) return callback(null, true);
@@ -37,6 +63,58 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
+
+// ── RATE LIMITERS ──
+// General API limit
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { error: 'Too many requests. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/health' || req.path === '/api/health',
+});
+
+// Strict auth limit — prevent brute force
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// AI rate limiter — Counsel tier bypasses per-minute limit
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  message: { error: 'Too many requests. Please slow down or upgrade to Counsel for unlimited access.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: async (req) => {
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) return false;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'changeme');
+      const uid = decoded.sub || decoded.userId || decoded.id;
+      if (!uid) return false;
+      const { db } = require('./db');
+      const user = db.prepare('SELECT plan FROM users WHERE id=?').get(uid);
+      return user?.plan === 'counsel';
+    } catch {
+      return false;
+    }
+  },
+});
+
+// Apply rate limiters
+app.use('/api/', generalLimiter);
+app.use('/api/auth/login',    authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/chat',          aiLimiter);
+app.use('/api/family/chat',   aiLimiter);
+app.use('/api/analyze',       aiLimiter);
+app.use('/api/family/analyze',aiLimiter);
 
 // ── FAILED LOGIN MONITORING ──
 app.use('/api/auth/login', (req, res, next) => {
@@ -118,8 +196,12 @@ app.use(express.static(path.join(__dirname, '../public-criminal')));
 
 // ── WILDCARD ──
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
-  if (req.path === '/') return res.sendFile(path.join(__dirname, '../public-criminal/index.html'));
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (req.path === '/') {
+    return res.sendFile(path.join(__dirname, '../public-criminal/index.html'));
+  }
   res.status(404).sendFile(path.join(__dirname, '../public-criminal/404.html'));
 });
 
@@ -145,7 +227,7 @@ const server = app.listen(PORT, () => {
   console.log(`ClearStand v2 → http://localhost:${PORT}`);
   console.log(`  DB: ${process.env.DB_PATH || '/app/data/clearstand.db'}`);
   console.log(`  ENV: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`  Security: CORS ✓ login-monitoring ✓`);
+  console.log(`  Security: helmet ✓ rate-limiting ✓ CORS ✓`);
 });
 
 // ── GRACEFUL SHUTDOWN ──
