@@ -159,9 +159,9 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
   </div>
 
   <div id="accountContent" style="display:none">
-    <!-- Back breadcrumb -->
-    <div style="margin-bottom:24px;">
-      <a href="#" id="backBtn" onclick="goBack();return false;" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);text-decoration:none;">← Back to App</a>
+    <!-- Back button -->
+    <div style="margin-bottom:28px;">
+      <button id="backBtn" onclick="goBack()" class="btn btn-ghost" style="display:inline-flex;gap:8px;align-items:center;">← Back to App</button>
     </div>
 
     <h1 id="acctName">My Account</h1>
@@ -213,6 +213,20 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
           <button class="btn btn-ghost" onclick="openBillingPortal()">Open Billing Portal →</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ── CLEARSPLIT ADD-ON ── -->
+    <div class="section" id="clearSplitAddonSection" style="display:none">
+      <div class="section-hdr">Add ClearSplit</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">ClearSplit — Separation Agreements</div>
+          <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:4px">Collaborative separation agreement tool for uncontested separations.</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white)" id="csSectionPrice">$299 <span style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">one-time, 90-day access</span></div>
+          <div id="csSectionSavings" style="display:none;font-family:'Inter',sans-serif;font-size:.78rem;color:#4CAF50;margin-top:4px">Save $50 as a ClearStand subscriber</div>
+        </div>
+        <button class="btn btn-primary" onclick="addClearSplit()">Add ClearSplit →</button>
       </div>
     </div>
 
@@ -287,20 +301,6 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
           <a href="mailto:support@clearstand.ca" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light);text-decoration:none;">✉ support@clearstand.ca</a>
         </div>
         <a href="/support" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none;border:1px solid var(--border);padding:10px 18px;white-space:nowrap;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">View Support →</a>
-      </div>
-    </div>
-
-    <!-- ── CLEARSPLIT ADD-ON ── -->
-    <div class="section" id="clearSplitAddonSection" style="display:none">
-      <div class="section-hdr">Add ClearSplit</div>
-      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">ClearSplit — Separation Agreements</div>
-          <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:4px">Collaborative separation agreement tool for uncontested separations.</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white)" id="csSectionPrice">$299 <span style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">one-time, 90-day access</span></div>
-          <div id="csSectionSavings" style="display:none;font-family:'Inter',sans-serif;font-size:.78rem;color:#4CAF50;margin-top:4px">Save $50 as a ClearStand subscriber</div>
-        </div>
-        <button class="btn btn-primary" onclick="addClearSplit()">Add ClearSplit →</button>
       </div>
     </div>
 
@@ -409,9 +409,9 @@ function renderAccount() {
 
   // Back button label
   const last = localStorage.getItem('cs_last_product');
-  const backLabel = (last === 'family' || u.products === 'family') ? '← Family Law' : '← Criminal Defence';
+  const isFamily = last === 'family' || u.products === 'family';
   const backBtn = document.getElementById('backBtn');
-  if (backBtn) backBtn.textContent = backLabel;
+  if (backBtn) backBtn.textContent = isFamily ? '← Back to Family Law' : '← Back to Criminal Defence';
 
   // Plan badge & name
   const plan = u.plan || 'free';
