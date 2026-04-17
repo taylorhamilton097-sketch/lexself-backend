@@ -290,6 +290,20 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
       </div>
     </div>
 
+    <!-- ── CLEARSPLIT ADD-ON ── -->
+    <div class="section" id="clearSplitAddonSection" style="display:none">
+      <div class="section-hdr">Add ClearSplit</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">ClearSplit — Separation Agreements</div>
+          <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:4px">Collaborative separation agreement tool for uncontested separations.</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white)" id="csSectionPrice">$299 <span style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">one-time, 90-day access</span></div>
+          <div id="csSectionSavings" style="display:none;font-family:'Inter',sans-serif;font-size:.78rem;color:#4CAF50;margin-top:4px">Save $50 as a ClearStand subscriber</div>
+        </div>
+        <button class="btn btn-primary" onclick="addClearSplit()">Add ClearSplit →</button>
+      </div>
+    </div>
+
     <!-- ── DANGER ZONE ── -->
     <div class="section" id="dangerZoneSection">
       <div class="section-hdr" style="color:var(--red)">Danger Zone</div>
@@ -598,39 +612,25 @@ function renderUpgrades() {
 
 // ── CLEARSPLIT ADD-ON SECTION (Issue 3) ──
 function renderClearSplitAddon() {
-  // Only show if user doesn't already have ClearSplit
-  if (currentUser.clearsplit_subscriber || currentUser.clearsplit_role) return;
+  const section = document.getElementById('clearSplitAddonSection');
+  if (!section) return;
 
-  const plan = currentUser.plan || 'free';
-  const isSubscriber = plan !== 'free';
-  const price = isSubscriber ? '$249' : '$299';
-  const savings = isSubscriber ? '<div style="font-family:\'Inter\',sans-serif;font-size:.78rem;color:#4CAF50;margin-top:4px">Save $50 as a ClearStand subscriber</div>' : '';
-
-  // Insert before danger zone using reliable ID
-  const dangerSection = document.getElementById('dangerZoneSection');
-  if (!dangerSection) {
-    console.warn('[ClearSplit addon] dangerZoneSection not found');
+  // Don't show if user already has ClearSplit
+  if (currentUser.clearsplit_subscriber || currentUser.clearsplit_role) {
+    section.style.display = 'none';
     return;
   }
 
-  // Don't add twice
-  if (document.getElementById('clearSplitAddonSection')) return;
+  const plan = currentUser.plan || 'free';
+  const isSubscriber = plan !== 'free';
 
-  const csSection = document.createElement('div');
-  csSection.className = 'section';
-  csSection.id = 'clearSplitAddonSection';
-  csSection.innerHTML = `
-    <div class="section-hdr">Add ClearSplit</div>
-    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">ClearSplit — Separation Agreements</div>
-        <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:4px">Collaborative separation agreement tool for uncontested separations.</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white)">${price} <span style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">one-time, 90-day access</span></div>
-        ${savings}
-      </div>
-      <button class="btn btn-primary" onclick="addClearSplit()">Add ClearSplit →</button>
-    </div>`;
-  dangerSection.parentNode.insertBefore(csSection, dangerSection);
+  document.getElementById('csSectionPrice').innerHTML =
+    `${isSubscriber ? '$249' : '$299'} <span style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">one-time, 90-day access</span>`;
+
+  const savings = document.getElementById('csSectionSavings');
+  if (savings) savings.style.display = isSubscriber ? 'block' : 'none';
+
+  section.style.display = 'block';
 }
 
 async function addClearSplit() {
