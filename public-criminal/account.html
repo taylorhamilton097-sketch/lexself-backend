@@ -291,7 +291,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
     </div>
 
     <!-- ── DANGER ZONE ── -->
-    <div class="section">
+    <div class="section" id="dangerZoneSection">
       <div class="section-hdr" style="color:var(--red)">Danger Zone</div>
       <div class="danger-zone">
         <div class="danger-title">Delete Account</div>
@@ -606,12 +606,19 @@ function renderClearSplitAddon() {
   const price = isSubscriber ? '$249' : '$299';
   const savings = isSubscriber ? '<div style="font-family:\'Inter\',sans-serif;font-size:.78rem;color:#4CAF50;margin-top:4px">Save $50 as a ClearStand subscriber</div>' : '';
 
-  // Insert before danger zone
-  const dangerSection = document.querySelector('.section:last-of-type');
-  if (!dangerSection) return;
+  // Insert before danger zone using reliable ID
+  const dangerSection = document.getElementById('dangerZoneSection');
+  if (!dangerSection) {
+    console.warn('[ClearSplit addon] dangerZoneSection not found');
+    return;
+  }
+
+  // Don't add twice
+  if (document.getElementById('clearSplitAddonSection')) return;
 
   const csSection = document.createElement('div');
   csSection.className = 'section';
+  csSection.id = 'clearSplitAddonSection';
   csSection.innerHTML = `
     <div class="section-hdr">Add ClearSplit</div>
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">

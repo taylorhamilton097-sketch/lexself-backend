@@ -573,6 +573,44 @@ router.get('/plans', (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+// GET /api/billing/subscription-status — diagnostic
+// Returns what Stripe sees for the current user
+// ══════════════════════════════════════════════════
+router.get('/subscription-status', requireAuth, async (req, res) => {
+  const user = req.user;
+  const s = getStripe();
+  const result = {
+    userId: user.id,
+    email: user.email,
+    plan: user.plan,
+    products: user.products,
+    subscriptionStatus: user.subscription_status,
+    stripeCustomerId: user.stripe_customer_id || null,
+    stripeSubscriptionId: user.stripe_subscription_id || null,
+    stripeSubs: [],
+  };
+
+  if (user.stripe_customer_id) {
+    try {
+      const subs = await s.subscriptions.list({
+        customer: user.stripe_customer_id,
+        limit: 5,
+      });
+      result.stripeSubs = subs.data.map(sub => ({
+        id: sub.id,
+        status: sub.status,
+        priceId: sub.items.data[0]?.price?.id,
+        currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+      }));
+    } catch(e) {
+      result.stripeError = e.message;
+    }
+  }
+
+  res.json(result);
+});
+
+// ══════════════════════════════════════════════════
 // POST /api/billing/preview-upgrade
 // Calculate proration before committing upgrade
 // ══════════════════════════════════════════════════
@@ -581,10 +619,21 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
   const user = req.user;
   const s = getStripe();
 
+  console.log('[Preview] Called', {
+    userId: user?.id,
+    email: user?.email,
+    newPlanKey,
+    stripeCustomerId: user?.stripe_customer_id || 'MISSING',
+    stripeSubscriptionId: user?.stripe_subscription_id || 'MISSING',
+    plan: user?.plan,
+    products: user?.products,
+  });
+
   const meta = PLAN_META[newPlanKey];
   if (!meta) return res.status(400).json({ error: 'Invalid plan.' });
   const newPriceId = meta.priceId();
-  if (!newPriceId) return res.status(500).json({ error: 'Price not configured.' });
+  console.log('[Preview] New price ID:', newPriceId || 'MISSING — check Railway env vars');
+  if (!newPriceId) return res.status(500).json({ error: 'Price not configured for this plan. Check Railway environment variables.' });
 
   if (!user.stripe_customer_id) {
     return res.status(400).json({ error: 'No billing account found. Please contact support@clearstand.ca' });
@@ -592,14 +641,24 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
 
   // Live-heal if subscription ID missing
   const subscriptionId = await getOrHealSubscriptionId(user);
+  console.log('[Preview] Subscription ID after heal:', subscriptionId || 'STILL MISSING');
   if (!subscriptionId) {
     return res.status(400).json({ error: 'No active subscription found. If you believe this is an error, contact support@clearstand.ca' });
   }
 
   try {
     const subscription = await s.subscriptions.retrieve(subscriptionId);
+    console.log('[Preview] Subscription status:', subscription.status, '| Items:', subscription.items.data.length);
     const currentItemId = subscription.items.data[0]?.id;
+    const currentPriceId = subscription.items.data[0]?.price?.id;
+    console.log('[Preview] Current item:', currentItemId, '| Current price:', currentPriceId);
     if (!currentItemId) return res.status(400).json({ error: 'Subscription item not found.' });
+
+    console.log('[Preview] Calling Stripe invoice preview', {
+      customer: user.stripe_customer_id,
+      subscription: subscriptionId,
+      newPrice: newPriceId,
+    });
 
     const preview = await s.invoices.retrieveUpcoming({
       customer: user.stripe_customer_id,
@@ -613,6 +672,8 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
     const creditLine = preview.lines.data.find(l => l.proration && l.amount < 0);
     const creditAmount = creditLine ? Math.abs(creditLine.amount / 100) : 0;
     const nextDate = new Date(preview.period_end * 1000).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    console.log('[Preview] Success', { dueToday, creditAmount, nextDate });
 
     // Check ClearSplit discount eligibility
     const isClearSplitEligible = !!(user.clearsplit_subscriber || user.plan === 'clearsplit');
@@ -632,7 +693,14 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
       discountAmount:     discountAmount > 0 ? `$${discountAmount.toFixed(2)}` : null,
     });
   } catch(err) {
-    console.error('[Preview upgrade error]', err.message);
+    console.error('[Preview] FAILED', {
+      message: err.message,
+      type: err.type,
+      code: err.code,
+      stripeCode: err.raw?.code,
+      stripeParam: err.raw?.param,
+      statusCode: err.statusCode,
+    });
     res.status(500).json({ error: 'Could not calculate upgrade preview. Please try again.' });
   }
 });
