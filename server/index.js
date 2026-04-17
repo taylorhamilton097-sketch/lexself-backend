@@ -88,9 +88,19 @@ app.get('/clearsplit/app',  (req, res) => res.sendFile(path.join(__dirname, '../
 // Static files
 app.use(express.static(path.join(__dirname, '../public-criminal')));
 
-// Wildcard — MUST be last
-app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, '../public-criminal/index.html')));
+// Wildcard — serve homepage for root, 404 for everything else
+app.get('*', (req, res) => {
+  // API routes that weren't matched return JSON 404
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  // Root serves homepage
+  if (req.path === '/') {
+    return res.sendFile(path.join(__dirname, '../public-criminal/index.html'));
+  }
+  // Everything else serves the 404 page with correct status
+  res.status(404).sendFile(path.join(__dirname, '../public-criminal/404.html'));
+});
 
 // ── STARTUP ──
 const PORT = process.env.PORT || 3000;

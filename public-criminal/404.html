@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStand — Page Not Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0D1B2A;--navy-mid:#162233;--blue:#2E86C1;--blue-light:#3EA4E4;
+  --border:#2A3F56;--text:#E8EDF2;--text2:#8BA3BA;--text3:#4A6680;--white:#F4F6F8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 24px;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--blue-light);}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px;text-align:center;}
+.wrap{max-width:520px;width:100%;}
+.code{font-family:'JetBrains Mono',monospace;font-size:6rem;font-weight:700;color:var(--navy-mid);line-height:1;margin-bottom:8px;user-select:none;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blue-light);display:block;margin-bottom:16px;}
+h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);margin-bottom:12px;line-height:1.25;}
+p{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);line-height:1.75;margin-bottom:36px;}
+.links{display:flex;flex-direction:column;gap:10px;max-width:320px;margin:0 auto;}
+.btn{display:block;padding:13px;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;font-weight:600;text-decoration:none;transition:background .15s;text-align:center;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-light);}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text3);}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue-light);}
+.support{margin-top:28px;font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);}
+.support a{color:var(--blue-light);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+</nav>
+
+<main>
+  <div class="wrap">
+    <div class="code">404</div>
+    <span class="eyebrow">Page Not Found</span>
+    <h1>This page doesn't exist.</h1>
+    <p>The page you're looking for may have moved or the link may be incorrect. Here are some places to go instead.</p>
+    <div class="links">
+      <a href="/" class="btn btn-primary">Back to Home →</a>
+      <a href="/criminal-app" class="btn btn-ghost">Criminal Defence App</a>
+      <a href="/family" class="btn btn-ghost">Family Law App</a>
+      <a href="/support" class="btn btn-ghost">Support</a>
+    </div>
+    <p class="support">Still lost? <a href="mailto:support@clearstand.ca">support@clearstand.ca</a></p>
+  </div>
+</main>
+
+</body>
+</html>
