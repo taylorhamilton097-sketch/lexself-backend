@@ -278,7 +278,8 @@ router.post('/clearsplit/checkout', async (req, res) => {
       const decoded = jwt.verify(authHeader.slice(7), secret);
       if (decoded) {
         const { getUserById, db } = require('../db');
-        const user = getUserById(decoded.userId);
+        const uid = decoded.sub || decoded.userId || decoded.id;
+        const user = uid ? getUserById(uid) : null;
         diagUser = user;
 
         // Fix 2: Self-heal subscription_status for paid users affected by webhook failures
