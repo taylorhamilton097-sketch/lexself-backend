@@ -92,6 +92,8 @@ try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_agreement_id INTEGER REFE
 try { db.exec(`ALTER TABLE users ADD COLUMN clearsplit_subscriber INTEGER DEFAULT 0`); } catch(e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN stripe_price_id TEXT DEFAULT NULL`); } catch(e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN next_billing_date TEXT DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE clearsplit_agreements ADD COLUMN party2_invited_email TEXT DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE clearsplit_agreements ADD COLUMN invite_sent_at DATETIME DEFAULT NULL`); } catch(e) {}
 
 // ── STARTUP HEAL — fix users with paid plan but inactive status ──
 // Self-heals any accounts affected by past webhook failures
@@ -360,6 +362,14 @@ function joinClearSplitAgreement(code, party2UserId) {
   return { success: true, agreement: getClearSplitAgreementByCode(code) };
 }
 
+function updateClearSplitInvite(code, party2Email) {
+  db.prepare(`
+    UPDATE clearsplit_agreements
+    SET party2_invited_email=?, invite_sent_at=CURRENT_TIMESTAMP
+    WHERE code=?
+  `).run(party2Email.toLowerCase().trim(), code.toUpperCase());
+}
+
 function saveClearSplitAgreementData(agreementId, data, userId) {
   db.prepare(`
     UPDATE clearsplit_agreements
@@ -448,4 +458,5 @@ module.exports = {
   updateUserClearSplit,
   setClearSplitParty1,
   ensureClearSplitTable,
+  updateClearSplitInvite,
 };

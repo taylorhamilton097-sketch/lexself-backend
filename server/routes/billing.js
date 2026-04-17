@@ -228,6 +228,58 @@ router.post('/portal', requireAuth, async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════
+// POST /api/billing/clearsplit/invite
+// Party 1 sends invitation email to Party 2
+// Requires auth — Party 1 must be logged in
+// ══════════════════════════════════════════════════
+router.post('/clearsplit/invite', requireAuth, async (req, res) => {
+  const { code, party2Email } = req.body;
+  const user = req.user;
+
+  if (!code || !party2Email) {
+    return res.status(400).json({ error: 'Agreement code and spouse email are required.' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(party2Email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
+  }
+  if (party2Email.toLowerCase() === user.email.toLowerCase()) {
+    return res.status(400).json({ error: 'You cannot invite yourself. Please enter your spouse\'s email address.' });
+  }
+
+  try {
+    const { getClearSplitAgreementByCode, updateClearSplitInvite } = require('../db');
+    const agreement = getClearSplitAgreementByCode(code.toUpperCase());
+
+    if (!agreement) {
+      return res.status(404).json({ error: 'Agreement not found. Please check your code.' });
+    }
+    if (agreement.party1_user_id !== user.id) {
+      return res.status(403).json({ error: 'You are not the owner of this agreement.' });
+    }
+    if (agreement.party2_user_id) {
+      return res.status(409).json({ error: 'Your spouse has already joined this agreement.' });
+    }
+
+    // Store the invited email and send the invitation
+    updateClearSplitInvite(code, party2Email);
+
+    const { sendClearSplitInviteEmail } = require('../utils/email');
+    await sendClearSplitInviteEmail({
+      toEmail:         party2Email,
+      party1FirstName: user.name ? user.name.trim().split(' ')[0] : 'Your spouse',
+      code:            code.toUpperCase(),
+      activeUntil:     agreement.active_until,
+    });
+
+    console.log(`[ClearSplit] Invite sent from user ${user.id} (${user.email}) to ${party2Email} — code: ${code}`);
+    res.json({ success: true, sentTo: party2Email });
+  } catch(err) {
+    console.error('[ClearSplit invite error]', err.message);
+    res.status(500).json({ error: 'Failed to send invitation. Please try again or contact support@clearstand.ca' });
+  }
+});
+
+// ══════════════════════════════════════════════════
 // GET /api/billing/clearsplit/session — lookup purchase by Stripe session
 // Called by success screen to display code
 // ══════════════════════════════════════════════════

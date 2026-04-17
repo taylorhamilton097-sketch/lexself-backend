@@ -250,8 +250,6 @@ async function sendWelcomeEmail(user) {
   }
 }
 
-module.exports = { sendWelcomeEmail, sendClearSplitPurchaseEmail, sendClearSplitParty2Email, sendClearSplitExpiryWarningEmail, sendClearSplitExtensionEmail };
-
 // ══════════════════════════════════════════════════
 // SHARED EMAIL HELPERS
 // ══════════════════════════════════════════════════
@@ -426,3 +424,80 @@ async function sendEmail({ to, subject, html, text }) {
     console.error(`[Email] Failed "${subject}": ${err.message}`);
   }
 }
+
+// ══════════════════════════════════════════════════
+// EMAIL 5 — Spouse invitation from Party 1
+// ══════════════════════════════════════════════════
+async function sendClearSplitInviteEmail({ toEmail, party1FirstName, code, activeUntil }) {
+  const expiryStr = new Date(activeUntil).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' });
+  const codeSpaced = code.split('').join(' ');
+  const joinUrl = `${process.env.APP_URL || 'https://clearstand.ca'}/clearsplit`;
+
+  const html = emailHeader('You have been invited to a ClearSplit agreement') + `
+<tr><td align="center" style="background:#0D1B2A;padding:40px 40px 48px;">
+  <p style="margin:0 0 12px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:#2E86C1;">Separation Agreement</p>
+  <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:28px;font-weight:700;color:#fff;line-height:1.2;">${party1FirstName} has invited you<br>to a shared agreement.</h1>
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:15px;color:rgba(244,246,248,0.65);line-height:1.65;">Use the code below to create your account and join the ClearSplit agreement.</p>
+</td></tr>
+<tr><td align="center" style="background:#162233;padding:32px 40px;">
+  <p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:#2E86C1;">Your Access Code</p>
+  <div style="background:rgba(46,134,193,.12);border:2px solid rgba(46,134,193,.4);padding:20px 32px;display:inline-block;margin-bottom:20px;">
+    <span style="font-family:'Courier New',monospace;font-size:36px;font-weight:700;color:#fff;letter-spacing:0.35em;">${codeSpaced}</span>
+  </div>
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:rgba(244,246,248,0.55);">Active until: <strong style="color:#fff;">${expiryStr}</strong></p>
+</td></tr>
+<tr><td style="background:#fff;padding:40px;">
+  <p style="margin:0 0 20px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#2E86C1;">How to get started</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+    <tr><td style="padding:10px 0;border-bottom:1px solid #F0F2F4;">
+      <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 1</span>
+      <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Visit <a href="${joinUrl}" style="color:#2E86C1;text-decoration:none;font-weight:600;">clearstand.ca/clearsplit</a></span>
+    </td></tr>
+    <tr><td style="padding:10px 0;border-bottom:1px solid #F0F2F4;">
+      <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 2</span>
+      <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Click <strong>"Join with Code"</strong> and enter your code</span>
+    </td></tr>
+    <tr><td style="padding:10px 0;border-bottom:1px solid #F0F2F4;">
+      <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 3</span>
+      <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Create your free account to access the shared agreement</span>
+    </td></tr>
+    <tr><td style="padding:10px 0;">
+      <span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#2E86C1;">Step 4</span>
+      <span style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding-left:10px;">Work through the agreement together and export your PDF</span>
+    </td></tr>
+  </table>
+  <a href="${joinUrl}" style="display:inline-block;background:#2E86C1;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:14px 32px;border-radius:3px;">Join the Agreement →</a>
+</td></tr>
+<tr><td style="background:#F4F6F8;padding:20px 40px;">
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#6B7A8D;line-height:1.6;">ClearSplit is a collaborative separation agreement tool built for uncontested separations. It does not provide legal advice. If you have any concerns, please consult a lawyer before proceeding.</p>
+</td></tr>
+${emailSupport()}${emailFooter()}`;
+
+  const text = `${party1FirstName} has invited you to a shared ClearSplit separation agreement.
+
+Your Access Code: ${code}
+
+How to get started:
+1. Visit clearstand.ca/clearsplit
+2. Click "Join with Code" and enter: ${code}
+3. Create your free account
+4. Work through the agreement together
+
+Active until: ${expiryStr}
+
+Questions? support@clearstand.ca
+ClearStand — clearstand.ca
+
+ClearSplit does not provide legal advice. If you have concerns, consult a lawyer.`;
+
+  await sendEmail({ to: toEmail, subject: `${party1FirstName} has invited you to a ClearSplit agreement`, html, text });
+}
+
+module.exports = {
+  sendWelcomeEmail,
+  sendClearSplitPurchaseEmail,
+  sendClearSplitInviteEmail,
+  sendClearSplitParty2Email,
+  sendClearSplitExpiryWarningEmail,
+  sendClearSplitExtensionEmail,
+};
