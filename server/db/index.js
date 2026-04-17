@@ -94,6 +94,31 @@ try { db.exec(`ALTER TABLE users ADD COLUMN stripe_price_id TEXT DEFAULT NULL`);
 try { db.exec(`ALTER TABLE users ADD COLUMN next_billing_date TEXT DEFAULT NULL`); } catch(e) {}
 try { db.exec(`ALTER TABLE clearsplit_agreements ADD COLUMN party2_invited_email TEXT DEFAULT NULL`); } catch(e) {}
 try { db.exec(`ALTER TABLE clearsplit_agreements ADD COLUMN invite_sent_at DATETIME DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT NULL`); } catch(e) {}
+
+// ── API USAGE TRACKING (Counsel soft ceiling + cost protection) ──
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS api_usage (
+      id                INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id           INTEGER NOT NULL,
+      date              TEXT NOT NULL,
+      chat_count        INTEGER DEFAULT 0,
+      analysis_count    INTEGER DEFAULT 0,
+      token_count       INTEGER DEFAULT 0,
+      created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, date)
+    )
+  `);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS global_api_usage (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      date         TEXT UNIQUE NOT NULL,
+      total_calls  INTEGER DEFAULT 0,
+      total_tokens INTEGER DEFAULT 0
+    )
+  `);
+} catch(e) { console.error('[DB] Usage table error:', e.message); }
 
 // ── STARTUP HEAL — fix users with paid plan but inactive status ──
 // Self-heals any accounts affected by past webhook failures
@@ -370,6 +395,71 @@ function updateClearSplitInvite(code, party2Email) {
   `).run(party2Email.toLowerCase().trim(), code.toUpperCase());
 }
 
+// ── API USAGE TRACKING ──
+function trackApiUsage(userId, type, tokens = 0) {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    db.prepare(`
+      INSERT INTO api_usage (user_id, date, chat_count, analysis_count, token_count)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(user_id, date) DO UPDATE SET
+        chat_count     = chat_count + excluded.chat_count,
+        analysis_count = analysis_count + excluded.analysis_count,
+        token_count    = token_count + excluded.token_count
+    `).run(
+      userId, today,
+      type === 'chat' ? 1 : 0,
+      type === 'analysis' ? 1 : 0,
+      tokens
+    );
+
+    // High usage alert
+    const usage = db.prepare('SELECT chat_count, analysis_count FROM api_usage WHERE user_id=? AND date=?').get(userId, today);
+    if (usage?.chat_count >= 200) {
+      console.warn('[HIGH USAGE]', { userId, chatCount: usage.chat_count, date: today });
+    }
+  } catch(e) {
+    console.error('[trackApiUsage error]', e.message);
+  }
+}
+
+function trackGlobalApiUsage(tokens = 0) {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    db.prepare(`
+      INSERT INTO global_api_usage (date, total_calls, total_tokens)
+      VALUES (?, 1, ?)
+      ON CONFLICT(date) DO UPDATE SET
+        total_calls  = total_calls + 1,
+        total_tokens = total_tokens + excluded.total_tokens
+    `).run(today, tokens);
+
+    const global = db.prepare('SELECT total_calls FROM global_api_usage WHERE date=?').get(today);
+    if (global?.total_calls >= 10000) {
+      console.error('[CRITICAL] Global API limit reached', { date: today, totalCalls: global.total_calls });
+    }
+  } catch(e) {
+    console.error('[trackGlobalApiUsage error]', e.message);
+  }
+}
+
+function checkCounselLimits(userId) {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const usage = db.prepare('SELECT chat_count, analysis_count FROM api_usage WHERE user_id=? AND date=?').get(userId, today);
+    if (!usage) return { allowed: true };
+    if (usage.chat_count >= 500) {
+      return {
+        allowed: false,
+        message: 'You have reached your daily limit. Your access resets tomorrow. If you need immediate assistance contact support@clearstand.ca',
+      };
+    }
+    return { allowed: true };
+  } catch(e) {
+    return { allowed: true }; // fail open — don't block on tracking errors
+  }
+}
+
 function saveClearSplitAgreementData(agreementId, data, userId) {
   db.prepare(`
     UPDATE clearsplit_agreements
@@ -459,4 +549,7 @@ module.exports = {
   setClearSplitParty1,
   ensureClearSplitTable,
   updateClearSplitInvite,
+  trackApiUsage,
+  trackGlobalApiUsage,
+  checkCounselLimits,
 };

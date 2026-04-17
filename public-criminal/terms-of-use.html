@@ -3,321 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="ClearStand Terms of Use — Legal document preparation and research platform for self-represented Canadians.">
-<title>Terms of Use — ClearStand</title>
+<title>ClearStand — Terms of Use</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-.legal-hero {
-  background: var(--navy);
-  padding: 72px 0 56px;
-  border-bottom: 1px solid var(--border-dark);
-}
-.legal-hero-inner {
-  max-width: 780px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-.legal-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--blue-light);
-  margin-bottom: 16px;
-}
-.legal-hero h1 {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  color: var(--white);
-  margin-bottom: 12px;
-}
-.legal-effective {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(244,246,248,.35);
-}
-.legal-body {
-  background: var(--white-pure);
-  padding: 64px 0 96px;
-}
-.legal-body-inner {
-  max-width: 780px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-.legal-section {
-  margin-bottom: 48px;
-  padding-bottom: 48px;
-  border-bottom: 1px solid var(--border);
-}
-.legal-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-.legal-section-num {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--blue);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.legal-section-num::before {
-  content: '';
-  width: 20px;
-  height: 2px;
-  background: var(--blue);
-  flex-shrink: 0;
-}
-.legal-section h2 {
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  color: var(--text-dark);
-  margin-bottom: 20px;
-  line-height: 1.25;
-}
-.legal-section p {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--text-mid);
-  margin-bottom: 16px;
-}
-.legal-section p:last-child { margin-bottom: 0; }
-.legal-section ul {
-  margin: 12px 0 16px 0;
-  padding-left: 0;
-  list-style: none;
-}
-.legal-section ul li {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--text-mid);
-  padding: 4px 0 4px 20px;
-  position: relative;
-}
-.legal-section ul li::before {
-  content: '—';
-  position: absolute;
-  left: 0;
-  color: var(--blue);
-  font-family: var(--font-mono);
-}
-.legal-contact {
-  margin-top: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--blue);
-}
-@media (max-width: 640px) {
-  .legal-hero { padding: 52px 0 40px; }
-  .legal-body { padding: 44px 0 64px; }
-}
+:root{--navy:#0D1B2A;--navy-mid:#162233;--blue:#2E86C1;--blue-light:#3EA4E4;--border:#2A3F56;--text:#E8EDF2;--text2:#8BA3BA;--text3:#4A6680;--white:#F4F6F8;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 24px;gap:24px;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;margin-right:auto;}
+.nav-logo span{color:var(--blue-light);}
+.nav-link{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);text-decoration:none;}
+.nav-link:hover{color:var(--white);}
+main{flex:1;max-width:780px;margin:0 auto;padding:56px 24px 80px;width:100%;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blue-light);display:block;margin-bottom:14px;}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:var(--white);margin-bottom:8px;}
+.updated{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-bottom:48px;}
+h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--white);margin:36px 0 12px;}
+h3{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin:20px 0 8px;}
+p{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);line-height:1.8;margin-bottom:14px;}
+ul{font-family:'Source Serif 4',serif;font-size:.95rem;color:var(--text2);line-height:1.8;margin-bottom:14px;padding-left:20px;}
+li{margin-bottom:4px;}
+a{color:var(--blue-light);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.highlight{background:rgba(46,134,193,.08);border:1px solid rgba(46,134,193,.2);border-left:3px solid var(--blue);padding:16px 20px;margin:20px 0;}
+.highlight p{margin:0;color:var(--text2);}
+footer{background:var(--navy-mid);border-top:1px solid var(--border);padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
+footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
 </style>
 </head>
 <body>
-
-<nav class="site-nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">Clear<span>Stand</span></a>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="/#features">Features</a></li>
-      <li><a href="/family-law">Family Law</a></li>
-      <li><a href="/criminal-defence">Criminal Defence</a></li>
-      <li><a href="/#pricing">Pricing</a></li>
-      <li><a href="/about">About</a></li>
-    </ul>
-    <div class="nav-cta">
-      <a href="/get-started" class="btn btn-primary">Get Started Free</a>
-    </div>
-    <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Toggle menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+  <a href="/support" class="nav-link">Support</a>
+  <a href="/privacy-policy" class="nav-link">Privacy Policy</a>
 </nav>
+<main>
+  <span class="eyebrow">Legal</span>
+  <h1>Terms of Use</h1>
+  <p class="updated">Last updated: April 17, 2026</p>
 
-<section class="legal-hero">
-  <div class="legal-hero-inner">
-    <div class="legal-eyebrow">Legal</div>
-    <h1>Terms of Use</h1>
-    <div class="legal-effective">Effective date: April 11, 2026</div>
+  <p>These Terms of Use govern your access to and use of ClearStand, operated by Taylor Hamilton ("ClearStand", "we", "us"). By creating an account or using ClearStand, you agree to these terms.</p>
+
+  <h2>Not Legal Advice</h2>
+  <div class="highlight">
+    <p>ClearStand is a legal document preparation and research tool. It does not provide legal advice, does not create a lawyer-client relationship, and is not a substitute for licensed legal counsel. For complex legal matters, please consult a qualified lawyer. Legal Aid Ontario: 1-800-668-8258.</p>
   </div>
-</section>
 
-<div class="legal-body">
-  <div class="legal-body-inner">
+  <h2>Your Account</h2>
+  <p>You are responsible for maintaining the security of your account credentials. You must not share your account with others or allow others to access the service through your account. You must be 18 years of age or older to create an account.</p>
+  <p>You are responsible for all activity that occurs under your account. Notify us immediately at <a href="mailto:support@clearstand.ca">support@clearstand.ca</a> if you suspect unauthorized access.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">1 — Acceptance of Terms</div>
-      <h2>Acceptance of Terms</h2>
-      <p>By accessing or using ClearStand (clearstand.ca), you agree to be bound by these Terms of Use. If you do not agree to these terms, do not use ClearStand.</p>
-    </div>
+  <h2>Acceptable Use</h2>
+  <p>You agree not to:</p>
+  <ul>
+    <li>Use ClearStand for any unlawful purpose</li>
+    <li>Submit false, misleading, or fraudulent information</li>
+    <li>Attempt to circumvent, reverse-engineer, or interfere with any security measure</li>
+    <li>Use automated tools, bots, or scripts to access or scrape the service</li>
+    <li>Share, resell, or redistribute access to ClearStand without written permission</li>
+    <li>Use the service in a manner that could damage or overburden our infrastructure</li>
+  </ul>
 
-    <div class="legal-section">
-      <div class="legal-section-num">2 — What ClearStand Is</div>
-      <h2>What ClearStand Is</h2>
-      <p>ClearStand is a legal document preparation and research platform. It provides legal information, document preparation tools, case law references, and AI-assisted preparation resources for self-represented individuals in Canadian legal proceedings.</p>
-      <p>ClearStand is not a law firm. It does not provide legal advice. It does not represent users in any legal proceeding.</p>
-    </div>
+  <h2>Fair Use Policy</h2>
+  <p>Unlimited plans are subject to fair use limits designed to prevent automated abuse and ensure service quality for all users. ClearStand reserves the right to throttle or suspend accounts that display usage patterns inconsistent with individual personal use.</p>
+  <p>Users whose accounts are suspended for abuse will be notified at their registered email address and given an opportunity to respond before any permanent action is taken.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">3 — No Lawyer-Client Relationship</div>
-      <h2>No Lawyer-Client Relationship</h2>
-      <p>Use of ClearStand does not create a lawyer-client relationship between you and ClearStand, its founders, operators, employees, or any affiliated parties. No communication through ClearStand constitutes legal advice or establishes any professional relationship.</p>
-    </div>
+  <h2>Payments and Subscriptions</h2>
+  <p>Subscription fees are billed in Canadian dollars. By subscribing, you authorize us to charge your payment method on a recurring basis. You may cancel at any time from your Account page. Upon cancellation, you retain access until the end of your current billing period.</p>
+  <p>Refunds are not provided for partial subscription periods. ClearSplit purchases are non-refundable after access codes have been issued.</p>
+  <p>We reserve the right to change pricing with 30 days notice to registered users.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">4 — Not Legal Advice</div>
-      <h2>Not Legal Advice</h2>
-      <p>ClearStand provides legal information — not legal advice. Legal information describes the law generally. Legal advice applies the law to your specific circumstances and can only be provided by a licensed lawyer.</p>
-      <p>Nothing on ClearStand should be relied upon as legal advice. For advice specific to your situation, consult a licensed lawyer in your jurisdiction.</p>
-    </div>
+  <h2>Intellectual Property</h2>
+  <p>ClearStand and its content, features, and functionality are owned by Taylor Hamilton and protected by applicable intellectual property laws. You may not copy, modify, distribute, or create derivative works without written permission.</p>
+  <p>Documents you create using ClearStand are yours. We claim no ownership over your content.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">5 — AI-Generated Content</div>
-      <h2>AI-Generated Content</h2>
-      <p>ClearStand uses artificial intelligence to generate analyses, document drafts, research summaries, and preparation materials. AI-generated content:</p>
-      <ul>
-        <li>May contain errors, omissions, or inaccuracies</li>
-        <li>Is provided for preparation and information purposes only</li>
-        <li>Should be reviewed carefully before use in any legal proceeding</li>
-        <li>Does not constitute legal advice</li>
-      </ul>
-      <p>ClearStand makes no warranty regarding the accuracy, completeness, or suitability of any AI-generated content for any specific legal matter.</p>
-    </div>
+  <h2>Privacy</h2>
+  <p>Your use of ClearStand is governed by our <a href="/privacy-policy">Privacy Policy</a>, which is incorporated into these Terms by reference.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">6 — User Responsibility</div>
-      <h2>User Responsibility</h2>
-      <p>You are solely responsible for:</p>
-      <ul>
-        <li>How you use information and documents generated by ClearStand</li>
-        <li>Verifying the accuracy and completeness of all documents before filing with any court</li>
-        <li>Ensuring documents comply with the rules and requirements of the court in which you are filing</li>
-        <li>Any decisions made in reliance on ClearStand content</li>
-        <li>The outcome of any legal proceeding</li>
-      </ul>
-    </div>
+  <h2>Security</h2>
+  <p>ClearStand implements industry-standard security measures to protect your personal information including encryption in transit, secure authentication, and regular security monitoring.</p>
+  <p>In the event of a data breach affecting your personal information, ClearStand will notify you at your registered email address in accordance with our obligations under the <em>Personal Information Protection and Electronic Documents Act</em> (PIPEDA).</p>
+  <p>ClearStand cannot guarantee absolute security of data transmitted over the internet. Users transmit data at their own risk. ClearStand is not liable for any unauthorized access to personal information beyond our reasonable control.</p>
+  <p>To report a security vulnerability: <a href="mailto:taylor@clearstand.ca">taylor@clearstand.ca</a></p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">7 — No Guarantee of Outcome</div>
-      <h2>No Guarantee of Outcome</h2>
-      <p>ClearStand makes no representations regarding the outcome of any legal proceeding. Legal outcomes depend on facts, circumstances, judicial discretion, and many factors outside ClearStand's knowledge or control.</p>
-    </div>
+  <h2>Disclaimers and Limitation of Liability</h2>
+  <p>ClearStand is provided "as is" without warranties of any kind. We do not warrant that the service will be uninterrupted, error-free, or that any document produced is legally valid or appropriate for your specific situation.</p>
+  <p>To the maximum extent permitted by applicable law, ClearStand shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of data or legal outcomes arising from reliance on documents or analysis produced by the service.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">8 — Subscription and Payment</div>
-      <h2>Subscription and Payment</h2>
-      <p>ClearStand offers paid subscription tiers and one-time purchase options processed through Stripe. By purchasing a subscription you agree to:</p>
-      <ul>
-        <li>Pay the applicable fees for your selected plan</li>
-        <li>Applicable HST on all purchases (Canadian residents)</li>
-        <li>Automatic renewal of monthly and annual subscriptions until cancelled</li>
-        <li>ClearStand's refund policy as described in your account settings</li>
-      </ul>
-      <p>All prices are in Canadian dollars.</p>
-    </div>
+  <h2>Termination</h2>
+  <p>We reserve the right to suspend or terminate accounts that violate these Terms. You may delete your account at any time from Account Settings. Upon termination, your data will be deleted in accordance with our Privacy Policy.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">9 — Acceptable Use</div>
-      <h2>Acceptable Use</h2>
-      <p>You agree not to use ClearStand to:</p>
-      <ul>
-        <li>Violate any applicable law or regulation</li>
-        <li>Submit false or misleading information to any court</li>
-        <li>Harass, threaten, or harm any other person</li>
-        <li>Attempt to circumvent any security or access control</li>
-        <li>Reverse engineer or copy any part of the platform</li>
-        <li>Use the platform for any commercial purpose other than your own legal matter</li>
-      </ul>
-    </div>
+  <h2>Governing Law</h2>
+  <p>These Terms are governed by the laws of the Province of Ontario and the federal laws of Canada applicable therein. Any disputes shall be resolved in the courts of Ontario.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">10 — Intellectual Property</div>
-      <h2>Intellectual Property</h2>
-      <p>All content, design, software, and materials on ClearStand are the intellectual property of ClearStand and its operators. You may not reproduce, distribute, or create derivative works from any ClearStand content without express written permission.</p>
-    </div>
+  <h2>Changes to These Terms</h2>
+  <p>We will notify registered users by email of material changes to these Terms. Continued use after changes constitutes acceptance.</p>
 
-    <div class="legal-section">
-      <div class="legal-section-num">11 — Limitation of Liability</div>
-      <h2>Limitation of Liability</h2>
-      <p>To the maximum extent permitted by applicable Canadian law, ClearStand and its operators shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from:</p>
-      <ul>
-        <li>Your use of or inability to use ClearStand</li>
-        <li>Reliance on any content generated by ClearStand</li>
-        <li>The outcome of any legal proceeding</li>
-        <li>Any errors or omissions in ClearStand content</li>
-      </ul>
-    </div>
-
-    <div class="legal-section">
-      <div class="legal-section-num">12 — Indemnification</div>
-      <h2>Indemnification</h2>
-      <p>You agree to indemnify and hold harmless ClearStand and its operators from any claims, damages, losses, or expenses (including legal fees) arising from your use of ClearStand or your violation of these Terms of Use.</p>
-    </div>
-
-    <div class="legal-section">
-      <div class="legal-section-num">13 — Jurisdiction</div>
-      <h2>Jurisdiction</h2>
-      <p>ClearStand is designed for use in Canadian jurisdictions and is governed by the laws of the Province of Ontario and the laws of Canada applicable therein. Users outside Canada use the platform at their own risk.</p>
-      <p>Any disputes arising from use of ClearStand shall be subject to the exclusive jurisdiction of the courts of Ontario, Canada.</p>
-    </div>
-
-    <div class="legal-section">
-      <div class="legal-section-num">14 — Changes to These Terms</div>
-      <h2>Changes to These Terms</h2>
-      <p>ClearStand reserves the right to modify these Terms of Use at any time. Continued use of ClearStand following notice of changes constitutes acceptance of the revised terms.</p>
-    </div>
-
-    <div class="legal-section">
-      <div class="legal-section-num">15 — Contact</div>
-      <h2>Contact</h2>
-      <p>For questions about these Terms of Use:</p>
-      <div class="legal-contact">support@clearstand.ca</div>
-    </div>
-
-  </div>
-</div>
-
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div>
-        <div class="footer-logo">Clear<span>Stand</span></div>
-        <div class="footer-tagline">Your rights. Your case. Your ground.</div>
-      </div>
-      <ul class="footer-links">
-        <li><a href="/family-law">Family Law</a></li>
-        <li><a href="/criminal-defence">Criminal Defence</a></li>
-        <li><a href="/#pricing">Pricing</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/privacy-policy">Privacy Policy</a></li>
-        <li><a href="/terms-of-use">Terms of Use</a></li>
-      </ul>
-    </div>
-    <p class="footer-disclaimer">
-      ClearStand is a legal document and research tool. It does not provide legal advice and is not a substitute for a licensed lawyer. For complex matters, professional legal counsel is recommended. Legal Aid Ontario: 1-800-668-8258.
-    </p>
-  </div>
+  <h2>Contact</h2>
+  <p><a href="mailto:support@clearstand.ca">support@clearstand.ca</a></p>
+</main>
+<footer>
+  <a href="/">ClearStand</a>
+  <a href="/privacy-policy">Privacy Policy</a>
+  <a href="/support">Support</a>
+  <a href="mailto:support@clearstand.ca">support@clearstand.ca</a>
+  <span style="margin-left:12px">© 2025 ClearStand. Not legal advice.</span>
 </footer>
-
-<script>
-const toggle = document.getElementById('mobileToggle');
-const navLinks = document.getElementById('navLinks');
-toggle.addEventListener('click', () => {
-  const isOpen = navLinks.classList.toggle('open');
-  toggle.setAttribute('aria-expanded', isOpen);
-});
-</script>
 </body>
 </html>
