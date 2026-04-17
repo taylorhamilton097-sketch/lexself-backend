@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStand — Support</title>
+<meta name="description" content="ClearStand support — get help with your account, subscription, or technical issues.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0D1B2A;
+  --navy-mid:  #162233;
+  --navy-light:#1E3045;
+  --blue:      #2E86C1;
+  --blue-light:#3EA4E4;
+  --border:    #2A3F56;
+  --text:      #E8EDF2;
+  --text2:     #8BA3BA;
+  --text3:     #4A6680;
+  --white:     #F4F6F8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── NAV ── */
+nav{background:var(--navy-mid);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 24px;gap:24px;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);text-decoration:none;margin-right:auto;}
+.nav-logo span{color:var(--blue-light);}
+.nav-link{font-family:'Source Serif 4',serif;font-size:.85rem;color:var(--text2);text-decoration:none;transition:color .15s;}
+.nav-link:hover{color:var(--white);}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;padding:8px 18px;background:var(--blue);color:#fff;text-decoration:none;transition:background .15s;}
+.nav-cta:hover{background:var(--blue-light);}
+
+/* ── LAYOUT ── */
+main{flex:1;max-width:800px;margin:0 auto;padding:64px 24px 80px;width:100%;}
+
+/* ── HERO ── */
+.page-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.18em;color:var(--blue-light);display:block;margin-bottom:14px;}
+h1{font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--white);line-height:1.2;margin-bottom:16px;}
+.page-sub{font-family:'Source Serif 4',serif;font-size:1rem;color:var(--text2);line-height:1.75;margin-bottom:48px;max-width:560px;}
+
+/* ── CONTACT CARD ── */
+.contact-card{background:var(--navy-mid);border:1px solid var(--border);border-top:3px solid var(--blue);padding:36px 32px;margin-bottom:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.contact-email-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);margin-bottom:8px;}
+.contact-email{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--white);text-decoration:none;transition:color .15s;display:block;}
+.contact-email:hover{color:var(--blue-light);}
+.contact-response{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text3);margin-top:8px;}
+.contact-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .15s;}
+.contact-btn:hover{background:var(--blue-light);}
+
+/* ── FAQ ── */
+.faq-hdr{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0;}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{font-family:'Source Serif 4',serif;font-size:1rem;font-weight:600;color:var(--white);margin-bottom:10px;line-height:1.4;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.faq-q::after{content:'↓';font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text3);flex-shrink:0;transition:transform .2s;}
+.faq-item.open .faq-q::after{transform:rotate(180deg);}
+.faq-a{font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);line-height:1.75;display:none;}
+.faq-item.open .faq-a{display:block;}
+.faq-a a{color:var(--blue-light);text-decoration:none;}
+.faq-a a:hover{text-decoration:underline;}
+
+/* ── FOOTER ── */
+footer{background:var(--navy-mid);border-top:1px solid var(--border);padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);}
+footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
+footer a:hover{color:var(--text2);}
+
+@media(max-width:600px){
+  h1{font-size:1.6rem;}
+  .contact-card{flex-direction:column;align-items:flex-start;}
+  nav .nav-link{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+  <a href="/" class="nav-link">Home</a>
+  <a href="/pricing" class="nav-link">Pricing</a>
+  <a href="/account" class="nav-link">My Account</a>
+  <a href="/register?signin=1" class="nav-cta">Sign In</a>
+</nav>
+
+<main>
+  <span class="page-eyebrow">Support</span>
+  <h1>We're here to help.</h1>
+  <p class="page-sub">If you're experiencing a technical issue or have a question about your account, reach out and we'll get back to you within 1 business day.</p>
+
+  <!-- CONTACT CARD -->
+  <div class="contact-card">
+    <div>
+      <div class="contact-email-label">Email Support</div>
+      <a href="mailto:support@clearstand.ca" class="contact-email">support@clearstand.ca</a>
+      <div class="contact-response">✓ We respond within 1 business day.</div>
+    </div>
+    <a href="mailto:support@clearstand.ca" class="contact-btn">✉ Send Email →</a>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-hdr">Frequently Asked Questions</div>
+
+  <div class="faq-item open">
+    <div class="faq-q" onclick="toggleFaq(this)">How do I upgrade my plan?</div>
+    <div class="faq-a">Go to <a href="/account">Account</a> → Change Plan to view all available options and upgrade instantly. Upgrades apply immediately with prorated billing — you're only charged for the remaining days in your cycle.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">How do I cancel my subscription?</div>
+    <div class="faq-a">Go to <a href="/account">Account</a> → Manage Billing to cancel at any time. You retain full access until the end of your current billing period — nothing is cut off immediately.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">What is a document analysis?</div>
+    <div class="faq-a">Upload a document filed by the other side — such as an affidavit, motion, or disclosure — and ClearStand analyzes it for weaknesses, procedural violations, and counter-arguments you can raise in your response.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Is my information private?</div>
+    <div class="faq-a">Yes. Your case information is never shared or used for any purpose other than generating your documents and analysis. ClearStand does not sell your data or use it to train AI models. See our <a href="/privacy-policy">Privacy Policy</a> for full details.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Is ClearStand a law firm?</div>
+    <div class="faq-a">No. ClearStand is a legal document preparation and research tool. It does not provide legal advice and is not a substitute for licensed legal counsel. For complex matters, we recommend consulting a lawyer. <a href="https://www.legalaid.on.ca" target="_blank">Legal Aid Ontario</a> may be available if you qualify: 1-800-668-8258.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">I hit my chat or analysis limit. What do I do?</div>
+    <div class="faq-a">You have two options: upgrade your plan in <a href="/account">Account settings</a> for higher monthly limits, or purchase a one-time Analysis Pack for $29 — 3 analyses with no subscription required. Chat limits reset daily at midnight.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">My payment failed. What happens to my access?</div>
+    <div class="faq-a">If a payment fails, you have a 3-day grace period before access is restricted. Stripe will automatically retry your card. You can update your payment method at any time through <a href="/account">Account</a> → Manage Billing.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Can I switch between Family Law and Criminal Defence?</div>
+    <div class="faq-a">If you're subscribed to one product and need access to the other, upgrade to a Bundle plan from your <a href="/account">Account</a> page. Bundle plans cover both products at a lower combined rate, and you'll be credited for unused days on your current plan.</div>
+  </div>
+</main>
+
+<footer>
+  <a href="/">ClearStand</a>
+  <a href="/pricing">Pricing</a>
+  <a href="/about">About</a>
+  <a href="/privacy-policy">Privacy Policy</a>
+  <a href="/terms-of-use">Terms of Use</a>
+  <a href="mailto:support@clearstand.ca">support@clearstand.ca</a>
+  <span style="margin-left:16px">© 2025 ClearStand. Not legal advice.</span>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>
