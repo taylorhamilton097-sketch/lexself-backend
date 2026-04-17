@@ -62,29 +62,6 @@ app.get('/api/health', (req, res) => res.json({
   time: new Date().toISOString(),
 }));
 
-// ── DEBUG ROUTES — remove before public launch ──
-app.get('/api/debug-users', (req, res) => {
-  try {
-    const Database = require('better-sqlite3');
-    const db = new Database(process.env.DB_PATH || '/app/data/lexself.db');
-    const users = db.prepare('SELECT id, email, plan, subscription_status, products FROM users').all();
-    res.json(users);
-  } catch(e) { res.json({ error: e.message }); }
-});
-
-app.get('/api/fix-plan', (req, res) => {
-  try {
-    const Database = require('better-sqlite3');
-    const db = new Database(process.env.DB_PATH || '/app/data/lexself.db');
-    const { email, plan, products, status } = req.query;
-    if (!email) return res.status(400).json({ error: 'email query param required' });
-    db.prepare(`UPDATE users SET plan=?, products=?, subscription_status=? WHERE email=?`)
-      .run(plan || 'essential', products || 'both', status || 'active', email);
-    const user = db.prepare(`SELECT id, email, plan, subscription_status, products FROM users WHERE email=?`).get(email);
-    res.json({ success: true, user });
-  } catch(e) { res.json({ error: e.message }); }
-});
-
 // ── STATIC FRONTENDS ──
 app.use('/family', express.static(path.join(__dirname, '../public-family')));
 app.get('/family/*', (req, res) =>
