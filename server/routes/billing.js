@@ -667,11 +667,14 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
       subscription_proration_behavior: 'create_prorations',
     });
 
-    const dueToday = preview.amount_due / 100;
-    const nextAmount = preview.lines.data.find(l => !l.proration)?.amount / 100 || meta.price;
+    const dueToday = (preview.amount_due || 0) / 100;
+    const nextLine = preview.lines.data.find(l => !l.proration);
+    const nextAmount = nextLine ? (nextLine.amount / 100) : 0;
     const creditLine = preview.lines.data.find(l => l.proration && l.amount < 0);
     const creditAmount = creditLine ? Math.abs(creditLine.amount / 100) : 0;
-    const nextDate = new Date(preview.period_end * 1000).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' });
+    const nextDate = preview.period_end
+      ? new Date(preview.period_end * 1000).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' })
+      : 'your next billing date';
 
     console.log('[Preview] Success', { dueToday, creditAmount, nextDate });
 
