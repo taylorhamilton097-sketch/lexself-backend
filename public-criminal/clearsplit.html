@@ -487,14 +487,14 @@
     <!-- A: New purchase -->
     <div class="cs-entry">
       <span class="cs-entry-label">Starting a New Agreement</span>
-      <div class="cs-entry-title">Purchase ClearSplit and invite the other party.</div>
-      <p class="cs-entry-body">You purchase access, then share a code with the other party so they can join the agreement.</p>
+      <div class="cs-entry-title">Purchase ClearSplit and invite your spouse by email.</div>
+      <p class="cs-entry-body">You purchase access, then enter your spouse's email address. We'll send them a branded invitation with their access code and step-by-step instructions to join.</p>
       <div style="margin-bottom:8px">
-        <div style="font-family:var(--font-mono,monospace);font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#6B7A8D;margin-bottom:4px;">Partner's Email Address</div>
-        <input type="email" id="partnerEmail" placeholder="partner@email.com"
+        <div style="font-family:var(--font-mono,monospace);font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:#6B7A8D;margin-bottom:4px;">Spouse's Email Address <span style="color:#20B2AA">(optional — you can also invite after purchase)</span></div>
+        <input type="email" id="partnerEmail" placeholder="spouse@email.com"
           style="width:100%;background:#F4F6F8;border:1.5px solid #d0d8e0;color:#0D1B2A;padding:10px 12px;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;margin-bottom:8px;transition:border-color .15s;-webkit-appearance:none;"
           onfocus="this.style.borderColor='#20B2AA'" onblur="this.style.borderColor='#d0d8e0'">
-        <div style="font-family:'Inter',sans-serif;font-size:.75rem;color:#8B9AAA;line-height:1.5;margin-bottom:12px;">We'll send them an invitation to access your shared agreement.</div>
+        <div style="font-family:'Inter',sans-serif;font-size:.75rem;color:#8B9AAA;line-height:1.5;margin-bottom:12px;">After purchase you can send the invitation directly from your agreement page — no copy-pasting required.</div>
       </div>
       <a href="#" class="cs-btn-primary" onclick="startPurchase(event)">Purchase ClearSplit →</a>
     </div>
@@ -502,8 +502,8 @@
     <!-- B: Join with code -->
     <div class="cs-entry">
       <span class="cs-entry-label">Have an Access Code?</span>
-      <div class="cs-entry-title">The other party purchased and shared a code with you.</div>
-      <p class="cs-entry-body">Enter your 6-character code below to create your account and join the agreement.</p>
+      <div class="cs-entry-title">You received an invitation or code from your spouse.</div>
+      <p class="cs-entry-body">Check your email for an invitation from ClearStand, or enter the 6-character code your spouse shared with you directly.</p>
       <input class="cs-code-input" id="joinCodeInput" type="text" maxlength="6"
         placeholder="e.g. K7M2PX" autocomplete="off" autocapitalize="characters" spellcheck="false"
         oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);this.classList.remove('error');document.getElementById('joinCodeErr').classList.remove('show')"
@@ -592,6 +592,13 @@ async function checkNavAccess(e) {
 // ── PURCHASE FLOW ──
 function startPurchase(e) {
   e.preventDefault();
+  // Store partner email so success page can pre-fill the invite field
+  const partnerEmail = document.getElementById('partnerEmail')?.value.trim();
+  if (partnerEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail)) {
+    localStorage.setItem('cs_invite_email', partnerEmail);
+  } else {
+    localStorage.removeItem('cs_invite_email');
+  }
   window.location.href = '/register?product=clearsplit';
 }
 

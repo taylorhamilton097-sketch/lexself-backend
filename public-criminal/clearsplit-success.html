@@ -243,6 +243,13 @@ async function loadPurchase() {
       // Pre-fill access URL with code
       document.getElementById('accessBtn').href = `/clearsplit/access?code=${encodeURIComponent(data.code)}`;
       window._csCode = data.code;
+
+      // Pre-fill invite email if stored from marketing page
+      const savedEmail = localStorage.getItem('cs_invite_email');
+      if (savedEmail) {
+        document.getElementById('spouseEmail').value = savedEmail;
+        localStorage.removeItem('cs_invite_email');
+      }
     } else {
       document.getElementById('codeDisplay').textContent = 'Check email';
       document.getElementById('codeExpiry').textContent = 'Your code was sent to your email address.';
