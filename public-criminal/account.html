@@ -481,68 +481,163 @@ function renderUsage() {
 }
 
 function renderUpgrades() {
-  const plan = currentUser.plan || 'free';
+  const plan     = currentUser.plan || 'free';
   const products = currentUser.products || 'criminal';
-  if (plan === 'counsel' && products === 'both') return; // already at max
-
-  const section = document.getElementById('upgradeSection');
+  const section  = document.getElementById('upgradeSection');
   const container = document.getElementById('upgradeCards');
-  section.style.display = 'block';
 
-  // If on free — show plan selection link
+  // ── Define all possible upgrades based on current plan + products ──
+  const STANDALONE = {
+    family:   [
+      { key:'family_essential', name:'Essential', monthly:29,  features:['50 chats/day','3 analyses/month','PDF export'] },
+      { key:'family_complete',  name:'Complete',  monthly:79,  features:['100 chats/day','5 analyses/month','Advanced tools'] },
+      { key:'family_counsel',   name:'Counsel',   monthly:159, features:['Unlimited chats + analyses','Voice dictation','Affidavit builder'] },
+    ],
+    criminal: [
+      { key:'criminal_essential', name:'Essential', monthly:29,  features:['50 chats/day','3 analyses/month','PDF export'] },
+      { key:'criminal_complete',  name:'Complete',  monthly:79,  features:['100 chats/day','5 analyses/month','Cross-examination builder'] },
+      { key:'criminal_counsel',   name:'Counsel',   monthly:159, features:['Unlimited chats + analyses','Voice dictation','Cross-exam builder'] },
+    ],
+  };
+  const BUNDLES = [
+    { key:'bundle_essential', name:'Essential Bundle', monthly:49,  features:['Both products','50 chats/day per product','3 analyses/month per product'] },
+    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, features:['Both products','100 chats/day per product','5 analyses/month per product'] },
+    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:279, features:['Both products','Unlimited everything','All premium features on both'] },
+  ];
+
+  const TIER_ORDER = ['free','essential','complete','counsel'];
+  const currentTierIdx = TIER_ORDER.indexOf(plan);
+
+  let upgrades = [];
+
   if (plan === 'free') {
+    // Free users — link to plans page
+    section.style.display = 'block';
     container.innerHTML = `
       <div class="card" style="text-align:center;padding:32px">
         <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:8px">Ready to upgrade?</div>
-        <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:20px">Choose a plan that fits your needs. Start from $29/month.</div>
-        <a href="/register?step=plans&product=${products}" class="btn btn-primary" style="text-decoration:none;display:inline-flex">View Plans →</a>
+        <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:20px">Start from $29/month. Cancel anytime.</div>
+        <a href="/register?step=plans&product=${products}" class="btn btn-primary" style="text-decoration:none;display:inline-flex">View All Plans →</a>
       </div>`;
+    renderClearSplitAddon();
     return;
   }
 
-  // If on standalone — show bundle upgrade options
+  if (plan === 'counsel' && products === 'both') {
+    // Already at max — no upgrades
+    section.style.display = 'none';
+    renderClearSplitAddon();
+    return;
+  }
+
+  section.style.display = 'block';
+
   if (products !== 'both') {
+    // Standalone user — show higher standalone tiers + bundle options
+    const standalone = STANDALONE[products] || STANDALONE.criminal;
+    const higherStandalone = standalone.filter((_, i) => i > currentTierIdx - 1);
     const targetProduct = products === 'family' ? 'Criminal Defence' : 'Family Law';
-    const BUNDLES = [
-      { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429,
-        features:['Both products','50 chats/day per product','3 analyses/month per product'], rec: plan==='essential' },
-      { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, annual:1099,
-        features:['Both products','100 chats/day per product','5 analyses/month per product'], rec: plan==='complete' },
-      { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:279, annual:2499,
-        features:['Both products','Unlimited everything','All premium features'], rec: plan==='counsel' },
-    ];
+
+    let html = '';
+
+    // Higher standalone tiers
+    if (higherStandalone.length > 0) {
+      html += `<div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:12px">Upgrade Your Current Plan</div>`;
+      html += `<div class="upgrade-grid" style="margin-bottom:20px">`;
+      html += higherStandalone.map(p => `
+        <div class="upgrade-card${p.monthly === (plan==='essential'?79:159) ? ' recommended' : ''}">
+          <div class="upgrade-name">${p.name}</div>
+          <div class="upgrade-price">$${p.monthly}</div>
+          <div class="upgrade-period">/month CAD</div>
+          <ul class="upgrade-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+          <button class="upgrade-btn" onclick="upgradeToBundle('${p.key}', this)">Upgrade to ${p.name}</button>
+        </div>`).join('');
+      html += `</div>`;
+    }
+
+    // Bundle options — all tiers at and above current
+    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:8px;margin-top:8px">Add ${targetProduct} — Bundle Plans</div>`;
+    html += `<div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);margin-bottom:12px;line-height:1.6">Bundle plans include both products at a lower combined rate. You'll be credited for the days remaining on your current plan.</div>`;
+    html += `<div class="upgrade-grid">`;
+    html += BUNDLES.filter((_, i) => i >= currentTierIdx - 1).map(b => `
+      <div class="upgrade-card${b.key.includes(plan) ? ' recommended' : ''}">
+        ${b.key.includes(plan) ? '<div class="upgrade-rec-badge">Recommended</div>' : ''}
+        <div class="upgrade-name">${b.name}</div>
+        <div class="upgrade-price">$${b.monthly}</div>
+        <div class="upgrade-period">/month CAD</div>
+        <ul class="upgrade-features">${b.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+        <button class="upgrade-btn" onclick="upgradeToBundle('${b.key}', this)">Select ${b.name}</button>
+      </div>`).join('');
+    html += `</div>`;
+    container.innerHTML = html;
+
+  } else {
+    // Bundle user — show all higher bundle tiers
+    const higherBundles = BUNDLES.filter((_, i) => i > currentTierIdx - 1);
+    if (higherBundles.length === 0) { section.style.display = 'none'; renderClearSplitAddon(); return; }
+
     container.innerHTML = `
       <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:16px;line-height:1.65">
-        Add <strong style="color:var(--white)">${targetProduct}</strong> to your account by upgrading to a Bundle.
-        You'll be credited for the unused days on your current plan.
+        Unlock more chats, analyses, and premium features. You'll be credited for the unused days on your current plan.
       </div>
       <div class="upgrade-grid">
-        ${BUNDLES.map(b => `
-          <div class="upgrade-card${b.rec ? ' recommended' : ''}">
-            ${b.rec ? '<div class="upgrade-rec-badge">Recommended</div>' : ''}
+        ${higherBundles.map(b => `
+          <div class="upgrade-card${higherBundles.indexOf(b)===0 ? ' recommended' : ''}">
+            ${higherBundles.indexOf(b)===0 ? '<div class="upgrade-rec-badge">Next Step Up</div>' : ''}
             <div class="upgrade-name">${b.name}</div>
             <div class="upgrade-price">$${b.monthly}</div>
             <div class="upgrade-period">/month CAD</div>
-            <ul class="upgrade-features">${b.features.map(f => `<li>${f}</li>`).join('')}</ul>
-            <button class="upgrade-btn" onclick="upgradeToBundle('${b.key}', this)">Select ${b.name}</button>
+            <ul class="upgrade-features">${b.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+            <button class="upgrade-btn" onclick="upgradeToBundle('${b.key}', this)">Upgrade to ${b.name}</button>
           </div>`).join('')}
       </div>`;
-    return;
   }
 
-  // On bundle but not counsel — show tier upgrade
-  if (plan !== 'counsel') {
-    const next = plan === 'essential' ? { key:'bundle_complete', name:'Complete Bundle', price:129 } :
-                                        { key:'bundle_counsel',  name:'Counsel Bundle',  price:279 };
-    container.innerHTML = `
-      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">Upgrade to ${next.name}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2)">$${next.price}/month — Unlock more chats, analyses, and premium features.</div>
-        </div>
-        <button class="btn btn-primary" onclick="upgradeToBundle('${next.key}', this)">Upgrade Now →</button>
-      </div>`;
-  }
+  renderClearSplitAddon();
+}
+
+// ── CLEARSPLIT ADD-ON SECTION (Issue 3) ──
+function renderClearSplitAddon() {
+  // Only show if user doesn't already have ClearSplit
+  if (currentUser.clearsplit_subscriber || currentUser.clearsplit_role) return;
+
+  const plan = currentUser.plan || 'free';
+  const isSubscriber = plan !== 'free';
+  const price = isSubscriber ? '$249' : '$299';
+  const savings = isSubscriber ? '<div style="font-family:\'Inter\',sans-serif;font-size:.78rem;color:#4CAF50;margin-top:4px">Save $50 as a ClearStand subscriber</div>' : '';
+
+  // Insert before danger zone
+  const dangerSection = document.querySelector('.section:last-of-type');
+  if (!dangerSection) return;
+
+  const csSection = document.createElement('div');
+  csSection.className = 'section';
+  csSection.innerHTML = `
+    <div class="section-hdr">Add ClearSplit</div>
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">ClearSplit — Separation Agreements</div>
+        <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:4px">Collaborative separation agreement tool for uncontested separations.</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white)">${price} <span style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3)">one-time, 90-day access</span></div>
+        ${savings}
+      </div>
+      <button class="btn btn-primary" onclick="addClearSplit()">Add ClearSplit →</button>
+    </div>`;
+  dangerSection.parentNode.insertBefore(csSection, dangerSection);
+}
+
+async function addClearSplit() {
+  const tok = localStorage.getItem('ls_tok');
+  try {
+    const r = await fetch('/api/billing/clearsplit/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({}),
+    });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else toast('Error: ' + (d.error || 'Please try again.'));
+  } catch(e) { toast('Connection error. Please try again.'); }
 }
 
 async function upgradeToBundle(planKey, btn) {

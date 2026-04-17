@@ -120,16 +120,78 @@ const getStripe = () => {
 const APP_URL = () => process.env.APP_URL || 'http://localhost:3000';
 
 // ══════════════════════════════════════════════════
-// TEMPORARY DEBUG — remove after testing
-router.get('/debug-users', (req, res) => {
+// STARTUP HEALING — populate stripe_subscription_id
+// for users who have stripe_customer_id but no sub ID
+// (caused by webhook metadata mismatch on early signups)
+// ══════════════════════════════════════════════════
+async function healMissingSubscriptions() {
   try {
     const { db } = require('../db');
-    const users = db.prepare('SELECT id, email, plan, subscription_status, products FROM users').all();
-    res.json(users);
+    const s = getStripe();
+    const users = db.prepare(`
+      SELECT id, email, stripe_customer_id, plan
+      FROM users
+      WHERE stripe_customer_id IS NOT NULL
+        AND stripe_customer_id != ''
+        AND (stripe_subscription_id IS NULL OR stripe_subscription_id = '')
+        AND plan != 'free'
+    `).all();
+
+    if (users.length === 0) return;
+    console.log(`[Heal] Checking ${users.length} user(s) with missing subscription ID…`);
+
+    for (const user of users) {
+      try {
+        const subs = await s.subscriptions.list({
+          customer: user.stripe_customer_id,
+          status: 'active',
+          limit: 1,
+        });
+        if (subs.data.length > 0) {
+          const sub = subs.data[0];
+          db.prepare(`
+            UPDATE users SET stripe_subscription_id=?, subscription_status='active' WHERE id=?
+          `).run(sub.id, user.id);
+          console.log(`[Heal] User ${user.id} (${user.email}) → sub ${sub.id}`);
+        }
+      } catch(e) {
+        console.error(`[Heal] Failed for user ${user.id}: ${e.message}`);
+      }
+    }
   } catch(e) {
-    res.json({ error: e.message });
+    console.error('[Heal] Startup healing error:', e.message);
   }
-});
+}
+
+// Run healing after a short delay to let the DB connection settle
+setTimeout(healMissingSubscriptions, 3000);
+
+// ── Helper: get subscription ID for a user, healing if needed ──
+async function getOrHealSubscriptionId(user) {
+  if (user.stripe_subscription_id) return user.stripe_subscription_id;
+  if (!user.stripe_customer_id) return null;
+
+  // Try to fetch from Stripe
+  try {
+    const s = getStripe();
+    const subs = await s.subscriptions.list({
+      customer: user.stripe_customer_id,
+      status: 'active',
+      limit: 1,
+    });
+    if (subs.data.length > 0) {
+      const subId = subs.data[0].id;
+      const { db } = require('../db');
+      db.prepare(`UPDATE users SET stripe_subscription_id=?, subscription_status='active' WHERE id=?`)
+        .run(subId, user.id);
+      console.log(`[Heal] Live-healed subscription for user ${user.id}: ${subId}`);
+      return subId;
+    }
+  } catch(e) {
+    console.error(`[Heal] Live heal failed for user ${user.id}: ${e.message}`);
+  }
+  return null;
+}
 
 // POST /api/billing/checkout — subscriptions & analysis packs
 // Requires auth
@@ -503,7 +565,7 @@ router.get('/plans', (req, res) => {
     bundle: {
       essential: { monthly: 49, annual: 429, savings_monthly: 9, features: ['Both products', '3 analyses/month per product', '50 chats/day per product', 'PDF export'] },
       complete:  { monthly: 129, annual: 1099, savings_monthly: 29, best_value: true, features: ['Both products', '5 analyses/month per product', '100 chats/day per product', 'All premium features', 'PDF export'] },
-      counsel:   { monthly: 249, annual: 2099, savings_monthly: 69, features: ['Both products', 'Unlimited everything', 'All premium features on both', 'Dictation on both', 'All builders and tools', 'PDF export'] },
+      counsel:   { monthly: 279, annual: 2499, savings_monthly: 39, features: ['Both products', 'Unlimited everything', 'All premium features on both', 'Dictation on both', 'All builders and tools', 'PDF export'] },
     },
     clearsplit: { price: 299, subscriber_price: 249, extension: 74 },
     analysis_pack: { price: 29, analyses: 3 },
@@ -524,18 +586,24 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
   const newPriceId = meta.priceId();
   if (!newPriceId) return res.status(500).json({ error: 'Price not configured.' });
 
-  if (!user.stripe_customer_id || !user.stripe_subscription_id) {
-    return res.status(400).json({ error: 'No active subscription found.' });
+  if (!user.stripe_customer_id) {
+    return res.status(400).json({ error: 'No billing account found. Please contact support@clearstand.ca' });
+  }
+
+  // Live-heal if subscription ID missing
+  const subscriptionId = await getOrHealSubscriptionId(user);
+  if (!subscriptionId) {
+    return res.status(400).json({ error: 'No active subscription found. If you believe this is an error, contact support@clearstand.ca' });
   }
 
   try {
-    const subscription = await s.subscriptions.retrieve(user.stripe_subscription_id);
+    const subscription = await s.subscriptions.retrieve(subscriptionId);
     const currentItemId = subscription.items.data[0]?.id;
     if (!currentItemId) return res.status(400).json({ error: 'Subscription item not found.' });
 
     const preview = await s.invoices.retrieveUpcoming({
       customer: user.stripe_customer_id,
-      subscription: user.stripe_subscription_id,
+      subscription: subscriptionId,
       subscription_items: [{ id: currentItemId, price: newPriceId }],
       subscription_proration_behavior: 'create_prorations',
     });
@@ -583,8 +651,14 @@ router.post('/upgrade-subscription', requireAuth, async (req, res) => {
   const newPriceId = meta.priceId();
   if (!newPriceId) return res.status(500).json({ error: 'Price not configured.' });
 
-  if (!user.stripe_subscription_id) {
-    return res.status(400).json({ error: 'No active subscription found.' });
+  if (!user.stripe_customer_id) {
+    return res.status(400).json({ error: 'No billing account found. Please contact support@clearstand.ca' });
+  }
+
+  // Live-heal if subscription ID missing
+  const subscriptionId = await getOrHealSubscriptionId(user);
+  if (!subscriptionId) {
+    return res.status(400).json({ error: 'No active subscription found. Your plan has not been changed.' });
   }
 
   try {
@@ -595,15 +669,12 @@ router.post('/upgrade-subscription', requireAuth, async (req, res) => {
       metadata: { userId: String(user.id), plan: meta.plan, products: meta.products },
     };
 
-    // Apply ClearSplit discount if eligible
     if (user.clearsplit_subscriber) {
       updateParams.discounts = [{ coupon: STRIPE_COUPONS.clearsplit_discount }];
     }
 
-    await s.subscriptions.update(user.stripe_subscription_id, updateParams);
-
-    // Immediately update user record
-    updateUserPlan(user.id, meta.plan, meta.products, user.stripe_subscription_id, null, 'active');
+    await s.subscriptions.update(subscriptionId, updateParams);
+    updateUserPlan(user.id, meta.plan, meta.products, subscriptionId, null, 'active');
 
     console.log(`[Upgrade] User ${user.id} → ${newPlanKey}`);
     res.json({
