@@ -4,7 +4,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../data/lexself.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../data/clearstand.db');
 const dataDir = path.dirname(DB_PATH);
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
@@ -197,7 +197,7 @@ function checkAccess(user, product) {
   // Check product access
   const userProducts = user.products || 'criminal';
   if (userProducts !== 'both' && userProducts !== product) {
-    return { allowed: false, reason: 'wrong_product', message: `Your plan does not include LexSelf ${product.charAt(0).toUpperCase() + product.slice(1)}.` };
+    return { allowed: false, reason: 'wrong_product', message: `Your plan does not include ClearStand ${product.charAt(0).toUpperCase() + product.slice(1)}.` };
   }
   return { allowed: true };
 }

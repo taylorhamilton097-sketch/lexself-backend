@@ -123,7 +123,7 @@ const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
   console.log(`ClearStand v2 → http://localhost:${PORT}`);
-  console.log(`  DB: ${process.env.DB_PATH || '/app/data/lexself.db'}`);
+  console.log(`  DB: ${process.env.DB_PATH || '/app/data/clearstand.db'}`);
   console.log(`  ENV: ${process.env.NODE_ENV || 'development'}`);
 });
 

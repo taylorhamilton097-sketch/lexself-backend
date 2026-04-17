@@ -159,6 +159,11 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
   </div>
 
   <div id="accountContent" style="display:none">
+    <!-- Back breadcrumb -->
+    <div style="margin-bottom:24px;">
+      <a href="#" id="backBtn" onclick="goBack();return false;" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);text-decoration:none;">← Back to App</a>
+    </div>
+
     <h1 id="acctName">My Account</h1>
     <p class="page-sub" id="acctEmail"></p>
 
@@ -175,6 +180,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
           <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
             <button class="btn btn-ghost" id="manageBillingBtn" onclick="openBillingPortal()" style="display:none">Manage Billing</button>
             <a href="#" class="nav-link" style="font-size:.65rem" onclick="window.location.href='/register?step=plans&product='+currentUser.products;return false" id="changePlanLink">Change Plan →</a>
+            <a href="#" id="cancelSubLink" style="display:none;font-family:'Inter',sans-serif;font-size:.75rem;color:var(--text3);text-decoration:underline;" onclick="openBillingPortal();return false;">Cancel Subscription</a>
           </div>
         </div>
 
@@ -348,6 +354,16 @@ function doLogout() {
   window.location.href = '/';
 }
 
+function goBack() {
+  const products = currentUser?.products || 'criminal';
+  const last = localStorage.getItem('cs_last_product');
+  if (last === 'family' || products === 'family') {
+    window.location.href = '/family';
+  } else {
+    window.location.href = '/criminal-app';
+  }
+}
+
 // ── LOAD ACCOUNT ──
 async function loadAccount() {
   try {
@@ -377,6 +393,12 @@ function renderAccount() {
   if (u.products === 'family') document.getElementById('criminalLink').style.display = 'none';
   if (u.products === 'criminal') document.getElementById('familyLink').style.display = 'none';
 
+  // Back button label
+  const last = localStorage.getItem('cs_last_product');
+  const backLabel = (last === 'family' || u.products === 'family') ? '← Family Law' : '← Criminal Defence';
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) backBtn.textContent = backLabel;
+
   // Plan badge & name
   const plan = u.plan || 'free';
   const products = u.products || 'criminal';
@@ -402,6 +424,8 @@ function renderAccount() {
   if (plan !== 'free') {
     document.getElementById('manageBillingBtn').style.display = 'block';
     document.getElementById('billingSection').style.display = 'block';
+    const cancelLink = document.getElementById('cancelSubLink');
+    if (cancelLink) cancelLink.style.display = 'block';
     loadBillingInfo();
   }
 

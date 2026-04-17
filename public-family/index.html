@@ -391,7 +391,7 @@ select.fi { cursor: pointer; }
     <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA">ClearSplit</a>
     <button class="tn-btn" id="switchToCriminalBtn" style="display:none;border-color:#2E86C1;color:#3EA4E4" onclick="switchToCriminal()">Criminal Defence →</button>
     <a href="/support" class="tn-btn" style="text-decoration:none;border-color:var(--border);color:var(--text3)">Support</a>
-    <button class="tn-btn" id="authBtn" onclick="handleAuthBtn()">Account</button>
+    <a href="/account" class="tn-btn" id="authBtn" style="text-decoration:none;">Account</a>
   </div>
 </nav>
 
@@ -648,9 +648,9 @@ select.fi { cursor: pointer; }
   <button class="bn-item" id="bn-profile" onclick="showPanel('profile');bnA('profile')">
     <div class="bn-icon">👤</div><div class="bn-lbl">Profile</div>
   </button>
-  <button class="bn-item" id="bn-account" onclick="handleAuthBtn()">
+  <a href="/account" class="bn-item" style="text-decoration:none;" id="bn-account">
     <div class="bn-icon">⚙️</div><div class="bn-lbl">Account</div>
-  </button>
+  </a>
   <a href="/support" class="bn-item" style="text-decoration:none;">
     <div class="bn-icon">❓</div><div class="bn-lbl">Support</div>
   </a>
