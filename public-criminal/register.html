@@ -440,13 +440,14 @@ function buildPlanGrid() {
   document.getElementById('s3Sub').textContent = { family:'Family Law Plans', criminal:'Criminal Defence Plans', both:'Bundle Plans' }[selectedProduct] || 'Choose your plan';
   document.getElementById('freeLink').textContent = FREE_TEXT[selectedProduct] || FREE_TEXT.criminal;
   document.getElementById('planCards').innerHTML = plans.map(p => {
-    const price = isAnnual ? Math.round(p.annual/12) : p.monthly;
-    const note  = isAnnual ? `$${p.annual}/yr — save $${p.save}` : '';
+    const price  = isAnnual ? p.annual : p.monthly;
+    const period = isAnnual ? '/year CAD' : '/month CAD';
+    const note   = isAnnual ? `$${Math.round(p.annual/12)}/month · Save $${p.save} vs monthly` : '';
     return `<div class="plan-card${p.popular?' popular':''}">
       ${p.popular ? '<div class="plan-pop-badge">Most Popular</div>' : ''}
       <div class="plan-top">
         <div><div class="plan-name">${p.name}</div><div class="plan-annual-note">${note}</div></div>
-        <div><div class="plan-price">$${price}</div><div class="plan-period">/month CAD</div></div>
+        <div><div class="plan-price">$${price}</div><div class="plan-period">${period}</div></div>
       </div>
       <ul class="plan-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
       <button class="plan-cta" onclick="choosePlan('${p.key}')">Choose ${p.name}</button>
