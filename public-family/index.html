@@ -1170,7 +1170,21 @@ function addMsg(role,content) {
     ma.innerHTML=`<button onclick="cpTxt(this,\`${esc}\`)">Copy</button><button onclick="exportDoc(\`${esc}\`)">Export PDF</button>`;
     b.appendChild(ma);
   }
+  if(role==='assistant'&&hasCaseLaw(content)){
+    b.appendChild(caseLawDisclaimer());
+  }
   d.appendChild(b); m.appendChild(d); m.scrollTop=m.scrollHeight;
+}
+
+function hasCaseLaw(text) {
+  return /\bR\s+v\b|\bR\.\s*v\.|\[\d{4}\]|SCC|ONCA|ONCJ|BCCA|ABCA|MBCA|SKCA|case\s+law|court\s+held|the\s+court\s+found|in\s+[A-Z][a-z]+\s+v\s+[A-Z]/i.test(text);
+}
+
+function caseLawDisclaimer() {
+  const el = document.createElement('div');
+  el.style.cssText = 'margin-top:12px;padding-top:12px;border-top:1px solid rgba(240,165,0,.2);font-family:"Source Serif 4",Georgia,serif;font-size:12px;color:#F0A500;line-height:1.6;';
+  el.innerHTML = '⚠️ <strong>Case Law Notice:</strong> Citations provided are for research guidance. Always verify case references independently at <a href="https://www.canlii.org" target="_blank" rel="noopener" style="color:#F0A500;text-decoration:underline;">canlii.org</a> before relying on them in any legal proceeding.';
+  return el;
 }
 
 function fmt(t) {
