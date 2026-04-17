@@ -40,7 +40,8 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .tn-divider { width: 1px; height: 20px; background: var(--border); }
 .tn-tag { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--white); background: rgba(13,27,42,0.8); border: 1.5px solid #2E86C1; padding: 6px 16px; border-radius: 4px; }
 .tn-mode { display: none; }
-.tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.tn-right::-webkit-scrollbar { display: none; }
 .tn-plan { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; display: none; }
 .tn-plan.free { background: #2E86C1; color: #fff; border: 1px solid #2E86C1; }
 .tn-plan.paid { background: transparent; color: var(--blue-light); border: 1px solid #2E86C1; }
@@ -86,9 +87,11 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav { height: var(--bot); background: var(--navy-mid); border-top: 1px solid var(--border); display: flex; flex-shrink: 0; padding-bottom: var(--safe-bot); }
 @media (min-width: 768px) { .bottom-nav { display: none; } }
-.bn-item { flex: 1; background: none; border: none; color: var(--text3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 4px; transition: color 0.15s; border-top: 2px solid transparent; }
+.bn-item { flex: 1; background: none; border: none; color: var(--text3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 4px; transition: color 0.15s; border-top: 2px solid transparent; min-height: 52px; }
 .bn-item.on { color: var(--blue-light); border-top-color: var(--blue); }
-.bn-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.44rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.bn-item:active { background: rgba(46,134,193,.1); }
+.bn-icon { font-size: 1.1rem; line-height: 1; }
+.bn-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.42rem; text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* ── DRAWER ── */
 .dw-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; }
@@ -787,10 +790,21 @@ select.fi { cursor: pointer; }
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="bn-item on" id="bn-upload" onclick="showPanel('upload');bnActive('upload')"><div class="bn-lbl">Upload</div></button>
-  <button class="bn-item" id="bn-report" onclick="showPanel('report');bnActive('report')"><div class="bn-lbl">Report</div></button>
-  <button class="bn-item" id="bn-chat" onclick="showPanel('chat');bnActive('chat')"><div class="bn-lbl">Defence</div></button>
-  <button class="bn-item" id="bn-profile" onclick="showPanel('profile');bnActive('profile')"><div class="bn-lbl">Profile</div></button>
+  <button class="bn-item on" id="bn-upload" onclick="showPanel('upload');bnActive('upload')">
+    <div class="bn-icon">📄</div><div class="bn-lbl">Disclosure</div>
+  </button>
+  <button class="bn-item" id="bn-report" onclick="showPanel('report');bnActive('report')">
+    <div class="bn-icon">📋</div><div class="bn-lbl">Report</div>
+  </button>
+  <button class="bn-item" id="bn-chat" onclick="showPanel('chat');bnActive('chat')">
+    <div class="bn-icon">💬</div><div class="bn-lbl">Defence</div>
+  </button>
+  <button class="bn-item" id="bn-profile" onclick="showPanel('profile');bnActive('profile')">
+    <div class="bn-icon">👤</div><div class="bn-lbl">Profile</div>
+  </button>
+  <button class="bn-item" id="bn-account" onclick="openAccountPanel()">
+    <div class="bn-icon">⚙️</div><div class="bn-lbl">Account</div>
+  </button>
 </nav>
 
 <!-- DRAWER -->
