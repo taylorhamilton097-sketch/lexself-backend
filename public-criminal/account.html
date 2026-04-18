@@ -471,7 +471,7 @@ function renderUsage() {
   const grid = document.getElementById('usageGrid');
   const rows = [
     { label: 'Analyses this month', stat: usageState.analysis },
-    { label: 'Chats today',         stat: usageState.chat },
+    { label: 'Chats this month',    stat: usageState.chat },
   ];
   const html = rows.map(r => {
     const { used, limit } = r.stat || {};
@@ -503,20 +503,20 @@ function renderUpgrades() {
   // ── Define all possible upgrades based on current plan + products ──
   const STANDALONE = {
     family:   [
-      { key:'family_essential', name:'Essential', monthly:29,  features:['50 chats/day','3 analyses/month','PDF export'] },
-      { key:'family_complete',  name:'Complete',  monthly:79,  features:['100 chats/day','5 analyses/month','Advanced tools'] },
-      { key:'family_counsel',   name:'Counsel',   monthly:159, features:['Unlimited chats + analyses','Voice dictation','Affidavit builder'] },
+      { key:'family_essential', name:'Essential', monthly:29,  features:['250 chats/month','3 analyses/month','PDF export'] },
+      { key:'family_complete',  name:'Complete',  monthly:79,  features:['750 chats/month','5 analyses/month','Advanced tools'] },
+      { key:'family_counsel',   name:'Counsel',   monthly:159, features:['Up to 2,000 chats/month','Voice dictation','Affidavit builder'] },
     ],
     criminal: [
-      { key:'criminal_essential', name:'Essential', monthly:29,  features:['50 chats/day','3 analyses/month','PDF export'] },
-      { key:'criminal_complete',  name:'Complete',  monthly:79,  features:['100 chats/day','5 analyses/month','Cross-examination builder'] },
-      { key:'criminal_counsel',   name:'Counsel',   monthly:159, features:['Unlimited chats + analyses','Voice dictation','Cross-exam builder'] },
+      { key:'criminal_essential', name:'Essential', monthly:29,  features:['250 chats/month','3 analyses/month','PDF export'] },
+      { key:'criminal_complete',  name:'Complete',  monthly:79,  features:['750 chats/month','5 analyses/month','Cross-examination builder'] },
+      { key:'criminal_counsel',   name:'Counsel',   monthly:159, features:['Up to 2,000 chats/month','Voice dictation','Cross-exam builder'] },
     ],
   };
   const BUNDLES = [
-    { key:'bundle_essential', name:'Essential Bundle', monthly:49,  features:['Both products','50 chats/day per product','3 analyses/month per product'] },
-    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, features:['Both products','100 chats/day per product','5 analyses/month per product'] },
-    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:279, features:['Both products','Unlimited everything','All premium features on both'] },
+    { key:'bundle_essential', name:'Essential Bundle', monthly:49,  features:['Both products','250 chats/month per product','3 analyses/month per product'] },
+    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, features:['Both products','750 chats/month per product','5 analyses/month per product'] },
+    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:279, features:['Both products','Up to 2,000 chats/month per product','All premium features on both'] },
   ];
 
   const TIER_ORDER = ['free','essential','complete','counsel'];

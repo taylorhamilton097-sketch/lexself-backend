@@ -128,7 +128,7 @@ router.post('/', requireAuth, async (req, res) => {
     });
 
     const data = await resp.json();
-    console.log('Criminal chat response status:', resp.status, data.error ? JSON.stringify(data.error) : 'ok');
+    
 
     if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message || 'API error' });
 

@@ -143,28 +143,28 @@ try {
 const PLANS = {
   free: {
     label: 'Free',
-    chatPerDay: null, chatLifetime: 10,
+    chatPerMonth: null, chatLifetime: 10,
     analysisPerMonth: null, analysisLifetime: 1,
     price: 0,
   },
   essential: {
     label: 'Essential',
-    chatPerDay: 50, analysisPerMonth: 3,
+    chatPerMonth: 250, analysisPerMonth: 3,
     price: 2900,
   },
   complete: {
     label: 'Complete',
-    chatPerDay: 100, analysisPerMonth: 5,
+    chatPerMonth: 750, analysisPerMonth: 5,
     price: 7900,
   },
   counsel: {
     label: 'Counsel',
-    chatPerDay: Infinity, analysisPerMonth: Infinity,
+    chatPerMonth: 2000, analysisPerMonth: 30,
     price: 15900,
   },
   admin: {
     label: 'Admin',
-    chatPerDay: Infinity, analysisPerMonth: Infinity,
+    chatPerMonth: Infinity, analysisPerMonth: Infinity,
     price: 0,
   },
 };
@@ -190,11 +190,11 @@ const monthStart = () => { const d=new Date(); d.setDate(1); d.setHours(0,0,0,0)
 // ── USAGE ──
 function getChatCount(userId, product) {
   const plan = PLANS[db.prepare('SELECT plan FROM users WHERE id=?').get(userId)?.plan || 'free'];
-  if (!plan.chatPerDay) {
+  if (!plan.chatPerMonth) {
     // Free: lifetime limit
     return db.prepare(`SELECT COUNT(*) as n FROM usage WHERE user_id=? AND product=? AND type='chat'`).get(userId, product).n;
   }
-  return db.prepare(`SELECT COUNT(*) as n FROM usage WHERE user_id=? AND product=? AND type='chat' AND created_at>=?`).get(userId, product, todayStart()).n;
+  return db.prepare(`SELECT COUNT(*) as n FROM usage WHERE user_id=? AND product=? AND type='chat' AND created_at>=?`).get(userId, product, monthStart()).n;
 }
 
 function getAnalysisCount(userId, product) {
@@ -237,11 +237,11 @@ function checkLimit(user, product, action) {
   if (action === 'chat') {
     const isFree = user.plan === 'free';
     const used = getChatCount(user.id, product);
-    const limit = isFree ? plan.chatLifetime : plan.chatPerDay;
+    const limit = isFree ? plan.chatLifetime : plan.chatPerMonth;
     if (limit !== Infinity && used >= limit) {
       return {
         allowed: false,
-        reason: isFree ? 'free_chat_exhausted' : 'daily_chat_limit',
+        reason: isFree ? 'free_chat_exhausted' : 'monthly_chat_limit',
         used, limit,
       };
     }
@@ -312,8 +312,8 @@ function getUserUsageSummary(user, product) {
     products: user.products,
     chat: {
       used: getChatCount(user.id, product),
-      limit: isFree ? plan.chatLifetime : plan.chatPerDay,
-      resetLabel: isFree ? 'lifetime' : 'daily',
+      limit: isFree ? plan.chatLifetime : plan.chatPerMonth,
+      resetLabel: isFree ? 'lifetime' : 'monthly',
     },
     analysis: {
       used: getAnalysisCount(user.id, product),
