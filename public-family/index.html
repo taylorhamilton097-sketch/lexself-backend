@@ -2055,12 +2055,12 @@ async function stopAffVoice() {
 
 // Auto-start interview when panel opens
 const _origShowPanel = showPanel;
-function showPanel(name) {
+showPanel = function(name) {
   _origShowPanel(name);
   if (name === 'affidavit' && document.getElementById('affMsgs').innerHTML === '') {
     startAffidavit();
   }
-}
+};
 
 // ═══════════════════════════════════════════
 // ONBOARDING
