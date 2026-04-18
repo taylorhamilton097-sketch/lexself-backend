@@ -80,37 +80,6 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 }
 .tn-plan.free { background: #2E86C1; color: #fff; border: 1px solid #2E86C1; }
 .tn-plan.paid { background: transparent; color: var(--blue-light); border: 1px solid #2E86C1; }
-
-/* ── CONVERSATION SELECTOR ── */
-.conv-wrap { display: none; align-items: center; gap: 6px; margin-left: 16px; position: relative; }
-.conv-wrap.show { display: flex; }
-.conv-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(46,134,193,0.08); border: 1px solid var(--border); color: var(--text); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.78rem; max-width: 220px; transition: all 0.15s; border-radius: 4px; }
-.conv-btn:hover { border-color: var(--blue); background: rgba(46,134,193,0.14); }
-.conv-icon { font-size: 0.85rem; flex-shrink: 0; }
-.conv-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
-.conv-caret { color: var(--text3); font-size: 0.7rem; flex-shrink: 0; }
-.conv-new-btn { padding: 6px 10px; background: transparent; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; border-radius: 4px; }
-.conv-new-btn:hover { border-color: var(--blue); color: var(--blue-light); }
-.conv-dropdown { position: absolute; top: calc(100% + 6px); left: 0; min-width: 320px; max-width: 400px; max-height: 420px; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 12px 32px rgba(0,0,0,0.5); z-index: 200; display: flex; flex-direction: column; overflow: hidden; }
-.conv-dropdown-hdr { padding: 10px 14px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); background: var(--navy); flex-shrink: 0; }
-.conv-list { overflow-y: auto; flex: 1; }
-.conv-item { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px 14px; border-bottom: 1px solid rgba(42,63,86,0.5); cursor: pointer; transition: background 0.15s; }
-.conv-item:hover { background: rgba(46,134,193,0.08); }
-.conv-item.current { background: rgba(46,134,193,0.12); border-left: 3px solid var(--blue); }
-.conv-item-body { min-width: 0; }
-.conv-item-title { font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.conv-item-date { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); margin-top: 2px; }
-.conv-item-action { background: none; border: none; color: var(--text3); cursor: pointer; padding: 4px 6px; font-size: 0.85rem; border-radius: 3px; transition: all 0.15s; }
-.conv-item-action:hover { color: var(--blue-light); background: rgba(46,134,193,0.1); }
-.conv-item-action.delete:hover { color: var(--red); background: rgba(192,57,43,0.1); }
-.conv-empty { padding: 18px 14px; font-family: 'Inter', sans-serif; font-size: 0.78rem; color: var(--text3); text-align: center; }
-.conv-title-input { background: var(--navy); border: 1px solid var(--blue); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.8rem; padding: 3px 6px; border-radius: 3px; width: 100%; outline: none; }
-@media (max-width: 768px) {
-  .conv-wrap { margin-left: 8px; }
-  .conv-btn { max-width: 140px; padding: 5px 8px; }
-  .conv-title { max-width: 90px; }
-  .conv-dropdown { min-width: 260px; left: -8px; }
-}
 .tn-btn {
   height: 36px;
   padding: 0 16px;
@@ -395,65 +364,6 @@ select.fi { cursor: pointer; }
 .aff-btn.primary { background: var(--blue); color: var(--white); border-color: var(--blue); }
 .aff-progress { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-left: auto; align-self: center; }
 
-/* ── FORMS PANEL (Unit 4a) ── */
-.forms-wrap { display: flex; flex: 1; overflow: hidden; background: var(--navy); }
-.forms-preview { flex: 1; overflow-y: auto; padding: 40px; background: var(--navy); color: var(--text); font-family: 'Times New Roman', serif; font-size: 0.92rem; line-height: 1.5; }
-.forms-preview-inner { max-width: 820px; margin: 0 auto; background: #f8f7f2; color: #111; padding: 40px 48px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-radius: 4px; }
-.forms-preview table { border-collapse: collapse; width: 100%; margin-bottom: 12px; }
-.forms-preview th, .forms-preview td { border: 1px solid #333; padding: 6px 10px; text-align: left; vertical-align: top; font-size: 0.82rem; }
-.forms-preview th { background: #e8e5d8; font-weight: 700; }
-.forms-preview .form-hdr { font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
-.forms-preview .form-sub { font-size: 0.75rem; color: #555; margin-bottom: 16px; }
-.forms-preview .form-label { font-weight: 700; margin-top: 16px; margin-bottom: 4px; }
-.forms-preview .form-para { margin-bottom: 10px; }
-.forms-preview input.inline, .forms-preview select.inline, .forms-preview textarea.inline {
-  background: #fff9c4;
-  border: 1px solid #d4b94a;
-  color: #111;
-  font-family: 'Times New Roman', serif;
-  font-size: 0.88rem;
-  padding: 2px 6px;
-  margin: 2px 0;
-  border-radius: 2px;
-  width: 100%;
-  box-sizing: border-box;
-}
-.forms-preview input.inline:focus, .forms-preview select.inline:focus, .forms-preview textarea.inline:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
-.forms-preview .inline-narrow { max-width: 280px; }
-.forms-preview textarea.inline { min-height: 80px; resize: vertical; font-family: 'Times New Roman', serif; }
-.forms-preview .aff-number { display: inline-block; min-width: 26px; font-weight: 700; vertical-align: top; }
-.forms-preview .aff-para { margin-bottom: 10px; display: flex; gap: 6px; }
-.forms-preview .aff-para textarea.inline { flex: 1; min-height: 54px; }
-.forms-preview .checkbox-inline { display: inline-block; width: 14px; height: 14px; border: 1px solid #333; margin: 0 6px 0 4px; vertical-align: middle; text-align: center; line-height: 12px; font-size: 12px; cursor: pointer; background: #fff; }
-.forms-preview .checkbox-inline.checked { background: #333; color: #fff; }
-
-.forms-sidepanel { width: 320px; background: var(--navy-mid); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
-.forms-sp-hdr { padding: 20px; border-bottom: 1px solid var(--border); }
-.forms-sp-hdr-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--white); }
-.forms-sp-hdr-sub { font-family: 'Source Serif 4', serif; font-size: 0.82rem; color: var(--text2); margin-top: 4px; line-height: 1.4; }
-.forms-sp-section { padding: 18px 20px; border-bottom: 1px solid var(--border); }
-.forms-sp-section-title { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); margin-bottom: 10px; }
-.forms-sp-actions { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
-.forms-btn { padding: 11px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; transition: all 0.15s; border-radius: 3px; text-align: center; width: 100%; }
-.forms-btn:hover { border-color: var(--blue-light); color: var(--blue-light); }
-.forms-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
-.forms-btn.primary:hover { background: var(--blue-light); color: #fff; }
-.forms-btn.full { padding: 13px 16px; }
-.forms-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.forms-dictate-box { background: var(--navy); border: 1px solid var(--border); padding: 14px; border-radius: 4px; margin-top: 10px; }
-.forms-dictate-title { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--white); font-weight: 500; margin-bottom: 6px; }
-.forms-dictate-sub { font-family: 'Source Serif 4', serif; font-size: 0.76rem; color: var(--text2); line-height: 1.4; margin-bottom: 10px; }
-.forms-dictate-ta { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; padding: 10px; border-radius: 3px; min-height: 100px; resize: vertical; outline: none; }
-.forms-dictate-ta:focus { border-color: var(--blue); }
-.forms-dictate-actions { display: flex; gap: 6px; margin-top: 8px; }
-.forms-dictate-btn { padding: 7px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; border-radius: 3px; transition: all 0.15s; flex: 1; }
-.forms-dictate-btn:hover { border-color: var(--blue); color: var(--blue-light); }
-.forms-dictate-btn.rec { border-color: #e74c3c; color: #e74c3c; background: rgba(231,76,60,0.1); }
-.forms-dictate-btn.clean { background: rgba(46,134,193,0.12); border-color: var(--blue); color: var(--blue-light); }
-
-.forms-empty-state { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; color: var(--text3); font-family: 'Source Serif 4', serif; font-size: 0.95rem; line-height: 1.6; }
-
 @media (max-width: 768px) {
   .aff-interview { width: 100%; border-right: none; }
   .aff-preview { display: none; }
@@ -464,6 +374,39 @@ select.fi { cursor: pointer; }
   .pdf-box { max-width: 520px; border: 1px solid var(--border); border-top: 1px solid var(--border); }
   .toast { bottom: 24px; }
 }
+
+/* ── ONBOARDING ── */
+.ob-ov { position:fixed;inset:0;background:rgba(13,27,42,0.97);z-index:900;display:none;align-items:center;justify-content:center;padding:20px; }
+.ob-ov.show { display:flex; }
+.ob-box { background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:520px;padding:36px 32px;max-height:92vh;overflow-y:auto; }
+.ob-progress { display:flex;gap:6px;margin-bottom:24px; }
+.ob-dot { flex:1;height:3px;background:var(--navy-border);transition:background .2s; }
+.ob-dot.on { background:var(--blue); }
+.ob-step { display:none; }
+.ob-step.on { display:block; }
+.ob-eyebrow { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin-bottom:8px; }
+.ob-title { font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--white);line-height:1.25;margin-bottom:10px; }
+.ob-body { font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text2);line-height:1.6;margin-bottom:22px; }
+.ob-fg { margin-bottom:12px; }
+.ob-fl { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block; }
+.ob-fi { width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Inter',sans-serif;font-size:.92rem;outline:none;transition:border-color .15s; }
+.ob-fi:focus { border-color:var(--blue); }
+.ob-row { display:flex;gap:10px; }
+.ob-row > .ob-fg { flex:1; }
+.ob-btn { width:100%;padding:12px 16px;background:var(--blue);border:none;color:var(--white);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;transition:background .15s;margin-top:6px; }
+.ob-btn:hover { background:var(--blue-light); }
+.ob-skip { display:block;width:100%;padding:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;margin-top:8px;text-decoration:underline;text-underline-offset:3px; }
+.ob-skip:hover { color:var(--text2); }
+.ob-situation { width:100%;padding:12px 16px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;text-align:left;font-family:'Inter',sans-serif;font-size:.88rem;transition:border-color .15s,background .15s;margin-bottom:8px; }
+.ob-situation:hover { border-color:var(--blue-dim);background:rgba(46,134,193,0.05); }
+.ob-situation.sel { border-color:var(--blue);background:rgba(46,134,193,0.08); }
+.ob-cta-grid { display:grid;grid-template-columns:1fr;gap:10px;margin:18px 0 10px; }
+@media (min-width:520px) { .ob-cta-grid { grid-template-columns:1fr 1fr 1fr; } }
+.ob-cta { padding:16px 12px;border:1px solid var(--border);background:var(--navy);color:var(--text);cursor:pointer;transition:border-color .15s,background .15s;text-align:center; }
+.ob-cta:hover { border-color:var(--blue);background:var(--navy-light); }
+.ob-cta-icon { font-size:1.4rem;margin-bottom:6px; }
+.ob-cta-lbl { font-family:'Inter',sans-serif;font-size:.82rem;color:var(--white);font-weight:500;line-height:1.3; }
+.ob-cta-sub { font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-top:4px; }
 </style>
 </head>
 <body>
@@ -473,27 +416,12 @@ select.fi { cursor: pointer; }
   <a href="/" style="text-decoration:none" class="tn-logo">Clear<span>Stand</span></a>
   <div class="tn-divider"></div>
   <span class="tn-tag">Family Law</span>
-  <span class="tn-plan" id="planBadge"></span>
-
-  <!-- Conversation selector -->
-  <div class="conv-wrap" id="convWrap">
-    <button class="conv-btn" id="convBtn" onclick="toggleConvDropdown()" aria-label="Switch conversation">
-      <span class="conv-icon">📝</span>
-      <span class="conv-title" id="convTitle">New Chat</span>
-      <span class="conv-caret">▾</span>
-    </button>
-    <button class="conv-new-btn" onclick="startNewConversation()" title="New chat">+ New</button>
-    <div class="conv-dropdown" id="convDropdown" style="display:none">
-      <div class="conv-dropdown-hdr">Your Conversations</div>
-      <div class="conv-list" id="convList"><div class="conv-empty">Loading…</div></div>
-    </div>
-  </div>
-
+  <span class="tn-mode" id="modeLabel">Ontario Family Law Assistant</span>
   <div class="tn-right">
+    <span class="tn-plan" id="planBadge"></span>
     <button class="tn-btn" onclick="openFormDrawer()">Forms</button>
     <button class="tn-btn" onclick="openPdfSheet()">Export PDF</button>
     <a href="/clearsplit" class="tn-btn" style="text-decoration:none;border-color:#20B2AA;color:#20B2AA">ClearSplit</a>
-    <a href="/case-profile" class="tn-btn" style="text-decoration:none;">My Case</a>
     <button class="tn-btn" id="switchToCriminalBtn" style="display:none;border-color:#2E86C1;color:#3EA4E4" onclick="switchToCriminal()">Criminal Defence →</button>
     <a href="/support" class="tn-btn" style="text-decoration:none;">Support</a>
     <a href="/account" class="tn-btn" id="authBtn" style="text-decoration:none;">Account</a>
@@ -540,7 +468,7 @@ select.fi { cursor: pointer; }
     <div class="sb-sec">
       <div class="sb-hdr">Financial</div>
       <button class="sbt" onclick="loadForm('form13');sbA(this)"><span class="lbl">Form 13 — Financial (Support)<span class="tag">Support Proceedings</span></span></button>
-      <button class="sbt" onclick="loadForm('form131');sbA(this)"><span class="lbl">Form 13.1 — Financial (Property)<span class="tag">Auto-Fill</span></span></button>
+      <button class="sbt" onclick="loadForm('form13a');sbA(this)"><span class="lbl">Form 13.1 — Financial (Property)<span class="tag">Property Division</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
@@ -740,37 +668,83 @@ select.fi { cursor: pointer; }
     </div>
   </div>
 
-  <!-- FORMS PANEL (Unit 4a) -->
-  <div id="panel-forms" class="panel">
-    <div class="forms-wrap">
-      <div class="forms-preview" id="formsPreview">
-        <div class="forms-empty-state">Select a form from the sidebar to begin.</div>
-      </div>
-      <div class="forms-sidepanel" id="formsSidepanel" style="display:none">
-        <div class="forms-sp-hdr">
-          <div class="forms-sp-hdr-title" id="formsSpTitle">Form</div>
-          <div class="forms-sp-hdr-sub" id="formsSpSub">Your profile data is pre-filled. Edit yellow inline fields in the preview.</div>
+</div>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="ob-ov" id="obOv">
+  <div class="ob-box">
+    <div class="ob-progress">
+      <div class="ob-dot on" id="ob-d1"></div>
+      <div class="ob-dot" id="ob-d2"></div>
+      <div class="ob-dot" id="ob-d3"></div>
+    </div>
+
+    <!-- Step 1: Basic profile -->
+    <div class="ob-step on" id="ob-s1">
+      <div class="ob-eyebrow">Step 1 of 3</div>
+      <div class="ob-title">Welcome to ClearStand Family.</div>
+      <div class="ob-body">Let's get a few basics so the assistant can personalize your forms and advice. You can change any of this later in Profile.</div>
+      <div class="ob-row">
+        <div class="ob-fg">
+          <label class="ob-fl">Your First Name</label>
+          <input class="ob-fi" type="text" id="ob_first" placeholder="Jane">
         </div>
-        <div class="forms-sp-section" id="formsDictateSection" style="display:none">
-          <div class="forms-sp-section-title">Affidavit Content</div>
-          <div class="forms-dictate-box">
-            <div class="forms-dictate-title">Tell your story</div>
-            <div class="forms-dictate-sub">Dictate or type what happened. Claude will rewrite it into proper numbered affidavit paragraphs.</div>
-            <textarea class="forms-dictate-ta" id="formsDictateInput" placeholder="Start typing or click 'Voice' to dictate. Describe what happened in your own words..."></textarea>
-            <div class="forms-dictate-actions">
-              <button class="forms-dictate-btn" id="formsVoiceBtn" onclick="toggleFormsVoice()">🎙 Voice</button>
-              <button class="forms-dictate-btn clean" id="formsCleanBtn" onclick="cleanFormsParagraphs()">Clean up with AI</button>
-            </div>
-          </div>
-        </div>
-        <div class="forms-sp-actions">
-          <button class="forms-btn primary full" id="formsDownloadBtn" onclick="downloadFilledForm()">Download .docx</button>
-          <button class="forms-btn" onclick="showPanel('chat');bnA('chat')">← Back to Chat</button>
+        <div class="ob-fg">
+          <label class="ob-fl">Your Last Name</label>
+          <input class="ob-fi" type="text" id="ob_last" placeholder="Smith">
         </div>
       </div>
+      <div class="ob-fg">
+        <label class="ob-fl">Other Party's Name (optional)</label>
+        <input class="ob-fi" type="text" id="ob_other" placeholder="e.g. John Smith">
+      </div>
+      <div class="ob-fg">
+        <label class="ob-fl">Court File Number (optional)</label>
+        <input class="ob-fi" type="text" id="ob_cf" placeholder="e.g. FC-24-12345">
+      </div>
+      <button class="ob-btn" onclick="obNext(1)">Save &amp; Continue →</button>
+      <button class="ob-skip" onclick="obSkip()">Skip for now</button>
+    </div>
+
+    <!-- Step 2: Situation -->
+    <div class="ob-step" id="ob-s2">
+      <div class="ob-eyebrow">Step 2 of 3</div>
+      <div class="ob-title">Where are you in the process?</div>
+      <div class="ob-body">This helps ClearStand show the most relevant tools first. Pick the closest fit.</div>
+      <button class="ob-situation" onclick="obSelectSit(this,'just_separating')">Just separating — figuring out my options</button>
+      <button class="ob-situation" onclick="obSelectSit(this,'drafting_agreement')">Drafting a separation agreement</button>
+      <button class="ob-situation" onclick="obSelectSit(this,'court_filed')">Court application already filed (ours or theirs)</button>
+      <button class="ob-situation" onclick="obSelectSit(this,'upcoming_date')">Have an upcoming court date or motion</button>
+      <button class="ob-situation" onclick="obSelectSit(this,'researching')">Researching — not yet separated</button>
+      <button class="ob-btn" onclick="obNext(2)" style="margin-top:14px">Continue →</button>
+      <button class="ob-skip" onclick="obSkip()">Skip for now</button>
+    </div>
+
+    <!-- Step 3: First action -->
+    <div class="ob-step" id="ob-s3">
+      <div class="ob-eyebrow">Step 3 of 3</div>
+      <div class="ob-title">You're ready.</div>
+      <div class="ob-body">Pick where you'd like to start. You can move between all of these any time from the sidebar.</div>
+      <div class="ob-cta-grid">
+        <button class="ob-cta" onclick="obFinish('chat')">
+          <div class="ob-cta-icon">💬</div>
+          <div class="ob-cta-lbl">Ask a Question</div>
+          <div class="ob-cta-sub">Open the chat</div>
+        </button>
+        <button class="ob-cta" onclick="obFinish('analysis')">
+          <div class="ob-cta-icon">📑</div>
+          <div class="ob-cta-lbl">Analyze a Document</div>
+          <div class="ob-cta-sub">Opposing party filing</div>
+        </button>
+        <button class="ob-cta" onclick="obFinish('form13a')">
+          <div class="ob-cta-icon">💰</div>
+          <div class="ob-cta-lbl">Start Finances</div>
+          <div class="ob-cta-sub">Form 13.1</div>
+        </button>
+      </div>
+      <button class="ob-skip" onclick="obFinish('chat')">Just take me in →</button>
     </div>
   </div>
-
 </div>
 
 <!-- BOTTOM NAV (mobile) -->
@@ -810,7 +784,6 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadForm('form35');closeDrawer()">Form 35.1 — Parenting Affidavit<span class="dw-tag">Custody & Access</span></button>
       <button class="drawer-btn" onclick="loadForm('form36');closeDrawer()">Form 36 — Affidavit for Divorce<span class="dw-tag">Divorce Act</span></button>
       <button class="drawer-btn" onclick="loadForm('form13');closeDrawer()">Form 13 — Financial Statement<span class="dw-tag">Support Proceedings</span></button>
-      <button class="drawer-btn" onclick="loadForm('form131');closeDrawer()">Form 13.1 — Financial (Property)<span class="dw-tag">Auto-Fill</span></button>
       <div class="dw-hdr">Topics</div>
       <button class="drawer-btn" onclick="loadTopic('custody');closeDrawer()">Custody & Parenting</button>
       <button class="drawer-btn" onclick="loadTopic('support');closeDrawer()">Child Support</button>
@@ -942,8 +915,6 @@ select.fi { cursor: pointer; }
 const API = '/api';
 let authToken = localStorage.getItem('ls_tok');
 let currentUser = null, usageState = null, chatHist = [], chatBusy = false;
-let currentConversationId = null;  // null = new chat, number = existing conversation
-let conversationsList = [];         // cached list for dropdown
 let caseProfile = {}, currentForm = 'general', voiceRec = null, isRecording = false;
 
 const FORM_NAMES = {
@@ -982,15 +953,7 @@ async function api(method, path, body) {
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   document.getElementById('panel-' + name)?.classList.add('on');
-  const modeLabel = document.getElementById('modeLabel');
-  if (modeLabel) modeLabel.textContent = { chat:'Ontario Family Law', profile:'My Profile', forms:'Form Builder', affidavit:'Affidavit Builder' }[name] || name;
-  // Auto-start affidavit interview when its panel opens empty
-  if (name === 'affidavit') {
-    const affMsgs = document.getElementById('affMsgs');
-    if (affMsgs && affMsgs.innerHTML === '' && typeof startAffidavit === 'function') {
-      startAffidavit();
-    }
-  }
+  document.getElementById('modeLabel').textContent = { chat:'Ontario Family Law', profile:'My Profile' }[name] || name;
 }
 function bnA(name) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on')); document.getElementById('bn-'+name)?.classList.add('on'); }
 function sbA(btn) { document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
@@ -1007,18 +970,11 @@ function closeDrawer() {
 }
 
 function loadForm(key) {
-  // Unit 4a + 4b: forms with auto-fill go to the new forms panel
-  if (key === 'form14a' || key === 'form8a' || key === 'form131') {
-    currentForm = key;
-    openFormsPanel(key);
-    return;
-  }
-  // All other forms: existing chat-based behavior
   showPanel('chat'); bnA('chat');
   currentForm = key;
-  const ctxEl = document.getElementById('ctxName');
-  if (ctxEl) ctxEl.textContent = FORM_NAMES[key] || key;
+  document.getElementById('ctxName').textContent = FORM_NAMES[key] || key;
   clearChat(false);
+  // Use specific topic prompt if available, otherwise use generic form guidance prompt
   const prompt = TOPIC_PROMPTS[key]
     ? TOPIC_PROMPTS[key]
     : `I need help with ${FORM_NAMES[key]}. Please guide me through what this form requires, what information is needed, common mistakes to avoid, and relevant caselaw for my situation. Use my profile where applicable.`;
@@ -1090,6 +1046,7 @@ async function onAuthSuccess() {
     if (btn) btn.style.display = 'block';
   }
   showWelcome();
+  showOnboarding();
 }
 
 async function refreshUsage() {
@@ -1108,10 +1065,6 @@ function renderUsage() {
     planBadge.className = 'tn-plan ' + (plan === 'free' ? 'free' : 'paid');
     planBadge.style.display = 'inline';
   }
-
-  // Show conversation selector and load list
-  showConvSelector();
-  refreshConversationList();
 
   if (document.getElementById('usrName')) document.getElementById('usrName').textContent = currentUser.name;
 
@@ -1288,10 +1241,8 @@ async function checkout(planKey) {
 
 function clearChat(reset=true) {
   chatHist=[];
-  currentConversationId = null;
   document.getElementById('msgs').innerHTML='';
   showWelcome();
-  updateCurrentConvTitle();
   if (reset) { currentForm='general'; document.getElementById('ctxName').textContent='Ontario Family Law Assistant'; }
 }
 function showWelcome() {
@@ -1330,6 +1281,12 @@ function addMsg(role,content) {
   meta.textContent=role==='user'?'You':'ClearStand Family'; d.appendChild(meta);
   const b=document.createElement('div'); b.className='mb';
   b.innerHTML=fmt(content);
+  if(role==='assistant'&&content.length>80) {
+    const ma=document.createElement('div'); ma.className='ma';
+    const esc=content.replace(/\\/g,'\\\\').replace(/`/g,'\\`');
+    ma.innerHTML=`<button onclick="cpTxt(this,\`${esc}\`)">Copy</button><button onclick="exportDoc(\`${esc}\`)">Export PDF</button>`;
+    b.appendChild(ma);
+  }
   if(role==='assistant'&&hasCaseLaw(content)){
     b.appendChild(caseLawDisclaimer());
   }
@@ -1372,217 +1329,15 @@ async function callChat() {
     const r=await fetch(API+'/family/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+(authToken||'')},
-      body:JSON.stringify({messages:chatHist,context:{profile:caseProfile,currentForm:FORM_NAMES[currentForm]},conversationId:currentConversationId}),
+      body:JSON.stringify({messages:chatHist,context:{profile:caseProfile,currentForm:FORM_NAMES[currentForm]}}),
     });
     const d=await r.json(); hideTyping();
     if(r.status===402){handleLimitError(d);chatHist.pop();chatBusy=false;document.getElementById('sBtn').disabled=false;return;}
-    if(d.content?.[0]){
-      const reply=d.content[0].text;
-      chatHist.push({role:'assistant',content:reply});
-      addMsg('assistant',reply);
-      refreshUsage();
-      // Capture assigned conversation id
-      if(d.conversationId && d.conversationId !== currentConversationId) {
-        currentConversationId = d.conversationId;
-        await refreshConversationList();
-        updateCurrentConvTitle();
-      } else if (d.conversationId) {
-        refreshConversationList();
-      }
-    }
+    if(d.content?.[0]){const reply=d.content[0].text;chatHist.push({role:'assistant',content:reply});addMsg('assistant',reply);refreshUsage();}
     else addMsg('assistant',d.error||'Something went wrong.');
   } catch(e){hideTyping();addMsg('assistant','Connection error.');}
   chatBusy=false; document.getElementById('sBtn').disabled=false;
   document.getElementById('ci').focus();
-}
-
-// ── CONVERSATION MANAGEMENT ──
-function fmtRelDate(unix) {
-  if (!unix) return '';
-  const now = Date.now() / 1000;
-  const diff = now - unix;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
-  const d = new Date(unix * 1000);
-  return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
-}
-
-function showConvSelector() {
-  document.getElementById('convWrap')?.classList.add('show');
-}
-function hideConvSelector() {
-  document.getElementById('convWrap')?.classList.remove('show');
-  const dd = document.getElementById('convDropdown');
-  if (dd) dd.style.display = 'none';
-}
-
-function updateCurrentConvTitle() {
-  const titleEl = document.getElementById('convTitle');
-  if (!titleEl) return;
-  if (!currentConversationId) {
-    titleEl.textContent = 'New Chat';
-    return;
-  }
-  const conv = conversationsList.find(c => c.id === currentConversationId);
-  titleEl.textContent = conv?.title || 'Chat';
-}
-
-async function refreshConversationList() {
-  if (!authToken) return;
-  try {
-    const r = await fetch(API+'/conversations?product=family', {
-      headers: { 'Authorization': 'Bearer ' + authToken }
-    });
-    if (!r.ok) return;
-    const d = await r.json();
-    conversationsList = d.conversations || [];
-    renderConvList();
-  } catch(e) {
-    console.warn('Failed to load conversations:', e.message);
-  }
-}
-
-function renderConvList() {
-  const list = document.getElementById('convList');
-  if (!list) return;
-  if (!conversationsList.length) {
-    list.innerHTML = '<div class="conv-empty">No saved conversations yet. Start typing to begin.</div>';
-    return;
-  }
-  list.innerHTML = conversationsList.map(c => {
-    const isCurrent = c.id === currentConversationId;
-    const safeTitle = (c.title || 'Chat').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return `
-      <div class="conv-item${isCurrent ? ' current' : ''}" data-id="${c.id}">
-        <div class="conv-item-body" onclick="loadConversation(${c.id})">
-          <div class="conv-item-title" id="convItemTitle${c.id}">${safeTitle}</div>
-          <div class="conv-item-date">${fmtRelDate(c.updated_at)}</div>
-        </div>
-        <button class="conv-item-action" onclick="event.stopPropagation();startRenameConversation(${c.id})" title="Rename">✎</button>
-        <button class="conv-item-action delete" onclick="event.stopPropagation();confirmDeleteConversation(${c.id})" title="Delete">🗑</button>
-      </div>
-    `;
-  }).join('');
-}
-
-function toggleConvDropdown() {
-  const dd = document.getElementById('convDropdown');
-  if (dd.style.display === 'none') {
-    refreshConversationList();
-    dd.style.display = 'flex';
-    setTimeout(() => {
-      document.addEventListener('click', closeConvOnOutside, { once: true });
-    }, 0);
-  } else {
-    dd.style.display = 'none';
-  }
-}
-
-function closeConvOnOutside(e) {
-  const wrap = document.getElementById('convWrap');
-  if (wrap && !wrap.contains(e.target)) {
-    document.getElementById('convDropdown').style.display = 'none';
-  } else {
-    setTimeout(() => {
-      document.addEventListener('click', closeConvOnOutside, { once: true });
-    }, 0);
-  }
-}
-
-function startNewConversation() {
-  currentConversationId = null;
-  chatHist = [];
-  document.getElementById('msgs').innerHTML = '';
-  showWelcome();
-  updateCurrentConvTitle();
-  showPanel('chat'); bnA('chat');
-  document.getElementById('convDropdown').style.display = 'none';
-}
-
-async function loadConversation(id) {
-  try {
-    document.getElementById('convDropdown').style.display = 'none';
-    const r = await fetch(API+'/conversations/' + id, {
-      headers: { 'Authorization': 'Bearer ' + authToken }
-    });
-    if (!r.ok) {
-      toast('Could not load conversation.');
-      return;
-    }
-    const d = await r.json();
-    const conv = d.conversation;
-    if (!conv) return;
-    currentConversationId = conv.id;
-    chatHist = (conv.messages || []).map(m => ({ role: m.role, content: m.content }));
-    const msgsEl = document.getElementById('msgs');
-    msgsEl.innerHTML = '';
-    chatHist.forEach(m => addMsg(m.role, m.content));
-    updateCurrentConvTitle();
-    showPanel('chat'); bnA('chat');
-  } catch(e) {
-    console.error('Load conversation failed:', e);
-    toast('Could not load conversation.');
-  }
-}
-
-function startRenameConversation(id) {
-  const titleEl = document.getElementById('convItemTitle' + id);
-  if (!titleEl) return;
-  const currentTitle = titleEl.textContent;
-  titleEl.innerHTML = `<input type="text" class="conv-title-input" value="${currentTitle.replace(/"/g, '&quot;')}" maxlength="120" onblur="saveRename(${id}, this.value)" onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){this.value='${currentTitle.replace(/'/g, "\\'")}';this.blur();}">`;
-  const input = titleEl.querySelector('input');
-  input.focus();
-  input.select();
-}
-
-async function saveRename(id, newTitle) {
-  newTitle = (newTitle || '').trim();
-  if (!newTitle) {
-    renderConvList();
-    return;
-  }
-  try {
-    const r = await fetch(API+'/conversations/' + id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
-      body: JSON.stringify({ title: newTitle })
-    });
-    if (!r.ok) {
-      toast('Could not rename conversation.');
-      renderConvList();
-      return;
-    }
-    const conv = conversationsList.find(c => c.id === id);
-    if (conv) conv.title = newTitle;
-    renderConvList();
-    if (id === currentConversationId) updateCurrentConvTitle();
-  } catch(e) {
-    toast('Could not rename conversation.');
-    renderConvList();
-  }
-}
-
-async function confirmDeleteConversation(id) {
-  if (!confirm('Delete this conversation? You can recover it within 30 days by contacting support.')) return;
-  try {
-    const r = await fetch(API+'/conversations/' + id, {
-      method: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + authToken }
-    });
-    if (!r.ok) {
-      toast('Could not delete conversation.');
-      return;
-    }
-    conversationsList = conversationsList.filter(c => c.id !== id);
-    if (id === currentConversationId) {
-      startNewConversation();
-    }
-    renderConvList();
-  } catch(e) {
-    toast('Could not delete conversation.');
-  }
 }
 
 function toggleVoice(){
@@ -2298,794 +2053,119 @@ async function stopAffVoice() {
   inp.focus();
 }
 
-// ══════════════════════════════════════════════════════
-// FORMS PANEL (Unit 4a)
-// ══════════════════════════════════════════════════════
-
-let currentFormKey = null;           // '14a' or '8a' or '13_1'
-let formsProfileData = null;         // cached profile/children/parties/familyInfo
-let formsFinancialData = null;       // cached financial statement (for Form 13.1)
-let formsInlineFields = {};          // { fieldKey: value } for Form 8A inline fields
-let formsVoiceRec = null;            // active SpeechRecognition instance
-let formsVoiceActive = false;
-
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
-function escAttr(s) { return String(s == null ? '' : s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-async function openFormsPanel(formKeyRaw) {
-  // Map 'form14a' → '14a', 'form8a' → '8a', 'form131' → '13_1'
-  let formKey;
-  if (formKeyRaw === 'form131') formKey = '13_1';
-  else formKey = formKeyRaw.replace(/^form/, '');
-
-  if (!['14a','8a','13_1'].includes(formKey)) {
-    toast('Form not yet available for auto-fill');
-    return;
+// Auto-start interview when panel opens
+const _origShowPanel = showPanel;
+function showPanel(name) {
+  _origShowPanel(name);
+  if (name === 'affidavit' && document.getElementById('affMsgs').innerHTML === '') {
+    startAffidavit();
   }
+}
 
-  if (!authToken || !currentUser) {
-    toast('Please sign in to generate forms');
-    window.location.href = '/register?signin=1&product=family';
-    return;
-  }
-  if (currentUser.plan === 'free') {
-    toast('Form auto-fill is available on paid plans');
-    openUpgradeFlow && openUpgradeFlow();
-    return;
-  }
+// ═══════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════
+const OB_KEY = 'cs_family_onboarded';
+let obSituation = null;
 
-  currentFormKey = formKey;
-  formsInlineFields = {};
-  showPanel('forms'); bnA('chat');
-
-  const preview = document.getElementById('formsPreview');
-  const sidepanel = document.getElementById('formsSidepanel');
-  const dictateSection = document.getElementById('formsDictateSection');
-  const spTitle = document.getElementById('formsSpTitle');
-  const spSub = document.getElementById('formsSpSub');
-
-  preview.innerHTML = '<div class="forms-empty-state">Loading your profile…</div>';
-  sidepanel.style.display = 'flex';
-
-  try {
-    const r = await fetch('/api/profile', { headers: { 'Authorization': 'Bearer ' + authToken } });
-    if (!r.ok) throw new Error('Failed to load profile');
-    formsProfileData = await r.json();
-
-    // Form 13.1 also needs financial data from the Finances tab
-    if (formKey === '13_1') {
-      const fr = await fetch('/api/profile/financial', { headers: { 'Authorization': 'Bearer ' + authToken } });
-      if (!fr.ok) throw new Error('Failed to load financial data');
-      formsFinancialData = await fr.json();
+function showOnboarding() {
+  if (localStorage.getItem(OB_KEY)) return;
+  // Pre-fill from existing profile if user is already partway through
+  if (caseProfile) {
+    if (caseProfile.first)     document.getElementById('ob_first').value = caseProfile.first;
+    if (caseProfile.last)      document.getElementById('ob_last').value  = caseProfile.last;
+    if (caseProfile.cf_number) document.getElementById('ob_cf').value    = caseProfile.cf_number;
+    const op = (caseProfile.otherParties || [])[0];
+    if (op && (op.first || op.last)) {
+      document.getElementById('ob_other').value = `${op.first||''} ${op.last||''}`.trim();
     }
-  } catch(e) {
-    preview.innerHTML = '<div class="forms-empty-state">Could not load your data. Please refresh.</div>';
-    return;
   }
-
-  if (formKey === '14a') {
-    spTitle.textContent = 'Form 14A — Affidavit';
-    spSub.textContent = 'Dictate your statement; Claude will format it into numbered paragraphs.';
-    dictateSection.style.display = 'block';
-    renderForm14APreview();
-  } else if (formKey === '8a') {
-    spTitle.textContent = 'Form 8A — Divorce Application';
-    spSub.textContent = 'Auto-filled from your profile. Fill the yellow fields inline.';
-    dictateSection.style.display = 'none';
-    renderForm8APreview();
-  } else if (formKey === '13_1') {
-    spTitle.textContent = 'Form 13.1 — Financial Statement';
-    spSub.textContent = 'Auto-filled entirely from your Case Profile and Finances tab. Review below, then download.';
-    dictateSection.style.display = 'none';
-    renderForm131Preview();
-  }
+  document.getElementById('obOv').classList.add('show');
 }
 
-function formatPartyBlockHtml(person, lawyerFor) {
-  if (!person) return '<em style="color:#888">(not specified)</em>';
-  const name = [person.first, person.last].filter(Boolean).join(' ').trim();
-  const lines = [];
-  if (name) lines.push(esc(name));
-  if (person.address) lines.push(esc(person.address));
-  const cityLine = [person.city, person.province, person.postal].filter(Boolean).join(', ');
-  if (cityLine) lines.push(esc(cityLine));
-  if (person.phone) lines.push('Tel: ' + esc(person.phone));
-  if (person.email) lines.push(esc(person.email));
-  if (lawyerFor && person.firm) lines.push(esc(person.firm));
-  if (lawyerFor && person.lso_number) lines.push('LSO #: ' + esc(person.lso_number));
-  return lines.length ? lines.join('<br>') : '<em style="color:#888">(empty)</em>';
-}
+function obNext(step) {
+  if (step === 1) {
+    const first = document.getElementById('ob_first').value.trim();
+    const last  = document.getElementById('ob_last').value.trim();
+    const other = document.getElementById('ob_other').value.trim();
+    const cf    = document.getElementById('ob_cf').value.trim();
 
-function renderForm14APreview() {
-  const d = formsProfileData || {};
-  const profile = d.profile || {};
-  const familyInfo = (d.family && d.family.info) || {};
-  const parties = (d.family && d.family.parties) || [];
-
-  const respondent = parties.find(p => p.role === 'respondent');
-  const myCounsel = parties.find(p => p.role === 'my_counsel');
-  const opposingCounsel = parties.find(p => p.role === 'opposing_counsel');
-
-  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
-  const applicantBlock = userIsApplicant ? profile : respondent;
-  const respondentBlock = userIsApplicant ? respondent : profile;
-  const applicantLawyer = userIsApplicant ? myCounsel : opposingCounsel;
-  const respondentLawyer = userIsApplicant ? opposingCounsel : myCounsel;
-
-  const fullName = [profile.first, profile.last].filter(Boolean).join(' ').trim() || '<em style="color:#888">(add name to profile)</em>';
-  const livesIn = [profile.city, profile.province].filter(Boolean).join(', ') || '<em style="color:#888">(add city to profile)</em>';
-  const dateStr = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
-
-  const html = `
-    <div class="forms-preview-inner">
-      <div class="form-hdr">ONTARIO</div>
-      <table>
-        <tr>
-          <td style="width:40%">${esc(familyInfo.court) || '<em style="color:#888">(Name of court)</em>'}</td>
-          <td style="width:30%"><strong>Court File Number</strong><br>${esc(familyInfo.court_file_number) || '___________'}</td>
-          <td style="width:30%"><strong>Form 14A: Affidavit (general)</strong><br>dated ${dateStr}</td>
-        </tr>
-      </table>
-
-      <table>
-        <tr><td colspan="2"><strong>Applicant(s)</strong></td></tr>
-        <tr>
-          <td style="width:50%">${formatPartyBlockHtml(applicantBlock)}</td>
-          <td style="width:50%"><em>Lawyer:</em><br>${formatPartyBlockHtml(applicantLawyer, true)}</td>
-        </tr>
-        <tr><td colspan="2"><strong>Respondent(s)</strong></td></tr>
-        <tr>
-          <td>${formatPartyBlockHtml(respondentBlock)}</td>
-          <td><em>Lawyer:</em><br>${formatPartyBlockHtml(respondentLawyer, true)}</td>
-        </tr>
-      </table>
-
-      <p class="form-para"><strong>My name is</strong> ${fullName}</p>
-      <p class="form-para"><strong>I live in</strong> ${livesIn}</p>
-      <p class="form-para"><strong>and I swear/affirm that the following is true:</strong></p>
-
-      <div class="form-label">Numbered paragraphs of sworn facts:</div>
-      <div id="forms14APreviewParas" style="background:#fffef5;border:1px dashed #bbb;padding:14px;border-radius:3px;min-height:80px;font-style:italic;color:#555">
-        Your paragraphs will appear here after you dictate or type in the sidebar and click "Clean up with AI".
-      </div>
-
-      <p class="form-para" style="margin-top:24px"><strong>Sworn/Affirmed before me at</strong></p>
-      <p class="form-para">Municipality: <input class="inline inline-narrow" id="forms14A-swornAt" placeholder="e.g., Toronto" value="${escAttr(formsInlineFields.sworn_at)}"></p>
-      <p class="form-para">Province/State/Country: <input class="inline inline-narrow" id="forms14A-swornIn" placeholder="e.g., Ontario" value="${escAttr(formsInlineFields.sworn_in)}"></p>
-      <p class="form-para">Date: <input class="inline inline-narrow" id="forms14A-swornDate" type="date" value="${escAttr(formsInlineFields.sworn_date)}"></p>
-      <p class="form-para" style="font-size:0.76rem;color:#666;margin-top:16px">(This form is to be signed in front of a lawyer, justice of the peace, notary public or commissioner for taking affidavits.)</p>
-      <p class="form-para" style="font-size:0.72rem;color:#888;margin-top:20px">FLR 14A (September 1, 2005) — Page 1 of 2</p>
-    </div>
-  `;
-  document.getElementById('formsPreview').innerHTML = html;
-
-  // Wire up sworn fields to cache
-  ['swornAt','swornIn','swornDate'].forEach(k => {
-    const el = document.getElementById('forms14A-' + k);
-    if (!el) return;
-    const key = { swornAt:'sworn_at', swornIn:'sworn_in', swornDate:'sworn_date' }[k];
-    el.addEventListener('input', e => { formsInlineFields[key] = e.target.value; });
-  });
-}
-
-function renderForm8APreview() {
-  const d = formsProfileData || {};
-  const profile = d.profile || {};
-  const familyInfo = (d.family && d.family.info) || {};
-  const parties = (d.family && d.family.parties) || [];
-  const children = d.children || [];
-
-  const respondent = parties.find(p => p.role === 'respondent');
-  const myCounsel = parties.find(p => p.role === 'my_counsel');
-  const opposingCounsel = parties.find(p => p.role === 'opposing_counsel');
-
-  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
-  const applicant = userIsApplicant ? profile : (respondent || {});
-  const respondentParty = userIsApplicant ? (respondent || {}) : profile;
-  const applicantLawyer = userIsApplicant ? myCounsel : opposingCounsel;
-  const respondentLawyer = userIsApplicant ? opposingCounsel : myCounsel;
-
-  function inlineText(key, placeholder, narrow) {
-    return `<input class="inline${narrow?' inline-narrow':''}" id="form8a-${key}" placeholder="${escAttr(placeholder||'')}" value="${escAttr(formsInlineFields[key])}">`;
-  }
-  function inlineYN(key) {
-    const v = formsInlineFields[key] || '';
-    return `<select class="inline inline-narrow" id="form8a-${key}">
-      <option value="" ${v===''?'selected':''}>Select…</option>
-      <option value="No" ${v==='No'?'selected':''}>No</option>
-      <option value="Yes" ${v==='Yes'?'selected':''}>Yes</option>
-    </select>`;
-  }
-  function inlineDate(key) {
-    return `<input type="date" class="inline inline-narrow" id="form8a-${key}" value="${escAttr(formsInlineFields[key])}">`;
-  }
-
-  const dateStr = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
-  const isJoint = !!formsInlineFields.isJoint;
-
-  const childRows = (children.length ? children : [null, null, null]).map(c => {
-    if (!c) return `<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>`;
-    const name = esc([c.first, c.last].filter(Boolean).join(' '));
-    const resMap = { 'with_user': userIsApplicant?'Applicant':'Respondent', 'with_other': userIsApplicant?'Respondent':'Applicant', 'shared':'Shared' };
-    return `<tr><td>${name}</td><td></td><td>${esc(c.dob||'')}</td><td>${esc([profile.city,profile.province].filter(Boolean).join(', '))}</td><td>${esc(resMap[c.residency]||'')}</td></tr>`;
-  }).join('');
-
-  const html = `
-    <div class="forms-preview-inner">
-      <div class="form-hdr">ONTARIO</div>
-      <table>
-        <tr>
-          <td style="width:40%">${esc(familyInfo.court) || '<em style="color:#888">(Name of court)</em>'}</td>
-          <td style="width:30%"><strong>Court File Number</strong><br>${esc(familyInfo.court_file_number) || '___________'}</td>
-          <td style="width:30%">
-            <strong>Form 8A: Application (Divorce)</strong><br>
-            <label><input type="checkbox" id="form8a-simple" ${!isJoint?'checked':''}> Simple (divorce only)</label><br>
-            <label><input type="checkbox" id="form8a-isJoint" ${isJoint?'checked':''}> Joint</label>
-          </td>
-        </tr>
-      </table>
-
-      <table>
-        <tr><td><strong>Applicant(s)</strong></td><td><strong>Applicant's Lawyer</strong></td></tr>
-        <tr><td style="width:50%">${formatPartyBlockHtml(applicant)}</td><td style="width:50%">${formatPartyBlockHtml(applicantLawyer, true)}</td></tr>
-        <tr><td><strong>Respondent(s)</strong></td><td><strong>Respondent's Lawyer</strong></td></tr>
-        <tr><td>${formatPartyBlockHtml(respondentParty)}</td><td>${formatPartyBlockHtml(respondentLawyer, true)}</td></tr>
-      </table>
-
-      <div class="form-label">FAMILY HISTORY</div>
-      <table>
-        <tr>
-          <td style="width:50%">
-            <strong>APPLICANT:</strong><br>
-            Birthdate: ${esc(applicant.dob) || '<em>(add to profile)</em>'}<br>
-            First name before marriage: ${inlineText('applicantMarriageFirstName','')}<br>
-            Last name before marriage: ${inlineText('applicantMarriageLastName','')}<br>
-            Gender before marriage: ${inlineText('applicantMarriageGender','')}<br>
-            Divorced before? ${inlineYN('applicantPriorDivorce')}<br>
-            Habitually resident in Ontario for at least 1 year? ${inlineYN('applicantResidencyOneYear')}
-          </td>
-          <td style="width:50%">
-            <strong>RESPONDENT:</strong><br>
-            Birthdate: ${esc(respondentParty.dob) || '<em>(add to party record)</em>'}<br>
-            First name before marriage: ${inlineText('respondentMarriageFirstName','')}<br>
-            Last name before marriage: ${inlineText('respondentMarriageLastName','')}<br>
-            Gender before marriage: ${inlineText('respondentMarriageGender','')}<br>
-            Divorced before? ${inlineYN('respondentPriorDivorce')}<br>
-            Habitually resident in Ontario for at least 1 year? ${inlineYN('respondentResidencyOneYear')}
-          </td>
-        </tr>
-      </table>
-
-      <div class="form-label">RELATIONSHIP DATES</div>
-      <p class="form-para">Married on: ${inlineDate('marriageDate')}</p>
-      <p class="form-para">Started living together on: ${inlineDate('cohabitationStart')}</p>
-      <p class="form-para">Separated on: ${inlineDate('separationDate')}</p>
-
-      <div class="form-label">THE CHILD(REN)</div>
-      <table>
-        <tr><th>Full legal name</th><th>Age</th><th>Birthdate</th><th>Resident in</th><th>Now Living With</th></tr>
-        ${childRows}
-      </table>
-
-      <div class="form-label">PREVIOUS CASES OR AGREEMENTS</div>
-      <p class="form-para">Have the parties or children been in a court case before? ${inlineYN('priorCase')}</p>
-      <p class="form-para">Have the parties made a written agreement? ${inlineYN('priorAgreement')}</p>
-
-      <div class="form-label">GROUNDS FOR DIVORCE</div>
-      <p class="form-para">Grounds:
-        <select class="inline inline-narrow" id="form8a-grounds">
-          <option value="separation" ${formsInlineFields.grounds==='separation'||!formsInlineFields.grounds?'selected':''}>Separation (1+ year)</option>
-          <option value="adultery" ${formsInlineFields.grounds==='adultery'?'selected':''}>Adultery</option>
-          <option value="cruelty" ${formsInlineFields.grounds==='cruelty'?'selected':''}>Cruelty</option>
-        </select>
-      </p>
-      <p class="form-para" id="form8a-groundsDetails">
-        <span><strong>Separation date:</strong> ${inlineDate('separationDate')}</span><br>
-        <span><strong>Reconciliation attempts (if any):</strong> ${inlineText('reconciliationAttempts','Describe any periods of attempted reconciliation')}</span>
-      </p>
-
-      <p class="form-para" style="font-size:0.72rem;color:#888;margin-top:20px">FLR 8A (April 1, 2024)</p>
-    </div>
-  `;
-  document.getElementById('formsPreview').innerHTML = html;
-
-  // Wire up all 8a inline fields
-  document.querySelectorAll('[id^="form8a-"]').forEach(el => {
-    const key = el.id.replace('form8a-', '');
-    const evt = el.tagName === 'SELECT' || el.type === 'date' ? 'change' : 'input';
-    el.addEventListener(evt, (e) => {
-      if (el.type === 'checkbox') {
-        formsInlineFields[key] = el.checked;
-        // The simple/joint checkboxes should be mutually exclusive
-        if (key === 'isJoint' && el.checked) {
-          const s = document.getElementById('form8a-simple'); if (s) s.checked = false;
-        }
-        if (key === 'simple' && el.checked) {
-          const j = document.getElementById('form8a-isJoint'); if (j) j.checked = false;
-          formsInlineFields.isJoint = false;
-        }
+    // Merge into caseProfile
+    caseProfile = caseProfile || {};
+    if (first) caseProfile.first = first;
+    if (last)  caseProfile.last  = last;
+    if (cf)    caseProfile.cf_number = cf;
+    if (other) {
+      const parts = other.split(/\s+/);
+      const opFirst = parts[0] || '';
+      const opLast  = parts.slice(1).join(' ') || '';
+      caseProfile.otherParties = caseProfile.otherParties || [];
+      if (caseProfile.otherParties.length === 0) {
+        caseProfile.otherParties.push({ role:'Respondent', first:opFirst, last:opLast, addr:'', phone:'', email:'' });
       } else {
-        formsInlineFields[key] = e.target.value;
+        caseProfile.otherParties[0].first = opFirst;
+        caseProfile.otherParties[0].last  = opLast;
       }
-    });
-  });
+    }
+
+    // Reflect into the Profile panel inputs if they exist
+    if (first && document.getElementById('p_first')) document.getElementById('p_first').value = first;
+    if (last  && document.getElementById('p_last'))  document.getElementById('p_last').value  = last;
+    if (cf    && document.getElementById('cf_number')) document.getElementById('cf_number').value = cf;
+
+    // Persist
+    try { localStorage.setItem('ls_family_profile', JSON.stringify(caseProfile)); } catch(e) {}
+    if (authToken) { api('POST','/auth/profile?product=family',{profile:caseProfile}).catch(()=>{}); }
+
+    // Update context pill
+    if (caseProfile.first) {
+      const pill = document.getElementById('ctxPill');
+      if (pill) {
+        pill.textContent = `${caseProfile.first} ${caseProfile.last||''}`.trim() + (caseProfile.cf_number?' · '+caseProfile.cf_number:'');
+        pill.classList.remove('none');
+      }
+    }
+
+    document.getElementById('ob-s1').classList.remove('on');
+    document.getElementById('ob-s2').classList.add('on');
+    document.getElementById('ob-d2').classList.add('on');
+  } else if (step === 2) {
+    document.getElementById('ob-s2').classList.remove('on');
+    document.getElementById('ob-s3').classList.add('on');
+    document.getElementById('ob-d3').classList.add('on');
+  }
 }
 
-// ══════════════════════════════════════════════════════
-// FORM 13.1 PREVIEW (read-only — everything from Finances tab)
-// ══════════════════════════════════════════════════════
-
-function fmtMoney(n) {
-  const v = Number(n) || 0;
-  return '$' + v.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function obSelectSit(btn, key) {
+  document.querySelectorAll('.ob-situation').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  obSituation = key;
 }
 
-function renderForm131Preview() {
-  if (!formsProfileData || !formsFinancialData) return;
+function obSkip() {
+  localStorage.setItem(OB_KEY, '1');
+  document.getElementById('obOv').classList.remove('show');
+}
 
-  const { profile = {}, children = [], family = {} } = formsProfileData;
-  const familyInfo = family.info || {};
-  const parties = family.parties || [];
-  const fin = formsFinancialData;
+function obFinish(action) {
+  localStorage.setItem(OB_KEY, '1');
+  if (obSituation) {
+    try { localStorage.setItem('cs_family_situation', obSituation); } catch(e) {}
+  }
+  document.getElementById('obOv').classList.remove('show');
 
-  const respondent = parties.find(p => p.role === 'respondent');
-  const myCounsel = parties.find(p => p.role === 'my_counsel');
-  const opposingCounsel = parties.find(p => p.role === 'opposing_counsel');
-
-  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
-  const applicant = userIsApplicant ? profile : (respondent || {});
-  const respondentParty = userIsApplicant ? (respondent || {}) : profile;
-  const applicantLawyer = userIsApplicant ? myCounsel : opposingCounsel;
-  const respondentLawyer = userIsApplicant ? opposingCounsel : myCounsel;
-
-  const vd = fin.valuation_dates || {};
-  const im = fin.income_meta || {};
-  const hh = fin.household || {};
-  const fixedIncome = (fin.income || []).filter(r => !r.is_schedule_a);
-  const schedAIncome = (fin.income || []).filter(r => r.is_schedule_a);
-  const incomeTotalMonthly = fixedIncome.reduce((s, r) => s + (Number(r.monthly_amount) || 0), 0);
-  const expensesTotalMonthly = (fin.expenses || []).reduce((s, r) => s + (Number(r.monthly_amount) || 0), 0);
-  const assets = fin.assets || [];
-  const debts = fin.debts || [];
-
-  // Totals by asset category (items 15-21)
-  const sumBy = (cat, field) => assets.filter(a => a.category === cat).reduce((s, a) => s + (Number(a[field]) || 0), 0);
-  const item22 = ['land','household_vehicles','bank_savings_pensions','insurance','business','money_owed','other']
-    .reduce((s, c) => s + sumBy(c, 'value_valuation'), 0);
-  const item23 = debts.reduce((s, d) => s + (Number(d.amount_valuation) || 0), 0);
-  const mdpA = (fin.marriage_date_property || []).reduce((s, r) => s + (Number(r.assets_value) || 0), 0);
-  const mdpL = (fin.marriage_date_property || []).reduce((s, r) => s + (Number(r.liabilities_value) || 0), 0);
-  const item24 = mdpA - mdpL;
-  const item25 = item23 + item24;
-  const item26 = (fin.excluded || []).reduce((s, e) => s + (Number(e.value_valuation) || 0), 0);
-  const item27 = (fin.disposed || []).reduce((s, d) => s + (Number(d.value) || 0), 0);
-  const item28 = Math.max(0, item22 - item23 - item24 - item26);
-
-  // Income row labels
-  const INCOME_LABELS_131 = {
-    employment: 'Employment income', commissions: 'Commissions, tips and bonuses',
-    self_employment: 'Self-employment income', ei: 'Employment Insurance benefits',
-    wcb: "Workers' compensation benefits", social_assistance: 'Social assistance (incl. ODSP)',
-    investment: 'Interest and investment income', pension: 'Pension income (CPP, OAS)',
-    spousal_support: 'Spousal support received', child_benefits: 'Child Tax Benefits / GST',
-    other: 'Other income sources',
-  };
-
-  const incomeRowsHtml = fixedIncome.map((r, i) =>
-    `<tr><td>${i + 1}. ${esc(INCOME_LABELS_131[r.category] || r.category)}</td><td style="text-align:right">${fmtMoney(r.monthly_amount)}</td></tr>`
-  ).join('');
-
-  // Asset section renderer
-  const ASSET_CAT_LABELS = {
-    land: 'Part 4(a) — Land',
-    household_vehicles: 'Part 4(b) — Household Items & Vehicles',
-    bank_savings_pensions: 'Part 4(c) — Bank Accounts, Savings, Securities & Pensions',
-    insurance: 'Part 4(d) — Life & Disability Insurance',
-    business: 'Part 4(e) — Business Interests',
-    money_owed: 'Part 4(f) — Money Owed to You',
-    other: 'Part 4(g) — Other Property',
-  };
-  const ASSET_ITEM_NUMS = { land: 15, household_vehicles: 16, bank_savings_pensions: 17,
-    insurance: 18, business: 19, money_owed: 20, other: 21 };
-
-  function renderAssetSection(cat) {
-    const rows = assets.filter(a => a.category === cat);
-    const totalM = rows.reduce((s, a) => s + (Number(a.value_marriage) || 0), 0);
-    const totalV = rows.reduce((s, a) => s + (Number(a.value_valuation) || 0), 0);
-    let body;
-    if (rows.length === 0) {
-      body = `<tr><td colspan="5" style="color:#888;font-style:italic">NONE</td></tr>`;
+  if (action === 'chat') {
+    showPanel('chat'); bnA('chat');
+  } else if (action === 'analysis') {
+    showPanel('analysis'); bnA('analysis');
+  } else if (action === 'form13a') {
+    if (typeof loadForm === 'function') {
+      loadForm('form13a');
     } else {
-      body = rows.map(a => `
-        <tr>
-          <td>${esc(a.description || '')}${a.subcategory ? '<br><small style="color:#888">' + esc(a.subcategory) + '</small>' : ''}${a.not_in_possession ? '<br><small style="color:#888">(not in your possession)</small>' : ''}</td>
-          <td>${esc(a.detail_2 || '')}</td>
-          <td style="text-align:right">${fmtMoney(a.value_marriage)}</td>
-          <td style="text-align:right">${fmtMoney(a.value_valuation)}</td>
-          <td style="text-align:right">${fmtMoney(a.value_current)}</td>
-        </tr>
-      `).join('');
+      showPanel('chat'); bnA('chat');
     }
-    return `
-      <div class="form-label">${esc(ASSET_CAT_LABELS[cat])}</div>
-      <table>
-        <tr><th>Description</th><th>Details</th><th>$ on Marriage</th><th>$ on Separation</th><th>$ Today</th></tr>
-        ${body}
-        <tr><td colspan="2"><strong>${ASSET_ITEM_NUMS[cat]}. Total</strong></td><td style="text-align:right"><strong>${fmtMoney(totalM)}</strong></td><td style="text-align:right"><strong>${fmtMoney(totalV)}</strong></td><td></td></tr>
-      </table>
-    `;
-  }
-
-  const debtsBody = debts.length === 0
-    ? `<tr><td colspan="5" style="color:#888;font-style:italic">NONE</td></tr>`
-    : debts.map(d => `
-        <tr>
-          <td>${esc(d.category || '')}</td>
-          <td>${esc(d.details || '')}${d.is_contingent ? ' <small style="color:#888">(contingent)</small>' : ''}</td>
-          <td style="text-align:right">${fmtMoney(d.amount_marriage)}</td>
-          <td style="text-align:right">${fmtMoney(d.amount_valuation)}</td>
-          <td style="text-align:right">${fmtMoney(d.amount_current)}</td>
-        </tr>
-      `).join('');
-
-  const mdpBody = (fin.marriage_date_property || []).length === 0
-    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
-    : (fin.marriage_date_property || []).map(r => `
-        <tr>
-          <td>${esc(r.category)}${r.details ? '<br><small style="color:#888">' + esc(r.details) + '</small>' : ''}</td>
-          <td style="text-align:right">${fmtMoney(r.assets_value)}</td>
-          <td style="text-align:right">${fmtMoney(r.liabilities_value)}</td>
-        </tr>
-      `).join('');
-
-  const excludedBody = (fin.excluded || []).length === 0
-    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
-    : (fin.excluded || []).map(e => `
-        <tr><td>${esc(e.category)}</td><td>${esc(e.details)}</td><td style="text-align:right">${fmtMoney(e.value_valuation)}</td></tr>
-      `).join('');
-
-  const disposedBody = (fin.disposed || []).length === 0
-    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
-    : (fin.disposed || []).map(d => `
-        <tr><td>${esc(d.category)}</td><td>${esc(d.details)}</td><td style="text-align:right">${fmtMoney(d.value)}</td></tr>
-      `).join('');
-
-  const childById = Object.fromEntries(children.map(c => [c.id, c]));
-  const schedBRows = fin.schedule_b || [];
-  const schedBNet = schedBRows.reduce((s, r) =>
-    s + ((Number(r.annual_amount) || 0) - (Number(r.tax_credits_deductions) || 0)), 0);
-  const schedBBody = schedBRows.length === 0
-    ? `<tr><td colspan="4" style="color:#888;font-style:italic">NONE</td></tr>`
-    : schedBRows.map(r => {
-        let childName = r.child_name || '';
-        if (r.child_id && childById[r.child_id]) {
-          const c = childById[r.child_id];
-          childName = [c.first, c.last].filter(Boolean).join(' ').trim() || childName;
-        }
-        return `
-          <tr>
-            <td>${esc(childName)}</td>
-            <td>${esc(r.expense)}</td>
-            <td style="text-align:right">${fmtMoney(r.annual_amount)}</td>
-            <td style="text-align:right">${fmtMoney(r.tax_credits_deductions)}</td>
-          </tr>
-        `;
-      }).join('');
-
-  const SCHED_A_LABELS_131 = {
-    sched_a_partnership: 'Net partnership income', sched_a_rental: 'Net rental income',
-    sched_a_dividends: 'Dividends from Canadian corps', sched_a_capital_gains: 'Capital gains (less losses)',
-    sched_a_rrsp: 'RRSP withdrawals', sched_a_rrif: 'RRIF / annuity income',
-    sched_a_other: 'Other income',
-  };
-  const schedABody = schedAIncome.length === 0
-    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
-    : schedAIncome.map(r => `
-        <tr><td>${esc(SCHED_A_LABELS_131[r.category] || r.category)}</td>
-            <td>${esc(r.detail || '')}</td>
-            <td style="text-align:right">${fmtMoney(r.annual_amount)}</td></tr>
-      `).join('');
-
-  // Completeness warnings
-  const warnings = [];
-  if (!vd.date_of_marriage) warnings.push('Marriage date is missing (Finances → Key Dates).');
-  if (!vd.valuation_date) warnings.push('Separation / valuation date is missing (Finances → Key Dates).');
-  if (!profile.first || !profile.last) warnings.push('Your legal name is missing (Case Profile → About You).');
-  if (!familyInfo.court) warnings.push('Court location is missing (Case Profile → Family Matter).');
-  if (!respondent) warnings.push('Respondent is missing (Case Profile → Family Matter → Other Parties).');
-  if (assets.length === 0 && debts.length === 0) warnings.push('No assets or debts entered (Finances → Property and Debts tabs).');
-
-  const warnHtml = warnings.length === 0 ? '' : `
-    <div style="background:rgba(240,165,0,0.12);border-left:3px solid #F0A500;padding:12px 16px;margin-bottom:16px;border-radius:4px">
-      <strong style="color:#F0A500">Before you download:</strong>
-      <ul style="margin:8px 0 0 18px;line-height:1.7">
-        ${warnings.map(w => '<li>' + esc(w) + '</li>').join('')}
-      </ul>
-    </div>
-  `;
-
-  const html = `
-    <div class="forms-preview-inner">
-      ${warnHtml}
-
-      <div class="form-hdr">ONTARIO</div>
-      <table>
-        <tr>
-          <td style="width:40%">${esc(familyInfo.court) || '<em style="color:#888">(Name of court)</em>'}</td>
-          <td style="width:30%"><strong>Court File Number</strong><br>${esc(familyInfo.court_file_number) || '___________'}</td>
-          <td style="width:30%"><strong>Form 13.1</strong><br>Financial Statement<br>(Property and Support Claims)</td>
-        </tr>
-      </table>
-
-      <table>
-        <tr><td><strong>Applicant(s)</strong></td><td><strong>Applicant's Lawyer</strong></td></tr>
-        <tr><td style="width:50%">${formatPartyBlockHtml(applicant)}</td><td style="width:50%">${formatPartyBlockHtml(applicantLawyer, true)}</td></tr>
-        <tr><td><strong>Respondent(s)</strong></td><td><strong>Respondent's Lawyer</strong></td></tr>
-        <tr><td>${formatPartyBlockHtml(respondentParty)}</td><td>${formatPartyBlockHtml(respondentLawyer, true)}</td></tr>
-      </table>
-
-      <p class="form-para" style="margin-top:12px">
-        <strong>Filed by:</strong> ${userIsApplicant ? '☒ Applicant   ☐ Respondent' : '☐ Applicant   ☒ Respondent'}
-      </p>
-
-      <p class="form-para">
-        <strong>1. My name is:</strong> ${esc([profile.first, profile.last].filter(Boolean).join(' ')) || '<em style="color:#888">(add to Case Profile)</em>'}<br>
-        <strong>I live in:</strong> ${esc([profile.city, profile.province].filter(Boolean).join(', ')) || '<em style="color:#888">(add to Case Profile)</em>'}
-      </p>
-      <p class="form-para">
-        <strong>Date of marriage:</strong> ${esc(vd.date_of_marriage) || '<em style="color:#888">(missing)</em>'}<br>
-        <strong>Valuation date (separation):</strong> ${esc(vd.valuation_date) || '<em style="color:#888">(missing)</em>'}<br>
-        <strong>Cohabitation start (if different):</strong> ${esc(vd.cohabitation_start_date) || '—'}
-      </p>
-
-      <div class="form-label">PART 1: INCOME</div>
-      <p class="form-para"><strong>Employment status:</strong> ${esc(im.employment_status) || '—'}</p>
-      <p class="form-para"><strong>Last year's gross income:</strong> ${fmtMoney(im.last_year_gross_income)}</p>
-      <table>
-        <tr><th>Income Source</th><th style="width:160px">Monthly Amount</th></tr>
-        ${incomeRowsHtml}
-        <tr><td><strong>12. Total monthly income</strong></td><td style="text-align:right"><strong>${fmtMoney(incomeTotalMonthly)}</strong></td></tr>
-        <tr><td><strong>13. Total annual income (× 12)</strong></td><td style="text-align:right"><strong>${fmtMoney(incomeTotalMonthly * 12)}</strong></td></tr>
-      </table>
-
-      <div class="form-label">PART 2: EXPENSES</div>
-      <p class="form-para"><em style="color:#888">${(fin.expenses || []).filter(r => Number(r.monthly_amount) > 0).length} expense categories entered. Total: ${fmtMoney(expensesTotalMonthly)}/month (${fmtMoney(expensesTotalMonthly * 12)}/year).</em></p>
-
-      <div class="form-label">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
-      <p class="form-para">
-        ${hh.lives_alone ? '☒ I live alone.' : '☐ I live alone.'}<br>
-        ${hh.spouse_partner_name ? '☒ Living with: ' + esc(hh.spouse_partner_name) : '☐ Living with a spouse/partner.'}<br>
-        Children in home: ${hh.children_count || 0}
-      </p>
-
-      <div class="form-label">PART 4: ASSETS</div>
-      ${renderAssetSection('land')}
-      ${renderAssetSection('household_vehicles')}
-      ${renderAssetSection('bank_savings_pensions')}
-      ${renderAssetSection('insurance')}
-      ${renderAssetSection('business')}
-      ${renderAssetSection('money_owed')}
-      ${renderAssetSection('other')}
-      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
-        <strong>22. Total value of property on separation date:</strong> <span style="float:right">${fmtMoney(item22)}</span>
-      </p>
-
-      <div class="form-label">PART 5: DEBTS AND OTHER LIABILITIES</div>
-      <table>
-        <tr><th>Category</th><th>Details</th><th>$ on Marriage</th><th>$ on Separation</th><th>$ Today</th></tr>
-        ${debtsBody}
-      </table>
-      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
-        <strong>23. Total debts on separation date:</strong> <span style="float:right">${fmtMoney(item23)}</span>
-      </p>
-
-      <div class="form-label">PART 6: PROPERTY &amp; DEBTS AT DATE OF MARRIAGE</div>
-      <table>
-        <tr><th>Category</th><th>Assets</th><th>Liabilities</th></tr>
-        ${mdpBody}
-        <tr><td><strong>Totals</strong></td><td style="text-align:right"><strong>${fmtMoney(mdpA)}</strong></td><td style="text-align:right"><strong>${fmtMoney(mdpL)}</strong></td></tr>
-      </table>
-      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
-        <strong>24. Net value at marriage date:</strong> <span style="float:right">${fmtMoney(item24)}</span><br>
-        <strong>25. Value of all deductions (23 + 24):</strong> <span style="float:right">${fmtMoney(item25)}</span>
-      </p>
-
-      <div class="form-label">PART 7: EXCLUDED PROPERTY</div>
-      <table>
-        <tr><th>Category</th><th>Details</th><th>Value on Separation Date</th></tr>
-        ${excludedBody}
-      </table>
-      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
-        <strong>26. Total excluded property:</strong> <span style="float:right">${fmtMoney(item26)}</span>
-      </p>
-
-      <div class="form-label">PART 8: DISPOSED-OF PROPERTY</div>
-      <table>
-        <tr><th>Category</th><th>Details</th><th>Value</th></tr>
-        ${disposedBody}
-      </table>
-      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
-        <strong>27. Total disposed-of property:</strong> <span style="float:right">${fmtMoney(item27)}</span>
-      </p>
-
-      <div class="form-label">PART 9: CALCULATION OF NET FAMILY PROPERTY</div>
-      <table>
-        <tr><td>Property on separation date (22)</td><td></td><td style="text-align:right">${fmtMoney(item22)}</td></tr>
-        <tr><td>− All deductions (25)</td><td style="text-align:right">${fmtMoney(item25)}</td><td style="text-align:right">${fmtMoney(item22 - item25)}</td></tr>
-        <tr><td>− Excluded property (26)</td><td style="text-align:right">${fmtMoney(item26)}</td><td style="text-align:right">${fmtMoney(item22 - item25 - item26)}</td></tr>
-        <tr style="background:rgba(46,134,193,0.15)"><td colspan="2"><strong>28. NET FAMILY PROPERTY</strong></td><td style="text-align:right"><strong>${fmtMoney(item28)}</strong></td></tr>
-      </table>
-
-      <div class="form-label">SCHEDULE A — Additional Sources of Income</div>
-      <table>
-        <tr><th>Source</th><th>Details</th><th>Annual Amount</th></tr>
-        ${schedABody}
-      </table>
-
-      <div class="form-label">SCHEDULE B — Special / Extraordinary Expenses for Children</div>
-      <table>
-        <tr><th>Child</th><th>Expense</th><th>Amount/yr</th><th>Tax Credits/Deductions</th></tr>
-        ${schedBBody}
-        <tr><td colspan="2"><strong>Total net annual amount</strong></td><td style="text-align:right"><strong>${fmtMoney(schedBNet)}</strong></td><td></td></tr>
-        <tr><td colspan="2"><strong>Total net monthly amount</strong></td><td style="text-align:right"><strong>${fmtMoney(schedBNet / 12)}</strong></td><td></td></tr>
-      </table>
-      <p class="form-para">My annual income for sharing these expenses: ${fmtMoney((fin.schedule_b_meta || {}).annual_income_for_share)}</p>
-
-      <p class="form-para" style="font-size:0.72rem;color:#888;margin-top:20px">FLR 13.1 (May 1, 2021)</p>
-    </div>
-  `;
-  document.getElementById('formsPreview').innerHTML = html;
-}
-
-async function cleanFormsParagraphs() {
-  if (currentFormKey !== '14a') return;
-  const input = document.getElementById('formsDictateInput');
-  const btn = document.getElementById('formsCleanBtn');
-  const raw = (input.value || '').trim();
-  if (raw.length < 10) {
-    toast('Please type or dictate at least a sentence first');
-    return;
-  }
-
-  btn.disabled = true; btn.textContent = 'Cleaning…';
-  try {
-    const r = await fetch('/api/forms/14a/clean-paragraphs', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + authToken },
-      body: JSON.stringify({ rawText: raw }),
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) {
-      toast(data.error || 'Failed to clean paragraphs');
-      return;
-    }
-    formsInlineFields.affidavitBody = data.cleaned || '';
-    updateForm14APreviewParas();
-    toast('Paragraphs cleaned — review in preview');
-  } catch(e) {
-    toast('Network error. Please try again.');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Clean up with AI';
-  }
-}
-
-function updateForm14APreviewParas() {
-  const container = document.getElementById('forms14APreviewParas');
-  if (!container) return;
-  const body = formsInlineFields.affidavitBody || '';
-  if (!body.trim()) {
-    container.innerHTML = 'Your paragraphs will appear here after you dictate or type in the sidebar and click "Clean up with AI".';
-    container.style.fontStyle = 'italic';
-    container.style.color = '#555';
-    return;
-  }
-  const paras = body.split(/\n\s*\n+/).map(s => s.trim()).filter(Boolean);
-  container.innerHTML = paras.map((para, i) => `
-    <div class="aff-para">
-      <span class="aff-number">${i+1}.</span>
-      <textarea class="inline" data-idx="${i}">${esc(para)}</textarea>
-    </div>
-  `).join('');
-  container.style.fontStyle = 'normal';
-  container.style.color = '#111';
-
-  // Wire up edits back to formsInlineFields.affidavitBody
-  container.querySelectorAll('textarea').forEach(ta => {
-    ta.addEventListener('input', () => {
-      const allParas = Array.from(container.querySelectorAll('textarea')).map(t => t.value.trim()).filter(Boolean);
-      formsInlineFields.affidavitBody = allParas.join('\n\n');
-    });
-  });
-}
-
-function toggleFormsVoice() {
-  const btn = document.getElementById('formsVoiceBtn');
-  const input = document.getElementById('formsDictateInput');
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    toast('Voice dictation not supported in this browser');
-    return;
-  }
-  if (formsVoiceActive) {
-    try { formsVoiceRec && formsVoiceRec.stop(); } catch(e) {}
-    formsVoiceActive = false;
-    btn.classList.remove('rec');
-    btn.textContent = '🎙 Voice';
-    return;
-  }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const rec = new SR();
-  rec.continuous = true;
-  rec.interimResults = true;
-  rec.lang = 'en-CA';
-  formsVoiceRec = rec;
-  let finalText = input.value;
-  rec.onresult = (e) => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const transcript = e.results[i][0].transcript;
-      if (e.results[i].isFinal) {
-        finalText += (finalText && !finalText.endsWith(' ') ? ' ' : '') + transcript;
-      } else {
-        interim += transcript;
-      }
-    }
-    input.value = finalText + (interim ? ' ' + interim : '');
-  };
-  rec.onerror = (e) => { toast('Voice error: ' + (e.error || 'unknown')); formsVoiceActive = false; btn.classList.remove('rec'); btn.textContent = '🎙 Voice'; };
-  rec.onend = () => { formsVoiceActive = false; btn.classList.remove('rec'); btn.textContent = '🎙 Voice'; };
-  rec.start();
-  formsVoiceActive = true;
-  btn.classList.add('rec');
-  btn.textContent = '● Recording';
-}
-
-async function downloadFilledForm() {
-  if (!currentFormKey) return;
-  const btn = document.getElementById('formsDownloadBtn');
-  btn.disabled = true;
-  const origText = btn.textContent;
-  btn.textContent = 'Generating…';
-
-  // Assemble payload
-  const payload = {};
-  if (currentFormKey === '14a') {
-    payload.affidavitBody = formsInlineFields.affidavitBody || '';
-    payload.sworn_at = formsInlineFields.sworn_at || '';
-    payload.sworn_in = formsInlineFields.sworn_in || '';
-    payload.sworn_date = formsInlineFields.sworn_date || '';
-  } else if (currentFormKey === '8a') {
-    payload.fields = { ...formsInlineFields };
-  }
-
-  try {
-    const r = await fetch('/api/forms/' + currentFormKey + '/generate', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + authToken },
-      body: JSON.stringify(payload),
-    });
-    if (!r.ok) {
-      const data = await r.json().catch(() => ({}));
-      toast(data.error || 'Failed to generate form');
-      return;
-    }
-    const blob = await r.blob();
-    const disposition = r.headers.get('Content-Disposition') || '';
-    const match = disposition.match(/filename="(.+?)"/);
-    const filename = match ? match[1] : `Form-${currentFormKey.toUpperCase()}.docx`;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast('Downloaded ' + filename);
-  } catch(e) {
-    toast('Network error. Please try again.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = origText;
+  } else if (action === 'profile') {
+    showPanel('profile'); bnA('profile');
   }
 }
 
@@ -3111,6 +2191,7 @@ async function downloadFilledForm() {
           const btn = document.getElementById('switchToCriminalBtn');
           if (btn) btn.style.display = 'block';
         }
+        showOnboarding();
       } else { authToken=null; localStorage.removeItem('ls_tok'); }
     } catch(e) {}
   }
