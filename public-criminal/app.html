@@ -115,6 +115,37 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.35; color: #F4F6F8; }
 .sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
+/* ── My Charges sidebar section ── */
+.sbt.in-case { position: relative; }
+.sbt.in-case::after { content: '●'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--blue-light); font-size: 8px; }
+.my-charge-item { width: 100%; padding: 8px 16px; background: rgba(46,134,193,0.08); border: none; border-left: 3px solid var(--blue); color: var(--text); cursor: pointer; display: flex; flex-direction: column; gap: 2px; text-align: left; transition: all 0.15s; }
+.my-charge-item:hover { background: rgba(46,134,193,0.18); }
+.my-charge-item .mc-label { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--white); }
+.my-charge-item .mc-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── "Is this your charge?" inline prompt ── */
+.charge-inline-prompt { background: rgba(46,134,193,0.1); border: 1px solid rgba(46,134,193,0.3); border-left: 3px solid var(--blue); padding: 14px 18px; margin-bottom: 16px; border-radius: 4px; }
+.charge-inline-prompt-hdr { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--white); margin-bottom: 6px; font-weight: 500; }
+.charge-inline-prompt-sub { font-family: 'Source Serif 4', serif; font-size: 0.82rem; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+.charge-inline-prompt-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.cip-btn { padding: 7px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 3px; transition: all 0.15s; }
+.cip-btn:hover { border-color: var(--blue-light); color: var(--blue-light); }
+.cip-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.cip-btn.primary:hover { background: var(--blue-light); color: #fff; }
+.cip-btn.ghost { color: var(--text3); }
+
+/* ── Mini charge detail form ── */
+.charge-mini-form { background: var(--navy-mid); border: 1px solid var(--border); padding: 16px; margin-bottom: 16px; border-radius: 4px; }
+.charge-mini-form-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--white); margin-bottom: 4px; }
+.charge-mini-form-sub { font-family: 'Source Serif 4', serif; font-size: 0.8rem; color: var(--text2); margin-bottom: 14px; }
+.charge-mini-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.charge-mini-form-grid .field-full { grid-column: 1 / -1; }
+.charge-mini-field { display: flex; flex-direction: column; gap: 4px; }
+.charge-mini-field label { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); }
+.charge-mini-field input, .charge-mini-field textarea { background: var(--navy); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; padding: 8px 10px; border-radius: 3px; outline: none; min-height: 36px; }
+.charge-mini-field input:focus, .charge-mini-field textarea:focus { border-color: var(--blue); }
+.charge-mini-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav { height: var(--bot); background: var(--navy-mid); border-top: 1px solid var(--border); display: flex; flex-shrink: 0; padding-bottom: var(--safe-bot); }
 @media (min-width: 768px) { .bottom-nav { display: none; } }
@@ -471,36 +502,43 @@ select.fi { cursor: pointer; }
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+    <div class="sb-sec" id="myChargesSec" style="display:none">
+      <div class="sb-hdr" style="color:var(--blue-light);display:flex;align-items:center;justify-content:space-between">
+        <span>My Charges</span>
+        <a href="/case-profile" style="font-size:9px;color:var(--text3);text-decoration:none" title="Manage in case profile">edit →</a>
+      </div>
+      <div id="myChargesList"></div>
+    </div>
     <div class="sb-sec">
       <div class="sb-hdr">Driving</div>
-      <button class="sbt" onclick="loadCharge('impaired');sbActive(this)"><span class="lbl">Impaired / Over 80<span class="tag">s.320.14 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('dangerousDriving');sbActive(this)"><span class="lbl">Dangerous Driving<span class="tag">s.320.13 CC</span></span></button>
+      <button class="sbt" data-charge="impaired" onclick="loadCharge(\'impaired\');sbActive(this)"><span class="lbl">Impaired / Over 80<span class="tag">s.320.14 CC</span></span></button>
+      <button class="sbt" data-charge="dangerousDriving" onclick="loadCharge(\'dangerousDriving\');sbActive(this)"><span class="lbl">Dangerous Driving<span class="tag">s.320.13 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Violence / Domestic</div>
-      <button class="sbt" onclick="loadCharge('assault');sbActive(this)"><span class="lbl">Assault<span class="tag">s.266 CC · s.34</span></span></button>
-      <button class="sbt" onclick="loadCharge('sexualAssault');sbActive(this)"><span class="lbl">Sexual Assault<span class="tag">s.271 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('harassment');sbActive(this)"><span class="lbl">Criminal Harassment<span class="tag">s.264 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('threats');sbActive(this)"><span class="lbl">Uttering Threats<span class="tag">s.264.1 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('confinement');sbActive(this)"><span class="lbl">Forcible Confinement<span class="tag">s.279 CC</span></span></button>
+      <button class="sbt" data-charge="assault" onclick="loadCharge(\'assault\');sbActive(this)"><span class="lbl">Assault<span class="tag">s.266 CC · s.34</span></span></button>
+      <button class="sbt" data-charge="sexualAssault" onclick="loadCharge(\'sexualAssault\');sbActive(this)"><span class="lbl">Sexual Assault<span class="tag">s.271 CC</span></span></button>
+      <button class="sbt" data-charge="harassment" onclick="loadCharge(\'harassment\');sbActive(this)"><span class="lbl">Criminal Harassment<span class="tag">s.264 CC</span></span></button>
+      <button class="sbt" data-charge="threats" onclick="loadCharge(\'threats\');sbActive(this)"><span class="lbl">Uttering Threats<span class="tag">s.264.1 CC</span></span></button>
+      <button class="sbt" data-charge="confinement" onclick="loadCharge(\'confinement\');sbActive(this)"><span class="lbl">Forcible Confinement<span class="tag">s.279 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Conditions</div>
-      <button class="sbt" onclick="loadCharge('breach');sbActive(this)"><span class="lbl">Breach Recognizance<span class="tag">s.145 CC · R v Zora</span></span></button>
+      <button class="sbt" data-charge="breach" onclick="loadCharge(\'breach\');sbActive(this)"><span class="lbl">Breach Recognizance<span class="tag">s.145 CC · R v Zora</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Property</div>
-      <button class="sbt" onclick="loadCharge('mischief');sbActive(this)"><span class="lbl">Mischief<span class="tag">s.430 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('fraudTheft');sbActive(this)"><span class="lbl">Fraud / Theft<span class="tag">s.380/322 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('breakEnter');sbActive(this)"><span class="lbl">Break & Enter<span class="tag">s.348 CC</span></span></button>
+      <button class="sbt" data-charge="mischief" onclick="loadCharge(\'mischief\');sbActive(this)"><span class="lbl">Mischief<span class="tag">s.430 CC</span></span></button>
+      <button class="sbt" data-charge="fraudTheft" onclick="loadCharge(\'fraudTheft\');sbActive(this)"><span class="lbl">Fraud / Theft<span class="tag">s.380/322 CC</span></span></button>
+      <button class="sbt" data-charge="breakEnter" onclick="loadCharge(\'breakEnter\');sbActive(this)"><span class="lbl">Break & Enter<span class="tag">s.348 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Other Offences</div>
-      <button class="sbt" onclick="loadCharge('drugs');sbActive(this)"><span class="lbl">Drug Offences<span class="tag">CDSA</span></span></button>
-      <button class="sbt" onclick="loadCharge('weapons');sbActive(this)"><span class="lbl">Weapons<span class="tag">s.86-96 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('digitalOffences');sbActive(this)"><span class="lbl">Digital / Luring<span class="tag">s.162/172.1 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('obstruction');sbActive(this)"><span class="lbl">Obstruct Police<span class="tag">s.129 CC</span></span></button>
-      <button class="sbt" onclick="loadCharge('homicide');sbActive(this)"><span class="lbl">Homicide<span class="tag">s.234 CC</span></span></button>
+      <button class="sbt" data-charge="drugs" onclick="loadCharge(\'drugs\');sbActive(this)"><span class="lbl">Drug Offences<span class="tag">CDSA</span></span></button>
+      <button class="sbt" data-charge="weapons" onclick="loadCharge(\'weapons\');sbActive(this)"><span class="lbl">Weapons<span class="tag">s.86-96 CC</span></span></button>
+      <button class="sbt" data-charge="digitalOffences" onclick="loadCharge(\'digitalOffences\');sbActive(this)"><span class="lbl">Digital / Luring<span class="tag">s.162/172.1 CC</span></span></button>
+      <button class="sbt" data-charge="obstruction" onclick="loadCharge(\'obstruction\');sbActive(this)"><span class="lbl">Obstruct Police<span class="tag">s.129 CC</span></span></button>
+      <button class="sbt" data-charge="homicide" onclick="loadCharge(\'homicide\');sbActive(this)"><span class="lbl">Homicide<span class="tag">s.234 CC</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr">Procedure & Rights</div>
@@ -1085,34 +1123,28 @@ let voiceRec = null, isRecording = false;
 let caseProf = {}, selFile = null;
 let currentPanel = 'upload';
 
-const CHARGE_LABELS = {
-  impaired:'Impaired / Over 80 — s.320.14',assault:'Assault — s.266',
-  sexualAssault:'Sexual Assault — s.271',harassment:'Criminal Harassment — s.264',
-  threats:'Uttering Threats — s.264.1',breach:'Breach — s.145',
-  mischief:'Mischief — s.430',fraudTheft:'Fraud / Theft — s.380/322',
-  breakEnter:'Break & Enter — s.348',drugs:'Drug Offences — CDSA',
-  weapons:'Weapons — s.86-96',digitalOffences:'Digital / Luring',
-  dangerousDriving:'Dangerous Driving — s.320.13',obstruction:'Obstruct Police — s.129',
-  confinement:'Forcible Confinement — s.279',homicide:'Homicide / Manslaughter',
+// Unified charge data — label, section (for case profile), and educational prompt
+const CHARGE_DATA = {
+  impaired:         { label: 'Impaired / Over 80', section: 's.320.14 CC', prompt: `I am charged with impaired driving/over 80 under s.320.14 CC. Full defence: ASD challenges, 2-hour presumption rebuttal (R v St-Onge Lamoureux), R v Breault 2023 SCC 9, right to counsel timing (R v Orbanski), and every technical defence.` },
+  assault:          { label: 'Assault', section: 's.266 CC', prompt: `Charged with assault s.266 CC. Walk me through self-defence s.34 (R v Khill 2021 SCC 37), consent (R v Ewanchuk), W(D) credibility challenges, and handling a domestic fabrication scenario.` },
+  sexualAssault:    { label: 'Sexual Assault', section: 's.271 CC', prompt: `Charged with sexual assault s.271 CC. Consent (R v Barton 2019 SCC 33), delayed disclosure (R v Ghomeshi), Mills regime, s.276 application, full defence approach.` },
+  harassment:       { label: 'Criminal Harassment', section: 's.264 CC', prompt: `Charged with criminal harassment s.264 CC. R v Kosikar knowledge requirement, subjective fear element, family court communications, all defences.` },
+  threats:          { label: 'Uttering Threats', section: 's.264.1 CC', prompt: `Charged with uttering threats s.264.1 CC. McCraw objective test, context, conditional vs absolute threats, all defences.` },
+  breach:           { label: 'Breach Recognizance', section: 's.145 CC', prompt: `Charged with breach of recognizance s.145 CC. Explain R v Zora 2020 SCC 14 subjective mens rea in detail. What are my defences?` },
+  mischief:         { label: 'Mischief', section: 's.430 CC', prompt: `Charged with mischief s.430 CC. Colour of right defence, wilful element, shared property in domestic situations.` },
+  fraudTheft:       { label: 'Fraud / Theft', section: 's.380/322 CC', prompt: `Charged with fraud/theft s.380/322 CC. Deprivation element (R v Theroux), colour of right, civil dispute vs criminal fraud.` },
+  breakEnter:       { label: 'Break & Enter', section: 's.348 CC', prompt: `Charged with break and enter s.348 CC. Breaking element, colour of right in shared home, what Crown must prove.` },
+  drugs:            { label: 'Drug Offences', section: 'CDSA', prompt: `Charged with drug offence under CDSA. ITO analysis (R v Morelli), search warrant challenges, entrapment (R v Mack), constructive possession, possession vs trafficking.` },
+  weapons:          { label: 'Weapons', section: 's.86-96 CC', prompt: `Charged with weapons offence. Weapon classification, PAL/licence analysis, storage regulations, Charter s.8 challenges.` },
+  digitalOffences:  { label: 'Digital / Luring', section: 's.172.1 CC', prompt: `Charged with digital offence. Device search requirements (R v Fearon, R v Spencer), identity challenges, entrapment (R v Mack).` },
+  dangerousDriving: { label: 'Dangerous Driving', section: 's.320.13 CC', prompt: `Charged with dangerous operation s.320.13 CC. Marked departure test (R v Roy 2012 SCC 26), mental element (R v Beatty 2008 SCC 5), all defences.` },
+  obstruction:      { label: 'Obstruct Police', section: 's.129 CC', prompt: `Charged with obstruct police s.129/270 CC. Lawful execution requirement, how s.9 Charter breach defeats this charge.` },
+  confinement:      { label: 'Forcible Confinement', section: 's.279 CC', prompt: `Charged with forcible confinement s.279 CC. What constitutes confinement legally, consent defence, domestic context.` },
+  homicide:         { label: 'Homicide / Manslaughter', section: 's.222-236 CC', prompt: `Charged with homicide/manslaughter. Self-defence (R v Khill), provocation (s.232), causation requirements. Note: this requires a lawyer.` },
 };
-const CHARGE_PROMPTS = {
-  impaired:`I am charged with impaired driving/over 80 under s.320.14 CC. Full defence: ASD challenges, 2-hour presumption rebuttal (R v St-Onge Lamoureux), R v Breault 2023 SCC 9, right to counsel timing (R v Orbanski), and every technical defence.`,
-  assault:`Charged with assault s.266 CC. Walk me through self-defence s.34 (R v Khill 2021 SCC 37), consent (R v Ewanchuk), W(D) credibility challenges, and handling a domestic fabrication scenario.`,
-  sexualAssault:`Charged with sexual assault s.271 CC. Consent (R v Barton 2019 SCC 33), delayed disclosure (R v Ghomeshi), Mills regime, s.276 application, full defence approach.`,
-  harassment:`Charged with criminal harassment s.264 CC. R v Kosikar knowledge requirement, subjective fear element, family court communications, all defences.`,
-  threats:`Charged with uttering threats s.264.1 CC. McCraw objective test, context, conditional vs absolute threats, all defences.`,
-  breach:`Charged with breach of recognizance s.145 CC. Explain R v Zora 2020 SCC 14 subjective mens rea in detail. What are my defences?`,
-  mischief:`Charged with mischief s.430 CC. Colour of right defence, wilful element, shared property in domestic situations.`,
-  fraudTheft:`Charged with fraud/theft s.380/322 CC. Deprivation element (R v Theroux), colour of right, civil dispute vs criminal fraud.`,
-  breakEnter:`Charged with break and enter s.348 CC. Breaking element, colour of right in shared home, what Crown must prove.`,
-  drugs:`Charged with drug offence under CDSA. ITO analysis (R v Morelli), search warrant challenges, entrapment (R v Mack), constructive possession, possession vs trafficking.`,
-  weapons:`Charged with weapons offence. Weapon classification, PAL/licence analysis, storage regulations, Charter s.8 challenges.`,
-  digitalOffences:`Charged with digital offence. Device search requirements (R v Fearon, R v Spencer), identity challenges, entrapment (R v Mack).`,
-  dangerousDriving:`Charged with dangerous operation s.320.13 CC. Marked departure test (R v Roy 2012 SCC 26), mental element (R v Beatty 2008 SCC 5), all defences.`,
-  obstruction:`Charged with obstruct police s.129/270 CC. Lawful execution requirement, how s.9 Charter breach defeats this charge.`,
-  confinement:`Charged with forcible confinement s.279 CC. What constitutes confinement legally, consent defence, domestic context.`,
-  homicide:`Charged with homicide/manslaughter. Self-defence (R v Khill), provocation (s.232), causation requirements. Note: this requires a lawyer.`,
-};
+// Legacy compat — some code still references these names
+const CHARGE_LABELS = Object.fromEntries(Object.entries(CHARGE_DATA).map(([k, v]) => [k, `${v.label} — ${v.section}`]));
+const CHARGE_PROMPTS = Object.fromEntries(Object.entries(CHARGE_DATA).map(([k, v]) => [k, v.prompt]));
 const TOPIC_PROMPTS = {
   charter:`Explain s.8 search/seizure, s.9 arbitrary detention, s.10(b) right to counsel with key cases. Walk me through a s.24(2) application using R v Grant 2009 SCC 32 three-part test. Be specific and practical.`,
   bail:`Prepare me for a bail hearing. Explain the s.515 test, three grounds for detention, ladder principle (R v Antic 2017 SCC 27), what sureties must say. Draft me a bail submission.`,
@@ -1163,12 +1195,241 @@ function closeDrawer() {
   setTimeout(() => ov.classList.remove('show'), 280);
 }
 
+// ── CHARGE MANAGEMENT (Unit 3) ──
+let myCharges = []; // cached list of user's criminal_charges from DB
+
+async function refreshMyCharges() {
+  if (!authToken || !currentUser) return;
+  try {
+    const r = await fetch('/api/profile/charges', {
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    });
+    if (!r.ok) return;
+    const d = await r.json();
+    myCharges = d.charges || [];
+    renderMyChargesSidebar();
+    markSidebarChargesInCase();
+  } catch(e) {
+    console.warn('Failed to refresh charges:', e.message);
+  }
+}
+
+function renderMyChargesSidebar() {
+  const sec = document.getElementById('myChargesSec');
+  const list = document.getElementById('myChargesList');
+  if (!sec || !list) return;
+  if (!myCharges.length) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = 'block';
+  list.innerHTML = myCharges.map(c => {
+    const label = escapeHtmlLite(c.charge_label || 'Unnamed charge');
+    const section = escapeHtmlLite(c.section || '');
+    return `<button class="my-charge-item" onclick="openMyChargeChat(${c.id})">
+      <span class="mc-label">${label}</span>
+      ${section ? `<span class="mc-meta">${section}</span>` : ''}
+    </button>`;
+  }).join('');
+}
+
+function markSidebarChargesInCase() {
+  // Find which sidebar buttons correspond to charges the user has
+  // Match by charge_label (case-insensitive, trimmed)
+  const myLabels = new Set(myCharges.map(c => (c.charge_label || '').toLowerCase().trim()).filter(Boolean));
+  document.querySelectorAll('.sbt[data-charge]').forEach(btn => {
+    const key = btn.dataset.charge;
+    const data = CHARGE_DATA[key];
+    if (!data) return;
+    if (myLabels.has(data.label.toLowerCase().trim())) {
+      btn.classList.add('in-case');
+    } else {
+      btn.classList.remove('in-case');
+    }
+  });
+}
+
+function findExistingChargeByKey(key) {
+  const data = CHARGE_DATA[key];
+  if (!data) return null;
+  const target = data.label.toLowerCase().trim();
+  return myCharges.find(c => (c.charge_label || '').toLowerCase().trim() === target) || null;
+}
+
+function escapeHtmlLite(s) {
+  return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function openMyChargeChat(chargeId) {
+  const charge = myCharges.find(c => c.id === chargeId);
+  if (!charge) return;
+  showPanel('chat'); bnActive('chat');
+  clearChat(false);
+  document.getElementById('ctxName').textContent = (charge.charge_label || 'Charge') + (charge.section ? ' — ' + charge.section : '');
+  // Find a matching sidebar key to use the educational prompt, if any
+  const matchKey = Object.keys(CHARGE_DATA).find(k =>
+    CHARGE_DATA[k].label.toLowerCase().trim() === (charge.charge_label || '').toLowerCase().trim()
+  );
+  if (matchKey) {
+    qs(CHARGE_PROMPTS[matchKey]);
+  } else {
+    // Custom charge — ask Claude about it specifically
+    qs(`I am charged with ${charge.charge_label}${charge.section ? ' under ' + charge.section : ''}. Walk me through the elements the Crown must prove, my defences, and relevant caselaw.`);
+  }
+}
+
+// ── Replaced loadCharge: Option B — prompt user ──
 function loadCharge(key) {
   showPanel('chat'); bnActive('chat');
   document.getElementById('ctxName').textContent = CHARGE_LABELS[key] || key;
   clearChat(false);
+
+  // Guest users: just load educational chat (no profile yet)
+  if (!currentUser) {
+    if (CHARGE_PROMPTS[key]) qs(CHARGE_PROMPTS[key]);
+    return;
+  }
+
+  const existing = findExistingChargeByKey(key);
+  showChargeInlinePrompt(key, existing);
+}
+
+function showChargeInlinePrompt(key, existing) {
+  const data = CHARGE_DATA[key];
+  if (!data) {
+    if (CHARGE_PROMPTS[key]) qs(CHARGE_PROMPTS[key]);
+    return;
+  }
+  const msgs = document.getElementById('msgs');
+  const ws = document.getElementById('ws');
+  if (ws) ws.remove();
+
+  const prompt = document.createElement('div');
+  prompt.className = 'charge-inline-prompt';
+  prompt.id = 'chargeInlinePrompt';
+
+  if (existing) {
+    prompt.innerHTML = `
+      <div class="charge-inline-prompt-hdr">${escapeHtmlLite(data.label)} — already in your case</div>
+      <div class="charge-inline-prompt-sub">You've added this charge to your case profile. What would you like to do?</div>
+      <div class="charge-inline-prompt-actions">
+        <button class="cip-btn primary" onclick="discussExistingCharge('${key}')">Discuss this charge</button>
+        <a href="/case-profile" class="cip-btn">Open case details</a>
+        <button class="cip-btn ghost" onclick="dismissChargePromptAndLearn('${key}')">Just learning</button>
+      </div>`;
+  } else {
+    prompt.innerHTML = `
+      <div class="charge-inline-prompt-hdr">Is this a charge you're facing?</div>
+      <div class="charge-inline-prompt-sub">Adding <strong>${escapeHtmlLite(data.label)}</strong> to your case lets the AI tailor every answer and draft to your specific situation.</div>
+      <div class="charge-inline-prompt-actions">
+        <button class="cip-btn primary" onclick="startAddChargeFlow('${key}')">Add to my case</button>
+        <button class="cip-btn ghost" onclick="dismissChargePromptAndLearn('${key}')">Just learning</button>
+      </div>`;
+  }
+  msgs.innerHTML = '';
+  msgs.appendChild(prompt);
+}
+
+function dismissChargePrompt() {
+  const el = document.getElementById('chargeInlinePrompt');
+  if (el) el.remove();
+  const form = document.getElementById('chargeMiniForm');
+  if (form) form.remove();
+}
+
+function dismissChargePromptAndLearn(key) {
+  dismissChargePrompt();
   if (CHARGE_PROMPTS[key]) qs(CHARGE_PROMPTS[key]);
 }
+
+function discussExistingCharge(key) {
+  dismissChargePrompt();
+  if (CHARGE_PROMPTS[key]) qs(CHARGE_PROMPTS[key]);
+}
+
+function startAddChargeFlow(key) {
+  const data = CHARGE_DATA[key];
+  if (!data) return;
+  dismissChargePrompt();
+
+  const msgs = document.getElementById('msgs');
+  const form = document.createElement('div');
+  form.className = 'charge-mini-form';
+  form.id = 'chargeMiniForm';
+  form.innerHTML = `
+    <div class="charge-mini-form-title">Add ${escapeHtmlLite(data.label)}</div>
+    <div class="charge-mini-form-sub">Fill these in now or skip — you can edit anytime in your case profile.</div>
+    <div class="charge-mini-form-grid">
+      <div class="charge-mini-field">
+        <label>Charge date</label>
+        <input type="date" id="mini-charge-date">
+      </div>
+      <div class="charge-mini-field">
+        <label>Arresting officer</label>
+        <input type="text" id="mini-charge-officer" placeholder="Optional" maxlength="120">
+      </div>
+      <div class="charge-mini-field field-full">
+        <label>Location of offence</label>
+        <input type="text" id="mini-charge-location" placeholder="Optional" maxlength="200">
+      </div>
+      <div class="charge-mini-field field-full">
+        <label>Notes (optional)</label>
+        <textarea id="mini-charge-notes" maxlength="2000" placeholder="Any context you want the AI to know..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="charge-mini-form-actions">
+      <button class="cip-btn ghost" onclick="dismissChargePromptAndLearn('${key}')">Cancel</button>
+      <button class="cip-btn primary" onclick="submitAddCharge('${key}')">Save & continue</button>
+    </div>`;
+  msgs.appendChild(form);
+}
+
+async function submitAddCharge(key) {
+  const data = CHARGE_DATA[key];
+  if (!data) return;
+
+  // Guard against double-click
+  const btn = document.querySelector('#chargeMiniForm .cip-btn.primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  const body = {
+    charge_key:        key,
+    charge_label:      data.label,
+    section:           data.section,
+    charge_date:       document.getElementById('mini-charge-date')?.value || '',
+    arresting_officer: document.getElementById('mini-charge-officer')?.value || '',
+    location:          document.getElementById('mini-charge-location')?.value || '',
+    notes:             document.getElementById('mini-charge-notes')?.value || '',
+  };
+
+  try {
+    const r = await fetch('/api/profile/charges', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + authToken,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) {
+      toast('Could not save charge. Please try again.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Save & continue'; }
+      return;
+    }
+    const result = await r.json();
+    if (result.charge) myCharges.push(result.charge);
+    renderMyChargesSidebar();
+    markSidebarChargesInCase();
+    dismissChargePrompt();
+    toast('Charge added to your case ✓');
+    // Continue with educational chat
+    if (CHARGE_PROMPTS[key]) qs(CHARGE_PROMPTS[key]);
+  } catch(e) {
+    toast('Network error. Please try again.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Save & continue'; }
+  }
+}
+
 function loadTopic(key) {
   showPanel('chat'); bnActive('chat');
   clearChat(false);
@@ -1453,6 +1714,9 @@ function renderUsage() {
   // Show conversation selector and load list
   showConvSelector();
   refreshConversationList();
+
+  // Unit 3 — load user's charges for the sidebar "My Charges" section
+  refreshMyCharges();
 }
 
 function openPaywall(reason, title, msg) {
