@@ -182,6 +182,167 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_charges_user   ON criminal_charges(user_id);
 `);
 
+// ── FORM 13.1 FINANCIAL SCHEMA (Unit 4b — family-only) ──
+db.exec(`
+  CREATE TABLE IF NOT EXISTS fs_valuation_dates (
+    user_id                 INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    date_of_marriage        TEXT DEFAULT '',
+    valuation_date          TEXT DEFAULT '',
+    cohabitation_start_date TEXT DEFAULT '',
+    updated_at              INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_income_meta (
+    user_id                       INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    employment_status             TEXT DEFAULT '',
+    employer_name_address         TEXT DEFAULT '',
+    business_name_address         TEXT DEFAULT '',
+    unemployed_since              TEXT DEFAULT '',
+    last_year_gross_income        REAL DEFAULT 0,
+    self_employment_gross_monthly REAL DEFAULT 0,
+    indian_act_election           INTEGER DEFAULT 0,
+    indian_act_documents          TEXT DEFAULT '',
+    updated_at                    INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_income (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category        TEXT NOT NULL,
+    detail          TEXT DEFAULT '',
+    monthly_amount  REAL DEFAULT 0,
+    annual_amount   REAL DEFAULT 0,
+    is_schedule_a   INTEGER DEFAULT 0,
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at      INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_noncash_benefits (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id             INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    item                TEXT DEFAULT '',
+    details             TEXT DEFAULT '',
+    yearly_market_value REAL DEFAULT 0,
+    created_at          INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at          INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_expenses (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category        TEXT NOT NULL,
+    section         TEXT NOT NULL,
+    detail          TEXT DEFAULT '',
+    monthly_amount  REAL DEFAULT 0,
+    updated_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    UNIQUE(user_id, category)
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_household (
+    user_id               INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    lives_alone           INTEGER DEFAULT 0,
+    spouse_partner_name   TEXT DEFAULT '',
+    other_adults          TEXT DEFAULT '',
+    children_count        INTEGER DEFAULT 0,
+    spouse_works_at       TEXT DEFAULT '',
+    spouse_not_working    INTEGER DEFAULT 0,
+    spouse_earns_amount   REAL DEFAULT 0,
+    spouse_earns_period   TEXT DEFAULT '',
+    spouse_no_income      INTEGER DEFAULT 0,
+    contribution_amount   REAL DEFAULT 0,
+    contribution_period   TEXT DEFAULT '',
+    updated_at            INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_assets (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category          TEXT NOT NULL,
+    subcategory       TEXT DEFAULT '',
+    description       TEXT DEFAULT '',
+    detail_2          TEXT DEFAULT '',
+    detail_3          TEXT DEFAULT '',
+    not_in_possession INTEGER DEFAULT 0,
+    value_marriage    REAL DEFAULT 0,
+    value_valuation   REAL DEFAULT 0,
+    value_current     REAL DEFAULT 0,
+    created_at        INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at        INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_debts (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category          TEXT DEFAULT '',
+    details           TEXT DEFAULT '',
+    is_contingent     INTEGER DEFAULT 0,
+    amount_marriage   REAL DEFAULT 0,
+    amount_valuation  REAL DEFAULT 0,
+    amount_current    REAL DEFAULT 0,
+    created_at        INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at        INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_marriage_date_property (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category          TEXT NOT NULL,
+    details           TEXT DEFAULT '',
+    assets_value      REAL DEFAULT 0,
+    liabilities_value REAL DEFAULT 0,
+    created_at        INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at        INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_excluded_property (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category        TEXT DEFAULT '',
+    details         TEXT DEFAULT '',
+    value_valuation REAL DEFAULT 0,
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at      INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_disposed_property (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category   TEXT DEFAULT '',
+    details    TEXT DEFAULT '',
+    value      REAL DEFAULT 0,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_schedule_b (
+    id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id                INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    child_id               INTEGER REFERENCES case_children(id) ON DELETE SET NULL,
+    child_name             TEXT DEFAULT '',
+    expense                TEXT DEFAULT '',
+    annual_amount          REAL DEFAULT 0,
+    tax_credits_deductions REAL DEFAULT 0,
+    created_at             INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at             INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fs_schedule_b_meta (
+    user_id                 INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    annual_income_for_share REAL DEFAULT 0,
+    updated_at              INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_fs_income_user   ON fs_income(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_expenses_user ON fs_expenses(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_assets_user   ON fs_assets(user_id, category);
+  CREATE INDEX IF NOT EXISTS idx_fs_debts_user    ON fs_debts(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_mdp_user      ON fs_marriage_date_property(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_excl_user     ON fs_excluded_property(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_disp_user     ON fs_disposed_property(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_schedb_user   ON fs_schedule_b(user_id);
+  CREATE INDEX IF NOT EXISTS idx_fs_noncash_user  ON fs_noncash_benefits(user_id);
+`);
+
 // ── CLEARSPLIT SCHEMA ──
 db.exec(`
   CREATE TABLE IF NOT EXISTS clearsplit_agreements (
@@ -910,6 +1071,574 @@ function getFullProfile(userId, products) {
   return result;
 }
 
+// ── FORM 13.1 FINANCIAL (Unit 4b) ──
+
+// Typed field picker. Unlike pickFields (which stringifies everything to 500 chars),
+// this respects numeric, boolean, and integer types — needed for financial data.
+function pickFieldsTyped(obj, schema) {
+  const out = {};
+  if (!obj || typeof obj !== 'object') return out;
+  for (const [key, type] of Object.entries(schema)) {
+    if (!(key in obj)) continue;
+    const v = obj[key];
+    if (v === null || v === undefined) {
+      out[key] = type === 'text' ? '' : 0;
+      continue;
+    }
+    if (type === 'number') {
+      const n = Number(v);
+      out[key] = Number.isFinite(n) ? n : 0;
+    } else if (type === 'int') {
+      const n = parseInt(v, 10);
+      out[key] = Number.isFinite(n) ? n : 0;
+    } else if (type === 'bool') {
+      out[key] = v ? 1 : 0;
+    } else {
+      out[key] = String(v).slice(0, 500);
+    }
+  }
+  return out;
+}
+
+// ── Field whitelists + schemas ──
+const FS_VALUATION_DATES_SCHEMA = {
+  date_of_marriage: 'text',
+  valuation_date: 'text',
+  cohabitation_start_date: 'text',
+};
+
+const FS_INCOME_META_SCHEMA = {
+  employment_status: 'text',
+  employer_name_address: 'text',
+  business_name_address: 'text',
+  unemployed_since: 'text',
+  last_year_gross_income: 'number',
+  self_employment_gross_monthly: 'number',
+  indian_act_election: 'bool',
+  indian_act_documents: 'text',
+};
+
+const FS_INCOME_SCHEMA = {
+  category: 'text',
+  detail: 'text',
+  monthly_amount: 'number',
+  annual_amount: 'number',
+  is_schedule_a: 'bool',
+};
+
+const FS_NONCASH_SCHEMA = {
+  item: 'text',
+  details: 'text',
+  yearly_market_value: 'number',
+};
+
+const FS_EXPENSES_SCHEMA = {
+  detail: 'text',
+  monthly_amount: 'number',
+};
+
+const FS_HOUSEHOLD_SCHEMA = {
+  lives_alone: 'bool',
+  spouse_partner_name: 'text',
+  other_adults: 'text',
+  children_count: 'int',
+  spouse_works_at: 'text',
+  spouse_not_working: 'bool',
+  spouse_earns_amount: 'number',
+  spouse_earns_period: 'text',
+  spouse_no_income: 'bool',
+  contribution_amount: 'number',
+  contribution_period: 'text',
+};
+
+const FS_ASSETS_SCHEMA = {
+  category: 'text',
+  subcategory: 'text',
+  description: 'text',
+  detail_2: 'text',
+  detail_3: 'text',
+  not_in_possession: 'bool',
+  value_marriage: 'number',
+  value_valuation: 'number',
+  value_current: 'number',
+};
+
+const FS_DEBTS_SCHEMA = {
+  category: 'text',
+  details: 'text',
+  is_contingent: 'bool',
+  amount_marriage: 'number',
+  amount_valuation: 'number',
+  amount_current: 'number',
+};
+
+const FS_MDP_SCHEMA = {
+  category: 'text',
+  details: 'text',
+  assets_value: 'number',
+  liabilities_value: 'number',
+};
+
+const FS_EXCLUDED_SCHEMA = {
+  category: 'text',
+  details: 'text',
+  value_valuation: 'number',
+};
+
+const FS_DISPOSED_SCHEMA = {
+  category: 'text',
+  details: 'text',
+  value: 'number',
+};
+
+const FS_SCHEDULE_B_SCHEMA = {
+  child_id: 'int',
+  child_name: 'text',
+  expense: 'text',
+  annual_amount: 'number',
+  tax_credits_deductions: 'number',
+};
+
+const FS_SCHEDULE_B_META_SCHEMA = {
+  annual_income_for_share: 'number',
+};
+
+// Fixed seed categories for Part 2 expenses — seeded once per user on first load
+const FS_EXPENSE_CATEGORIES = [
+  // Automatic deductions
+  { category: 'auto_cpp',            section: 'automatic' },
+  { category: 'auto_ei',             section: 'automatic' },
+  { category: 'auto_income_tax',     section: 'automatic' },
+  { category: 'auto_pension',        section: 'automatic' },
+  { category: 'auto_union_dues',     section: 'automatic' },
+  // Housing
+  { category: 'house_rent_mortgage', section: 'housing' },
+  { category: 'house_property_tax',  section: 'housing' },
+  { category: 'house_insurance',     section: 'housing' },
+  { category: 'house_condo_fees',    section: 'housing' },
+  { category: 'house_repairs',       section: 'housing' },
+  // Utilities
+  { category: 'util_water',          section: 'utilities' },
+  { category: 'util_heat',           section: 'utilities' },
+  { category: 'util_electricity',    section: 'utilities' },
+  { category: 'util_telephone',      section: 'utilities' },
+  { category: 'util_cell',           section: 'utilities' },
+  { category: 'util_cable',          section: 'utilities' },
+  { category: 'util_internet',       section: 'utilities' },
+  // Household
+  { category: 'hh_groceries',        section: 'household' },
+  { category: 'hh_supplies',         section: 'household' },
+  { category: 'hh_meals_out',        section: 'household' },
+  { category: 'hh_pet_care',         section: 'household' },
+  { category: 'hh_laundry',          section: 'household' },
+  // Childcare
+  { category: 'cc_daycare',          section: 'childcare' },
+  { category: 'cc_babysitting',      section: 'childcare' },
+  // Transportation
+  { category: 'trans_public',        section: 'transportation' },
+  { category: 'trans_gas',           section: 'transportation' },
+  { category: 'trans_insurance',     section: 'transportation' },
+  { category: 'trans_repairs',       section: 'transportation' },
+  { category: 'trans_parking',       section: 'transportation' },
+  { category: 'trans_car_loan',      section: 'transportation' },
+  // Health
+  { category: 'health_insurance',    section: 'health' },
+  { category: 'health_dental',       section: 'health' },
+  { category: 'health_drugs',        section: 'health' },
+  { category: 'health_eye',          section: 'health' },
+  // Personal
+  { category: 'pers_clothing',       section: 'personal' },
+  { category: 'pers_hair',           section: 'personal' },
+  { category: 'pers_alcohol_tobacco',section: 'personal' },
+  { category: 'pers_education',      section: 'personal' },
+  { category: 'pers_entertainment',  section: 'personal' },
+  { category: 'pers_gifts',          section: 'personal' },
+  // Other
+  { category: 'other_life_insurance',section: 'other' },
+  { category: 'other_rrsp_resp',     section: 'other' },
+  { category: 'other_vacations',     section: 'other' },
+  { category: 'other_school_fees',   section: 'other' },
+  { category: 'other_children_clothing', section: 'other' },
+  { category: 'other_children_activities', section: 'other' },
+  { category: 'other_summer_camp',   section: 'other' },
+  { category: 'other_debt_payments', section: 'other' },
+  { category: 'other_support_paid',  section: 'other' },
+  { category: 'other_other',         section: 'other' },
+];
+
+// Fixed seed categories for Part 1 income (items 1-11)
+const FS_INCOME_SEED_CATEGORIES = [
+  'employment', 'commissions', 'self_employment', 'ei', 'wcb',
+  'social_assistance', 'investment', 'pension', 'spousal_support',
+  'child_benefits', 'other',
+];
+
+// ── Valuation dates (singleton) ──
+function getValuationDates(userId) {
+  const row = db.prepare('SELECT * FROM fs_valuation_dates WHERE user_id=?').get(userId);
+  if (row) return row;
+  db.prepare('INSERT INTO fs_valuation_dates (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM fs_valuation_dates WHERE user_id=?').get(userId);
+}
+
+function saveValuationDates(userId, data) {
+  const clean = pickFieldsTyped(data, FS_VALUATION_DATES_SCHEMA);
+  getValuationDates(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE fs_valuation_dates SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+// ── Income meta (singleton) ──
+function getIncomeMeta(userId) {
+  const row = db.prepare('SELECT * FROM fs_income_meta WHERE user_id=?').get(userId);
+  if (row) return row;
+  db.prepare('INSERT INTO fs_income_meta (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM fs_income_meta WHERE user_id=?').get(userId);
+}
+
+function saveIncomeMeta(userId, data) {
+  const clean = pickFieldsTyped(data, FS_INCOME_META_SCHEMA);
+  getIncomeMeta(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE fs_income_meta SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+// ── Income rows (list + seed) ──
+function seedIncomeRows(userId) {
+  const count = db.prepare('SELECT COUNT(*) AS n FROM fs_income WHERE user_id=? AND is_schedule_a=0').get(userId).n;
+  if (count > 0) return;
+  const stmt = db.prepare('INSERT INTO fs_income (user_id, category, is_schedule_a) VALUES (?, ?, 0)');
+  const tx = db.transaction(() => {
+    for (const cat of FS_INCOME_SEED_CATEGORIES) stmt.run(userId, cat);
+  });
+  tx();
+}
+
+function listIncome(userId) {
+  seedIncomeRows(userId);
+  return db.prepare('SELECT * FROM fs_income WHERE user_id=? ORDER BY is_schedule_a, id').all(userId);
+}
+
+function updateIncome(incomeId, userId, data) {
+  const clean = pickFieldsTyped(data, FS_INCOME_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), incomeId, userId];
+  const result = db.prepare(
+    `UPDATE fs_income SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function addScheduleAIncome(userId, data) {
+  const clean = pickFieldsTyped(data, FS_INCOME_SCHEMA);
+  clean.is_schedule_a = 1;
+  if (!clean.category) clean.category = 'sched_a_other';
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_income (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function deleteIncome(incomeId, userId) {
+  // Only allow deleting Schedule A rows; fixed rows 1-11 are permanent
+  const result = db.prepare(
+    'DELETE FROM fs_income WHERE id=? AND user_id=? AND is_schedule_a=1'
+  ).run(incomeId, userId);
+  return result.changes > 0;
+}
+
+// ── Non-cash benefits (list) ──
+function listNoncash(userId) {
+  return db.prepare('SELECT * FROM fs_noncash_benefits WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addNoncash(userId, data) {
+  const clean = pickFieldsTyped(data, FS_NONCASH_SCHEMA);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_noncash_benefits (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateNoncash(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_NONCASH_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_noncash_benefits SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteNoncash(id, userId) {
+  const result = db.prepare('DELETE FROM fs_noncash_benefits WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Expenses (list + seed) ──
+function seedExpenseRows(userId) {
+  const count = db.prepare('SELECT COUNT(*) AS n FROM fs_expenses WHERE user_id=?').get(userId).n;
+  if (count >= FS_EXPENSE_CATEGORIES.length) return;
+  const stmt = db.prepare(
+    'INSERT OR IGNORE INTO fs_expenses (user_id, category, section) VALUES (?, ?, ?)'
+  );
+  const tx = db.transaction(() => {
+    for (const c of FS_EXPENSE_CATEGORIES) stmt.run(userId, c.category, c.section);
+  });
+  tx();
+}
+
+function listExpenses(userId) {
+  seedExpenseRows(userId);
+  return db.prepare('SELECT * FROM fs_expenses WHERE user_id=? ORDER BY section, id').all(userId);
+}
+
+function updateExpense(expenseId, userId, data) {
+  const clean = pickFieldsTyped(data, FS_EXPENSES_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), expenseId, userId];
+  const result = db.prepare(
+    `UPDATE fs_expenses SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+// ── Household (singleton) ──
+function getHousehold(userId) {
+  const row = db.prepare('SELECT * FROM fs_household WHERE user_id=?').get(userId);
+  if (row) return row;
+  db.prepare('INSERT INTO fs_household (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM fs_household WHERE user_id=?').get(userId);
+}
+
+function saveHousehold(userId, data) {
+  const clean = pickFieldsTyped(data, FS_HOUSEHOLD_SCHEMA);
+  getHousehold(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE fs_household SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+// ── Assets (list) ──
+function listAssets(userId) {
+  return db.prepare('SELECT * FROM fs_assets WHERE user_id=? ORDER BY category, id').all(userId);
+}
+
+function addAsset(userId, data) {
+  const clean = pickFieldsTyped(data, FS_ASSETS_SCHEMA);
+  if (!clean.category) throw new Error('Category required');
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_assets (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateAsset(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_ASSETS_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_assets SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteAsset(id, userId) {
+  const result = db.prepare('DELETE FROM fs_assets WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Debts (list) ──
+function listDebts(userId) {
+  return db.prepare('SELECT * FROM fs_debts WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addDebt(userId, data) {
+  const clean = pickFieldsTyped(data, FS_DEBTS_SCHEMA);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_debts (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateDebt(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_DEBTS_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_debts SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteDebt(id, userId) {
+  const result = db.prepare('DELETE FROM fs_debts WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Marriage-date property (list) ──
+function listMdp(userId) {
+  return db.prepare('SELECT * FROM fs_marriage_date_property WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addMdp(userId, data) {
+  const clean = pickFieldsTyped(data, FS_MDP_SCHEMA);
+  if (!clean.category) throw new Error('Category required');
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_marriage_date_property (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateMdp(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_MDP_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_marriage_date_property SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteMdp(id, userId) {
+  const result = db.prepare('DELETE FROM fs_marriage_date_property WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Excluded property (list) ──
+function listExcluded(userId) {
+  return db.prepare('SELECT * FROM fs_excluded_property WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addExcluded(userId, data) {
+  const clean = pickFieldsTyped(data, FS_EXCLUDED_SCHEMA);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_excluded_property (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateExcluded(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_EXCLUDED_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_excluded_property SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteExcluded(id, userId) {
+  const result = db.prepare('DELETE FROM fs_excluded_property WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Disposed property (list) ──
+function listDisposed(userId) {
+  return db.prepare('SELECT * FROM fs_disposed_property WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addDisposed(userId, data) {
+  const clean = pickFieldsTyped(data, FS_DISPOSED_SCHEMA);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_disposed_property (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateDisposed(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_DISPOSED_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_disposed_property SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteDisposed(id, userId) {
+  const result = db.prepare('DELETE FROM fs_disposed_property WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Schedule B (list) ──
+function listScheduleB(userId) {
+  return db.prepare('SELECT * FROM fs_schedule_b WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addScheduleB(userId, data) {
+  const clean = pickFieldsTyped(data, FS_SCHEDULE_B_SCHEMA);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO fs_schedule_b (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateScheduleB(id, userId, data) {
+  const clean = pickFieldsTyped(data, FS_SCHEDULE_B_SCHEMA);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), id, userId];
+  const result = db.prepare(
+    `UPDATE fs_schedule_b SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteScheduleB(id, userId) {
+  const result = db.prepare('DELETE FROM fs_schedule_b WHERE id=? AND user_id=?').run(id, userId);
+  return result.changes > 0;
+}
+
+// ── Schedule B meta (singleton) ──
+function getScheduleBMeta(userId) {
+  const row = db.prepare('SELECT * FROM fs_schedule_b_meta WHERE user_id=?').get(userId);
+  if (row) return row;
+  db.prepare('INSERT INTO fs_schedule_b_meta (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM fs_schedule_b_meta WHERE user_id=?').get(userId);
+}
+
+function saveScheduleBMeta(userId, data) {
+  const clean = pickFieldsTyped(data, FS_SCHEDULE_B_META_SCHEMA);
+  getScheduleBMeta(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE fs_schedule_b_meta SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+// ── Aggregate: everything needed to render the Finances tab + generate Form 13.1 ──
+function getFinancialStatement(userId) {
+  return {
+    valuation_dates: getValuationDates(userId),
+    income_meta: getIncomeMeta(userId),
+    income: listIncome(userId),
+    noncash: listNoncash(userId),
+    expenses: listExpenses(userId),
+    household: getHousehold(userId),
+    assets: listAssets(userId),
+    debts: listDebts(userId),
+    marriage_date_property: listMdp(userId),
+    excluded: listExcluded(userId),
+    disposed: listDisposed(userId),
+    schedule_b: listScheduleB(userId),
+    schedule_b_meta: getScheduleBMeta(userId),
+  };
+}
+
 module.exports = {
   db, PLANS, STRIPE_PRICES,
   createUser, getUserByEmail, getUserById,
@@ -952,4 +1681,20 @@ module.exports = {
   getCriminalInfo, saveCriminalInfo,
   listCharges, addCharge, updateCharge, deleteCharge,
   getFullProfile,
+  // Financial statement (Unit 4b — Form 13.1)
+  pickFieldsTyped,
+  getValuationDates, saveValuationDates,
+  getIncomeMeta, saveIncomeMeta,
+  listIncome, updateIncome, addScheduleAIncome, deleteIncome,
+  listNoncash, addNoncash, updateNoncash, deleteNoncash,
+  listExpenses, updateExpense,
+  getHousehold, saveHousehold,
+  listAssets, addAsset, updateAsset, deleteAsset,
+  listDebts, addDebt, updateDebt, deleteDebt,
+  listMdp, addMdp, updateMdp, deleteMdp,
+  listExcluded, addExcluded, updateExcluded, deleteExcluded,
+  listDisposed, addDisposed, updateDisposed, deleteDisposed,
+  listScheduleB, addScheduleB, updateScheduleB, deleteScheduleB,
+  getScheduleBMeta, saveScheduleBMeta,
+  getFinancialStatement,
 };

@@ -116,12 +116,59 @@ nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); heigh
 .info-banner { background: rgba(46,134,193,0.08); border: 1px solid rgba(46,134,193,0.25); border-left: 3px solid var(--blue); padding: 14px 18px; margin-bottom: 24px; font-family: 'Source Serif 4', serif; font-size: 0.88rem; color: var(--text2); line-height: 1.6; border-radius: 4px; }
 .info-banner strong { color: var(--white); }
 
+/* ── SUB-TABS (within Finances) ── */
+.subtabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; padding: 4px; background: var(--navy); border: 1px solid var(--border); border-radius: 6px; }
+.subtab { padding: 8px 14px; background: none; border: none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+.subtab:hover { color: var(--text); }
+.subtab.active { background: var(--blue); color: #fff; }
+.subtab-panel { display: none; }
+.subtab-panel.active { display: block; }
+
+/* ── NFP SUMMARY CARD ── */
+.nfp-card { background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy-mid) 100%); border: 2px solid var(--blue); padding: 24px; margin-bottom: 24px; border-radius: 8px; position: sticky; top: 72px; z-index: 10; box-shadow: 0 4px 16px rgba(46,134,193,0.15); }
+.nfp-hdr { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.nfp-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); }
+.nfp-total { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--white); font-weight: 700; }
+.nfp-explain { font-family: 'Source Serif 4', serif; font-size: 0.85rem; color: var(--text2); line-height: 1.5; margin-bottom: 14px; }
+.nfp-breakdown { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--text); border-top: 1px solid var(--border); padding-top: 12px; display: grid; gap: 6px; }
+.nfp-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.nfp-line-label { color: var(--text2); }
+.nfp-line-value { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+.nfp-line.total { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px; font-weight: 600; }
+.nfp-line.total .nfp-line-label { color: var(--white); }
+.nfp-line.total .nfp-line-value { color: var(--blue-light); font-size: 0.95rem; }
+.nfp-caveat { font-family: 'Source Serif 4', serif; font-size: 0.78rem; color: var(--text3); font-style: italic; margin-top: 10px; }
+
+/* ── FIN TABLES ── */
+.fin-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+.fin-table th { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); padding: 10px 8px; border-bottom: 1px solid var(--border); font-weight: 500; }
+.fin-table td { padding: 8px; border-bottom: 1px solid rgba(42,63,86,0.4); vertical-align: top; }
+.fin-table td input, .fin-table td select, .fin-table td textarea { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; padding: 7px 9px; border-radius: 3px; outline: none; transition: border-color 0.15s; }
+.fin-table td input:focus, .fin-table td select:focus, .fin-table td textarea:focus { border-color: var(--blue); }
+.fin-table td.num input { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+.fin-table tr.section-hdr td { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--blue-light); padding-top: 18px; padding-bottom: 6px; border-bottom: 2px solid var(--blue); }
+.fin-table tr.subtotal-row td { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text2); text-align: right; padding: 8px; background: rgba(46,134,193,0.06); }
+.fin-table tr.subtotal-row td.num { color: var(--blue-light); font-weight: 600; }
+.fin-table td.label { font-family: 'Inter', sans-serif; color: var(--text); font-size: 0.85rem; padding-left: 8px; }
+.fin-table td.row-detail input { font-size: 0.8rem; color: var(--text2); }
+.fin-empty-row td { text-align: center; color: var(--text3); padding: 24px; font-family: 'Source Serif 4', serif; font-style: italic; }
+
+/* Triple-value columns (Parts 4/5) */
+.fin-table.triple th.num, .fin-table.triple td.num { width: 110px; }
+.dollar-prefix { position: relative; }
+.dollar-prefix::before { content: '$'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; pointer-events: none; }
+.dollar-prefix input { padding-left: 20px !important; }
+
 @media (max-width: 640px) {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .container { padding: 24px 16px; }
   .card { padding: 16px; }
   nav { padding: 0 12px; }
   .nav-tag { display: none; }
+  .nfp-card { position: static; padding: 18px; }
+  .nfp-total { font-size: 1.5rem; }
+  .fin-table { font-size: 0.78rem; }
+  .fin-table.triple th.num, .fin-table.triple td.num { width: 80px; }
 }
 </style>
 </head>
@@ -155,6 +202,7 @@ nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); heigh
       <button class="tab active" data-tab="core" onclick="switchTab('core')">About You</button>
       <button class="tab" data-tab="children" onclick="switchTab('children')">Children</button>
       <button class="tab" data-tab="family" onclick="switchTab('family')" style="display:none">Family Matter</button>
+      <button class="tab" data-tab="finances" onclick="switchTab('finances')" style="display:none">Finances</button>
       <button class="tab" data-tab="criminal" onclick="switchTab('criminal')" style="display:none">Criminal Matter</button>
     </div>
 
@@ -328,6 +376,415 @@ nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); heigh
         <div class="item-list" id="criminalPartiesList"></div>
       </div>
     </div>
+
+    <!-- ── FINANCES (Unit 4b — Form 13.1) ── -->
+    <div class="tab-panel" id="panel-finances">
+
+      <!-- Live NFP Summary (sticky) -->
+      <div class="nfp-card" id="nfpCard">
+        <div class="nfp-hdr">
+          <div>
+            <div class="nfp-label">Your Net Family Property</div>
+            <div class="nfp-total" id="nfpTotal">$0</div>
+          </div>
+          <button class="btn btn-sm" onclick="recalcNfp()">Recalculate</button>
+        </div>
+        <div class="nfp-explain">
+          This is what you're bringing to the equalization calculation. Your spouse does the same math.
+          Whoever has the higher NFP owes the lower half the difference.
+        </div>
+        <div class="nfp-breakdown">
+          <div class="nfp-line"><span class="nfp-line-label">Property on valuation date (item 22)</span><span class="nfp-line-value" id="nfp-22">$0</span></div>
+          <div class="nfp-line"><span class="nfp-line-label">− Debts on valuation date (item 23)</span><span class="nfp-line-value" id="nfp-23">$0</span></div>
+          <div class="nfp-line"><span class="nfp-line-label">− Net value at date of marriage (item 24)</span><span class="nfp-line-value" id="nfp-24">$0</span></div>
+          <div class="nfp-line"><span class="nfp-line-label">− Excluded property (item 26)</span><span class="nfp-line-value" id="nfp-26">$0</span></div>
+          <div class="nfp-line total"><span class="nfp-line-label">= Net Family Property (item 28)</span><span class="nfp-line-value" id="nfp-28">$0</span></div>
+        </div>
+        <div class="nfp-caveat">Dispute-able. The other side may calculate these numbers differently.</div>
+      </div>
+
+      <!-- Valuation Dates -->
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Key Dates</div>
+            <div class="card-sub">Used throughout Form 13.1 to anchor all asset and debt calculations.</div>
+          </div>
+          <span class="save-status" id="valDatesStatus"></span>
+        </div>
+        <div class="grid-3">
+          <div class="field"><label>Date of marriage</label><input type="date" id="fin-date-marriage"></div>
+          <div class="field"><label>Valuation date (separation)</label><input type="date" id="fin-valuation-date"></div>
+          <div class="field"><label>Cohabitation start (if different)</label><input type="date" id="fin-cohab-start"></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="saveValDates()">Save Dates</button>
+        </div>
+      </div>
+
+      <!-- Sub-tabs -->
+      <div class="subtabs" id="finSubtabs">
+        <button class="subtab active" data-subtab="income"   onclick="switchSub('income')">Income</button>
+        <button class="subtab"        data-subtab="expenses" onclick="switchSub('expenses')">Expenses</button>
+        <button class="subtab"        data-subtab="household"onclick="switchSub('household')">Household</button>
+        <button class="subtab"        data-subtab="property" onclick="switchSub('property')">Property</button>
+        <button class="subtab"        data-subtab="debts"    onclick="switchSub('debts')">Debts</button>
+        <button class="subtab"        data-subtab="marriage" onclick="switchSub('marriage')">At Marriage</button>
+        <button class="subtab"        data-subtab="excluded" onclick="switchSub('excluded')">Excluded &amp; Disposed</button>
+        <button class="subtab"        data-subtab="schedb"   onclick="switchSub('schedb')">Schedule B</button>
+      </div>
+
+      <!-- ── INCOME sub-panel ── -->
+      <div class="subtab-panel active" id="subpanel-income">
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 1 — Current Situation</div>
+              <div class="card-sub">Tells the court how you're earning right now. Used for Form 13.1 item 2.</div>
+            </div>
+            <span class="save-status" id="incomeMetaStatus"></span>
+          </div>
+          <div class="grid-2">
+            <div class="field"><label>Employment status</label>
+              <select id="fin-emp-status">
+                <option value="">Select…</option>
+                <option value="employed">Employed</option>
+                <option value="self_employed">Self-employed</option>
+                <option value="unemployed">Unemployed</option>
+              </select>
+            </div>
+            <div class="field"><label>Last year's gross income ($)</label><input type="number" step="0.01" id="fin-last-year-gross"></div>
+            <div class="field full"><label>Employer (name &amp; address)</label><input type="text" id="fin-employer" maxlength="500"></div>
+            <div class="field full"><label>Business (if self-employed, name &amp; address)</label><input type="text" id="fin-business" maxlength="500"></div>
+            <div class="field"><label>Unemployed since (if applicable)</label><input type="date" id="fin-unemp-since"></div>
+            <div class="field"><label>Self-employment gross monthly ($)</label><input type="number" step="0.01" id="fin-se-gross-monthly"></div>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn btn-primary" onclick="saveIncomeMeta()">Save</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 1 — Monthly Income</div>
+              <div class="card-sub">All income currently received, taxable or not. Changes save automatically.</div>
+            </div>
+            <span class="save-status" id="incomeStatus"></span>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th>Source</th><th style="width:160px" class="num">Monthly Amount</th></tr></thead>
+            <tbody id="incomeRows"></tbody>
+            <tfoot>
+              <tr class="subtotal-row"><td>Total monthly income</td><td class="num" id="income-total-monthly">$0.00</td></tr>
+              <tr class="subtotal-row"><td>Total annual income (× 12)</td><td class="num" id="income-total-annual">$0.00</td></tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Schedule A — Other Income Sources</div>
+              <div class="card-sub">Partnership, rental, dividends, capital gains, RRSP withdrawals, RRIF/annuity, other.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addSchedARow()">+ Add Row</button>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th style="width:180px">Category</th><th>Details</th><th style="width:140px" class="num">Annual Amount</th><th style="width:50px"></th></tr></thead>
+            <tbody id="schedARows"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Non-Cash Benefits (Item 14)</div>
+              <div class="card-sub">Medical insurance, company car, room and board — paid for by employer or business.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addNoncashRow()">+ Add Benefit</button>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th style="width:180px">Item</th><th>Details</th><th style="width:140px" class="num">Yearly Value</th><th style="width:50px"></th></tr></thead>
+            <tbody id="noncashRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── EXPENSES sub-panel ── -->
+      <div class="subtab-panel" id="subpanel-expenses">
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 2 — Monthly Expenses</div>
+              <div class="card-sub">Current household spending. Used to argue support needs. Leave any row blank if not applicable.</div>
+            </div>
+            <span class="save-status" id="expensesStatus"></span>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th>Expense</th><th style="width:140px" class="num">Monthly Amount</th></tr></thead>
+            <tbody id="expenseRows"></tbody>
+            <tfoot>
+              <tr class="subtotal-row"><td>Total monthly expenses</td><td class="num" id="expenses-total-monthly">$0.00</td></tr>
+              <tr class="subtotal-row"><td>Total yearly expenses (× 12)</td><td class="num" id="expenses-total-yearly">$0.00</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── HOUSEHOLD sub-panel ── -->
+      <div class="subtab-panel" id="subpanel-household">
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 3 — Other Income Earners in the Home</div>
+              <div class="card-sub">Complete only if you're claiming undue hardship or spousal support.</div>
+            </div>
+            <span class="save-status" id="householdStatus"></span>
+          </div>
+          <div class="grid-2">
+            <div class="field full"><label><input type="checkbox" id="hh-lives-alone" style="width:auto;margin-right:8px"> I live alone</label></div>
+            <div class="field"><label>Spouse/partner full legal name</label><input type="text" id="hh-spouse-name" maxlength="200"></div>
+            <div class="field"><label>Number of children in the home</label><input type="number" step="1" min="0" id="hh-children-count"></div>
+            <div class="field full"><label>Other adults in the home</label><input type="text" id="hh-other-adults" maxlength="500"></div>
+            <div class="field full"><label>Spouse/partner works at (place)</label><input type="text" id="hh-spouse-works-at" maxlength="300"></div>
+            <div class="field"><label>Spouse/partner earns ($)</label><input type="number" step="0.01" id="hh-spouse-earns"></div>
+            <div class="field"><label>Per</label>
+              <select id="hh-spouse-period">
+                <option value="">Select…</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+            </div>
+            <div class="field"><label>Contribution to household ($)</label><input type="number" step="0.01" id="hh-contribution"></div>
+            <div class="field"><label>Per</label>
+              <select id="hh-contrib-period">
+                <option value="">Select…</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+            </div>
+            <div class="field"><label><input type="checkbox" id="hh-spouse-not-working" style="width:auto;margin-right:8px"> Spouse/partner does not work outside the home</label></div>
+            <div class="field"><label><input type="checkbox" id="hh-spouse-no-income" style="width:auto;margin-right:8px"> Spouse/partner earns no income</label></div>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn btn-primary" onclick="saveHousehold()">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROPERTY sub-panel (Parts 4(a)-(g)) ── -->
+      <div class="subtab-panel" id="subpanel-property">
+        <div class="info-banner">
+          <strong>Enter each property you owned</strong> on the date of marriage, the valuation date (separation), and today. Show the estimated market value of YOUR interest. Don't deduct encumbrances here — list them under Debts.
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(a) — Land</div>
+              <div class="card-sub">Any interest in land including leasehold interests and mortgages.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('land')">+ Add Land</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th>Nature / Type / Ownership %</th><th>Address</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-land"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(b) — Household Items &amp; Vehicles</div>
+              <div class="card-sub">Market value, not replacement cost.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('household_vehicles')">+ Add Item</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th style="width:160px">Category</th><th>Description</th><th style="width:60px">Not in possession</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-household_vehicles"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(c) — Bank Accounts, Savings, Securities, Pensions</div>
+              <div class="card-sub">Cash, accounts, RRSPs, pensions, deposit receipts, bonds, options, notes.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('bank_savings_pensions')">+ Add Account</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th>Institution / Description</th><th style="width:140px">Account #</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-bank_savings_pensions"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(d) — Life &amp; Disability Insurance</div>
+              <div class="card-sub">Cash surrender value on each date. Include owner, beneficiary, face amount.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('insurance')">+ Add Policy</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th>Company / Type / Policy #</th><th style="width:140px">Owner / Beneficiary / Face</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-insurance"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(e) — Business Interests</div>
+              <div class="card-sub">Unincorporated businesses. (Incorporated businesses may appear here or under 4(c).)</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('business')">+ Add Business</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th>Firm or Company Name</th><th>Your Interest</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-business"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(f) — Money Owed to You</div>
+              <div class="card-sub">Business or personal. Include court judgments in your favour, estate money, tax refunds.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('money_owed')">+ Add Debt Owed</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th>Details</th><th></th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-money_owed"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 4(g) — Other Property</div>
+              <div class="card-sub">Anything not listed above. Best estimate of market value.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addAssetRow('other')">+ Add Other</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th style="width:160px">Category</th><th>Details</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="assetRows-other"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── DEBTS sub-panel (Part 5) ── -->
+      <div class="subtab-panel" id="subpanel-debts">
+        <div class="info-banner">
+          <strong>Include:</strong> mortgages, charges, liens, notes, credit cards, accounts payable, money owed to CRA, contingent liabilities, and unpaid legal/professional bills from this case.
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 5 — Debts &amp; Other Liabilities</div>
+              <div class="card-sub">Amount owing on each date.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addDebtRow()">+ Add Debt</button>
+          </div>
+          <table class="fin-table triple">
+            <thead><tr><th style="width:160px">Category</th><th>Details</th><th style="width:60px">Contingent</th><th class="num">At Marriage</th><th class="num">Valuation Date</th><th class="num">Today</th><th style="width:50px"></th></tr></thead>
+            <tbody id="debtRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── MARRIAGE DATE sub-panel (Part 6) ── -->
+      <div class="subtab-panel" id="subpanel-marriage">
+        <div class="info-banner">
+          <strong>Part 6 is a category rollup at marriage date only.</strong> Do NOT include the matrimonial home or debts related to its purchase/improvement if you and your spouse ordinarily occupied it as your family residence at separation.
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 6 — Property, Debts &amp; Liabilities on Date of Marriage</div>
+              <div class="card-sub">Totals feed directly into the NFP calculation (item 24).</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addMdpRow()">+ Add Category</button>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th style="width:200px">Category</th><th>Details</th><th class="num" style="width:140px">Assets</th><th class="num" style="width:140px">Liabilities</th><th style="width:50px"></th></tr></thead>
+            <tbody id="mdpRows"></tbody>
+            <tfoot>
+              <tr class="subtotal-row"><td></td><td>Totals</td><td class="num" id="mdp-assets-total">$0.00</td><td class="num" id="mdp-liab-total">$0.00</td><td></td></tr>
+              <tr class="subtotal-row"><td></td><td>Net value (item 24)</td><td></td><td class="num" id="mdp-net">$0.00</td><td></td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── EXCLUDED & DISPOSED sub-panel (Parts 7, 8) ── -->
+      <div class="subtab-panel" id="subpanel-excluded">
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 7 — Excluded Property</div>
+              <div class="card-sub">Gifts or inheritances received after marriage, and other excluded property under s. 4(2) FLA.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addExcludedRow()">+ Add Excluded</button>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th style="width:180px">Category</th><th>Details</th><th class="num" style="width:140px">Value at Valuation Date</th><th style="width:50px"></th></tr></thead>
+            <tbody id="excludedRows"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Part 8 — Disposed-of Property</div>
+              <div class="card-sub">Property disposed of during the two years before this statement, or during the marriage (whichever is shorter).</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addDisposedRow()">+ Add Disposed</button>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th style="width:180px">Category</th><th>Details</th><th class="num" style="width:140px">Value</th><th style="width:50px"></th></tr></thead>
+            <tbody id="disposedRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SCHEDULE B sub-panel ── -->
+      <div class="subtab-panel" id="subpanel-schedb">
+        <div class="info-banner">
+          <strong>Complete Schedule B if</strong> you or the other party seek a contribution to special or extraordinary expenses for the children (s. 7 of the Child Support Guidelines).
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <div>
+              <div class="card-title">Schedule B — Special &amp; Extraordinary Expenses</div>
+              <div class="card-sub">Childcare, medical premiums &gt; $100/yr, extraordinary education, post-secondary, extracurriculars.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addSchedBRow()">+ Add Expense</button>
+          </div>
+          <table class="fin-table">
+            <thead><tr><th style="width:180px">Child</th><th>Expense</th><th class="num" style="width:130px">Annual Amount</th><th class="num" style="width:130px">Tax Credits/Deductions</th><th style="width:50px"></th></tr></thead>
+            <tbody id="schedBRows"></tbody>
+            <tfoot>
+              <tr class="subtotal-row"><td></td><td>Total net annual</td><td class="num" id="schedb-annual">$0.00</td><td></td><td></td></tr>
+              <tr class="subtotal-row"><td></td><td>Total net monthly</td><td class="num" id="schedb-monthly">$0.00</td><td></td><td></td></tr>
+            </tfoot>
+          </table>
+          <div style="margin-top:16px" class="grid-2">
+            <div class="field"><label>My annual income (for calculating my share) ($)</label><input type="number" step="0.01" id="schedb-my-income" onchange="saveSchedBMeta()"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- ── END FINANCES PANEL ── -->
+
   </div>
 </div>
 
@@ -411,6 +868,7 @@ async function init() {
     const hasFamily = products === 'family' || products === 'both';
     const hasCriminal = products === 'criminal' || products === 'both';
     if (hasFamily) document.querySelector('[data-tab="family"]').style.display = '';
+    if (hasFamily) document.querySelector('[data-tab="finances"]').style.display = '';
     if (hasCriminal) document.querySelector('[data-tab="criminal"]').style.display = '';
     if (products === 'both') document.getElementById('bundleBanner').style.display = 'block';
 
@@ -477,6 +935,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelector(`.tab[data-tab="${name}"]`)?.classList.add('active');
   document.getElementById('panel-' + name)?.classList.add('active');
+  if (name === 'finances' && !finLoaded) loadFinances();
 }
 
 // ── CORE ──
@@ -831,6 +1290,934 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) {
   return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── FINANCES (Unit 4b — Form 13.1) ──
+// ═══════════════════════════════════════════════════════════════
+
+let finData = null;
+let finLoaded = false;
+const saveTimers = {};
+
+// Debounced save utility — keyed so concurrent edits to different fields don't cancel each other
+function debouncedSave(key, fn, delay = 600) {
+  clearTimeout(saveTimers[key]);
+  saveTimers[key] = setTimeout(fn, delay);
+}
+
+// Currency formatter
+function fmt(n) {
+  const v = Number(n) || 0;
+  return '$' + v.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmt0(n) {
+  const v = Number(n) || 0;
+  return '$' + Math.round(v).toLocaleString('en-CA');
+}
+
+// Sub-tabs
+function switchSub(name) {
+  document.querySelectorAll('#finSubtabs .subtab').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#panel-finances .subtab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`#finSubtabs .subtab[data-subtab="${name}"]`)?.classList.add('active');
+  document.getElementById('subpanel-' + name)?.classList.add('active');
+}
+
+// ── Load + hydrate ──
+async function loadFinances() {
+  try {
+    finData = await api('GET', '/api/profile/financial');
+    finLoaded = true;
+    hydrateFinances();
+    recalcNfp();
+  } catch (e) {
+    toast('Failed to load financial data: ' + e.message);
+  }
+}
+
+function hydrateFinances() {
+  // Valuation dates
+  const vd = finData.valuation_dates || {};
+  setVal('fin-date-marriage', vd.date_of_marriage);
+  setVal('fin-valuation-date', vd.valuation_date);
+  setVal('fin-cohab-start', vd.cohabitation_start_date);
+
+  // Income meta
+  const im = finData.income_meta || {};
+  setVal('fin-emp-status', im.employment_status);
+  setVal('fin-last-year-gross', im.last_year_gross_income || '');
+  setVal('fin-employer', im.employer_name_address);
+  setVal('fin-business', im.business_name_address);
+  setVal('fin-unemp-since', im.unemployed_since);
+  setVal('fin-se-gross-monthly', im.self_employment_gross_monthly || '');
+
+  // Income rows
+  renderIncome();
+  renderSchedA();
+  renderNoncash();
+
+  // Expenses
+  renderExpenses();
+
+  // Household
+  const hh = finData.household || {};
+  const hhLivesAlone = document.getElementById('hh-lives-alone');
+  if (hhLivesAlone) hhLivesAlone.checked = !!hh.lives_alone;
+  setVal('hh-spouse-name', hh.spouse_partner_name);
+  setVal('hh-other-adults', hh.other_adults);
+  setVal('hh-children-count', hh.children_count || '');
+  setVal('hh-spouse-works-at', hh.spouse_works_at);
+  setVal('hh-spouse-earns', hh.spouse_earns_amount || '');
+  setVal('hh-spouse-period', hh.spouse_earns_period);
+  setVal('hh-contribution', hh.contribution_amount || '');
+  setVal('hh-contrib-period', hh.contribution_period);
+  const hhSnw = document.getElementById('hh-spouse-not-working');
+  if (hhSnw) hhSnw.checked = !!hh.spouse_not_working;
+  const hhSni = document.getElementById('hh-spouse-no-income');
+  if (hhSni) hhSni.checked = !!hh.spouse_no_income;
+
+  // Property (all 7 categories)
+  ['land','household_vehicles','bank_savings_pensions','insurance','business','money_owed','other']
+    .forEach(cat => renderAssets(cat));
+
+  // Debts, Part 6, excluded, disposed
+  renderDebts();
+  renderMdp();
+  renderExcluded();
+  renderDisposed();
+
+  // Schedule B
+  renderSchedB();
+  setVal('schedb-my-income', (finData.schedule_b_meta || {}).annual_income_for_share || '');
+}
+
+// ── Valuation dates ──
+async function saveValDates() {
+  status('valDatesStatus', 'saving', 'Saving…');
+  try {
+    const body = {
+      date_of_marriage: getVal('fin-date-marriage'),
+      valuation_date: getVal('fin-valuation-date'),
+      cohabitation_start_date: getVal('fin-cohab-start'),
+    };
+    const res = await api('PUT', '/api/profile/financial/valuation-dates', body);
+    finData.valuation_dates = res.valuation_dates;
+    status('valDatesStatus', 'saved', 'Saved');
+  } catch (e) {
+    status('valDatesStatus', 'error', 'Error');
+    toast('Failed to save: ' + e.message);
+  }
+}
+
+// ── Income meta ──
+async function saveIncomeMeta() {
+  status('incomeMetaStatus', 'saving', 'Saving…');
+  try {
+    const body = {
+      employment_status: getVal('fin-emp-status'),
+      employer_name_address: getVal('fin-employer'),
+      business_name_address: getVal('fin-business'),
+      unemployed_since: getVal('fin-unemp-since'),
+      last_year_gross_income: getVal('fin-last-year-gross'),
+      self_employment_gross_monthly: getVal('fin-se-gross-monthly'),
+    };
+    const res = await api('PUT', '/api/profile/financial/income-meta', body);
+    finData.income_meta = res.income_meta;
+    status('incomeMetaStatus', 'saved', 'Saved');
+  } catch (e) {
+    status('incomeMetaStatus', 'error', 'Error');
+    toast('Failed to save: ' + e.message);
+  }
+}
+
+// ── Income rows (fixed 1-11) ──
+const INCOME_LABELS = {
+  employment:        '1. Employment income (before deductions)',
+  commissions:       '2. Commissions, tips and bonuses',
+  self_employment:   '3. Self-employment income (before expenses)',
+  ei:                '4. Employment Insurance benefits',
+  wcb:               '5. Workers\' compensation benefits',
+  social_assistance: '6. Social assistance (including ODSP)',
+  investment:        '7. Interest and investment income',
+  pension:           '8. Pension income (including CPP and OAS)',
+  spousal_support:   '9. Spousal support from a former spouse/partner',
+  child_benefits:    '10. Child Tax Benefits or Tax Rebates (e.g. GST)',
+  other:             '11. Other sources (e.g. RRSP withdrawals, capital gains)',
+};
+
+function renderIncome() {
+  const tbody = document.getElementById('incomeRows');
+  const rows = (finData.income || []).filter(r => !r.is_schedule_a);
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td class="label">${escapeHtml(INCOME_LABELS[r.category] || r.category)}</td>
+      <td class="num dollar-prefix">
+        <input type="number" step="0.01" value="${r.monthly_amount || ''}"
+          oninput="onIncomeChange(${r.id}, this.value)">
+      </td>
+    </tr>
+  `).join('');
+  updateIncomeTotals();
+}
+
+function onIncomeChange(id, value) {
+  // Update in-memory + schedule save
+  const row = (finData.income || []).find(r => r.id === id);
+  if (row) row.monthly_amount = Number(value) || 0;
+  updateIncomeTotals();
+  recalcNfp();
+  status('incomeStatus', 'saving', 'Saving…');
+  debouncedSave('income-' + id, async () => {
+    try {
+      await api('PUT', '/api/profile/financial/income/' + id, { monthly_amount: value });
+      status('incomeStatus', 'saved', 'Saved');
+    } catch (e) {
+      status('incomeStatus', 'error', 'Error');
+    }
+  });
+}
+
+function updateIncomeTotals() {
+  const total = (finData.income || [])
+    .filter(r => !r.is_schedule_a)
+    .reduce((s, r) => s + (Number(r.monthly_amount) || 0), 0);
+  document.getElementById('income-total-monthly').textContent = fmt(total);
+  document.getElementById('income-total-annual').textContent  = fmt(total * 12);
+}
+
+// ── Schedule A rows ──
+const SCHED_A_LABELS = {
+  sched_a_partnership:    'Net partnership income',
+  sched_a_rental:         'Net rental income',
+  sched_a_dividends:      'Dividends from Canadian corps',
+  sched_a_capital_gains:  'Capital gains (less losses)',
+  sched_a_rrsp:           'RRSP withdrawals',
+  sched_a_rrif:           'RRIF / annuity income',
+  sched_a_other:          'Other (specify)',
+};
+
+function renderSchedA() {
+  const tbody = document.getElementById('schedARows');
+  const rows = (finData.income || []).filter(r => r.is_schedule_a);
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="4">No Schedule A rows. Click + Add Row if you have partnership, rental, dividend, capital gain, RRSP, or other income.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>
+        <select onchange="onSchedARowChange(${r.id}, 'category', this.value)">
+          ${Object.entries(SCHED_A_LABELS).map(([k,v]) =>
+            `<option value="${k}" ${r.category===k?'selected':''}>${escapeHtml(v)}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.detail)}"
+          oninput="onSchedARowChange(${r.id}, 'detail', this.value)"></td>
+      <td class="num dollar-prefix">
+        <input type="number" step="0.01" value="${r.annual_amount || ''}"
+          oninput="onSchedARowChange(${r.id}, 'annual_amount', this.value)">
+      </td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteSchedARow(${r.id})">×</button></td>
+    </tr>
+  `).join('');
+}
+
+function onSchedARowChange(id, field, value) {
+  const row = (finData.income || []).find(r => r.id === id);
+  if (row) row[field] = (field === 'annual_amount') ? (Number(value) || 0) : value;
+  debouncedSave('sched-a-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/income/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed: ' + e.message); }
+  });
+}
+
+async function addSchedARow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/income/schedule-a', {
+      category: 'sched_a_other', detail: '', annual_amount: 0,
+    });
+    finData.income.push(res.income);
+    renderSchedA();
+  } catch (e) {
+    toast('Failed to add row: ' + e.message);
+  }
+}
+
+async function deleteSchedARow(id) {
+  if (!confirm('Delete this row?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/income/' + id);
+    finData.income = finData.income.filter(r => r.id !== id);
+    renderSchedA();
+  } catch (e) {
+    toast('Failed to delete: ' + e.message);
+  }
+}
+
+// ── Non-cash benefits ──
+function renderNoncash() {
+  const tbody = document.getElementById('noncashRows');
+  const rows = finData.noncash || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="4">No non-cash benefits. Click + Add Benefit if your employer provides health coverage, a company car, or similar.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.item)}"
+          oninput="onNoncashChange(${r.id}, 'item', this.value)"></td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.details)}"
+          oninput="onNoncashChange(${r.id}, 'details', this.value)"></td>
+      <td class="num dollar-prefix">
+        <input type="number" step="0.01" value="${r.yearly_market_value || ''}"
+          oninput="onNoncashChange(${r.id}, 'yearly_market_value', this.value)">
+      </td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteNoncashRow(${r.id})">×</button></td>
+    </tr>
+  `).join('');
+}
+
+function onNoncashChange(id, field, value) {
+  const row = (finData.noncash || []).find(r => r.id === id);
+  if (row) row[field] = (field === 'yearly_market_value') ? (Number(value) || 0) : value;
+  debouncedSave('noncash-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/noncash/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed'); }
+  });
+}
+
+async function addNoncashRow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/noncash', { item: '', details: '', yearly_market_value: 0 });
+    finData.noncash.push(res.noncash);
+    renderNoncash();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteNoncashRow(id) {
+  if (!confirm('Delete this benefit?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/noncash/' + id);
+    finData.noncash = finData.noncash.filter(r => r.id !== id);
+    renderNoncash();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ── Expenses (45 fixed rows grouped by section) ──
+const EXPENSE_SECTIONS = {
+  automatic:      { title: 'Automatic Deductions' },
+  housing:        { title: 'Housing' },
+  utilities:      { title: 'Utilities' },
+  household:      { title: 'Household' },
+  childcare:      { title: 'Childcare' },
+  transportation: { title: 'Transportation' },
+  health:         { title: 'Health' },
+  personal:       { title: 'Personal' },
+  other:          { title: 'Other Expenses' },
+};
+
+const EXPENSE_LABELS = {
+  auto_cpp: 'CPP contributions', auto_ei: 'EI premiums', auto_income_tax: 'Income taxes',
+  auto_pension: 'Employee pension contributions', auto_union_dues: 'Union dues',
+  house_rent_mortgage: 'Rent or mortgage', house_property_tax: 'Property taxes',
+  house_insurance: 'Property insurance', house_condo_fees: 'Condominium fees',
+  house_repairs: 'Repairs and maintenance',
+  util_water: 'Water', util_heat: 'Heat', util_electricity: 'Electricity',
+  util_telephone: 'Telephone', util_cell: 'Cell phone', util_cable: 'Cable', util_internet: 'Internet',
+  hh_groceries: 'Groceries', hh_supplies: 'Household supplies',
+  hh_meals_out: 'Meals outside the home', hh_pet_care: 'Pet care',
+  hh_laundry: 'Laundry and dry cleaning',
+  cc_daycare: 'Daycare expense', cc_babysitting: 'Babysitting costs',
+  trans_public: 'Public transit, taxis', trans_gas: 'Gas and oil',
+  trans_insurance: 'Car insurance and license', trans_repairs: 'Repairs and maintenance',
+  trans_parking: 'Parking', trans_car_loan: 'Car loan or lease payments',
+  health_insurance: 'Health insurance premiums', health_dental: 'Dental expenses',
+  health_drugs: 'Medicine and drugs', health_eye: 'Eye care',
+  pers_clothing: 'Clothing', pers_hair: 'Hair care and beauty',
+  pers_alcohol_tobacco: 'Alcohol and tobacco', pers_education: 'Education',
+  pers_entertainment: 'Entertainment/recreation (incl. children)', pers_gifts: 'Gifts',
+  other_life_insurance: 'Life insurance premiums', other_rrsp_resp: 'RRSP/RESP withdrawals',
+  other_vacations: 'Vacations', other_school_fees: 'School fees and supplies',
+  other_children_clothing: 'Clothing for children', other_children_activities: 'Children\'s activities',
+  other_summer_camp: 'Summer camp expenses', other_debt_payments: 'Debt payments',
+  other_support_paid: 'Support paid for other children', other_other: 'Other expenses not shown above',
+};
+
+function renderExpenses() {
+  const tbody = document.getElementById('expenseRows');
+  const rows = finData.expenses || [];
+
+  // Group by section, preserve order
+  const grouped = {};
+  for (const r of rows) {
+    (grouped[r.section] = grouped[r.section] || []).push(r);
+  }
+
+  let html = '';
+  for (const [section, meta] of Object.entries(EXPENSE_SECTIONS)) {
+    const sectionRows = grouped[section] || [];
+    if (!sectionRows.length) continue;
+    html += `<tr class="section-hdr"><td colspan="2">${escapeHtml(meta.title)}</td></tr>`;
+    for (const r of sectionRows) {
+      html += `
+        <tr>
+          <td class="label">${escapeHtml(EXPENSE_LABELS[r.category] || r.category)}</td>
+          <td class="num dollar-prefix">
+            <input type="number" step="0.01" value="${r.monthly_amount || ''}"
+              oninput="onExpenseChange(${r.id}, this.value)">
+          </td>
+        </tr>`;
+    }
+  }
+  tbody.innerHTML = html;
+  updateExpenseTotals();
+}
+
+function onExpenseChange(id, value) {
+  const row = (finData.expenses || []).find(r => r.id === id);
+  if (row) row.monthly_amount = Number(value) || 0;
+  updateExpenseTotals();
+  status('expensesStatus', 'saving', 'Saving…');
+  debouncedSave('exp-' + id, async () => {
+    try {
+      await api('PUT', '/api/profile/financial/expenses/' + id, { monthly_amount: value });
+      status('expensesStatus', 'saved', 'Saved');
+    } catch (e) {
+      status('expensesStatus', 'error', 'Error');
+    }
+  });
+}
+
+function updateExpenseTotals() {
+  const total = (finData.expenses || []).reduce((s, r) => s + (Number(r.monthly_amount) || 0), 0);
+  document.getElementById('expenses-total-monthly').textContent = fmt(total);
+  document.getElementById('expenses-total-yearly').textContent  = fmt(total * 12);
+}
+
+// ── Household ──
+async function saveHousehold() {
+  status('householdStatus', 'saving', 'Saving…');
+  try {
+    const body = {
+      lives_alone: document.getElementById('hh-lives-alone').checked ? 1 : 0,
+      spouse_partner_name: getVal('hh-spouse-name'),
+      other_adults: getVal('hh-other-adults'),
+      children_count: getVal('hh-children-count'),
+      spouse_works_at: getVal('hh-spouse-works-at'),
+      spouse_not_working: document.getElementById('hh-spouse-not-working').checked ? 1 : 0,
+      spouse_earns_amount: getVal('hh-spouse-earns'),
+      spouse_earns_period: getVal('hh-spouse-period'),
+      spouse_no_income: document.getElementById('hh-spouse-no-income').checked ? 1 : 0,
+      contribution_amount: getVal('hh-contribution'),
+      contribution_period: getVal('hh-contrib-period'),
+    };
+    const res = await api('PUT', '/api/profile/financial/household', body);
+    finData.household = res.household;
+    status('householdStatus', 'saved', 'Saved');
+  } catch (e) {
+    status('householdStatus', 'error', 'Error');
+    toast('Failed to save: ' + e.message);
+  }
+}
+
+// ── Assets (Parts 4(a)-(g)) ──
+const ASSET_CATEGORIES = {
+  land: { columns: 2, colA: 'Nature/Type/Ownership', colB: 'Address' },
+  household_vehicles: { columns: 3, subcats: ['household_goods','vehicles','jewellery','other_special'] },
+  bank_savings_pensions: { columns: 2, colA: 'Institution / Description', colB: 'Account #' },
+  insurance: { columns: 2, colA: 'Company / Type / Policy #', colB: 'Owner / Beneficiary / Face' },
+  business: { columns: 2, colA: 'Firm / Company', colB: 'Your Interest' },
+  money_owed: { columns: 2, colA: 'Details', colB: '' },
+  other: { columns: 2, colA: 'Category', colB: 'Details' },
+};
+
+const SUBCAT_LABELS_4B = {
+  household_goods: 'Household goods & furniture',
+  vehicles: 'Cars, boats, vehicles',
+  jewellery: 'Jewellery, art, electronics, tools, sports & hobby equipment',
+  other_special: 'Other special items',
+};
+
+function renderAssets(category) {
+  const tbody = document.getElementById('assetRows-' + category);
+  if (!tbody) return;
+  const rows = (finData.assets || []).filter(a => a.category === category);
+  const cfg = ASSET_CATEGORIES[category];
+
+  if (!rows.length) {
+    const cols = (category === 'household_vehicles') ? 7 : 6;
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="${cols}">No entries yet. Click the + button above to add.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => renderAssetRow(r, category)).join('');
+}
+
+function renderAssetRow(r, category) {
+  if (category === 'household_vehicles') {
+    return `
+      <tr>
+        <td>
+          <select onchange="onAssetChange(${r.id}, 'subcategory', this.value)">
+            ${Object.entries(SUBCAT_LABELS_4B).map(([k,v]) =>
+              `<option value="${k}" ${r.subcategory===k?'selected':''}>${escapeHtml(v)}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="text" maxlength="500" value="${escapeAttr(r.description)}"
+            oninput="onAssetChange(${r.id}, 'description', this.value)"></td>
+        <td style="text-align:center">
+          <input type="checkbox" ${r.not_in_possession?'checked':''}
+            onchange="onAssetChange(${r.id}, 'not_in_possession', this.checked ? 1 : 0)">
+        </td>
+        <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_marriage || ''}"
+            oninput="onAssetChange(${r.id}, 'value_marriage', this.value)"></td>
+        <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_valuation || ''}"
+            oninput="onAssetChange(${r.id}, 'value_valuation', this.value)"></td>
+        <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_current || ''}"
+            oninput="onAssetChange(${r.id}, 'value_current', this.value)"></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteAssetRow(${r.id})">×</button></td>
+      </tr>`;
+  }
+  return `
+    <tr>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.description)}"
+          oninput="onAssetChange(${r.id}, 'description', this.value)"></td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.detail_2)}"
+          oninput="onAssetChange(${r.id}, 'detail_2', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_marriage || ''}"
+          oninput="onAssetChange(${r.id}, 'value_marriage', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_valuation || ''}"
+          oninput="onAssetChange(${r.id}, 'value_valuation', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_current || ''}"
+          oninput="onAssetChange(${r.id}, 'value_current', this.value)"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteAssetRow(${r.id})">×</button></td>
+    </tr>`;
+}
+
+function onAssetChange(id, field, value) {
+  const row = (finData.assets || []).find(a => a.id === id);
+  if (row) {
+    const isNumeric = ['value_marriage','value_valuation','value_current'].includes(field);
+    const isBool = field === 'not_in_possession';
+    row[field] = isNumeric ? (Number(value) || 0) : (isBool ? (value ? 1 : 0) : value);
+  }
+  if (['value_marriage','value_valuation','value_current'].includes(field)) recalcNfp();
+  debouncedSave('asset-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/assets/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed: ' + e.message); }
+  });
+}
+
+async function addAssetRow(category) {
+  try {
+    const body = { category };
+    if (category === 'household_vehicles') body.subcategory = 'household_goods';
+    const res = await api('POST', '/api/profile/financial/assets', body);
+    finData.assets.push(res.asset);
+    renderAssets(category);
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteAssetRow(id) {
+  if (!confirm('Delete this entry?')) return;
+  try {
+    const row = (finData.assets || []).find(a => a.id === id);
+    await api('DELETE', '/api/profile/financial/assets/' + id);
+    finData.assets = finData.assets.filter(a => a.id !== id);
+    if (row) renderAssets(row.category);
+    recalcNfp();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ── Debts ──
+const DEBT_CATEGORIES = {
+  mortgage: 'Mortgage', credit_card: 'Credit card', cra: 'Money owed to CRA',
+  contingent: 'Contingent liability (guarantee)', legal: 'Legal / professional bills (this case)',
+  other: 'Other',
+};
+
+function renderDebts() {
+  const tbody = document.getElementById('debtRows');
+  const rows = finData.debts || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="7">No debts yet. Click + Add Debt to list mortgages, credit cards, CRA balances, etc.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>
+        <select onchange="onDebtChange(${r.id}, 'category', this.value)">
+          <option value="">Select…</option>
+          ${Object.entries(DEBT_CATEGORIES).map(([k,v]) =>
+            `<option value="${k}" ${r.category===k?'selected':''}>${escapeHtml(v)}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.details)}"
+          oninput="onDebtChange(${r.id}, 'details', this.value)"></td>
+      <td style="text-align:center">
+        <input type="checkbox" ${r.is_contingent?'checked':''}
+          onchange="onDebtChange(${r.id}, 'is_contingent', this.checked ? 1 : 0)">
+      </td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.amount_marriage || ''}"
+          oninput="onDebtChange(${r.id}, 'amount_marriage', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.amount_valuation || ''}"
+          oninput="onDebtChange(${r.id}, 'amount_valuation', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.amount_current || ''}"
+          oninput="onDebtChange(${r.id}, 'amount_current', this.value)"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteDebtRow(${r.id})">×</button></td>
+    </tr>
+  `).join('');
+}
+
+function onDebtChange(id, field, value) {
+  const row = (finData.debts || []).find(d => d.id === id);
+  if (row) {
+    const isNumeric = ['amount_marriage','amount_valuation','amount_current'].includes(field);
+    const isBool = field === 'is_contingent';
+    row[field] = isNumeric ? (Number(value) || 0) : (isBool ? (value ? 1 : 0) : value);
+  }
+  if (['amount_marriage','amount_valuation','amount_current'].includes(field)) recalcNfp();
+  debouncedSave('debt-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/debts/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed: ' + e.message); }
+  });
+}
+
+async function addDebtRow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/debts', { category: 'other', details: '' });
+    finData.debts.push(res.debt);
+    renderDebts();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteDebtRow(id) {
+  if (!confirm('Delete this debt?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/debts/' + id);
+    finData.debts = finData.debts.filter(d => d.id !== id);
+    renderDebts();
+    recalcNfp();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ── Marriage-date property (Part 6) ──
+const MDP_CATEGORIES = {
+  land: 'Land',
+  household_vehicles: 'General household items & vehicles',
+  bank_savings_pensions: 'Bank accounts, savings, securities & pensions',
+  insurance: 'Life & disability insurance',
+  business: 'Business interests',
+  money_owed: 'Money owed to you',
+  other: 'Other property',
+  debts: 'Debts and other liabilities',
+};
+
+function renderMdp() {
+  const tbody = document.getElementById('mdpRows');
+  const rows = finData.marriage_date_property || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="5">No entries yet. Add a row for each category of property you owned at the date of marriage.</td></tr>`;
+    updateMdpTotals();
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>
+        <select onchange="onMdpChange(${r.id}, 'category', this.value)">
+          ${Object.entries(MDP_CATEGORIES).map(([k,v]) =>
+            `<option value="${k}" ${r.category===k?'selected':''}>${escapeHtml(v)}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.details)}"
+          oninput="onMdpChange(${r.id}, 'details', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.assets_value || ''}"
+          oninput="onMdpChange(${r.id}, 'assets_value', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.liabilities_value || ''}"
+          oninput="onMdpChange(${r.id}, 'liabilities_value', this.value)"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteMdpRow(${r.id})">×</button></td>
+    </tr>
+  `).join('');
+  updateMdpTotals();
+}
+
+function onMdpChange(id, field, value) {
+  const row = (finData.marriage_date_property || []).find(x => x.id === id);
+  if (row) {
+    const isNumeric = ['assets_value','liabilities_value'].includes(field);
+    row[field] = isNumeric ? (Number(value) || 0) : value;
+  }
+  if (['assets_value','liabilities_value'].includes(field)) {
+    updateMdpTotals();
+    recalcNfp();
+  }
+  debouncedSave('mdp-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/mdp/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed'); }
+  });
+}
+
+function updateMdpTotals() {
+  const rows = finData.marriage_date_property || [];
+  const a = rows.reduce((s, r) => s + (Number(r.assets_value) || 0), 0);
+  const l = rows.reduce((s, r) => s + (Number(r.liabilities_value) || 0), 0);
+  document.getElementById('mdp-assets-total').textContent = fmt(a);
+  document.getElementById('mdp-liab-total').textContent = fmt(l);
+  document.getElementById('mdp-net').textContent = fmt(a - l);
+}
+
+async function addMdpRow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/mdp', { category: 'land', details: '' });
+    finData.marriage_date_property.push(res.mdp);
+    renderMdp();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteMdpRow(id) {
+  if (!confirm('Delete this category?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/mdp/' + id);
+    finData.marriage_date_property = finData.marriage_date_property.filter(x => x.id !== id);
+    renderMdp();
+    recalcNfp();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ── Excluded property (Part 7) ──
+function renderExcluded() {
+  const tbody = document.getElementById('excludedRows');
+  const rows = finData.excluded || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="4">No excluded property. Click + Add Excluded for gifts, inheritances received after marriage, etc.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.category)}" placeholder="e.g. Inheritance"
+          oninput="onExcludedChange(${r.id}, 'category', this.value)"></td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.details)}"
+          oninput="onExcludedChange(${r.id}, 'details', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value_valuation || ''}"
+          oninput="onExcludedChange(${r.id}, 'value_valuation', this.value)"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteExcludedRow(${r.id})">×</button></td>
+    </tr>
+  `).join('');
+}
+
+function onExcludedChange(id, field, value) {
+  const row = (finData.excluded || []).find(x => x.id === id);
+  if (row) row[field] = (field === 'value_valuation') ? (Number(value) || 0) : value;
+  if (field === 'value_valuation') recalcNfp();
+  debouncedSave('excl-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/excluded/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed'); }
+  });
+}
+
+async function addExcludedRow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/excluded', { category: '', details: '' });
+    finData.excluded.push(res.excluded);
+    renderExcluded();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteExcludedRow(id) {
+  if (!confirm('Delete?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/excluded/' + id);
+    finData.excluded = finData.excluded.filter(x => x.id !== id);
+    renderExcluded();
+    recalcNfp();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ── Disposed property (Part 8) ──
+function renderDisposed() {
+  const tbody = document.getElementById('disposedRows');
+  const rows = finData.disposed || [];
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="4">No disposed property. Click + Add Disposed for property sold/given away during the relevant period.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.category)}"
+          oninput="onDisposedChange(${r.id}, 'category', this.value)"></td>
+      <td><input type="text" maxlength="500" value="${escapeAttr(r.details)}"
+          oninput="onDisposedChange(${r.id}, 'details', this.value)"></td>
+      <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.value || ''}"
+          oninput="onDisposedChange(${r.id}, 'value', this.value)"></td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteDisposedRow(${r.id})">×</button></td>
+    </tr>
+  `).join('');
+}
+
+function onDisposedChange(id, field, value) {
+  const row = (finData.disposed || []).find(x => x.id === id);
+  if (row) row[field] = (field === 'value') ? (Number(value) || 0) : value;
+  debouncedSave('disp-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/disposed/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed'); }
+  });
+}
+
+async function addDisposedRow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/disposed', { category: '', details: '' });
+    finData.disposed.push(res.disposed);
+    renderDisposed();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteDisposedRow(id) {
+  if (!confirm('Delete?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/disposed/' + id);
+    finData.disposed = finData.disposed.filter(x => x.id !== id);
+    renderDisposed();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+// ── Schedule B ──
+function renderSchedB() {
+  const tbody = document.getElementById('schedBRows');
+  const rows = finData.schedule_b || [];
+  const children = (fullProfile && fullProfile.children) || [];
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="fin-empty-row"><td colspan="5">No Schedule B expenses. Click + Add Expense for childcare, medical premiums, extraordinary education or activity costs.</td></tr>`;
+    updateSchedBTotals();
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const childOptions = children.map(c =>
+      `<option value="${c.id}" ${r.child_id === c.id ? 'selected' : ''}>${escapeHtml((c.first||'') + ' ' + (c.last||'')).trim() || 'Unnamed child'}</option>`
+    ).join('');
+    const useFreeText = !r.child_id && r.child_name;
+    return `
+      <tr>
+        <td>
+          ${children.length ? `
+            <select onchange="onSchedBChildSelect(${r.id}, this.value)">
+              <option value="">— pick a child or type below —</option>
+              ${childOptions}
+              <option value="__other" ${useFreeText?'selected':''}>Other / type below</option>
+            </select>
+            <input type="text" maxlength="200" placeholder="Child name (if not listed above)"
+              value="${escapeAttr(r.child_name)}" style="margin-top:6px;${(!useFreeText && r.child_id) ? 'display:none' : ''}"
+              oninput="onSchedBChange(${r.id}, 'child_name', this.value)">
+          ` : `
+            <input type="text" maxlength="200" placeholder="Child name"
+              value="${escapeAttr(r.child_name)}"
+              oninput="onSchedBChange(${r.id}, 'child_name', this.value)">
+          `}
+        </td>
+        <td><input type="text" maxlength="500" value="${escapeAttr(r.expense)}"
+            oninput="onSchedBChange(${r.id}, 'expense', this.value)"></td>
+        <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.annual_amount || ''}"
+            oninput="onSchedBChange(${r.id}, 'annual_amount', this.value)"></td>
+        <td class="num dollar-prefix"><input type="number" step="0.01" value="${r.tax_credits_deductions || ''}"
+            oninput="onSchedBChange(${r.id}, 'tax_credits_deductions', this.value)"></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteSchedBRow(${r.id})">×</button></td>
+      </tr>`;
+  }).join('');
+  updateSchedBTotals();
+}
+
+function onSchedBChildSelect(id, value) {
+  const row = (finData.schedule_b || []).find(x => x.id === id);
+  if (!row) return;
+  if (value === '__other' || value === '') {
+    row.child_id = null;
+    api('PUT', '/api/profile/financial/schedule-b/' + id, { child_id: 0 }).catch(() => {});
+  } else {
+    row.child_id = parseInt(value, 10);
+    row.child_name = '';
+    api('PUT', '/api/profile/financial/schedule-b/' + id, { child_id: row.child_id, child_name: '' }).catch(() => {});
+  }
+  renderSchedB();
+}
+
+function onSchedBChange(id, field, value) {
+  const row = (finData.schedule_b || []).find(x => x.id === id);
+  if (row) {
+    const isNumeric = ['annual_amount','tax_credits_deductions'].includes(field);
+    row[field] = isNumeric ? (Number(value) || 0) : value;
+  }
+  if (['annual_amount','tax_credits_deductions'].includes(field)) updateSchedBTotals();
+  debouncedSave('schedb-' + id, async () => {
+    try { await api('PUT', '/api/profile/financial/schedule-b/' + id, { [field]: value }); }
+    catch (e) { toast('Save failed'); }
+  });
+}
+
+function updateSchedBTotals() {
+  const rows = finData.schedule_b || [];
+  const net = rows.reduce((s, r) =>
+    s + ((Number(r.annual_amount) || 0) - (Number(r.tax_credits_deductions) || 0)), 0);
+  document.getElementById('schedb-annual').textContent = fmt(net);
+  document.getElementById('schedb-monthly').textContent = fmt(net / 12);
+}
+
+async function addSchedBRow() {
+  try {
+    const res = await api('POST', '/api/profile/financial/schedule-b', { expense: '', annual_amount: 0 });
+    finData.schedule_b.push(res.row);
+    renderSchedB();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function deleteSchedBRow(id) {
+  if (!confirm('Delete this expense?')) return;
+  try {
+    await api('DELETE', '/api/profile/financial/schedule-b/' + id);
+    finData.schedule_b = finData.schedule_b.filter(x => x.id !== id);
+    renderSchedB();
+  } catch (e) { toast('Failed: ' + e.message); }
+}
+
+async function saveSchedBMeta() {
+  try {
+    const res = await api('PUT', '/api/profile/financial/schedule-b-meta', {
+      annual_income_for_share: getVal('schedb-my-income'),
+    });
+    finData.schedule_b_meta = res.schedule_b_meta;
+  } catch (e) { toast('Failed to save: ' + e.message); }
+}
+
+// ── NFP live calculation ──
+function recalcNfp() {
+  if (!finData) return;
+
+  // Item 22: Value of all property on valuation date
+  // = sum of asset value_valuation across all categories
+  const item22 = (finData.assets || []).reduce((s, a) => s + (Number(a.value_valuation) || 0), 0);
+
+  // Item 23: Debts on valuation date
+  const item23 = (finData.debts || []).reduce((s, d) => s + (Number(d.amount_valuation) || 0), 0);
+
+  // Item 24: Net value at date of marriage
+  // = (Part 6 assets_value total) - (Part 6 liabilities_value total)
+  const mdpAssets = (finData.marriage_date_property || []).reduce((s, r) => s + (Number(r.assets_value) || 0), 0);
+  const mdpLiab   = (finData.marriage_date_property || []).reduce((s, r) => s + (Number(r.liabilities_value) || 0), 0);
+  const item24 = mdpAssets - mdpLiab;
+
+  // Item 26: Excluded property
+  const item26 = (finData.excluded || []).reduce((s, e) => s + (Number(e.value_valuation) || 0), 0);
+
+  // Item 28: NFP = max(0, 22 - 23 - 24 - 26) — NFP is never negative by statute
+  const item28 = Math.max(0, item22 - item23 - item24 - item26);
+
+  document.getElementById('nfp-22').textContent = fmt0(item22);
+  document.getElementById('nfp-23').textContent = fmt0(item23);
+  document.getElementById('nfp-24').textContent = fmt0(item24);
+  document.getElementById('nfp-26').textContent = fmt0(item26);
+  document.getElementById('nfp-28').textContent = fmt0(item28);
+  document.getElementById('nfpTotal').textContent = fmt0(item28);
 }
 
 init();
