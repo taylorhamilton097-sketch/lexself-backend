@@ -5,6 +5,7 @@ const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const {
   getUserProfile, listChildren, getFamilyInfo, listParties,
+  getFinancialStatement,
 } = require('../db');
 
 const { generateForm } = require('../forms/generator');
@@ -36,7 +37,7 @@ function requirePaidFamilyAccess(req, res, next) {
 // ──────────────────────────────────────────────────
 router.post('/:formId/generate', requireAuth, requirePaidFamilyAccess, async (req, res) => {
   const { formId } = req.params;
-  if (!['14a', '8a'].includes(formId)) {
+  if (!['14a', '8a', '13_1'].includes(formId)) {
     return res.status(404).json({ error: 'Unknown form.' });
   }
 
@@ -61,11 +62,12 @@ router.post('/:formId/generate', requireAuth, requirePaidFamilyAccess, async (re
       sworn_in:      req.body?.sworn_in || '',
       sworn_date:    req.body?.sworn_date || '',
       form8aFields:  formId === '8a' ? formFields : {},
+      financial:     formId === '13_1' ? getFinancialStatement(req.user.id) : null,
     };
 
     const buffer = await generateForm(formId, data);
 
-    const filename = `Form-${formId.toUpperCase()}-${(profile.last || 'Applicant').replace(/[^a-zA-Z0-9]/g, '')}-${new Date().toISOString().slice(0,10)}.docx`;
+    const filename = `Form-${formId.toUpperCase().replace('_', '.')}-${(profile.last || 'Applicant').replace(/[^a-zA-Z0-9]/g, '')}-${new Date().toISOString().slice(0,10)}.docx`;
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

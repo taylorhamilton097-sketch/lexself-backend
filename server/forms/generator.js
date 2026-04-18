@@ -13,13 +13,14 @@
 const { Packer } = require('docx');
 
 const generators = {
-  '14a': require('./templates/14a'),
-  '8a':  require('./templates/8a'),
+  '14a':  require('./templates/14a'),
+  '8a':   require('./templates/8a'),
+  '13_1': require('./templates/131'),
 };
 
 /**
  * Build a filled docx buffer for the given form.
- * @param {string} formId - '14a' | '8a'
+ * @param {string} formId - '14a' | '8a' | '13_1'
  * @param {object} data   - Form data (profile, children, parties, case info, form-specific fields)
  * @returns {Promise<Buffer>}
  */

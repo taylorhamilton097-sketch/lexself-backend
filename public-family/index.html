@@ -540,7 +540,7 @@ select.fi { cursor: pointer; }
     <div class="sb-sec">
       <div class="sb-hdr">Financial</div>
       <button class="sbt" onclick="loadForm('form13');sbA(this)"><span class="lbl">Form 13 — Financial (Support)<span class="tag">Support Proceedings</span></span></button>
-      <button class="sbt" onclick="loadForm('form13a');sbA(this)"><span class="lbl">Form 13.1 — Financial (Property)<span class="tag">Property Division</span></span></button>
+      <button class="sbt" onclick="loadForm('form131');sbA(this)"><span class="lbl">Form 13.1 — Financial (Property)<span class="tag">Auto-Fill</span></span></button>
     </div>
     <div class="sb-sec">
       <div class="sb-hdr" style="color:var(--blue-light)">Counsel Features</div>
@@ -810,6 +810,7 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadForm('form35');closeDrawer()">Form 35.1 — Parenting Affidavit<span class="dw-tag">Custody & Access</span></button>
       <button class="drawer-btn" onclick="loadForm('form36');closeDrawer()">Form 36 — Affidavit for Divorce<span class="dw-tag">Divorce Act</span></button>
       <button class="drawer-btn" onclick="loadForm('form13');closeDrawer()">Form 13 — Financial Statement<span class="dw-tag">Support Proceedings</span></button>
+      <button class="drawer-btn" onclick="loadForm('form131');closeDrawer()">Form 13.1 — Financial (Property)<span class="dw-tag">Auto-Fill</span></button>
       <div class="dw-hdr">Topics</div>
       <button class="drawer-btn" onclick="loadTopic('custody');closeDrawer()">Custody & Parenting</button>
       <button class="drawer-btn" onclick="loadTopic('support');closeDrawer()">Child Support</button>
@@ -1006,8 +1007,8 @@ function closeDrawer() {
 }
 
 function loadForm(key) {
-  // Unit 4a: forms with auto-fill go to the new forms panel
-  if (key === 'form14a' || key === 'form8a') {
+  // Unit 4a + 4b: forms with auto-fill go to the new forms panel
+  if (key === 'form14a' || key === 'form8a' || key === 'form131') {
     currentForm = key;
     openFormsPanel(key);
     return;
@@ -2301,8 +2302,9 @@ async function stopAffVoice() {
 // FORMS PANEL (Unit 4a)
 // ══════════════════════════════════════════════════════
 
-let currentFormKey = null;           // '14a' or '8a'
+let currentFormKey = null;           // '14a' or '8a' or '13_1'
 let formsProfileData = null;         // cached profile/children/parties/familyInfo
+let formsFinancialData = null;       // cached financial statement (for Form 13.1)
 let formsInlineFields = {};          // { fieldKey: value } for Form 8A inline fields
 let formsVoiceRec = null;            // active SpeechRecognition instance
 let formsVoiceActive = false;
@@ -2311,9 +2313,12 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '
 function escAttr(s) { return String(s == null ? '' : s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 async function openFormsPanel(formKeyRaw) {
-  // Map 'form14a' → '14a'
-  const formKey = formKeyRaw.replace(/^form/, '');
-  if (!['14a','8a'].includes(formKey)) {
+  // Map 'form14a' → '14a', 'form8a' → '8a', 'form131' → '13_1'
+  let formKey;
+  if (formKeyRaw === 'form131') formKey = '13_1';
+  else formKey = formKeyRaw.replace(/^form/, '');
+
+  if (!['14a','8a','13_1'].includes(formKey)) {
     toast('Form not yet available for auto-fill');
     return;
   }
@@ -2346,8 +2351,15 @@ async function openFormsPanel(formKeyRaw) {
     const r = await fetch('/api/profile', { headers: { 'Authorization': 'Bearer ' + authToken } });
     if (!r.ok) throw new Error('Failed to load profile');
     formsProfileData = await r.json();
+
+    // Form 13.1 also needs financial data from the Finances tab
+    if (formKey === '13_1') {
+      const fr = await fetch('/api/profile/financial', { headers: { 'Authorization': 'Bearer ' + authToken } });
+      if (!fr.ok) throw new Error('Failed to load financial data');
+      formsFinancialData = await fr.json();
+    }
   } catch(e) {
-    preview.innerHTML = '<div class="forms-empty-state">Could not load your profile. Please refresh.</div>';
+    preview.innerHTML = '<div class="forms-empty-state">Could not load your data. Please refresh.</div>';
     return;
   }
 
@@ -2361,6 +2373,11 @@ async function openFormsPanel(formKeyRaw) {
     spSub.textContent = 'Auto-filled from your profile. Fill the yellow fields inline.';
     dictateSection.style.display = 'none';
     renderForm8APreview();
+  } else if (formKey === '13_1') {
+    spTitle.textContent = 'Form 13.1 — Financial Statement';
+    spSub.textContent = 'Auto-filled entirely from your Case Profile and Finances tab. Review below, then download.';
+    dictateSection.style.display = 'none';
+    renderForm131Preview();
   }
 }
 
@@ -2592,6 +2609,332 @@ function renderForm8APreview() {
       }
     });
   });
+}
+
+// ══════════════════════════════════════════════════════
+// FORM 13.1 PREVIEW (read-only — everything from Finances tab)
+// ══════════════════════════════════════════════════════
+
+function fmtMoney(n) {
+  const v = Number(n) || 0;
+  return '$' + v.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function renderForm131Preview() {
+  if (!formsProfileData || !formsFinancialData) return;
+
+  const { profile = {}, children = [], family = {} } = formsProfileData;
+  const familyInfo = family.info || {};
+  const parties = family.parties || [];
+  const fin = formsFinancialData;
+
+  const respondent = parties.find(p => p.role === 'respondent');
+  const myCounsel = parties.find(p => p.role === 'my_counsel');
+  const opposingCounsel = parties.find(p => p.role === 'opposing_counsel');
+
+  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
+  const applicant = userIsApplicant ? profile : (respondent || {});
+  const respondentParty = userIsApplicant ? (respondent || {}) : profile;
+  const applicantLawyer = userIsApplicant ? myCounsel : opposingCounsel;
+  const respondentLawyer = userIsApplicant ? opposingCounsel : myCounsel;
+
+  const vd = fin.valuation_dates || {};
+  const im = fin.income_meta || {};
+  const hh = fin.household || {};
+  const fixedIncome = (fin.income || []).filter(r => !r.is_schedule_a);
+  const schedAIncome = (fin.income || []).filter(r => r.is_schedule_a);
+  const incomeTotalMonthly = fixedIncome.reduce((s, r) => s + (Number(r.monthly_amount) || 0), 0);
+  const expensesTotalMonthly = (fin.expenses || []).reduce((s, r) => s + (Number(r.monthly_amount) || 0), 0);
+  const assets = fin.assets || [];
+  const debts = fin.debts || [];
+
+  // Totals by asset category (items 15-21)
+  const sumBy = (cat, field) => assets.filter(a => a.category === cat).reduce((s, a) => s + (Number(a[field]) || 0), 0);
+  const item22 = ['land','household_vehicles','bank_savings_pensions','insurance','business','money_owed','other']
+    .reduce((s, c) => s + sumBy(c, 'value_valuation'), 0);
+  const item23 = debts.reduce((s, d) => s + (Number(d.amount_valuation) || 0), 0);
+  const mdpA = (fin.marriage_date_property || []).reduce((s, r) => s + (Number(r.assets_value) || 0), 0);
+  const mdpL = (fin.marriage_date_property || []).reduce((s, r) => s + (Number(r.liabilities_value) || 0), 0);
+  const item24 = mdpA - mdpL;
+  const item25 = item23 + item24;
+  const item26 = (fin.excluded || []).reduce((s, e) => s + (Number(e.value_valuation) || 0), 0);
+  const item27 = (fin.disposed || []).reduce((s, d) => s + (Number(d.value) || 0), 0);
+  const item28 = Math.max(0, item22 - item23 - item24 - item26);
+
+  // Income row labels
+  const INCOME_LABELS_131 = {
+    employment: 'Employment income', commissions: 'Commissions, tips and bonuses',
+    self_employment: 'Self-employment income', ei: 'Employment Insurance benefits',
+    wcb: "Workers' compensation benefits", social_assistance: 'Social assistance (incl. ODSP)',
+    investment: 'Interest and investment income', pension: 'Pension income (CPP, OAS)',
+    spousal_support: 'Spousal support received', child_benefits: 'Child Tax Benefits / GST',
+    other: 'Other income sources',
+  };
+
+  const incomeRowsHtml = fixedIncome.map((r, i) =>
+    `<tr><td>${i + 1}. ${esc(INCOME_LABELS_131[r.category] || r.category)}</td><td style="text-align:right">${fmtMoney(r.monthly_amount)}</td></tr>`
+  ).join('');
+
+  // Asset section renderer
+  const ASSET_CAT_LABELS = {
+    land: 'Part 4(a) — Land',
+    household_vehicles: 'Part 4(b) — Household Items & Vehicles',
+    bank_savings_pensions: 'Part 4(c) — Bank Accounts, Savings, Securities & Pensions',
+    insurance: 'Part 4(d) — Life & Disability Insurance',
+    business: 'Part 4(e) — Business Interests',
+    money_owed: 'Part 4(f) — Money Owed to You',
+    other: 'Part 4(g) — Other Property',
+  };
+  const ASSET_ITEM_NUMS = { land: 15, household_vehicles: 16, bank_savings_pensions: 17,
+    insurance: 18, business: 19, money_owed: 20, other: 21 };
+
+  function renderAssetSection(cat) {
+    const rows = assets.filter(a => a.category === cat);
+    const totalM = rows.reduce((s, a) => s + (Number(a.value_marriage) || 0), 0);
+    const totalV = rows.reduce((s, a) => s + (Number(a.value_valuation) || 0), 0);
+    let body;
+    if (rows.length === 0) {
+      body = `<tr><td colspan="5" style="color:#888;font-style:italic">NONE</td></tr>`;
+    } else {
+      body = rows.map(a => `
+        <tr>
+          <td>${esc(a.description || '')}${a.subcategory ? '<br><small style="color:#888">' + esc(a.subcategory) + '</small>' : ''}${a.not_in_possession ? '<br><small style="color:#888">(not in your possession)</small>' : ''}</td>
+          <td>${esc(a.detail_2 || '')}</td>
+          <td style="text-align:right">${fmtMoney(a.value_marriage)}</td>
+          <td style="text-align:right">${fmtMoney(a.value_valuation)}</td>
+          <td style="text-align:right">${fmtMoney(a.value_current)}</td>
+        </tr>
+      `).join('');
+    }
+    return `
+      <div class="form-label">${esc(ASSET_CAT_LABELS[cat])}</div>
+      <table>
+        <tr><th>Description</th><th>Details</th><th>$ on Marriage</th><th>$ on Separation</th><th>$ Today</th></tr>
+        ${body}
+        <tr><td colspan="2"><strong>${ASSET_ITEM_NUMS[cat]}. Total</strong></td><td style="text-align:right"><strong>${fmtMoney(totalM)}</strong></td><td style="text-align:right"><strong>${fmtMoney(totalV)}</strong></td><td></td></tr>
+      </table>
+    `;
+  }
+
+  const debtsBody = debts.length === 0
+    ? `<tr><td colspan="5" style="color:#888;font-style:italic">NONE</td></tr>`
+    : debts.map(d => `
+        <tr>
+          <td>${esc(d.category || '')}</td>
+          <td>${esc(d.details || '')}${d.is_contingent ? ' <small style="color:#888">(contingent)</small>' : ''}</td>
+          <td style="text-align:right">${fmtMoney(d.amount_marriage)}</td>
+          <td style="text-align:right">${fmtMoney(d.amount_valuation)}</td>
+          <td style="text-align:right">${fmtMoney(d.amount_current)}</td>
+        </tr>
+      `).join('');
+
+  const mdpBody = (fin.marriage_date_property || []).length === 0
+    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
+    : (fin.marriage_date_property || []).map(r => `
+        <tr>
+          <td>${esc(r.category)}${r.details ? '<br><small style="color:#888">' + esc(r.details) + '</small>' : ''}</td>
+          <td style="text-align:right">${fmtMoney(r.assets_value)}</td>
+          <td style="text-align:right">${fmtMoney(r.liabilities_value)}</td>
+        </tr>
+      `).join('');
+
+  const excludedBody = (fin.excluded || []).length === 0
+    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
+    : (fin.excluded || []).map(e => `
+        <tr><td>${esc(e.category)}</td><td>${esc(e.details)}</td><td style="text-align:right">${fmtMoney(e.value_valuation)}</td></tr>
+      `).join('');
+
+  const disposedBody = (fin.disposed || []).length === 0
+    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
+    : (fin.disposed || []).map(d => `
+        <tr><td>${esc(d.category)}</td><td>${esc(d.details)}</td><td style="text-align:right">${fmtMoney(d.value)}</td></tr>
+      `).join('');
+
+  const childById = Object.fromEntries(children.map(c => [c.id, c]));
+  const schedBRows = fin.schedule_b || [];
+  const schedBNet = schedBRows.reduce((s, r) =>
+    s + ((Number(r.annual_amount) || 0) - (Number(r.tax_credits_deductions) || 0)), 0);
+  const schedBBody = schedBRows.length === 0
+    ? `<tr><td colspan="4" style="color:#888;font-style:italic">NONE</td></tr>`
+    : schedBRows.map(r => {
+        let childName = r.child_name || '';
+        if (r.child_id && childById[r.child_id]) {
+          const c = childById[r.child_id];
+          childName = [c.first, c.last].filter(Boolean).join(' ').trim() || childName;
+        }
+        return `
+          <tr>
+            <td>${esc(childName)}</td>
+            <td>${esc(r.expense)}</td>
+            <td style="text-align:right">${fmtMoney(r.annual_amount)}</td>
+            <td style="text-align:right">${fmtMoney(r.tax_credits_deductions)}</td>
+          </tr>
+        `;
+      }).join('');
+
+  const SCHED_A_LABELS_131 = {
+    sched_a_partnership: 'Net partnership income', sched_a_rental: 'Net rental income',
+    sched_a_dividends: 'Dividends from Canadian corps', sched_a_capital_gains: 'Capital gains (less losses)',
+    sched_a_rrsp: 'RRSP withdrawals', sched_a_rrif: 'RRIF / annuity income',
+    sched_a_other: 'Other income',
+  };
+  const schedABody = schedAIncome.length === 0
+    ? `<tr><td colspan="3" style="color:#888;font-style:italic">NONE</td></tr>`
+    : schedAIncome.map(r => `
+        <tr><td>${esc(SCHED_A_LABELS_131[r.category] || r.category)}</td>
+            <td>${esc(r.detail || '')}</td>
+            <td style="text-align:right">${fmtMoney(r.annual_amount)}</td></tr>
+      `).join('');
+
+  // Completeness warnings
+  const warnings = [];
+  if (!vd.date_of_marriage) warnings.push('Marriage date is missing (Finances → Key Dates).');
+  if (!vd.valuation_date) warnings.push('Separation / valuation date is missing (Finances → Key Dates).');
+  if (!profile.first || !profile.last) warnings.push('Your legal name is missing (Case Profile → About You).');
+  if (!familyInfo.court) warnings.push('Court location is missing (Case Profile → Family Matter).');
+  if (!respondent) warnings.push('Respondent is missing (Case Profile → Family Matter → Other Parties).');
+  if (assets.length === 0 && debts.length === 0) warnings.push('No assets or debts entered (Finances → Property and Debts tabs).');
+
+  const warnHtml = warnings.length === 0 ? '' : `
+    <div style="background:rgba(240,165,0,0.12);border-left:3px solid #F0A500;padding:12px 16px;margin-bottom:16px;border-radius:4px">
+      <strong style="color:#F0A500">Before you download:</strong>
+      <ul style="margin:8px 0 0 18px;line-height:1.7">
+        ${warnings.map(w => '<li>' + esc(w) + '</li>').join('')}
+      </ul>
+    </div>
+  `;
+
+  const html = `
+    <div class="forms-preview-inner">
+      ${warnHtml}
+
+      <div class="form-hdr">ONTARIO</div>
+      <table>
+        <tr>
+          <td style="width:40%">${esc(familyInfo.court) || '<em style="color:#888">(Name of court)</em>'}</td>
+          <td style="width:30%"><strong>Court File Number</strong><br>${esc(familyInfo.court_file_number) || '___________'}</td>
+          <td style="width:30%"><strong>Form 13.1</strong><br>Financial Statement<br>(Property and Support Claims)</td>
+        </tr>
+      </table>
+
+      <table>
+        <tr><td><strong>Applicant(s)</strong></td><td><strong>Applicant's Lawyer</strong></td></tr>
+        <tr><td style="width:50%">${formatPartyBlockHtml(applicant)}</td><td style="width:50%">${formatPartyBlockHtml(applicantLawyer, true)}</td></tr>
+        <tr><td><strong>Respondent(s)</strong></td><td><strong>Respondent's Lawyer</strong></td></tr>
+        <tr><td>${formatPartyBlockHtml(respondentParty)}</td><td>${formatPartyBlockHtml(respondentLawyer, true)}</td></tr>
+      </table>
+
+      <p class="form-para" style="margin-top:12px">
+        <strong>Filed by:</strong> ${userIsApplicant ? '☒ Applicant   ☐ Respondent' : '☐ Applicant   ☒ Respondent'}
+      </p>
+
+      <p class="form-para">
+        <strong>1. My name is:</strong> ${esc([profile.first, profile.last].filter(Boolean).join(' ')) || '<em style="color:#888">(add to Case Profile)</em>'}<br>
+        <strong>I live in:</strong> ${esc([profile.city, profile.province].filter(Boolean).join(', ')) || '<em style="color:#888">(add to Case Profile)</em>'}
+      </p>
+      <p class="form-para">
+        <strong>Date of marriage:</strong> ${esc(vd.date_of_marriage) || '<em style="color:#888">(missing)</em>'}<br>
+        <strong>Valuation date (separation):</strong> ${esc(vd.valuation_date) || '<em style="color:#888">(missing)</em>'}<br>
+        <strong>Cohabitation start (if different):</strong> ${esc(vd.cohabitation_start_date) || '—'}
+      </p>
+
+      <div class="form-label">PART 1: INCOME</div>
+      <p class="form-para"><strong>Employment status:</strong> ${esc(im.employment_status) || '—'}</p>
+      <p class="form-para"><strong>Last year's gross income:</strong> ${fmtMoney(im.last_year_gross_income)}</p>
+      <table>
+        <tr><th>Income Source</th><th style="width:160px">Monthly Amount</th></tr>
+        ${incomeRowsHtml}
+        <tr><td><strong>12. Total monthly income</strong></td><td style="text-align:right"><strong>${fmtMoney(incomeTotalMonthly)}</strong></td></tr>
+        <tr><td><strong>13. Total annual income (× 12)</strong></td><td style="text-align:right"><strong>${fmtMoney(incomeTotalMonthly * 12)}</strong></td></tr>
+      </table>
+
+      <div class="form-label">PART 2: EXPENSES</div>
+      <p class="form-para"><em style="color:#888">${(fin.expenses || []).filter(r => Number(r.monthly_amount) > 0).length} expense categories entered. Total: ${fmtMoney(expensesTotalMonthly)}/month (${fmtMoney(expensesTotalMonthly * 12)}/year).</em></p>
+
+      <div class="form-label">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
+      <p class="form-para">
+        ${hh.lives_alone ? '☒ I live alone.' : '☐ I live alone.'}<br>
+        ${hh.spouse_partner_name ? '☒ Living with: ' + esc(hh.spouse_partner_name) : '☐ Living with a spouse/partner.'}<br>
+        Children in home: ${hh.children_count || 0}
+      </p>
+
+      <div class="form-label">PART 4: ASSETS</div>
+      ${renderAssetSection('land')}
+      ${renderAssetSection('household_vehicles')}
+      ${renderAssetSection('bank_savings_pensions')}
+      ${renderAssetSection('insurance')}
+      ${renderAssetSection('business')}
+      ${renderAssetSection('money_owed')}
+      ${renderAssetSection('other')}
+      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
+        <strong>22. Total value of property on separation date:</strong> <span style="float:right">${fmtMoney(item22)}</span>
+      </p>
+
+      <div class="form-label">PART 5: DEBTS AND OTHER LIABILITIES</div>
+      <table>
+        <tr><th>Category</th><th>Details</th><th>$ on Marriage</th><th>$ on Separation</th><th>$ Today</th></tr>
+        ${debtsBody}
+      </table>
+      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
+        <strong>23. Total debts on separation date:</strong> <span style="float:right">${fmtMoney(item23)}</span>
+      </p>
+
+      <div class="form-label">PART 6: PROPERTY &amp; DEBTS AT DATE OF MARRIAGE</div>
+      <table>
+        <tr><th>Category</th><th>Assets</th><th>Liabilities</th></tr>
+        ${mdpBody}
+        <tr><td><strong>Totals</strong></td><td style="text-align:right"><strong>${fmtMoney(mdpA)}</strong></td><td style="text-align:right"><strong>${fmtMoney(mdpL)}</strong></td></tr>
+      </table>
+      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
+        <strong>24. Net value at marriage date:</strong> <span style="float:right">${fmtMoney(item24)}</span><br>
+        <strong>25. Value of all deductions (23 + 24):</strong> <span style="float:right">${fmtMoney(item25)}</span>
+      </p>
+
+      <div class="form-label">PART 7: EXCLUDED PROPERTY</div>
+      <table>
+        <tr><th>Category</th><th>Details</th><th>Value on Separation Date</th></tr>
+        ${excludedBody}
+      </table>
+      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
+        <strong>26. Total excluded property:</strong> <span style="float:right">${fmtMoney(item26)}</span>
+      </p>
+
+      <div class="form-label">PART 8: DISPOSED-OF PROPERTY</div>
+      <table>
+        <tr><th>Category</th><th>Details</th><th>Value</th></tr>
+        ${disposedBody}
+      </table>
+      <p class="form-para" style="background:rgba(46,134,193,0.08);padding:8px 12px;border-radius:4px">
+        <strong>27. Total disposed-of property:</strong> <span style="float:right">${fmtMoney(item27)}</span>
+      </p>
+
+      <div class="form-label">PART 9: CALCULATION OF NET FAMILY PROPERTY</div>
+      <table>
+        <tr><td>Property on separation date (22)</td><td></td><td style="text-align:right">${fmtMoney(item22)}</td></tr>
+        <tr><td>− All deductions (25)</td><td style="text-align:right">${fmtMoney(item25)}</td><td style="text-align:right">${fmtMoney(item22 - item25)}</td></tr>
+        <tr><td>− Excluded property (26)</td><td style="text-align:right">${fmtMoney(item26)}</td><td style="text-align:right">${fmtMoney(item22 - item25 - item26)}</td></tr>
+        <tr style="background:rgba(46,134,193,0.15)"><td colspan="2"><strong>28. NET FAMILY PROPERTY</strong></td><td style="text-align:right"><strong>${fmtMoney(item28)}</strong></td></tr>
+      </table>
+
+      <div class="form-label">SCHEDULE A — Additional Sources of Income</div>
+      <table>
+        <tr><th>Source</th><th>Details</th><th>Annual Amount</th></tr>
+        ${schedABody}
+      </table>
+
+      <div class="form-label">SCHEDULE B — Special / Extraordinary Expenses for Children</div>
+      <table>
+        <tr><th>Child</th><th>Expense</th><th>Amount/yr</th><th>Tax Credits/Deductions</th></tr>
+        ${schedBBody}
+        <tr><td colspan="2"><strong>Total net annual amount</strong></td><td style="text-align:right"><strong>${fmtMoney(schedBNet)}</strong></td><td></td></tr>
+        <tr><td colspan="2"><strong>Total net monthly amount</strong></td><td style="text-align:right"><strong>${fmtMoney(schedBNet / 12)}</strong></td><td></td></tr>
+      </table>
+      <p class="form-para">My annual income for sharing these expenses: ${fmtMoney((fin.schedule_b_meta || {}).annual_income_for_share)}</p>
+
+      <p class="form-para" style="font-size:0.72rem;color:#888;margin-top:20px">FLR 13.1 (May 1, 2021)</p>
+    </div>
+  `;
+  document.getElementById('formsPreview').innerHTML = html;
 }
 
 async function cleanFormsParagraphs() {
