@@ -84,6 +84,104 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_conv_msgs    ON conversation_messages(conversation_id, created_at);
 `);
 
+// ── CASE PROFILE SCHEMA (Unit 2 — shared across products) ──
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id     INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    first       TEXT DEFAULT '',
+    last        TEXT DEFAULT '',
+    dob         TEXT DEFAULT '',
+    address     TEXT DEFAULT '',
+    city        TEXT DEFAULT '',
+    province    TEXT DEFAULT 'Ontario',
+    postal      TEXT DEFAULT '',
+    phone       TEXT DEFAULT '',
+    email       TEXT DEFAULT '',
+    created_at  INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at  INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS case_parties (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product         TEXT NOT NULL,
+    role            TEXT NOT NULL,
+    first           TEXT DEFAULT '',
+    last            TEXT DEFAULT '',
+    address         TEXT DEFAULT '',
+    city            TEXT DEFAULT '',
+    province        TEXT DEFAULT '',
+    postal          TEXT DEFAULT '',
+    phone           TEXT DEFAULT '',
+    email           TEXT DEFAULT '',
+    lso_number      TEXT DEFAULT '',
+    firm            TEXT DEFAULT '',
+    notes           TEXT DEFAULT '',
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at      INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS case_children (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    first           TEXT DEFAULT '',
+    last            TEXT DEFAULT '',
+    dob             TEXT DEFAULT '',
+    residency       TEXT DEFAULT '',
+    notes           TEXT DEFAULT '',
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at      INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS family_case_info (
+    user_id              INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    role                 TEXT DEFAULT '',
+    court_file_number    TEXT DEFAULT '',
+    court                TEXT DEFAULT '',
+    court_type           TEXT DEFAULT '',
+    next_date            TEXT DEFAULT '',
+    next_event           TEXT DEFAULT '',
+    judge                TEXT DEFAULT '',
+    ml_status            TEXT DEFAULT 'self-represented',
+    ml_lawyer_first      TEXT DEFAULT '',
+    ml_lawyer_last       TEXT DEFAULT '',
+    ml_lawyer_firm       TEXT DEFAULT '',
+    ml_lawyer_lso        TEXT DEFAULT '',
+    updated_at           INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS criminal_case_info (
+    user_id              INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    court_file_number    TEXT DEFAULT '',
+    court                TEXT DEFAULT '',
+    next_date            TEXT DEFAULT '',
+    next_event           TEXT DEFAULT '',
+    bail_conditions      TEXT DEFAULT '',
+    prior_record         TEXT DEFAULT '',
+    indigenous           TEXT DEFAULT '',
+    officer              TEXT DEFAULT '',
+    detachment           TEXT DEFAULT '',
+    updated_at           INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS criminal_charges (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    charge_key        TEXT DEFAULT '',
+    charge_label      TEXT DEFAULT '',
+    section           TEXT DEFAULT '',
+    charge_date       TEXT DEFAULT '',
+    arresting_officer TEXT DEFAULT '',
+    location          TEXT DEFAULT '',
+    notes             TEXT DEFAULT '',
+    created_at        INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_parties_user   ON case_parties(user_id, product);
+  CREATE INDEX IF NOT EXISTS idx_children_user  ON case_children(user_id);
+  CREATE INDEX IF NOT EXISTS idx_charges_user   ON criminal_charges(user_id);
+`);
+
 // ── CLEARSPLIT SCHEMA ──
 db.exec(`
   CREATE TABLE IF NOT EXISTS clearsplit_agreements (
@@ -624,6 +722,194 @@ function autoTitleFromMessage(content) {
   return firstLine.slice(0, 57).trim() + '…';
 }
 
+// ── CASE PROFILE (Unit 2) ──
+// Whitelist of allowed columns per table — protects against mass-assignment attacks
+const USER_PROFILE_FIELDS = ['first','last','dob','address','city','province','postal','phone','email'];
+const PARTY_FIELDS        = ['role','first','last','address','city','province','postal','phone','email','lso_number','firm','notes'];
+const CHILD_FIELDS        = ['first','last','dob','residency','notes'];
+const FAMILY_INFO_FIELDS  = ['role','court_file_number','court','court_type','next_date','next_event','judge','ml_status','ml_lawyer_first','ml_lawyer_last','ml_lawyer_firm','ml_lawyer_lso'];
+const CRIMINAL_INFO_FIELDS = ['court_file_number','court','next_date','next_event','bail_conditions','prior_record','indigenous','officer','detachment'];
+const CHARGE_FIELDS       = ['charge_key','charge_label','section','charge_date','arresting_officer','location','notes'];
+
+function pickFields(obj, allowed) {
+  const out = {};
+  if (!obj || typeof obj !== 'object') return out;
+  for (const key of allowed) {
+    if (key in obj) {
+      const v = obj[key];
+      out[key] = v === null || v === undefined ? '' : String(v).slice(0, 500);
+    }
+  }
+  return out;
+}
+
+function getUserProfile(userId) {
+  const profile = db.prepare('SELECT * FROM user_profiles WHERE user_id=?').get(userId);
+  if (profile) return profile;
+  // Create empty profile on first fetch so downstream code can trust it exists
+  db.prepare('INSERT INTO user_profiles (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM user_profiles WHERE user_id=?').get(userId);
+}
+
+function saveUserProfile(userId, data) {
+  const clean = pickFields(data, USER_PROFILE_FIELDS);
+  // Ensure a row exists
+  getUserProfile(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE user_profiles SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+function listParties(userId, product) {
+  // product: 'family' | 'criminal' | 'all' (returns both plus 'both'-scoped)
+  if (product === 'all') {
+    return db.prepare("SELECT * FROM case_parties WHERE user_id=? ORDER BY product, role, id").all(userId);
+  }
+  return db.prepare("SELECT * FROM case_parties WHERE user_id=? AND (product=? OR product='both') ORDER BY role, id").all(userId, product);
+}
+
+function addParty(userId, product, data) {
+  if (!['family','criminal','both'].includes(product)) throw new Error('Invalid product');
+  const clean = pickFields(data, PARTY_FIELDS);
+  if (!clean.role) throw new Error('Role required');
+  const cols = ['user_id','product',...Object.keys(clean)];
+  const vals = [userId, product, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  const stmt = db.prepare(`INSERT INTO case_parties (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`);
+  return stmt.get(...vals);
+}
+
+function updateParty(partyId, userId, data) {
+  const clean = pickFields(data, PARTY_FIELDS);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), partyId, userId];
+  const result = db.prepare(
+    `UPDATE case_parties SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteParty(partyId, userId) {
+  const result = db.prepare('DELETE FROM case_parties WHERE id=? AND user_id=?').run(partyId, userId);
+  return result.changes > 0;
+}
+
+function listChildren(userId) {
+  return db.prepare('SELECT * FROM case_children WHERE user_id=? ORDER BY id').all(userId);
+}
+
+function addChild(userId, data) {
+  const clean = pickFields(data, CHILD_FIELDS);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO case_children (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateChild(childId, userId, data) {
+  const clean = pickFields(data, CHILD_FIELDS);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), childId, userId];
+  const result = db.prepare(
+    `UPDATE case_children SET ${setClause}, updated_at=unixepoch() WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteChild(childId, userId) {
+  const result = db.prepare('DELETE FROM case_children WHERE id=? AND user_id=?').run(childId, userId);
+  return result.changes > 0;
+}
+
+function getFamilyInfo(userId) {
+  const info = db.prepare('SELECT * FROM family_case_info WHERE user_id=?').get(userId);
+  if (info) return info;
+  db.prepare('INSERT INTO family_case_info (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM family_case_info WHERE user_id=?').get(userId);
+}
+
+function saveFamilyInfo(userId, data) {
+  const clean = pickFields(data, FAMILY_INFO_FIELDS);
+  getFamilyInfo(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE family_case_info SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+function getCriminalInfo(userId) {
+  const info = db.prepare('SELECT * FROM criminal_case_info WHERE user_id=?').get(userId);
+  if (info) return info;
+  db.prepare('INSERT INTO criminal_case_info (user_id) VALUES (?)').run(userId);
+  return db.prepare('SELECT * FROM criminal_case_info WHERE user_id=?').get(userId);
+}
+
+function saveCriminalInfo(userId, data) {
+  const clean = pickFields(data, CRIMINAL_INFO_FIELDS);
+  getCriminalInfo(userId);
+  if (!Object.keys(clean).length) return;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), userId];
+  db.prepare(`UPDATE criminal_case_info SET ${setClause}, updated_at=unixepoch() WHERE user_id=?`).run(...values);
+}
+
+function listCharges(userId) {
+  return db.prepare('SELECT * FROM criminal_charges WHERE user_id=? ORDER BY created_at DESC, id DESC').all(userId);
+}
+
+function addCharge(userId, data) {
+  const clean = pickFields(data, CHARGE_FIELDS);
+  const cols = ['user_id', ...Object.keys(clean)];
+  const vals = [userId, ...Object.values(clean)];
+  const placeholders = cols.map(() => '?').join(',');
+  return db.prepare(`INSERT INTO criminal_charges (${cols.join(',')}) VALUES (${placeholders}) RETURNING *`).get(...vals);
+}
+
+function updateCharge(chargeId, userId, data) {
+  const clean = pickFields(data, CHARGE_FIELDS);
+  if (!Object.keys(clean).length) return false;
+  const setClause = Object.keys(clean).map(k => `${k}=?`).join(', ');
+  const values = [...Object.values(clean), chargeId, userId];
+  const result = db.prepare(
+    `UPDATE criminal_charges SET ${setClause} WHERE id=? AND user_id=?`
+  ).run(...values);
+  return result.changes > 0;
+}
+
+function deleteCharge(chargeId, userId) {
+  const result = db.prepare('DELETE FROM criminal_charges WHERE id=? AND user_id=?').run(chargeId, userId);
+  return result.changes > 0;
+}
+
+// Aggregated profile — one endpoint returns everything relevant
+function getFullProfile(userId, products) {
+  // products: string from users.products — 'family' | 'criminal' | 'both' | 'clearsplit'
+  const profile = getUserProfile(userId);
+  const children = listChildren(userId);
+  const result = { profile, children };
+
+  const hasFamily = products === 'family' || products === 'both';
+  const hasCriminal = products === 'criminal' || products === 'both';
+
+  if (hasFamily) {
+    result.family = {
+      info: getFamilyInfo(userId),
+      parties: listParties(userId, 'family'),
+    };
+  }
+  if (hasCriminal) {
+    result.criminal = {
+      info: getCriminalInfo(userId),
+      parties: listParties(userId, 'criminal'),
+      charges: listCharges(userId),
+    };
+  }
+  return result;
+}
+
 module.exports = {
   db, PLANS, STRIPE_PRICES,
   createUser, getUserByEmail, getUserById,
@@ -658,4 +944,12 @@ module.exports = {
   updateConversationTitle,
   deleteConversation,
   autoTitleFromMessage,
+  // Case profile (Unit 2)
+  getUserProfile, saveUserProfile,
+  listParties, addParty, updateParty, deleteParty,
+  listChildren, addChild, updateChild, deleteChild,
+  getFamilyInfo, saveFamilyInfo,
+  getCriminalInfo, saveCriminalInfo,
+  listCharges, addCharge, updateCharge, deleteCharge,
+  getFullProfile,
 };

@@ -5,7 +5,8 @@ const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
         createConversation, getConversation, addMessageToConversation,
-        updateConversationTitle, autoTitleFromMessage } = require('../db');
+        updateConversationTitle, autoTitleFromMessage,
+        getUserProfile, getCriminalInfo, listParties, listCharges } = require('../db');
 
 const CRIMINAL_SYSTEM = `You are ClearStand Criminal, an AI-powered Canadian criminal defence assistant for self-represented accused and their supporters. You were built by a 25-year Canadian law enforcement veteran who left policing due to institutional corruption — you understand both sides of the system deeply.
 
@@ -140,10 +141,41 @@ router.post('/', requireAuth, async (req, res) => {
   if (context?.systemOverride) system = context.systemOverride;
   if (context?.jsonMode) system += '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no preamble, just the JSON object.';
 
-  // Inject profile context if available
-  const profile = context?.profile;
-  if (profile && (profile.first || profile.charges)) {
-    system += `\n\nUSER PROFILE:\nName: ${profile.first||''} ${profile.last||''}\nCharges: ${profile.charges||'Not specified'}\nCourt File: ${profile.filenum||'N/A'}\nCourt: ${profile.court||'N/A'}\nNext Date: ${profile.nextdate||'N/A'}\nNext Event: ${profile.nextevent||'N/A'}\nBail Conditions: ${profile.bail||'N/A'}\nPrior Record: ${profile.record||'Not specified'}\nIndigenous: ${profile.indigenous||'Not specified'}`;
+  // Load structured profile from new DB tables (unless override is active)
+  if (!context?.systemOverride && !context?.jsonMode) {
+    const coreProfile = getUserProfile(user.id);
+    const criminalInfo = getCriminalInfo(user.id);
+    const parties = listParties(user.id, 'criminal');
+    const charges = listCharges(user.id);
+
+    const hasCore = coreProfile && (coreProfile.first || coreProfile.last);
+    const hasCaseInfo = criminalInfo && (criminalInfo.court_file_number || criminalInfo.court);
+    const hasCharges = charges && charges.length > 0;
+
+    if (hasCore || hasCaseInfo || hasCharges) {
+      const c = coreProfile || {};
+      const ci = criminalInfo || {};
+      system += `\n\n## USER PROFILE (the accused)
+Name: ${c.first||''} ${c.last||''}
+DOB: ${c.dob||'N/A'} | Address: ${c.address||''}, ${c.city||''}, ${c.province||'Ontario'} ${c.postal||''}
+Phone: ${c.phone||'N/A'} | Email: ${c.email||user.email||'N/A'}
+Court File: ${ci.court_file_number||'N/A'} | Court: ${ci.court||'N/A'}
+Next Date: ${ci.next_date||'N/A'} (${ci.next_event||''})
+Bail Conditions: ${ci.bail_conditions||'N/A'}
+Prior Record: ${ci.prior_record||'Not specified'}
+Indigenous: ${ci.indigenous||'Not specified'}${ci.officer ? `\nArresting Officer: ${ci.officer}${ci.detachment ? ' ('+ci.detachment+')' : ''}` : ''}`;
+
+      if (hasCharges) {
+        system += `\n\n## CHARGES`;
+        charges.forEach((ch, i) => {
+          system += `\n${i+1}. ${ch.charge_label||'(unspecified)'} ${ch.section ? '— '+ch.section : ''}${ch.charge_date ? ' (offence date: '+ch.charge_date+')' : ''}${ch.location ? ' at '+ch.location : ''}${ch.notes ? '\n   Notes: '+ch.notes : ''}`;
+        });
+      }
+
+      if (parties && parties.length) {
+        system += `\n\nOther parties: ${parties.map(p => `${p.first||''} ${p.last||''} (${p.role||'unknown'})${p.firm ? ', '+p.firm : ''}`).filter(s => s.trim() !== '  ()').join('; ')}`;
+      }
+    }
   }
 
   // Inject analysis results if available

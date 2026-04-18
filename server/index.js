@@ -153,6 +153,7 @@ app.use(express.json({ limit: '2mb' }));
 app.use('/api/auth',           require('./routes/auth'));
 app.use('/api/billing',        require('./routes/billing'));
 app.use('/api/conversations',  require('./routes/conversations'));
+app.use('/api/profile',        require('./routes/profile'));
 app.use('/api/family/chat',    require('./routes/family-chat'));
 app.use('/api/dictation',      require('./routes/dictation'));
 app.use('/api/family/analyze', require('./routes/family-analyze'));
@@ -174,6 +175,7 @@ app.get('/family/*', (req, res) =>
 app.get('/register',        (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
 app.get('/login',           (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/register.html')));
 app.get('/account',         (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/account.html')));
+app.get('/case-profile',    (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/case-profile.html')));
 app.get('/pricing',         (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/pricing.html')));
 app.get('/support',         (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/support.html')));
 app.get('/payment-success', (req, res) => res.sendFile(path.join(__dirname, '../public-criminal/payment-success.html')));

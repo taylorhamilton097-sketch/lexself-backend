@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearStand — Case Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0D1B2A;
+  --navy-mid: #162233;
+  --navy-light: #1E3045;
+  --blue: #2E86C1;
+  --blue-light: #3EA4E4;
+  --teal: #20B2AA;
+  --border: #2A3F56;
+  --text: #E8EDF2;
+  --text2: #8BA3BA;
+  --text3: #4A6680;
+  --white: #F4F6F8;
+  --red: #C0392B;
+  --red-light: #E74C3C;
+  --green: #4CAF50;
+  --amber: #F0A500;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+/* ── NAV ── */
+nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+.nav-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--white); text-decoration: none; }
+.nav-logo span { color: var(--blue-light); }
+.nav-divider { width: 1px; height: 20px; background: var(--border); }
+.nav-tag { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--text2); }
+.nav-right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.nav-link { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); text-decoration: none; padding: 6px 12px; border: 1px solid var(--border); transition: all 0.15s; border-radius: 3px; }
+.nav-link:hover { color: var(--blue-light); border-color: var(--blue); }
+
+/* ── LAYOUT ── */
+.container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+.page-hdr { margin-bottom: 32px; }
+.page-hdr h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--white); margin-bottom: 8px; }
+.page-hdr p { font-family: 'Source Serif 4', serif; font-size: 0.95rem; color: var(--text2); line-height: 1.6; max-width: 640px; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 2px; margin-bottom: 2px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tab { padding: 12px 20px; background: none; border: none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--blue-light); border-bottom-color: var(--blue); }
+.tab-panel { display: none; padding-top: 32px; }
+.tab-panel.active { display: block; }
+
+/* ── CARDS ── */
+.card { background: var(--navy-mid); border: 1px solid var(--border); padding: 24px; margin-bottom: 16px; border-radius: 6px; }
+.card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--white); }
+.card-sub { font-family: 'Source Serif 4', serif; font-size: 0.85rem; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+
+/* ── FORM FIELDS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); }
+.field input, .field select, .field textarea {
+  background: var(--navy);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  padding: 10px 12px;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 40px;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); }
+.field textarea { resize: vertical; min-height: 80px; }
+
+/* ── BUTTONS ── */
+.btn { padding: 10px 18px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; transition: all 0.15s; border-radius: 4px; }
+.btn:hover { border-color: var(--blue); color: var(--blue-light); }
+.btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn-primary:hover { background: var(--blue-light); color: #fff; }
+.btn-ghost { color: var(--text3); }
+.btn-danger { color: var(--red-light); border-color: rgba(192,57,43,0.4); }
+.btn-danger:hover { background: rgba(192,57,43,0.1); color: var(--red-light); border-color: var(--red-light); }
+.btn-sm { padding: 6px 12px; font-size: 0.52rem; }
+
+/* ── ITEM LISTS (children, parties, charges) ── */
+.item-list { display: flex; flex-direction: column; gap: 12px; }
+.item-row { background: var(--navy); border: 1px solid var(--border); padding: 16px; border-radius: 4px; }
+.item-row-hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.item-row-title { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--white); font-weight: 500; }
+.item-row-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
+.item-actions { display: flex; gap: 6px; }
+
+/* ── SAVE STATUS ── */
+.save-status { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); padding: 3px 10px; border-radius: 20px; }
+.save-status.saving { color: var(--amber); }
+.save-status.saved  { color: var(--green); }
+.save-status.error  { color: var(--red-light); }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--navy-mid); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.85rem; z-index: 1000; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.toast.show { display: block; }
+
+/* ── EMPTY STATES ── */
+.empty { text-align: center; padding: 28px 16px; color: var(--text3); font-family: 'Source Serif 4', serif; font-size: 0.9rem; }
+
+/* ── LOADING ── */
+.loading { padding: 60px 20px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.12em; }
+
+/* ── INFO BANNER ── */
+.info-banner { background: rgba(46,134,193,0.08); border: 1px solid rgba(46,134,193,0.25); border-left: 3px solid var(--blue); padding: 14px 18px; margin-bottom: 24px; font-family: 'Source Serif 4', serif; font-size: 0.88rem; color: var(--text2); line-height: 1.6; border-radius: 4px; }
+.info-banner strong { color: var(--white); }
+
+@media (max-width: 640px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .container { padding: 24px 16px; }
+  .card { padding: 16px; }
+  nav { padding: 0 12px; }
+  .nav-tag { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Clear<span>Stand</span></a>
+  <div class="nav-divider"></div>
+  <span class="nav-tag">Case Profile</span>
+  <div class="nav-right">
+    <a href="#" class="nav-link" id="backToAppLink">← Back to App</a>
+    <a href="/account" class="nav-link">Account</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hdr">
+    <h1>Your Case Profile</h1>
+    <p>Fill this out once. Your information will auto-populate into every document, chat session, and form you prepare — whether for family or criminal matters.</p>
+  </div>
+
+  <div class="info-banner" id="bundleBanner" style="display:none">
+    <strong>Bundle account:</strong> Your profile is shared across both Family Law and Criminal Defence. Add parties and case info for each matter separately in the tabs below.
+  </div>
+
+  <div id="loadingState" class="loading">Loading your profile…</div>
+
+  <div id="content" style="display:none">
+    <!-- ── TABS ── -->
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="core" onclick="switchTab('core')">About You</button>
+      <button class="tab" data-tab="children" onclick="switchTab('children')">Children</button>
+      <button class="tab" data-tab="family" onclick="switchTab('family')" style="display:none">Family Matter</button>
+      <button class="tab" data-tab="criminal" onclick="switchTab('criminal')" style="display:none">Criminal Matter</button>
+    </div>
+
+    <!-- ── CORE PROFILE ── -->
+    <div class="tab-panel active" id="panel-core">
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">About You</div>
+            <div class="card-sub">Used across all documents and conversations.</div>
+          </div>
+          <span class="save-status" id="coreStatus"></span>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>First name</label><input type="text" id="core-first" maxlength="100"></div>
+          <div class="field"><label>Last name</label><input type="text" id="core-last" maxlength="100"></div>
+          <div class="field"><label>Date of birth</label><input type="date" id="core-dob"></div>
+          <div class="field"><label>Phone</label><input type="tel" id="core-phone" maxlength="30"></div>
+          <div class="field full"><label>Email</label><input type="email" id="core-email" maxlength="200"></div>
+          <div class="field full"><label>Street address</label><input type="text" id="core-address" maxlength="200"></div>
+          <div class="field"><label>City</label><input type="text" id="core-city" maxlength="100"></div>
+          <div class="field"><label>Province</label>
+            <select id="core-province">
+              <option value="Ontario">Ontario</option>
+              <option value="Alberta">Alberta</option>
+              <option value="British Columbia">British Columbia</option>
+              <option value="Manitoba">Manitoba</option>
+              <option value="New Brunswick">New Brunswick</option>
+              <option value="Newfoundland and Labrador">Newfoundland and Labrador</option>
+              <option value="Nova Scotia">Nova Scotia</option>
+              <option value="Prince Edward Island">Prince Edward Island</option>
+              <option value="Quebec">Quebec</option>
+              <option value="Saskatchewan">Saskatchewan</option>
+              <option value="Northwest Territories">Northwest Territories</option>
+              <option value="Nunavut">Nunavut</option>
+              <option value="Yukon">Yukon</option>
+            </select>
+          </div>
+          <div class="field"><label>Postal code</label><input type="text" id="core-postal" maxlength="10"></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="saveCoreProfile()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHILDREN ── -->
+    <div class="tab-panel" id="panel-children">
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Children</div>
+            <div class="card-sub">Added here once. Used in both family and criminal matters where relevant.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addChildRow()">+ Add Child</button>
+        </div>
+        <div class="item-list" id="childrenList"></div>
+      </div>
+    </div>
+
+    <!-- ── FAMILY MATTER ── -->
+    <div class="tab-panel" id="panel-family">
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Your Role in This Matter</div>
+            <div class="card-sub">Details about your family court file.</div>
+          </div>
+          <span class="save-status" id="familyStatus"></span>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Your role</label>
+            <select id="fam-role">
+              <option value="">Select…</option>
+              <option value="Applicant">Applicant</option>
+              <option value="Respondent">Respondent</option>
+              <option value="Moving Party">Moving Party</option>
+              <option value="Responding Party">Responding Party</option>
+            </select>
+          </div>
+          <div class="field"><label>Representation</label>
+            <select id="fam-ml-status">
+              <option value="self-represented">Self-represented</option>
+              <option value="represented">Represented by counsel</option>
+              <option value="consulting">Consulting a lawyer</option>
+            </select>
+          </div>
+          <div class="field"><label>Court file number</label><input type="text" id="fam-court-file-number" maxlength="80"></div>
+          <div class="field"><label>Court type</label>
+            <select id="fam-court-type">
+              <option value="">Select…</option>
+              <option value="ONSC">Superior Court of Justice (ONSC)</option>
+              <option value="ONCJ">Ontario Court of Justice (ONCJ)</option>
+              <option value="OCJ Family">Family Court (OCJ — unified)</option>
+            </select>
+          </div>
+          <div class="field full"><label>Court location</label><input type="text" id="fam-court" maxlength="200" placeholder="e.g., Toronto, 393 University Ave"></div>
+          <div class="field"><label>Next court date</label><input type="date" id="fam-next-date"></div>
+          <div class="field"><label>Next event</label><input type="text" id="fam-next-event" maxlength="100" placeholder="e.g., Case conference"></div>
+          <div class="field full"><label>Presiding judge (if known)</label><input type="text" id="fam-judge" maxlength="120" placeholder="e.g., Justice Smith"></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="saveFamilyInfo()">Save</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Other Parties — Family</div>
+            <div class="card-sub">Respondent, opposing counsel, involved agencies, etc.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addPartyRow('family')">+ Add Party</button>
+        </div>
+        <div class="item-list" id="familyPartiesList"></div>
+      </div>
+    </div>
+
+    <!-- ── CRIMINAL MATTER ── -->
+    <div class="tab-panel" id="panel-criminal">
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Your Criminal Case</div>
+            <div class="card-sub">Court info and contextual details.</div>
+          </div>
+          <span class="save-status" id="criminalStatus"></span>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Court file number</label><input type="text" id="crim-court-file-number" maxlength="80"></div>
+          <div class="field full"><label>Court location</label><input type="text" id="crim-court" maxlength="200"></div>
+          <div class="field"><label>Next court date</label><input type="date" id="crim-next-date"></div>
+          <div class="field"><label>Next event</label><input type="text" id="crim-next-event" maxlength="100" placeholder="e.g., First appearance"></div>
+          <div class="field full"><label>Bail / release conditions</label><textarea id="crim-bail-conditions" maxlength="2000" placeholder="e.g., Reside at home address, no contact with complainant..."></textarea></div>
+          <div class="field full"><label>Prior criminal record</label><textarea id="crim-prior-record" maxlength="2000" placeholder="Describe any prior convictions or ongoing matters..."></textarea></div>
+          <div class="field"><label>Indigenous identity</label>
+            <select id="crim-indigenous">
+              <option value="">Select…</option>
+              <option value="yes">Yes — Gladue principles apply</option>
+              <option value="no">No</option>
+              <option value="prefer_not">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="field"><label>Arresting officer</label><input type="text" id="crim-officer" maxlength="120"></div>
+          <div class="field full"><label>Detachment / police service</label><input type="text" id="crim-detachment" maxlength="200"></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-primary" onclick="saveCriminalInfo()">Save</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Charges</div>
+            <div class="card-sub">Add each charge you are facing. Multiple charges are common — add them all.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addChargeRow()">+ Add Charge</button>
+        </div>
+        <div class="item-list" id="chargesList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <div class="card-title">Other Parties — Criminal</div>
+            <div class="card-sub">Crown prosecutor, co-accused, defence counsel, witnesses, etc.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addPartyRow('criminal')">+ Add Party</button>
+        </div>
+        <div class="item-list" id="criminalPartiesList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const tok = localStorage.getItem('ls_tok');
+if (!tok) window.location.href = '/register?signin=1';
+
+let currentUser = null;
+let fullProfile = null;
+
+function toast(msg, ms = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function status(elId, state, msg) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.className = 'save-status ' + state;
+  el.textContent = msg;
+  if (state === 'saved') setTimeout(() => { el.textContent = ''; }, 2000);
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Authorization': 'Bearer ' + tok } };
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch(path, opts);
+  if (r.status === 401) {
+    window.location.href = '/register?signin=1';
+    throw new Error('Session expired');
+  }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function setVal(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || '';
+}
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+// ── Back button smart routing ──
+function setupBackLink() {
+  const last = localStorage.getItem('cs_last_product');
+  const link = document.getElementById('backToAppLink');
+  if (!link) return;
+  if (last === 'family' || currentUser?.products === 'family') {
+    link.href = '/family';
+    link.textContent = '← Back to Family Law';
+  } else {
+    link.href = '/criminal-app';
+    link.textContent = '← Back to Criminal Defence';
+  }
+}
+
+// ── Initial load ──
+async function init() {
+  try {
+    const [meRes, profRes] = await Promise.all([
+      api('GET', '/api/auth/me'),
+      api('GET', '/api/profile'),
+    ]);
+    currentUser = meRes.user;
+    fullProfile = profRes;
+
+    // Set up tabs based on product access
+    const products = currentUser.products || 'criminal';
+    const hasFamily = products === 'family' || products === 'both';
+    const hasCriminal = products === 'criminal' || products === 'both';
+    if (hasFamily) document.querySelector('[data-tab="family"]').style.display = '';
+    if (hasCriminal) document.querySelector('[data-tab="criminal"]').style.display = '';
+    if (products === 'both') document.getElementById('bundleBanner').style.display = 'block';
+
+    setupBackLink();
+    hydrateForm();
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loadingState').textContent = 'Failed to load profile. Please refresh.';
+  }
+}
+
+function hydrateForm() {
+  // Core
+  const p = fullProfile.profile || {};
+  setVal('core-first', p.first);
+  setVal('core-last', p.last);
+  setVal('core-dob', p.dob);
+  setVal('core-phone', p.phone);
+  setVal('core-email', p.email || currentUser.email);
+  setVal('core-address', p.address);
+  setVal('core-city', p.city);
+  setVal('core-province', p.province || 'Ontario');
+  setVal('core-postal', p.postal);
+
+  // Children
+  renderChildren();
+
+  // Family
+  if (fullProfile.family) {
+    const f = fullProfile.family.info || {};
+    setVal('fam-role', f.role);
+    setVal('fam-ml-status', f.ml_status || 'self-represented');
+    setVal('fam-court-file-number', f.court_file_number);
+    setVal('fam-court-type', f.court_type);
+    setVal('fam-court', f.court);
+    setVal('fam-next-date', f.next_date);
+    setVal('fam-next-event', f.next_event);
+    setVal('fam-judge', f.judge);
+    renderParties('family', fullProfile.family.parties || []);
+  }
+
+  // Criminal
+  if (fullProfile.criminal) {
+    const c = fullProfile.criminal.info || {};
+    setVal('crim-court-file-number', c.court_file_number);
+    setVal('crim-court', c.court);
+    setVal('crim-next-date', c.next_date);
+    setVal('crim-next-event', c.next_event);
+    setVal('crim-bail-conditions', c.bail_conditions);
+    setVal('crim-prior-record', c.prior_record);
+    setVal('crim-indigenous', c.indigenous);
+    setVal('crim-officer', c.officer);
+    setVal('crim-detachment', c.detachment);
+    renderCharges(fullProfile.criminal.charges || []);
+    renderParties('criminal', fullProfile.criminal.parties || []);
+  }
+}
+
+// ── Tabs ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${name}"]`)?.classList.add('active');
+  document.getElementById('panel-' + name)?.classList.add('active');
+}
+
+// ── CORE ──
+async function saveCoreProfile() {
+  status('coreStatus', 'saving', 'Saving…');
+  try {
+    await api('PUT', '/api/profile/core', {
+      first: getVal('core-first'),
+      last:  getVal('core-last'),
+      dob:   getVal('core-dob'),
+      phone: getVal('core-phone'),
+      email: getVal('core-email'),
+      address: getVal('core-address'),
+      city: getVal('core-city'),
+      province: getVal('core-province'),
+      postal: getVal('core-postal'),
+    });
+    status('coreStatus', 'saved', 'Saved ✓');
+  } catch(e) {
+    status('coreStatus', 'error', 'Error');
+    toast('Could not save: ' + e.message);
+  }
+}
+
+// ── CHILDREN ──
+function renderChildren() {
+  const list = document.getElementById('childrenList');
+  const children = fullProfile.children || [];
+  if (!children.length) {
+    list.innerHTML = '<div class="empty">No children added yet.</div>';
+    return;
+  }
+  list.innerHTML = children.map(c => childRowHtml(c)).join('');
+}
+
+function childRowHtml(c) {
+  return `
+    <div class="item-row" data-id="${c.id}">
+      <div class="item-row-hdr">
+        <div>
+          <div class="item-row-title">${escapeHtml(c.first || '') + ' ' + escapeHtml(c.last || '') || 'New child'}</div>
+          <div class="item-row-meta">${c.dob ? 'DOB: ' + escapeHtml(c.dob) : 'No DOB set'}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-sm" onclick="saveChild(${c.id})">Save</button>
+          <button class="btn btn-sm btn-danger" onclick="removeChild(${c.id})">Remove</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>First name</label><input type="text" id="child-${c.id}-first" value="${escapeAttr(c.first)}" maxlength="100"></div>
+        <div class="field"><label>Last name</label><input type="text" id="child-${c.id}-last" value="${escapeAttr(c.last)}" maxlength="100"></div>
+        <div class="field"><label>Date of birth</label><input type="date" id="child-${c.id}-dob" value="${escapeAttr(c.dob)}"></div>
+        <div class="field"><label>Residency</label>
+          <select id="child-${c.id}-residency">
+            <option value="">Select…</option>
+            <option value="with_user" ${c.residency==='with_user'?'selected':''}>Lives with me</option>
+            <option value="with_other" ${c.residency==='with_other'?'selected':''}>Lives with other parent</option>
+            <option value="shared" ${c.residency==='shared'?'selected':''}>Shared residency</option>
+            <option value="other" ${c.residency==='other'?'selected':''}>Other arrangement</option>
+          </select>
+        </div>
+        <div class="field full"><label>Notes</label><textarea id="child-${c.id}-notes" maxlength="1000">${escapeHtml(c.notes)}</textarea></div>
+      </div>
+    </div>
+  `;
+}
+
+async function addChildRow() {
+  try {
+    const d = await api('POST', '/api/profile/children', {});
+    fullProfile.children = [...(fullProfile.children||[]), d.child];
+    renderChildren();
+  } catch(e) { toast('Could not add child: ' + e.message); }
+}
+
+async function saveChild(id) {
+  try {
+    await api('PUT', '/api/profile/children/' + id, {
+      first: getVal(`child-${id}-first`),
+      last:  getVal(`child-${id}-last`),
+      dob:   getVal(`child-${id}-dob`),
+      residency: getVal(`child-${id}-residency`),
+      notes: getVal(`child-${id}-notes`),
+    });
+    // Update local cache + re-render so header reflects new name
+    const child = fullProfile.children.find(c => c.id === id);
+    if (child) {
+      child.first = getVal(`child-${id}-first`);
+      child.last = getVal(`child-${id}-last`);
+      child.dob = getVal(`child-${id}-dob`);
+      child.residency = getVal(`child-${id}-residency`);
+      child.notes = getVal(`child-${id}-notes`);
+    }
+    renderChildren();
+    toast('Child saved ✓');
+  } catch(e) { toast('Could not save: ' + e.message); }
+}
+
+async function removeChild(id) {
+  if (!confirm('Remove this child from your profile?')) return;
+  try {
+    await api('DELETE', '/api/profile/children/' + id);
+    fullProfile.children = (fullProfile.children||[]).filter(c => c.id !== id);
+    renderChildren();
+  } catch(e) { toast('Could not delete: ' + e.message); }
+}
+
+// ── FAMILY INFO ──
+async function saveFamilyInfo() {
+  status('familyStatus', 'saving', 'Saving…');
+  try {
+    await api('PUT', '/api/profile/family', {
+      role: getVal('fam-role'),
+      ml_status: getVal('fam-ml-status'),
+      court_file_number: getVal('fam-court-file-number'),
+      court_type: getVal('fam-court-type'),
+      court: getVal('fam-court'),
+      next_date: getVal('fam-next-date'),
+      next_event: getVal('fam-next-event'),
+      judge: getVal('fam-judge'),
+    });
+    status('familyStatus', 'saved', 'Saved ✓');
+  } catch(e) {
+    status('familyStatus', 'error', 'Error');
+    toast('Could not save: ' + e.message);
+  }
+}
+
+// ── CRIMINAL INFO ──
+async function saveCriminalInfo() {
+  status('criminalStatus', 'saving', 'Saving…');
+  try {
+    await api('PUT', '/api/profile/criminal', {
+      court_file_number: getVal('crim-court-file-number'),
+      court: getVal('crim-court'),
+      next_date: getVal('crim-next-date'),
+      next_event: getVal('crim-next-event'),
+      bail_conditions: getVal('crim-bail-conditions'),
+      prior_record: getVal('crim-prior-record'),
+      indigenous: getVal('crim-indigenous'),
+      officer: getVal('crim-officer'),
+      detachment: getVal('crim-detachment'),
+    });
+    status('criminalStatus', 'saved', 'Saved ✓');
+  } catch(e) {
+    status('criminalStatus', 'error', 'Error');
+    toast('Could not save: ' + e.message);
+  }
+}
+
+// ── CHARGES ──
+function renderCharges(charges) {
+  const list = document.getElementById('chargesList');
+  if (!list) return;
+  if (!charges.length) {
+    list.innerHTML = '<div class="empty">No charges added yet. Click "+ Add Charge" to begin.</div>';
+    return;
+  }
+  list.innerHTML = charges.map(c => chargeRowHtml(c)).join('');
+}
+
+function chargeRowHtml(c) {
+  return `
+    <div class="item-row" data-id="${c.id}">
+      <div class="item-row-hdr">
+        <div>
+          <div class="item-row-title">${escapeHtml(c.charge_label) || 'New charge'}</div>
+          <div class="item-row-meta">${escapeHtml(c.section) || 'No section'} ${c.charge_date ? '· ' + escapeHtml(c.charge_date) : ''}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-sm" onclick="saveCharge(${c.id})">Save</button>
+          <button class="btn btn-sm btn-danger" onclick="removeCharge(${c.id})">Remove</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field full"><label>Charge</label><input type="text" id="charge-${c.id}-label" value="${escapeAttr(c.charge_label)}" placeholder="e.g., Impaired operation" maxlength="200"></div>
+        <div class="field"><label>Criminal Code section</label><input type="text" id="charge-${c.id}-section" value="${escapeAttr(c.section)}" placeholder="e.g., s.320.14(1)(a)" maxlength="100"></div>
+        <div class="field"><label>Charge date</label><input type="date" id="charge-${c.id}-date" value="${escapeAttr(c.charge_date)}"></div>
+        <div class="field"><label>Arresting officer</label><input type="text" id="charge-${c.id}-officer" value="${escapeAttr(c.arresting_officer)}" maxlength="120"></div>
+        <div class="field"><label>Location of offence</label><input type="text" id="charge-${c.id}-location" value="${escapeAttr(c.location)}" maxlength="200"></div>
+        <div class="field full"><label>Notes</label><textarea id="charge-${c.id}-notes" maxlength="2000">${escapeHtml(c.notes)}</textarea></div>
+      </div>
+    </div>
+  `;
+}
+
+async function addChargeRow() {
+  try {
+    const d = await api('POST', '/api/profile/charges', {});
+    fullProfile.criminal.charges = [d.charge, ...(fullProfile.criminal.charges||[])];
+    renderCharges(fullProfile.criminal.charges);
+  } catch(e) { toast('Could not add charge: ' + e.message); }
+}
+
+async function saveCharge(id) {
+  try {
+    await api('PUT', '/api/profile/charges/' + id, {
+      charge_label: getVal(`charge-${id}-label`),
+      section: getVal(`charge-${id}-section`),
+      charge_date: getVal(`charge-${id}-date`),
+      arresting_officer: getVal(`charge-${id}-officer`),
+      location: getVal(`charge-${id}-location`),
+      notes: getVal(`charge-${id}-notes`),
+    });
+    const charge = fullProfile.criminal.charges.find(c => c.id === id);
+    if (charge) {
+      charge.charge_label = getVal(`charge-${id}-label`);
+      charge.section = getVal(`charge-${id}-section`);
+      charge.charge_date = getVal(`charge-${id}-date`);
+      charge.arresting_officer = getVal(`charge-${id}-officer`);
+      charge.location = getVal(`charge-${id}-location`);
+      charge.notes = getVal(`charge-${id}-notes`);
+    }
+    renderCharges(fullProfile.criminal.charges);
+    toast('Charge saved ✓');
+  } catch(e) { toast('Could not save: ' + e.message); }
+}
+
+async function removeCharge(id) {
+  if (!confirm('Remove this charge?')) return;
+  try {
+    await api('DELETE', '/api/profile/charges/' + id);
+    fullProfile.criminal.charges = fullProfile.criminal.charges.filter(c => c.id !== id);
+    renderCharges(fullProfile.criminal.charges);
+  } catch(e) { toast('Could not delete: ' + e.message); }
+}
+
+// ── PARTIES ──
+const FAMILY_ROLES = [
+  { value: 'respondent',        label: 'Respondent' },
+  { value: 'applicant',         label: 'Applicant (other)' },
+  { value: 'opposing_counsel',  label: 'Opposing counsel' },
+  { value: 'my_counsel',        label: 'My counsel' },
+  { value: 'cas_worker',        label: 'CAS worker / agency' },
+  { value: 'ocl',               label: 'OCL — Office of the Children\'s Lawyer' },
+  { value: 'other',             label: 'Other party' },
+];
+const CRIMINAL_ROLES = [
+  { value: 'complainant',       label: 'Complainant' },
+  { value: 'co_accused',        label: 'Co-accused' },
+  { value: 'crown',             label: 'Crown prosecutor' },
+  { value: 'my_counsel',        label: 'My counsel' },
+  { value: 'witness',           label: 'Witness' },
+  { value: 'other',             label: 'Other party' },
+];
+
+function renderParties(product, parties) {
+  const listId = product === 'family' ? 'familyPartiesList' : 'criminalPartiesList';
+  const list = document.getElementById(listId);
+  if (!list) return;
+  if (!parties.length) {
+    list.innerHTML = '<div class="empty">No parties added yet.</div>';
+    return;
+  }
+  list.innerHTML = parties.map(p => partyRowHtml(p, product)).join('');
+}
+
+function partyRowHtml(p, product) {
+  const roles = product === 'family' ? FAMILY_ROLES : CRIMINAL_ROLES;
+  const roleOptions = roles.map(r =>
+    `<option value="${r.value}" ${p.role===r.value?'selected':''}>${r.label}</option>`
+  ).join('');
+  const roleLabel = roles.find(r => r.value === p.role)?.label || p.role || 'New party';
+  return `
+    <div class="item-row" data-id="${p.id}">
+      <div class="item-row-hdr">
+        <div>
+          <div class="item-row-title">${escapeHtml((p.first || '') + ' ' + (p.last || '')) || 'New party'}</div>
+          <div class="item-row-meta">${escapeHtml(roleLabel)}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-sm" onclick="saveParty(${p.id}, '${product}')">Save</button>
+          <button class="btn btn-sm btn-danger" onclick="removeParty(${p.id}, '${product}')">Remove</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field full"><label>Role</label>
+          <select id="party-${p.id}-role">
+            <option value="">Select role…</option>
+            ${roleOptions}
+          </select>
+        </div>
+        <div class="field"><label>First name</label><input type="text" id="party-${p.id}-first" value="${escapeAttr(p.first)}" maxlength="100"></div>
+        <div class="field"><label>Last name</label><input type="text" id="party-${p.id}-last" value="${escapeAttr(p.last)}" maxlength="100"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="party-${p.id}-phone" value="${escapeAttr(p.phone)}" maxlength="30"></div>
+        <div class="field"><label>Email</label><input type="email" id="party-${p.id}-email" value="${escapeAttr(p.email)}" maxlength="200"></div>
+        <div class="field full"><label>Street address</label><input type="text" id="party-${p.id}-address" value="${escapeAttr(p.address)}" maxlength="200"></div>
+        <div class="field"><label>City</label><input type="text" id="party-${p.id}-city" value="${escapeAttr(p.city)}" maxlength="100"></div>
+        <div class="field"><label>Postal code</label><input type="text" id="party-${p.id}-postal" value="${escapeAttr(p.postal)}" maxlength="10"></div>
+        <div class="field"><label>Firm / organization</label><input type="text" id="party-${p.id}-firm" value="${escapeAttr(p.firm)}" maxlength="200"></div>
+        <div class="field"><label>LSO number (if lawyer)</label><input type="text" id="party-${p.id}-lso" value="${escapeAttr(p.lso_number)}" maxlength="30"></div>
+        <div class="field full"><label>Notes</label><textarea id="party-${p.id}-notes" maxlength="2000">${escapeHtml(p.notes)}</textarea></div>
+      </div>
+    </div>
+  `;
+}
+
+async function addPartyRow(product) {
+  try {
+    const d = await api('POST', '/api/profile/parties', { product, role: 'other' });
+    const target = product === 'family' ? fullProfile.family.parties : fullProfile.criminal.parties;
+    target.push(d.party);
+    renderParties(product, target);
+  } catch(e) { toast('Could not add party: ' + e.message); }
+}
+
+async function saveParty(id, product) {
+  try {
+    await api('PUT', '/api/profile/parties/' + id, {
+      role: getVal(`party-${id}-role`),
+      first: getVal(`party-${id}-first`),
+      last: getVal(`party-${id}-last`),
+      phone: getVal(`party-${id}-phone`),
+      email: getVal(`party-${id}-email`),
+      address: getVal(`party-${id}-address`),
+      city: getVal(`party-${id}-city`),
+      postal: getVal(`party-${id}-postal`),
+      firm: getVal(`party-${id}-firm`),
+      lso_number: getVal(`party-${id}-lso`),
+      notes: getVal(`party-${id}-notes`),
+    });
+    const list = product === 'family' ? fullProfile.family.parties : fullProfile.criminal.parties;
+    const party = list.find(p => p.id === id);
+    if (party) {
+      ['role','first','last','phone','email','address','city','postal','firm','notes'].forEach(k => {
+        party[k] = getVal(`party-${id}-${k === 'firm' ? 'firm' : k}`);
+      });
+      party.lso_number = getVal(`party-${id}-lso`);
+    }
+    renderParties(product, list);
+    toast('Party saved ✓');
+  } catch(e) { toast('Could not save: ' + e.message); }
+}
+
+async function removeParty(id, product) {
+  if (!confirm('Remove this party?')) return;
+  try {
+    await api('DELETE', '/api/profile/parties/' + id);
+    if (product === 'family') {
+      fullProfile.family.parties = fullProfile.family.parties.filter(p => p.id !== id);
+      renderParties('family', fullProfile.family.parties);
+    } else {
+      fullProfile.criminal.parties = fullProfile.criminal.parties.filter(p => p.id !== id);
+      renderParties('criminal', fullProfile.criminal.parties);
+    }
+  } catch(e) { toast('Could not delete: ' + e.message); }
+}
+
+// ── UTILS ──
+function escapeHtml(s) {
+  return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function escapeAttr(s) {
+  return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+init();
+</script>
+</body>
+</html>

@@ -5,7 +5,8 @@ const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { checkLimit, recordUsage, getCaseProfile, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
         createConversation, getConversation, addMessageToConversation,
-        updateConversationTitle, autoTitleFromMessage } = require('../db');
+        updateConversationTitle, autoTitleFromMessage,
+        getUserProfile, listChildren, getFamilyInfo, listParties } = require('../db');
 
 const FAMILY_SYSTEM = `You are ClearStand Family, an Ontario family law assistant for self-represented litigants (SRLs). You are always on the side of the person you are helping.
 
@@ -149,19 +150,35 @@ router.post('/', requireAuth, async (req, res) => {
   // Allow affidavit builder and other tools to override the system prompt
   let system = context?.systemOverride || FAMILY_SYSTEM;
 
-  // Load saved profile from DB if not in context
-  const profile = context?.profile || getCaseProfile(user.id, 'family');
+  // Load structured profile from new DB tables
+  const coreProfile = getUserProfile(user.id);
+  const familyInfo = getFamilyInfo(user.id);
+  const children = listChildren(user.id);
+  const parties = listParties(user.id, 'family');
 
-  if (profile && (profile.first || profile.role)) {
+  const hasCore = coreProfile && (coreProfile.first || coreProfile.last);
+  const hasCaseInfo = familyInfo && (familyInfo.role || familyInfo.court_file_number);
+
+  if (hasCore || hasCaseInfo) {
+    const c = coreProfile || {};
+    const f = familyInfo || {};
+    const lawyerLine = f.ml_status === 'represented' && f.ml_lawyer_first
+      ? ` | Counsel: ${f.ml_lawyer_first} ${f.ml_lawyer_last||''}${f.ml_lawyer_firm ? ', '+f.ml_lawyer_firm : ''}${f.ml_lawyer_lso ? ' (LSO#'+f.ml_lawyer_lso+')' : ''}`
+      : '';
     system += `\n\n## USER PROFILE (use in all drafts)
-Name: ${profile.first||''} ${profile.last||''} | Role: ${profile.role||'unknown'}
-DOB: ${profile.dob||'N/A'} | Address: ${profile.addr||''}, ${profile.city||''}, ${profile.prov||'Ontario'} ${profile.postal||''}
-Phone: ${profile.phone||'N/A'} | Email: ${profile.email||'N/A'}
-Representation: ${profile.ml_status||'Self-Represented'}${profile.ml_first ? ` | Lawyer: ${profile.ml_first} ${profile.ml_last||''}, ${profile.ml_firm||''}, LSO#${profile.ml_lso||''}` : ''}
-Court File: ${profile.cf_number||'N/A'} | Court: ${profile.cf_court||'N/A'} | Type: ${profile.cf_type||'N/A'}
-Next Date: ${profile.cf_nextdate||'N/A'} (${profile.cf_nextevent||''})${profile.cf_judge ? ` | Justice: ${profile.cf_judge}` : ''}
-${profile.children?.length ? `Children: ${profile.children.map(c=>`${c.first} ${c.last} (DOB: ${c.dob||'unknown'})`).join(', ')}` : ''}
-${profile.otherParties?.length ? `Other parties: ${profile.otherParties.map(op=>`${op.first} ${op.last} (${op.role})`).join(', ')}` : ''}`;
+Name: ${c.first||''} ${c.last||''} | Role: ${f.role||'unknown'}${lawyerLine}
+DOB: ${c.dob||'N/A'} | Address: ${c.address||''}, ${c.city||''}, ${c.province||'Ontario'} ${c.postal||''}
+Phone: ${c.phone||'N/A'} | Email: ${c.email||user.email||'N/A'}
+Representation: ${f.ml_status||'self-represented'}
+Court File: ${f.court_file_number||'N/A'} | Court: ${f.court||'N/A'} | Type: ${f.court_type||'N/A'}
+Next Date: ${f.next_date||'N/A'} (${f.next_event||''})${f.judge ? ` | Justice: ${f.judge}` : ''}`;
+
+    if (children && children.length) {
+      system += `\nChildren: ${children.map(ch => `${ch.first||''} ${ch.last||''}${ch.dob ? ' (DOB: '+ch.dob+')' : ''}${ch.residency ? ' — '+ch.residency : ''}`).filter(s => s.trim()).join('; ')}`;
+    }
+    if (parties && parties.length) {
+      system += `\nOther parties: ${parties.map(p => `${p.first||''} ${p.last||''} (${p.role||'unknown'})${p.firm ? ', '+p.firm : ''}`).filter(s => s.trim() !== '  ()').join('; ')}`;
+    }
   }
 
   if (context?.currentForm) {
