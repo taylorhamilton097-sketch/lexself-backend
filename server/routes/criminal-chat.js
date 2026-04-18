@@ -3,7 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage } = require('../db');
+const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
 
 const CRIMINAL_SYSTEM = `You are ClearStand Criminal, an AI-powered Canadian criminal defence assistant for self-represented accused and their supporters. You were built by a 25-year Canadian law enforcement veteran who left policing due to institutional corruption — you understand both sides of the system deeply.
 
@@ -89,6 +89,19 @@ router.post('/', requireAuth, async (req, res) => {
     });
   }
 
+  // Counsel daily safety cap — catches runaway usage (bot/script/abuse)
+  if (user.plan === 'counsel') {
+    const counselCheck = checkCounselLimits(user.id);
+    if (!counselCheck.allowed) {
+      return res.status(402).json({
+        error: 'limit_reached',
+        code: 'daily_safety_cap',
+        message: counselCheck.message,
+        plan: user.plan,
+      });
+    }
+  }
+
   let system = CRIMINAL_SYSTEM;
 
   // Allow cross-ex builder to override system prompt
@@ -128,11 +141,16 @@ router.post('/', requireAuth, async (req, res) => {
     });
 
     const data = await resp.json();
-    
 
     if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message || 'API error' });
 
     recordUsage(user.id, 'criminal', 'chat');
+
+    // System B — track real token consumption for cost monitoring
+    const tokens = (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0);
+    trackApiUsage(user.id, 'chat', tokens);
+    trackGlobalApiUsage(tokens);
+
     res.json(data);
   } catch (err) {
     console.error('Criminal chat error:', err.message);

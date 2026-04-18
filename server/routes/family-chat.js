@@ -3,7 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage, getCaseProfile } = require('../db');
+const { checkLimit, recordUsage, getCaseProfile, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
 
 const FAMILY_SYSTEM = `You are ClearStand Family, an Ontario family law assistant for self-represented litigants (SRLs). You are always on the side of the person you are helping.
 
@@ -103,6 +103,19 @@ router.post('/', requireAuth, async (req, res) => {
     });
   }
 
+  // Counsel daily safety cap — catches runaway usage (bot/script/abuse)
+  if (user.plan === 'counsel') {
+    const counselCheck = checkCounselLimits(user.id);
+    if (!counselCheck.allowed) {
+      return res.status(402).json({
+        error: 'limit_reached',
+        code: 'daily_safety_cap',
+        message: counselCheck.message,
+        plan: user.plan,
+      });
+    }
+  }
+
   // Build system prompt with profile and context
   // Allow affidavit builder and other tools to override the system prompt
   let system = context?.systemOverride || FAMILY_SYSTEM;
@@ -146,6 +159,12 @@ ${profile.otherParties?.length ? `Other parties: ${profile.otherParties.map(op=>
     if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message });
 
     recordUsage(user.id, 'family', 'chat');
+
+    // System B — track real token consumption for cost monitoring
+    const tokens = (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0);
+    trackApiUsage(user.id, 'chat', tokens);
+    trackGlobalApiUsage(tokens);
+
     res.json(data);
   } catch(err) {
     res.status(500).json({ error: err.message });
