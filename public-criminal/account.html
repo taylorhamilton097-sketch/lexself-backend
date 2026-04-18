@@ -291,6 +291,15 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
       </div>
     </div>
 
+    <!-- ── GUIDED TOURS ── -->
+    <div class="section" id="guidedToursSection" style="display:none">
+      <div class="section-hdr">Guided Tours</div>
+      <div class="card">
+        <div style="font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:16px">Replay the first-time walkthrough for either product. You'll see the same 3-step introduction that shows when someone new logs in.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap" id="tourButtons"></div>
+      </div>
+    </div>
+
     <!-- ── SUPPORT ── -->
     <div class="section">
       <div class="section-hdr">Need Help?</div>
@@ -487,6 +496,48 @@ function renderAccount() {
       document.getElementById('analysisRemaining').textContent =
         `${limit - used} of ${limit} analyses remaining this month`;
     }
+  }
+
+  // Guided tours
+  renderGuidedTours();
+}
+
+function renderGuidedTours() {
+  const products = currentUser?.products || 'criminal';
+  const hasFamily   = (products === 'family'   || products === 'both');
+  const hasCriminal = (products === 'criminal' || products === 'both');
+
+  const section = document.getElementById('guidedToursSection');
+  const wrap    = document.getElementById('tourButtons');
+  if (!section || !wrap) return;
+
+  const buttons = [];
+  if (hasFamily) {
+    buttons.push(`<button class="btn btn-ghost" onclick="replayTour('family')">Replay Family Law Tour</button>`);
+  }
+  if (hasCriminal) {
+    buttons.push(`<button class="btn btn-ghost" onclick="replayTour('criminal')">Replay Criminal Defence Tour</button>`);
+  }
+
+  if (buttons.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  wrap.innerHTML = buttons.join('');
+  section.style.display = 'block';
+}
+
+function replayTour(product) {
+  if (product === 'family') {
+    localStorage.removeItem('cs_family_onboarded');
+    localStorage.removeItem('cs_family_situation');
+    toast('Reloading Family Law with tour…');
+    setTimeout(() => { window.location.href = '/family'; }, 700);
+  } else if (product === 'criminal') {
+    localStorage.removeItem('cs_onboarded');
+    toast('Reloading Criminal Defence with tour…');
+    setTimeout(() => { window.location.href = '/criminal-app'; }, 700);
   }
 }
 
