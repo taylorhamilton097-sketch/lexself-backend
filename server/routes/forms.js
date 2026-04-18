@@ -1,275 +1,154 @@
 'use strict';
 
-/**
- * Ontario Family Court Form Fill Engine
- * Fills Ontario court forms with user data from People in My Case + Profile
- * 
- * Strategy: Each form has FORMTEXT fields in a specific order.
- * We replace the blank <w:t>     </w:t> inside each FORMTEXT with user data.
- */
-
 const express = require('express');
 const router  = express.Router();
-const path    = require('path');
-const fs      = require('fs');
-const { execSync } = require('child_process');
 const { requireAuth } = require('../middleware/auth');
+const {
+  getUserProfile, listChildren, getFamilyInfo, listParties,
+} = require('../db');
 
-// Forms directory - store the .docx templates on the server
-const FORMS_DIR = path.join(__dirname, '../../forms');
+const { generateForm } = require('../forms/generator');
 
-// Field maps - which FORMTEXT field index (1-based) gets which data
-// Based on analysis of each form's XML structure
-const FIELD_MAPS = {
-  '8': { // Form 8 - Application (General)
-    name: 'Form 8 — Application (General)',
-    file: 'form8_application.docx',
-    fields: {
-      1:  'court_file_number',
-      2:  'court_name',          // name of court
-      3:  'applicant_name',      // Full legal name
-      4:  'applicant_lawyer_name',
-      5:  'applicant_address',
-      6:  'applicant_lawyer_address',
-      7:  'applicant_phone',
-      8:  'applicant_lawyer_phone',
-      9:  'applicant_email',
-      10: 'applicant_lawyer_email',
-      11: 'respondent_name',
-      12: 'respondent_lawyer_name',
-      13: 'respondent_address',
-      14: 'respondent_lawyer_address',
-      15: 'respondent_phone',
-      16: 'respondent_lawyer_phone',
-      17: 'respondent_email',
-      18: 'respondent_lawyer_email',
-      19: 'first_court_date',
-    }
-  },
-  '10': { // Form 10 - Answer
-    name: 'Form 10 — Answer',
-    file: 'form10_answer.docx',
-    fields: {
-      1:  'court_file_number',
-      3:  'applicant_name',
-      4:  'applicant_lawyer_name',
-      5:  'applicant_address',
-      6:  'applicant_lawyer_address',
-      7:  'applicant_phone',
-      8:  'applicant_lawyer_phone',
-      9:  'applicant_email',
-      10: 'applicant_lawyer_email',
-      11: 'respondent_name',
-      12: 'respondent_lawyer_name',
-      13: 'respondent_address',
-      14: 'respondent_lawyer_address',
-      15: 'respondent_phone',
-      16: 'respondent_lawyer_phone',
-      17: 'respondent_email',
-      18: 'respondent_lawyer_email',
-      20: 'deponent_name',
-    }
-  },
-  '14': { // Form 14 - Notice of Motion
-    name: 'Form 14 — Notice of Motion',
-    file: 'form14_notice_of_motion.docx',
-    fields: {
-      1:  'court_file_number',
-      3:  'moving_party_lawyer',
-      5:  'responding_party_lawyer',
-      7:  'motion_date',
-      9:  'place_of_hearing',
-      10: 'moving_party_name',
-      14: 'orders_requested',
-    }
-  },
-  '14a': { // Form 14A - Affidavit (General)
-    name: 'Form 14A — Affidavit (General)',
-    file: 'form14a_affidavit.docx',
-    fields: {
-      1:  'court_file_number',
-      2:  'affidavit_date',
-      3:  'court_office_address',
-      4:  'applicant_lawyer',
-      6:  'respondent_lawyer',
-      8:  'deponent_name',
-      9:  'deponent_municipality',
-      10: 'affidavit_content',
-    }
-  },
-  '14c': { // Form 14C - Confirmation
-    name: 'Form 14C — Confirmation',
-    file: 'form14c_confirmation.docx',
-    fields: {
-      1:  'court_file_number',
-      3:  'applicant_lawyer',
-      5:  'respondent_lawyer',
-      8:  'moving_party_name',
-      12: 'motion_date',
-    }
-  },
-  '25': { // Form 25 - Draft Order
-    name: 'Form 25 — Draft Order',
-    file: 'form25_draft_order.docx',
-    fields: {
-      2:  'court_file_number',
-      5:  'judge_name',
-      7:  'respondent_name',
-      8:  'order_date',
-      10: 'parties_names',
-    }
-  },
-  '6b': { // Form 6B - Affidavit of Service
-    name: 'Form 6B — Affidavit of Service',
-    file: 'form6b_affidavit_of_service.docx',
-    fields: {
-      2:  'court_file_number',
-      4:  'court_office_address',
-      5:  'applicant_lawyer',
-      7:  'respondent_lawyer',
-      9:  'deponent_name',
-      10: 'deponent_municipality',
-      11: 'service_date',
-      12: 'service_time',
-      13: 'person_served',
-    }
-  },
-  '35_1': { // Form 35.1 - Parenting Affidavit
-    name: 'Form 35.1 — Parenting Affidavit',
-    file: 'form35_1_parenting.docx',
-    fields: {
-      1:  'court_file_number',
-      3:  'applicant_lawyer',
-      5:  'respondent_lawyer',
-      7:  'deponent_name',
-      8:  'deponent_municipality',
-    }
-  },
-};
-
-// Build data object from profile + people data
-function buildFormData(profile, people = []) {
-  // Find parties from people directory
-  const applicant = people.find(p => p.role === 'Applicant') || {};
-  const respondent = people.find(p => p.role === 'Respondent') || {};
-  const children = people.filter(p => p.role === 'Child');
-
-  // Build formatted addresses
-  const applicantAddr = [applicant.address, applicant.city].filter(Boolean).join(', ');
-  const respondentAddr = [respondent.address, respondent.city].filter(Boolean).join(', ');
-
-  return {
-    court_file_number:        profile.cf_number || '',
-    court_name:               profile.cf_court || '',
-    court_office_address:     profile.cf_addr || '',
-    
-    applicant_name:           applicant.name || profile.p_first ? `${profile.p_first || ''} ${profile.p_last || ''}`.trim() : '',
-    applicant_address:        applicantAddr || profile.p_addr || '',
-    applicant_phone:          applicant.phone || profile.p_phone || '',
-    applicant_email:          applicant.email || profile.p_email || '',
-    applicant_lawyer:         '',
-    applicant_lawyer_name:    '',
-    applicant_lawyer_address: '',
-    applicant_lawyer_phone:   '',
-    applicant_lawyer_email:   '',
-
-    respondent_name:           respondent.name || '',
-    respondent_address:        respondentAddr || '',
-    respondent_phone:          respondent.phone || '',
-    respondent_email:          respondent.email || '',
-    respondent_lawyer:         '',
-    respondent_lawyer_name:    '',
-    respondent_lawyer_address: '',
-    respondent_lawyer_phone:   '',
-    respondent_lawyer_email:   '',
-
-    deponent_name:             applicant.name || `${profile.p_first || ''} ${profile.p_last || ''}`.trim(),
-    deponent_municipality:     profile.p_city || '',
-
-    moving_party_name:         applicant.name || `${profile.p_first || ''} ${profile.p_last || ''}`.trim(),
-    moving_party_lawyer:       '',
-    responding_party_lawyer:   '',
-
-    first_court_date:          profile.cf_nextdate || '',
-    motion_date:               profile.cf_nextdate || '',
-    affidavit_date:            new Date().toLocaleDateString('en-CA'),
-    order_date:                '',
-    service_date:              '',
-    service_time:              '',
-    person_served:             '',
-
-    orders_requested:          '',
-    affidavit_content:         '',
-    judge_name:                '',
-    parties_names:             [applicant.name, respondent.name].filter(Boolean).join(' and '),
-    place_of_hearing:          profile.cf_court || '',
-  };
+// Form generation is a PAID feature but does NOT count against chat quota.
+// Free users get no access. Paid users (any family-enabled tier) get unlimited.
+function requirePaidFamilyAccess(req, res, next) {
+  const user = req.user;
+  if (!user) return res.status(401).json({ error: 'Not authenticated.' });
+  if (user.plan === 'free') {
+    return res.status(402).json({
+      error: 'paid_required',
+      message: 'Form generation is available on paid plans. Upgrade to generate filled court forms.',
+    });
+  }
+  if (user.products !== 'family' && user.products !== 'both') {
+    return res.status(403).json({
+      error: 'wrong_product',
+      message: 'Family forms require a Family Law or Bundle subscription.',
+    });
+  }
+  next();
 }
 
-// Fill a form by replacing FORMTEXT field values
-function fillForm(formKey, data) {
-  const map = FIELD_MAPS[formKey];
-  if (!map) throw new Error(`Unknown form: ${formKey}`);
-
-  const templatePath = path.join(FORMS_DIR, map.file);
-  if (!fs.existsSync(templatePath)) throw new Error(`Template not found: ${map.file}`);
-
-  // Read the docx (it's a zip)
-  const AdmZip = require('adm-zip');
-  const zip = new AdmZip(templatePath);
-  let docXml = zip.readAsText('word/document.xml');
-
-  // Find all FORMTEXT instances and replace in order
-  let fieldIndex = 0;
-  docXml = docXml.replace(
-    /(<w:instrText[^>]*> FORMTEXT <\/w:instrText><w:fldChar w:fldCharType="separate"\/>)<w:t>([^<]*)<\/w:t>(<w:fldChar w:fldCharType="end"\/>)/g,
-    (match, pre, oldVal, post) => {
-      fieldIndex++;
-      const dataKey = map.fields[fieldIndex];
-      const newVal = dataKey && data[dataKey] !== undefined ? escapeXml(data[dataKey]) : oldVal;
-      return `${pre}<w:t>${newVal}</w:t>${post}`;
-    }
-  );
-
-  // Write back and return buffer
-  zip.updateFile('word/document.xml', Buffer.from(docXml, 'utf8'));
-  return zip.toBuffer();
-}
-
-function escapeXml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// GET /api/forms/list
-router.get('/list', requireAuth, (req, res) => {
-  const available = Object.entries(FIELD_MAPS).map(([key, val]) => ({
-    key,
-    name: val.name,
-    available: fs.existsSync(path.join(FORMS_DIR, val.file)),
-  }));
-  res.json({ forms: available });
-});
-
-// POST /api/forms/fill
-// Body: { formKey, profile, people, extraData }
-router.post('/fill', requireAuth, (req, res) => {
-  const { formKey, profile = {}, people = [], extraData = {} } = req.body;
+// ──────────────────────────────────────────────────
+// POST /api/forms/:formId/generate
+// Body: { fields: {...form-specific inline fields...}, affidavitBody?: string, sworn_at?, sworn_in?, sworn_date? }
+// Returns: docx buffer as download
+// ──────────────────────────────────────────────────
+router.post('/:formId/generate', requireAuth, requirePaidFamilyAccess, async (req, res) => {
+  const { formId } = req.params;
+  if (!['14a', '8a'].includes(formId)) {
+    return res.status(404).json({ error: 'Unknown form.' });
+  }
 
   try {
-    const formData = { ...buildFormData(profile, people), ...extraData };
-    const buffer = fillForm(formKey, formData);
-    const map = FIELD_MAPS[formKey];
+    // Gather all case profile data the form needs
+    const profile = getUserProfile(req.user.id);
+    const children = listChildren(req.user.id);
+    const familyInfo = getFamilyInfo(req.user.id);
+    const parties = listParties(req.user.id, 'family');
+
+    // Form-specific inline-filled fields from the preview page
+    const formFields = req.body?.fields || {};
+
+    const data = {
+      profile,
+      familyInfo,
+      children,
+      parties,
+      // Form-specific payload
+      affidavitBody: req.body?.affidavitBody || '',
+      sworn_at:      req.body?.sworn_at || '',
+      sworn_in:      req.body?.sworn_in || '',
+      sworn_date:    req.body?.sworn_date || '',
+      form8aFields:  formId === '8a' ? formFields : {},
+    };
+
+    const buffer = await generateForm(formId, data);
+
+    const filename = `Form-${formId.toUpperCase()}-${(profile.last || 'Applicant').replace(/[^a-zA-Z0-9]/g, '')}-${new Date().toISOString().slice(0,10)}.docx`;
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    res.setHeader('Content-Disposition', `attachment; filename="${map.name.replace(/[^a-zA-Z0-9]/g, '_')}.docx"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(buffer);
   } catch(err) {
-    console.error('Form fill error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.error('[Form generate error]', err);
+    res.status(500).json({ error: 'Failed to generate form.', detail: err.message });
+  }
+});
+
+// ──────────────────────────────────────────────────
+// POST /api/forms/14a/clean-paragraphs
+// Uses Claude to clean up user's dictated/raw text into proper numbered affidavit paragraphs.
+// Does NOT count against chat quota (free form-feature AI call).
+// ──────────────────────────────────────────────────
+router.post('/14a/clean-paragraphs', requireAuth, requirePaidFamilyAccess, async (req, res) => {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'AI service not configured.' });
+
+  const { rawText } = req.body || {};
+  if (!rawText || typeof rawText !== 'string' || rawText.trim().length < 10) {
+    return res.status(400).json({ error: 'Please provide at least a few sentences.' });
+  }
+  if (rawText.length > 15000) {
+    return res.status(400).json({ error: 'Text too long. Please break into smaller chunks.' });
+  }
+
+  // Load the user's profile so Claude can speak in their voice
+  const profile = getUserProfile(req.user.id);
+  const familyInfo = getFamilyInfo(req.user.id);
+  const parties = listParties(req.user.id, 'family');
+  const respondent = parties.find(x => x.role === 'respondent');
+
+  const userName = [profile.first, profile.last].filter(Boolean).join(' ') || 'the deponent';
+  const respondentName = respondent ? [respondent.first, respondent.last].filter(Boolean).join(' ') : 'the respondent';
+  const userRole = (familyInfo.role || 'applicant');
+
+  const system = `You are drafting paragraphs for an Ontario family court Affidavit (Form 14A). Convert the user's dictated or typed narrative into clear, numbered affidavit paragraphs that will stand up in court.
+
+RULES:
+1. Write in first person ("I did", "I saw", "I believe") — the deponent is ${userName}, who is the ${userRole} in this matter.
+2. One fact per paragraph. Short, clear sentences. No compound paragraphs.
+3. Strip emotional language and stick to facts. ("He was aggressive" → "He raised his voice and stepped toward me.")
+4. Use past tense for events that already happened. Use dates where the user gave them.
+5. When referring to the opposing party, use "the Respondent" or their name (${respondentName}) — do not use "he/she" without antecedent.
+6. If the user mentions hearsay (something someone else told them), structure it as "I was told by [name] that..." followed by "I believe this to be true" — this is required in affidavits.
+7. Do not add facts the user did not mention. Do not embellish.
+8. Do not include numbering — just output one paragraph per line separated by blank lines. The form template will add the numbers.
+9. Do not include any preamble, explanation, or commentary. Output ONLY the paragraphs.`;
+
+  const userPrompt = `Convert this narrative into clear affidavit paragraphs:\n\n${rawText}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.error('[14a clean-paragraphs API error]', resp.status, errText);
+      return res.status(502).json({ error: 'AI service error. Please try again.' });
+    }
+
+    const data = await resp.json();
+    const cleaned = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n\n').trim();
+
+    if (!cleaned) return res.status(502).json({ error: 'Empty response from AI.' });
+
+    res.json({ cleaned });
+  } catch(err) {
+    console.error('[14a clean-paragraphs error]', err);
+    res.status(500).json({ error: 'Failed to clean paragraphs.' });
   }
 });
 

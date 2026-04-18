@@ -154,6 +154,7 @@ app.use('/api/auth',           require('./routes/auth'));
 app.use('/api/billing',        require('./routes/billing'));
 app.use('/api/conversations',  require('./routes/conversations'));
 app.use('/api/profile',        require('./routes/profile'));
+app.use('/api/forms',          require('./routes/forms'));
 app.use('/api/family/chat',    require('./routes/family-chat'));
 app.use('/api/dictation',      require('./routes/dictation'));
 app.use('/api/family/analyze', require('./routes/family-analyze'));
