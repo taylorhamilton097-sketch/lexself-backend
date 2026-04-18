@@ -337,6 +337,8 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
 const tok = localStorage.getItem('ls_tok');
 let currentUser = null;
 let usageState  = null;
+let usageByProduct = null;       // { family: {...}, criminal: {...} } — bundle users only
+let currentUsageProduct = null;  // 'family' or 'criminal' — which product's usage is shown
 
 // ── REDIRECT IF NOT LOGGED IN ──
 if (!tok) window.location.href = '/register?signin=1';
@@ -385,6 +387,28 @@ async function loadAccount() {
     if (!d?.user) { doLogout(); return; }
     currentUser = d.user;
     usageState  = d.usage;
+
+    // For Bundle users, fetch usage for both products
+    if (currentUser.products === 'both') {
+      try {
+        const [familyRes, criminalRes] = await Promise.all([
+          api('GET', '/api/auth/me?product=family'),
+          api('GET', '/api/auth/me?product=criminal'),
+        ]);
+        usageByProduct = {
+          family:   familyRes?.usage   || null,
+          criminal: criminalRes?.usage || null,
+        };
+        // Default view for bundle users — use last-visited product or criminal
+        const last = localStorage.getItem('cs_last_product');
+        currentUsageProduct = (last === 'family') ? 'family' : 'criminal';
+        usageState = usageByProduct[currentUsageProduct];
+      } catch(e) {
+        // Fall back to whatever /me returned
+        console.warn('Per-product usage fetch failed:', e.message);
+      }
+    }
+
     renderAccount();
   } catch(e) {
     document.getElementById('loadingState').innerHTML = '<span style="color:var(--red)">Failed to load account. Please refresh.</span>';
@@ -469,11 +493,27 @@ function renderAccount() {
 function renderUsage() {
   if (!usageState) return;
   const grid = document.getElementById('usageGrid');
+  const isBundle = currentUser?.products === 'both' && usageByProduct;
+
+  // Product toggle for Bundle users
+  let toggleHtml = '';
+  if (isBundle) {
+    const fActive = currentUsageProduct === 'family' ? 'on' : '';
+    const cActive = currentUsageProduct === 'criminal' ? 'on' : '';
+    toggleHtml = `
+      <div class="usage-toggle" style="grid-column:1/-1;display:flex;gap:8px;margin-bottom:12px">
+        <button class="usage-toggle-btn ${fActive}" onclick="switchUsageProduct('family')"
+          style="flex:1;padding:8px 14px;background:${fActive ? 'var(--blue)' : 'transparent'};color:${fActive ? '#fff' : 'var(--text2)'};border:1px solid ${fActive ? 'var(--blue)' : 'var(--border)'};font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .15s">Family Law</button>
+        <button class="usage-toggle-btn ${cActive}" onclick="switchUsageProduct('criminal')"
+          style="flex:1;padding:8px 14px;background:${cActive ? 'var(--blue)' : 'transparent'};color:${cActive ? '#fff' : 'var(--text2)'};border:1px solid ${cActive ? 'var(--blue)' : 'var(--border)'};font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:all .15s">Criminal Defence</button>
+      </div>`;
+  }
+
   const rows = [
     { label: 'Analyses this month', stat: usageState.analysis },
     { label: 'Chats this month',    stat: usageState.chat },
   ];
-  const html = rows.map(r => {
+  const rowsHtml = rows.map(r => {
     const { used, limit } = r.stat || {};
     if (limit === null || limit === Infinity) {
       return `<div class="usage-item">
@@ -490,8 +530,23 @@ function renderUsage() {
       <div class="usage-count">${limit - (used||0)} of ${limit} remaining</div>
     </div>`;
   }).join('');
-  grid.innerHTML = html;
+  grid.innerHTML = toggleHtml + rowsHtml;
   grid.style.display = 'grid';
+}
+
+function switchUsageProduct(product) {
+  if (!usageByProduct || !usageByProduct[product]) return;
+  currentUsageProduct = product;
+  usageState = usageByProduct[product];
+  renderUsage();
+  // Update analysis remaining text too
+  if (usageState?.analysis) {
+    const { used, limit } = usageState.analysis;
+    const el = document.getElementById('analysisRemaining');
+    if (el && limit !== null && limit !== Infinity) {
+      el.textContent = `${limit - used} of ${limit} analyses remaining this month`;
+    }
+  }
 }
 
 function renderUpgrades() {

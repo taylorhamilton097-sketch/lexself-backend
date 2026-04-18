@@ -1089,7 +1089,8 @@ function showPanel(name) {
   const labels = { upload:'Upload Disclosure', report:'Analysis Report', chat:'Defence Assistant', profile:'My Case Profile', crossex:'Cross-Examination Builder', 'defence-org':'Defence Organization', people:'People in My Case' };
   if (name === 'people') setTimeout(() => renderPeople(), 100);
   if (name === 'defence-org') setTimeout(() => renderDorgList('timeline'), 100);
-  document.getElementById('modeLabel').textContent = labels[name] || name;
+  const modeLabel = document.getElementById('modeLabel');
+  if (modeLabel) modeLabel.textContent = labels[name] || name;
   if (name === 'chat' && document.getElementById('msgs').innerHTML === '') showWelcome();
   if (name === 'crossex' && document.getElementById('cxMsgs').innerHTML === '') setTimeout(startCrossEx, 100);
 }
