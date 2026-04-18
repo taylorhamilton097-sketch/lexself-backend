@@ -18,6 +18,10 @@ process.on('uncaughtException', (err) => {
 
 const app = express();
 
+// ── TRUST PROXY — Railway sits in front of this app ──
+// Required for express-rate-limit to see real user IPs via X-Forwarded-For
+app.set('trust proxy', 1);
+
 // ── CANONICAL DOMAIN — www → clearstand.ca ──
 app.use((req, res, next) => {
   if (req.headers.host === 'www.clearstand.ca') {
