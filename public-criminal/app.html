@@ -644,7 +644,7 @@ select.fi { cursor: pointer; }
   <div id="panel-chat" class="panel">
     <div class="chat-wrap">
       <div class="ctx-bar">
-        <span class="ctx-pill none" id="ctxPill" id="ctxName">General Defence Assistant</span>
+        <span class="ctx-pill none" id="ctxName">General Defence Assistant</span>
         <span id="fileNumBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;padding:2px 8px;border:1px solid var(--border)">File: <span id="fileNumVal"></span></span>
         <button onclick="showPanel('profile');bnActive('profile')" style="margin-left:8px;padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em" id="addFileBtn" title="Add court file number">+ File #</button>
       </div>
@@ -1281,7 +1281,8 @@ function openMyChargeChat(chargeId) {
 // ── Replaced loadCharge: Option B — prompt user ──
 function loadCharge(key) {
   showPanel('chat'); bnActive('chat');
-  document.getElementById('ctxName').textContent = CHARGE_LABELS[key] || key;
+  const ctxName = document.getElementById('ctxName');
+  if (ctxName) ctxName.textContent = CHARGE_LABELS[key] || key;
   clearChat(false);
 
   // Guest users: just load educational chat (no profile yet)
@@ -1821,8 +1822,8 @@ function handleAnalysisEvent(ev) {
     setTimeout(() => {
       showPanel('report'); bnActive('report');
       document.getElementById('reportBadge').classList.add('show');
-      document.getElementById('ctxPill').textContent = 'Disclosure Loaded';
-      document.getElementById('ctxPill').classList.remove('none');
+      document.getElementById('ctxName').textContent = 'Disclosure Loaded';
+      document.getElementById('ctxName').classList.remove('none');
       const inc = ev.results.pass1?.inconsistencies?.length || 0;
       const ch = ev.results.pass2?.charterIssues?.length || 0;
       toast(`Analysis done — ${inc} inconsistencies · ${ch} Charter issues`);
@@ -2341,7 +2342,7 @@ const PIDS=['first','last','dob','phone','email','charges','filenum','court','ne
 function saveProfile(){
   const p={};PIDS.forEach(k=>{const el=document.getElementById('pr_'+k);if(el)p[k]=el.value;});
   caseProf=p;localStorage.setItem('lsc_p',JSON.stringify(p));
-  if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim();document.getElementById('ctxPill').classList.remove('none');}
+  if(p.first){document.getElementById('ctxName').textContent=`${p.first} ${p.last||''}`.trim();document.getElementById('ctxName').classList.remove('none');}
   if(p.filenum){
     document.getElementById('fileNumVal').textContent=p.filenum;
     document.getElementById('fileNumBadge').style.display='block';
@@ -2354,7 +2355,7 @@ function clearProfile(){if(!confirm('Clear case profile?'))return;localStorage.r
 function loadStoredProfile(){
   const d=localStorage.getItem('lsc_p');if(!d)return;
   caseProf=JSON.parse(d);PIDS.forEach(k=>{const el=document.getElementById('pr_'+k);if(el&&caseProf[k]!==undefined)el.value=caseProf[k];});
-  if(caseProf.first){document.getElementById('ctxPill').textContent=`${caseProf.first} ${caseProf.last||''}`.trim();document.getElementById('ctxPill').classList.remove('none');}
+  if(caseProf.first){document.getElementById('ctxName').textContent=`${caseProf.first} ${caseProf.last||''}`.trim();document.getElementById('ctxName').classList.remove('none');}
   if(caseProf.filenum){
     document.getElementById('fileNumVal').textContent=caseProf.filenum;
     document.getElementById('fileNumBadge').style.display='block';
