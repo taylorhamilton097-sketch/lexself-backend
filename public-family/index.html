@@ -983,6 +983,13 @@ function showPanel(name) {
   document.getElementById('panel-' + name)?.classList.add('on');
   const modeLabel = document.getElementById('modeLabel');
   if (modeLabel) modeLabel.textContent = { chat:'Ontario Family Law', profile:'My Profile', forms:'Form Builder', affidavit:'Affidavit Builder' }[name] || name;
+  // Auto-start affidavit interview when its panel opens empty
+  if (name === 'affidavit') {
+    const affMsgs = document.getElementById('affMsgs');
+    if (affMsgs && affMsgs.innerHTML === '' && typeof startAffidavit === 'function') {
+      startAffidavit();
+    }
+  }
 }
 function bnA(name) { document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('on')); document.getElementById('bn-'+name)?.classList.add('on'); }
 function sbA(btn) { document.querySelectorAll('.sbt').forEach(b => b.classList.remove('on')); btn.classList.add('on'); }
@@ -2288,15 +2295,6 @@ async function stopAffVoice() {
   inp.disabled = false;
   document.getElementById('affVBtn').textContent = 'Voice';
   inp.focus();
-}
-
-// Auto-start interview when panel opens
-const _origShowPanel = showPanel;
-function showPanel(name) {
-  _origShowPanel(name);
-  if (name === 'affidavit' && document.getElementById('affMsgs').innerHTML === '') {
-    startAffidavit();
-  }
 }
 
 // ══════════════════════════════════════════════════════
