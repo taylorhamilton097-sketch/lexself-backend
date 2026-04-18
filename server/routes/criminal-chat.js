@@ -3,7 +3,9 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
+const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
+        createConversation, getConversation, addMessageToConversation,
+        updateConversationTitle, autoTitleFromMessage } = require('../db');
 
 const CRIMINAL_SYSTEM = `You are ClearStand Criminal, an AI-powered Canadian criminal defence assistant for self-represented accused and their supporters. You were built by a 25-year Canadian law enforcement veteran who left policing due to institutional corruption — you understand both sides of the system deeply.
 
@@ -74,7 +76,7 @@ IMPORTANT DISCLAIMERS:
 - Duty counsel is available at all Ontario courts`;
 
 router.post('/', requireAuth, async (req, res) => {
-  const { messages, context } = req.body;
+  const { messages, context, conversationId: incomingConvId } = req.body;
   const user = req.user;
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -99,6 +101,36 @@ router.post('/', requireAuth, async (req, res) => {
         message: counselCheck.message,
         plan: user.plan,
       });
+    }
+  }
+
+  // ── Conversation persistence: resolve or create a conversation for this message ──
+  let conversationId = null;
+  let isNewConversation = false;
+  const latestUserMsg = Array.isArray(messages) ? [...messages].reverse().find(m => m.role === 'user') : null;
+  const latestUserContent = typeof latestUserMsg?.content === 'string' ? latestUserMsg.content : '';
+
+  if (incomingConvId) {
+    // Verify it exists and belongs to this user
+    const existing = getConversation(incomingConvId, user.id);
+    if (existing) {
+      conversationId = existing.id;
+    } else {
+      // Passed a bad/deleted ID — fall through to create a new one
+      isNewConversation = true;
+    }
+  } else {
+    isNewConversation = true;
+  }
+
+  if (isNewConversation) {
+    const title = autoTitleFromMessage(latestUserContent);
+    try {
+      const conv = createConversation(user.id, 'criminal', title);
+      conversationId = conv.id;
+    } catch (e) {
+      console.error('[Criminal chat] Failed to create conversation:', e.message);
+      // Non-fatal — continue without persistence
     }
   }
 
@@ -151,7 +183,24 @@ router.post('/', requireAuth, async (req, res) => {
     trackApiUsage(user.id, 'chat', tokens);
     trackGlobalApiUsage(tokens);
 
-    res.json(data);
+    // Persist messages to conversation
+    if (conversationId) {
+      try {
+        // Save the user's latest message (only if this is not an internal/tool call)
+        if (latestUserContent && !context?.jsonMode && !context?.systemOverride) {
+          addMessageToConversation(conversationId, 'user', latestUserContent);
+        }
+        // Save the assistant reply
+        const assistantText = data.content?.[0]?.text;
+        if (assistantText && !context?.jsonMode && !context?.systemOverride) {
+          addMessageToConversation(conversationId, 'assistant', assistantText);
+        }
+      } catch (e) {
+        console.error('[Criminal chat] Failed to save messages:', e.message);
+      }
+    }
+
+    res.json({ ...data, conversationId });
   } catch (err) {
     console.error('Criminal chat error:', err.message);
     res.status(500).json({ error: err.message });

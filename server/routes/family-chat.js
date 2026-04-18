@@ -3,7 +3,9 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage, getCaseProfile, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
+const { checkLimit, recordUsage, getCaseProfile, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
+        createConversation, getConversation, addMessageToConversation,
+        updateConversationTitle, autoTitleFromMessage } = require('../db');
 
 const FAMILY_SYSTEM = `You are ClearStand Family, an Ontario family law assistant for self-represented litigants (SRLs). You are always on the side of the person you are helping.
 
@@ -87,7 +89,7 @@ Recommend Legal Aid Ontario (1-800-668-8258) for complex matters.
 Flag urgent matters (safety, upcoming court dates, limitation periods) clearly.`;
 
 router.post('/', requireAuth, async (req, res) => {
-  const { messages, context } = req.body;
+  const { messages, context, conversationId: incomingConvId } = req.body;
   const user = req.user;
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -113,6 +115,33 @@ router.post('/', requireAuth, async (req, res) => {
         message: counselCheck.message,
         plan: user.plan,
       });
+    }
+  }
+
+  // ── Conversation persistence: resolve or create a conversation for this message ──
+  let conversationId = null;
+  let isNewConversation = false;
+  const latestUserMsg = Array.isArray(messages) ? [...messages].reverse().find(m => m.role === 'user') : null;
+  const latestUserContent = typeof latestUserMsg?.content === 'string' ? latestUserMsg.content : '';
+
+  if (incomingConvId) {
+    const existing = getConversation(incomingConvId, user.id);
+    if (existing) {
+      conversationId = existing.id;
+    } else {
+      isNewConversation = true;
+    }
+  } else {
+    isNewConversation = true;
+  }
+
+  if (isNewConversation) {
+    const title = autoTitleFromMessage(latestUserContent);
+    try {
+      const conv = createConversation(user.id, 'family', title);
+      conversationId = conv.id;
+    } catch (e) {
+      console.error('[Family chat] Failed to create conversation:', e.message);
     }
   }
 
@@ -165,7 +194,22 @@ ${profile.otherParties?.length ? `Other parties: ${profile.otherParties.map(op=>
     trackApiUsage(user.id, 'chat', tokens);
     trackGlobalApiUsage(tokens);
 
-    res.json(data);
+    // Persist messages to conversation
+    if (conversationId) {
+      try {
+        if (latestUserContent && !context?.systemOverride) {
+          addMessageToConversation(conversationId, 'user', latestUserContent);
+        }
+        const assistantText = data.content?.[0]?.text;
+        if (assistantText && !context?.systemOverride) {
+          addMessageToConversation(conversationId, 'assistant', assistantText);
+        }
+      } catch (e) {
+        console.error('[Family chat] Failed to save messages:', e.message);
+      }
+    }
+
+    res.json({ ...data, conversationId });
   } catch(err) {
     res.status(500).json({ error: err.message });
   }

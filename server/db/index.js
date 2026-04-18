@@ -60,6 +60,30 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_users_email   ON users(email);
 `);
 
+// ── CONVERSATIONS SCHEMA (chat persistence) ──
+db.exec(`
+  CREATE TABLE IF NOT EXISTS conversations (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product     TEXT    NOT NULL,
+    title       TEXT    NOT NULL DEFAULT 'New Chat',
+    deleted_at  INTEGER DEFAULT NULL,
+    created_at  INTEGER NOT NULL DEFAULT (unixepoch()),
+    updated_at  INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS conversation_messages (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id  INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    role             TEXT    NOT NULL,
+    content          TEXT    NOT NULL,
+    created_at       INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_conv_user    ON conversations(user_id, product, deleted_at, updated_at);
+  CREATE INDEX IF NOT EXISTS idx_conv_msgs    ON conversation_messages(conversation_id, created_at);
+`);
+
 // ── CLEARSPLIT SCHEMA ──
 db.exec(`
   CREATE TABLE IF NOT EXISTS clearsplit_agreements (
@@ -526,6 +550,80 @@ function setClearSplitParty1(agreementId, userId) {
 // Ensure old clearsplit_purchases table still accessible if it exists
 function ensureClearSplitTable() { /* no-op — table created in schema above */ }
 
+// ── CONVERSATIONS (chat persistence) ──
+function createConversation(userId, product, title = 'New Chat') {
+  return db.prepare(`
+    INSERT INTO conversations (user_id, product, title)
+    VALUES (?, ?, ?)
+    RETURNING *
+  `).get(userId, product, title);
+}
+
+function listConversations(userId, product) {
+  return db.prepare(`
+    SELECT id, title, created_at, updated_at
+    FROM conversations
+    WHERE user_id=? AND product=? AND deleted_at IS NULL
+    ORDER BY updated_at DESC
+  `).all(userId, product);
+}
+
+function getConversation(conversationId, userId) {
+  // Ownership check: only return the conversation if it belongs to this user and isn't deleted
+  const conv = db.prepare(`
+    SELECT * FROM conversations
+    WHERE id=? AND user_id=? AND deleted_at IS NULL
+  `).get(conversationId, userId);
+  if (!conv) return null;
+
+  const messages = db.prepare(`
+    SELECT role, content, created_at
+    FROM conversation_messages
+    WHERE conversation_id=?
+    ORDER BY created_at ASC, id ASC
+  `).all(conversationId);
+
+  return { ...conv, messages };
+}
+
+function addMessageToConversation(conversationId, role, content) {
+  db.prepare(`
+    INSERT INTO conversation_messages (conversation_id, role, content)
+    VALUES (?, ?, ?)
+  `).run(conversationId, role, content);
+  // Bump the parent conversation's updated_at so it floats to top of list
+  db.prepare(`UPDATE conversations SET updated_at=unixepoch() WHERE id=?`).run(conversationId);
+}
+
+function updateConversationTitle(conversationId, userId, title) {
+  // Ownership check via WHERE clause
+  const cleanTitle = (title || '').toString().trim().slice(0, 120) || 'New Chat';
+  const result = db.prepare(`
+    UPDATE conversations
+    SET title=?, updated_at=unixepoch()
+    WHERE id=? AND user_id=? AND deleted_at IS NULL
+  `).run(cleanTitle, conversationId, userId);
+  return result.changes > 0;
+}
+
+function deleteConversation(conversationId, userId) {
+  // Soft delete — set deleted_at timestamp, keep the row for recovery
+  const result = db.prepare(`
+    UPDATE conversations
+    SET deleted_at=unixepoch()
+    WHERE id=? AND user_id=? AND deleted_at IS NULL
+  `).run(conversationId, userId);
+  return result.changes > 0;
+}
+
+function autoTitleFromMessage(content) {
+  // Take first 60 chars of the user's first message as the conversation title
+  if (!content || typeof content !== 'string') return 'New Chat';
+  const firstLine = content.split('\n')[0].trim();
+  if (firstLine.length <= 60) return firstLine || 'New Chat';
+  return firstLine.slice(0, 57).trim() + '…';
+}
+
 module.exports = {
   db, PLANS, STRIPE_PRICES,
   createUser, getUserByEmail, getUserById,
@@ -552,4 +650,12 @@ module.exports = {
   trackApiUsage,
   trackGlobalApiUsage,
   checkCounselLimits,
+  // Conversations (chat persistence)
+  createConversation,
+  listConversations,
+  getConversation,
+  addMessageToConversation,
+  updateConversationTitle,
+  deleteConversation,
+  autoTitleFromMessage,
 };

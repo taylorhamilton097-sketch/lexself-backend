@@ -152,6 +152,7 @@ app.use(express.json({ limit: '2mb' }));
 // ── API ROUTES ──
 app.use('/api/auth',           require('./routes/auth'));
 app.use('/api/billing',        require('./routes/billing'));
+app.use('/api/conversations',  require('./routes/conversations'));
 app.use('/api/family/chat',    require('./routes/family-chat'));
 app.use('/api/dictation',      require('./routes/dictation'));
 app.use('/api/family/analyze', require('./routes/family-analyze'));
