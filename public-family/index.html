@@ -489,7 +489,7 @@ select.fi { cursor: pointer; }
   <!-- CHAT PANEL -->
   <div id="panel-chat" class="panel on">
     <div class="ctx-bar">
-      <span class="ctx-pill none" id="ctxPill" id="ctxName">Ontario Family Law Assistant</span>
+      <span class="ctx-pill none" id="ctxPill">Ontario Family Law Assistant</span>
     </div>
     <div class="msgs" id="msgs"></div>
     <div class="input-bar">
@@ -972,7 +972,7 @@ function closeDrawer() {
 function loadForm(key) {
   showPanel('chat'); bnA('chat');
   currentForm = key;
-  document.getElementById('ctxName').textContent = FORM_NAMES[key] || key;
+  document.getElementById('ctxPill').textContent = FORM_NAMES[key] || key;
   clearChat(false);
   // Use specific topic prompt if available, otherwise use generic form guidance prompt
   const prompt = TOPIC_PROMPTS[key]
@@ -1243,7 +1243,7 @@ function clearChat(reset=true) {
   chatHist=[];
   document.getElementById('msgs').innerHTML='';
   showWelcome();
-  if (reset) { currentForm='general'; document.getElementById('ctxName').textContent='Ontario Family Law Assistant'; }
+  if (reset) { currentForm='general'; document.getElementById('ctxPill').textContent='Ontario Family Law Assistant'; }
 }
 function showWelcome() {
   document.getElementById('msgs').innerHTML=`<div class="wlc" id="ws">
