@@ -619,20 +619,9 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
   const user = req.user;
   const s = getStripe();
 
-  console.log('[Preview] Called', {
-    userId: user?.id,
-    email: user?.email,
-    newPlanKey,
-    stripeCustomerId: user?.stripe_customer_id || 'MISSING',
-    stripeSubscriptionId: user?.stripe_subscription_id || 'MISSING',
-    plan: user?.plan,
-    products: user?.products,
-  });
-
   const meta = PLAN_META[newPlanKey];
   if (!meta) return res.status(400).json({ error: 'Invalid plan.' });
   const newPriceId = meta.priceId();
-  console.log('[Preview] New price ID:', newPriceId || 'MISSING — check Railway env vars');
   if (!newPriceId) return res.status(500).json({ error: 'Price not configured for this plan. Check Railway environment variables.' });
 
   if (!user.stripe_customer_id) {
@@ -641,24 +630,15 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
 
   // Live-heal if subscription ID missing
   const subscriptionId = await getOrHealSubscriptionId(user);
-  console.log('[Preview] Subscription ID after heal:', subscriptionId || 'STILL MISSING');
   if (!subscriptionId) {
     return res.status(400).json({ error: 'No active subscription found. If you believe this is an error, contact support@clearstand.ca' });
   }
 
   try {
     const subscription = await s.subscriptions.retrieve(subscriptionId);
-    console.log('[Preview] Subscription status:', subscription.status, '| Items:', subscription.items.data.length);
     const currentItemId = subscription.items.data[0]?.id;
     const currentPriceId = subscription.items.data[0]?.price?.id;
-    console.log('[Preview] Current item:', currentItemId, '| Current price:', currentPriceId);
     if (!currentItemId) return res.status(400).json({ error: 'Subscription item not found.' });
-
-    console.log('[Preview] Calling Stripe invoice preview', {
-      customer: user.stripe_customer_id,
-      subscription: subscriptionId,
-      newPrice: newPriceId,
-    });
 
     const preview = await s.invoices.retrieveUpcoming({
       customer: user.stripe_customer_id,
@@ -675,8 +655,6 @@ router.post('/preview-upgrade', requireAuth, async (req, res) => {
     const nextDate = preview.period_end
       ? new Date(preview.period_end * 1000).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' })
       : 'your next billing date';
-
-    console.log('[Preview] Success', { dueToday, creditAmount, nextDate });
 
     // Check ClearSplit discount eligibility
     const isClearSplitEligible = !!(user.clearsplit_subscriber || user.plan === 'clearsplit');

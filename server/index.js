@@ -31,12 +31,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc:    ["'self'"],
-     scriptSrc:     ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc:      ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc:       ["'self'", "https://fonts.gstatic.com"],
       imgSrc:        ["'self'", "data:", "https:"],
-      connectSrc:    ["'self'", "https://api.stripe.com", "https://api.anthropic.com", "https://cdnjs.cloudflare.com"],
+      connectSrc:    ["'self'", "https://api.stripe.com", "https://api.anthropic.com"],
       frameSrc:      ["https://js.stripe.com", "https://hooks.stripe.com"],
       objectSrc:     ["'none'"],
       upgradeInsecureRequests: [],
@@ -226,7 +226,7 @@ const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
   console.log(`ClearStand v2 → http://localhost:${PORT}`);
-  console.log(`  DB: ${process.env.DB_PATH || '/app/data/clearstand.db'}`);
+  console.log(`  DB: ${process.env.DB_PATH || '/app/data/lexself.db'}`);
   console.log(`  ENV: ${process.env.NODE_ENV || 'development'}`);
   console.log(`  Security: helmet ✓ rate-limiting ✓ CORS ✓`);
 });
