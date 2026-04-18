@@ -3,6 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
+const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
 
 const ANALYSIS_SYSTEM = `You are an expert Ontario family law analyst. You analyze documents filed by one party in a family law proceeding and produce a three-part report for the self-represented opposing party.
 
@@ -92,10 +93,34 @@ Be specific, accurate, and practically useful. Cite actual Family Law Rules and 
 // POST /api/family/analyze
 router.post('/', requireAuth, async (req, res) => {
   const { base64, role, issues, ctx, profile } = req.body;
+  const user = req.user;
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!base64) return res.status(400).json({ error: 'No document provided.' });
   if (!apiKey) return res.status(500).json({ error: 'API key not configured.' });
+
+  // Usage + product access check (checkLimit runs checkAccess internally)
+  const limit = checkLimit(user, 'family', 'analysis');
+  if (!limit.allowed) {
+    return res.status(402).json({
+      error: 'limit_reached', code: limit.reason,
+      used: limit.used, limit: limit.limit, plan: user.plan,
+      message: limit.message,
+    });
+  }
+
+  // Counsel daily safety cap — catches runaway usage (bot/script/abuse)
+  if (user.plan === 'counsel') {
+    const counselCheck = checkCounselLimits(user.id);
+    if (!counselCheck.allowed) {
+      return res.status(402).json({
+        error: 'limit_reached',
+        code: 'daily_safety_cap',
+        message: counselCheck.message,
+        plan: user.plan,
+      });
+    }
+  }
 
   // Build context string
   let userContext = `The person I am helping is the ${role === 'applicant' ? 'Applicant' : 'Respondent'}.`;
@@ -153,6 +178,15 @@ router.post('/', requireAuth, async (req, res) => {
     try {
       const clean = text.replace(/```json|```/g, '').trim();
       const parsed = JSON.parse(clean);
+
+      // Record usage only after successful parse (failed parses shouldn't burn quota)
+      recordUsage(user.id, 'family', 'analysis');
+
+      // System B — track real token consumption for cost monitoring
+      const tokens = (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0);
+      trackApiUsage(user.id, 'analysis', tokens);
+      trackGlobalApiUsage(tokens);
+
       res.json(parsed);
     } catch(e) {
       console.error('JSON parse error:', e.message, 'Text:', text.slice(0, 200));

@@ -3,7 +3,7 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage } = require('../db');
+const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
 
 const PASS_PROMPTS = {
   pass1: `You are a Canadian criminal defence expert. Analyze this Crown disclosure document for NARRATIVE INCONSISTENCIES.
@@ -161,6 +161,19 @@ router.post('/', requireAuth, async (req, res) => {
     });
   }
 
+  // Counsel daily safety cap — catches runaway usage (bot/script/abuse)
+  if (user.plan === 'counsel') {
+    const counselCheck = checkCounselLimits(user.id);
+    if (!counselCheck.allowed) {
+      return res.status(402).json({
+        error: 'limit_reached',
+        code: 'daily_safety_cap',
+        message: counselCheck.message,
+        plan: user.plan,
+      });
+    }
+  }
+
   // Get PDF from multipart form
   const multer = require('multer');
   const storage = multer.memoryStorage();
@@ -190,6 +203,7 @@ router.post('/', requireAuth, async (req, res) => {
       pass4: 'Missing Disclosure',
       pass5: 'Defence Strategy',
     };
+    let totalTokens = 0;
 
     try {
       // Extract charge info first
@@ -239,6 +253,9 @@ router.post('/', requireAuth, async (req, res) => {
         const data = await resp.json();
         const text = data.content?.[0]?.text || '{}';
 
+        // Accumulate tokens across all 5 passes (decision 1a — track once at end)
+        totalTokens += (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0);
+
         try {
           const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
           results[pass] = parsed;
@@ -249,6 +266,10 @@ router.post('/', requireAuth, async (req, res) => {
       }
 
       recordUsage(user.id, 'criminal', 'analysis');
+
+      // System B — one analysis, summed tokens across all 5 passes
+      trackApiUsage(user.id, 'analysis', totalTokens);
+      trackGlobalApiUsage(totalTokens);
 
       // Try to detect charge from pass1
       const chargeDetected = results.pass1?.chargeDetected || chargeContext || 'Unknown Charge';

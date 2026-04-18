@@ -731,7 +731,9 @@ function checkCounselLimits(userId) {
   try {
     const usage = db.prepare('SELECT chat_count, analysis_count FROM api_usage WHERE user_id=? AND date=?').get(userId, today);
     if (!usage) return { allowed: true };
-    if (usage.chat_count >= 500) {
+    // Shared daily safety bucket: chats + analyses count toward the same cap
+    const combined = (usage.chat_count || 0) + (usage.analysis_count || 0);
+    if (combined >= 500) {
       return {
         allowed: false,
         message: 'You have reached your daily limit. Your access resets tomorrow. If you need immediate assistance contact support@clearstand.ca',
