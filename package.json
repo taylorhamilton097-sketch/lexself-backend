@@ -1,6 +1,6 @@
 {
   "name": "clearstand-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ClearStand Unified Backend — Criminal + Family Law",
   "main": "server/index.js",
   "scripts": {
