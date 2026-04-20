@@ -408,6 +408,7 @@ select.fi { cursor: pointer; }
 .ob-cta-lbl { font-family:'Inter',sans-serif;font-size:.82rem;color:var(--white);font-weight:500;line-height:1.3; }
 .ob-cta-sub { font-family:'JetBrains Mono',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-top:4px; }
 </style>
+<script src="/js/auth-client.js" defer></script>
 </head>
 <body>
 
@@ -1244,12 +1245,54 @@ function handleLimitError(d) {
     hourly_chat_limit: d.message || "You're sending messages faster than your plan allows. Please wait a few minutes before continuing.",
     hourly_analysis_limit: d.message || "You've reached your hourly analysis limit. Please wait before running another analysis.",
   };
+  // Per-minute rate-limit hits (HTTP 429) — toast + disable input with countdown.
+  if (d.code === 'RATE_LIMIT_CHAT_MIN' || d.code === 'RATE_LIMIT_ANALYSIS_MIN') {
+    const btn = document.getElementById('sBtn');
+    const input = document.getElementById('ci');
+    startRateLimitCooldown({ btn, input, retryAfter: d.retryAfter || 30, busyText: 'Wait' });
+    toast(d.error || `Slow down — try again in ${d.retryAfter || 30} seconds.`);
+    return;
+  }
   // Hourly rate-limit hits should NOT trigger the upgrade paywall — show a toast instead.
   if (d.code === 'hourly_chat_limit' || d.code === 'hourly_analysis_limit') {
     toast(msgs[d.code]);
     return;
   }
   openPaywall(d.code,'Limit Reached',msgs[d.code]||'Upgrade to continue.');
+}
+
+// Shared cooldown helper for per-minute rate limits (HTTP 429).
+// If a cooldown is already running on the same button, extend it to the
+// later of current-remaining vs new retryAfter rather than spawning a
+// second ticker.
+function startRateLimitCooldown({ btn, input, retryAfter, busyText }) {
+  if (!btn) return;
+  const now = Date.now();
+  const newUntil = now + (retryAfter * 1000);
+  const existingUntil = parseInt(btn.dataset.cooldownUntil || '0', 10);
+  if (existingUntil > now) {
+    if (newUntil > existingUntil) btn.dataset.cooldownUntil = String(newUntil);
+    return;
+  }
+  btn.dataset.cooldownUntil = String(newUntil);
+  btn.dataset.cooldownOrig = btn.textContent;
+  btn.disabled = true;
+  if (input) input.disabled = true;
+  const tick = () => {
+    const until = parseInt(btn.dataset.cooldownUntil || '0', 10);
+    const remaining = Math.ceil((until - Date.now()) / 1000);
+    if (remaining <= 0) {
+      btn.disabled = false;
+      if (input) input.disabled = false;
+      btn.textContent = btn.dataset.cooldownOrig || btn.textContent;
+      delete btn.dataset.cooldownUntil;
+      delete btn.dataset.cooldownOrig;
+      return;
+    }
+    btn.textContent = `${busyText} ${remaining}s…`;
+    setTimeout(tick, 1000);
+  };
+  tick();
 }
 async function checkout(planKey) {
   const d = await api('POST','/billing/checkout',{planKey});
@@ -1350,6 +1393,7 @@ async function callChat() {
       body:JSON.stringify({messages:chatHist,context:{profile:caseProfile,currentForm:FORM_NAMES[currentForm]}}),
     });
     const d=await r.json(); hideTyping();
+    if(r.status===429){handleLimitError(d);chatHist.pop();chatBusy=false;return;}
     if(r.status===402){handleLimitError(d);chatHist.pop();chatBusy=false;document.getElementById('sBtn').disabled=false;return;}
     if(d.content?.[0]){const reply=d.content[0].text;chatHist.push({role:'assistant',content:reply});addMsg('assistant',reply);refreshUsage();}
     else addMsg('assistant',d.error||'Something went wrong.');
