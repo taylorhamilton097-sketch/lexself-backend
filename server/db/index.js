@@ -716,7 +716,7 @@ function joinClearSplitAgreement(code, party2UserId) {
   db.prepare(`UPDATE users SET clearsplit_role='participant', clearsplit_agreement_id=? WHERE id=?`)
     .run(agreement.id, party2UserId);
   return { success: true, agreement: getClearSplitAgreementByCode(code) };
-}function checkC
+}
 
 function updateClearSplitInvite(code, party2Email) {
   db.prepare(`
