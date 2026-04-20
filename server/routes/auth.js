@@ -7,6 +7,7 @@ const {
   createUser, getUserByEmail, getUserById,
   getCaseProfile, saveCaseProfile,
   getUserUsageSummary, updateUserPlan,
+  enforceSessionLimit, revokeAllSessionsForUser,
 } = require('../db');
 const { signToken, requireAuth } = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
@@ -24,6 +25,16 @@ const validateEmail = (email) =>
 
 const validatePassword = (pass) =>
   typeof pass === 'string' && pass.length >= 8 && pass.length <= 128;
+
+/**
+ * Issue a token for a user while enforcing the 2-device cap.
+ * enforceSessionLimit revokes the least-recently-active session if needed,
+ * then signToken creates the new session row.
+ */
+function issueToken(userId, req) {
+  try { enforceSessionLimit(userId); } catch(e) { console.error('[enforceSessionLimit]', e.message); }
+  return signToken(userId, req);
+}
 
 // ──────────────────────────────────────────────────
 // POST /api/auth/register
@@ -59,7 +70,7 @@ router.post('/register', async (req, res) => {
         existing.plan_period_end,
         existing.subscription_status
       );
-      const token = signToken(existing.id);
+      const token = issueToken(existing.id, req);
       return res.status(200).json({
         token,
         user: {
@@ -79,7 +90,7 @@ router.post('/register', async (req, res) => {
   try {
     const hash = await bcrypt.hash(password, 12);
     const user = createUser(email, hash, name.trim(), product);
-    const token = signToken(user.id);
+    const token = issueToken(user.id, req);
     sendWelcomeEmail(user).catch(e => console.error('[Email error]', e.message));
     res.status(201).json({
       token,
@@ -106,7 +117,7 @@ router.post('/login', async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password)))
     return res.status(401).json({ error: 'Invalid email or password. Please try again.' });
 
-  const token = signToken(user.id);
+  const token = issueToken(user.id, req);
   res.json({
     token,
     user: { id: user.id, email: user.email, name: user.name, plan: user.plan, products: user.products },
@@ -182,6 +193,7 @@ router.post('/update-profile', requireAuth, async (req, res) => {
 
 // ──────────────────────────────────────────────────
 // POST /api/auth/change-password
+// Revokes all other sessions when password changes.
 // ──────────────────────────────────────────────────
 router.post('/change-password', requireAuth, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -200,10 +212,49 @@ router.post('/change-password', requireAuth, async (req, res) => {
     // Store password_changed_at to invalidate existing tokens on other devices
     db.prepare('UPDATE users SET password=?, password_changed_at=unixepoch() WHERE id=?')
       .run(hash, req.user.id);
-    res.json({ success: true, message: 'Password updated. Please sign in again on other devices.' });
+    // Revoke every session for this user, then issue a fresh one so the caller
+    // stays signed in on this device.
+    try { revokeAllSessionsForUser(req.user.id); } catch(e) { /* non-fatal */ }
+    const token = issueToken(req.user.id, req);
+    res.json({
+      success: true,
+      token,
+      message: 'Password updated. You have been signed out on all other devices.',
+    });
   } catch(e) {
     console.error('[Change password error]', e.message);
     res.status(500).json({ error: 'Password change failed. Please try again.' });
+  }
+});
+
+// ──────────────────────────────────────────────────
+// POST /api/auth/logout
+// Revoke current session only.
+// ──────────────────────────────────────────────────
+router.post('/logout', requireAuth, (req, res) => {
+  try {
+    if (req.jti) {
+      const { revokeSession } = require('../db');
+      revokeSession(req.jti);
+    }
+    res.json({ success: true });
+  } catch(e) {
+    console.error('[Logout error]', e.message);
+    res.json({ success: true }); // idempotent — always report success
+  }
+});
+
+// ──────────────────────────────────────────────────
+// POST /api/auth/logout-all
+// Revoke all sessions for this user (incl. current).
+// ──────────────────────────────────────────────────
+router.post('/logout-all', requireAuth, (req, res) => {
+  try {
+    revokeAllSessionsForUser(req.user.id);
+    res.json({ success: true });
+  } catch(e) {
+    console.error('[Logout-all error]', e.message);
+    res.json({ success: true });
   }
 });
 

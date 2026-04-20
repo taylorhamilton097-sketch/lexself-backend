@@ -403,6 +403,41 @@ try {
   `);
 } catch(e) { console.error('[DB] Usage table error:', e.message); }
 
+// ── SESSIONS (Session 2 — 2-device limit) ──
+// Each JWT carries a jti claim whose value is a row in this table. Middleware
+// rejects any token whose jti is absent. On login we keep the two most
+// recently active sessions for a user and revoke older ones.
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      jti           TEXT PRIMARY KEY,
+      user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      device_label  TEXT DEFAULT '',
+      ip_address    TEXT DEFAULT '',
+      created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+      last_seen_at  INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+    CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id, last_seen_at);
+  `);
+} catch(e) { console.error('[DB] Sessions table error:', e.message); }
+
+// ── IP EVENTS (Session 2 — IP detection, log + surface in admin only) ──
+// Every authenticated request logs (user_id, ip) when the IP is new for that
+// user in the last 24h. Admin dashboard flags users whose distinct-IP count
+// crosses the threshold. No auto-suspend.
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ip_events (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      ip_address  TEXT NOT NULL,
+      created_at  INTEGER NOT NULL DEFAULT (unixepoch())
+    );
+    CREATE INDEX IF NOT EXISTS idx_ip_events_user ON ip_events(user_id, created_at);
+  `);
+} catch(e) { console.error('[DB] IP events table error:', e.message); }
+
+
 // ── STARTUP HEAL — fix users with paid plan but inactive status ──
 // Self-heals any accounts affected by past webhook failures
 try {
@@ -471,17 +506,9 @@ const todayStart = () => { const d=new Date(); d.setHours(0,0,0,0); return Math.
 const monthStart = () => { const d=new Date(); d.setDate(1); d.setHours(0,0,0,0); return Math.floor(d/1000); };
 const hourStart  = () => { const d=new Date(); d.setMinutes(0,0,0); return Math.floor(d/1000); };
 
-// Toronto-local date string (YYYY-MM-DD) — handles EST/EDT transitions automatically via IANA tz
-const torontoDateString = () => {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Toronto',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-  }).formatToParts(new Date());
-  const y = parts.find(p => p.type === 'year').value;
-  const m = parts.find(p => p.type === 'month').value;
-  const d = parts.find(p => p.type === 'day').value;
-  return `${y}-${m}-${d}`;
-};
+// Toronto-local date string (YYYY-MM-DD) — lifted to server/utils/dates.js so
+// trackApiUsage, checkCounselLimits, and any future caller share one source of truth.
+const { torontoDateString } = require('../utils/dates');
 // ── USAGE ──
 function getChatCount(userId, product) {
   const plan = PLANS[db.prepare('SELECT plan FROM users WHERE id=?').get(userId)?.plan || 'free'];
@@ -728,7 +755,12 @@ function updateClearSplitInvite(code, party2Email) {
 
 // ── API USAGE TRACKING ──
 function trackApiUsage(userId, type, tokens = 0) {
-  const today = new Date().toISOString().split('T')[0];
+  // Use Toronto-local date so rows roll over at midnight Toronto, matching
+  // checkCounselLimits(). Before this fix, after 8pm Toronto the UTC date had
+  // already advanced to tomorrow, so writes went into tomorrow's bucket while
+  // checkCounselLimits read today's (empty) bucket — letting Counsel users
+  // silently exceed the 200/day cap.
+  const today = torontoDateString();
   try {
     db.prepare(`
       INSERT INTO api_usage (user_id, date, chat_count, analysis_count, token_count)
@@ -755,7 +787,7 @@ function trackApiUsage(userId, type, tokens = 0) {
 }
 
 function trackGlobalApiUsage(tokens = 0) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = torontoDateString();
   try {
     db.prepare(`
       INSERT INTO global_api_usage (date, total_calls, total_tokens)
@@ -1712,6 +1744,203 @@ function getFinancialStatement(userId) {
   };
 }
 
+// ── SESSIONS (Session 2) ──
+const MAX_SESSIONS_PER_USER = 2;
+const IP_WINDOW_SECONDS = 24 * 60 * 60;   // 24h lookback for IP detection
+const IP_FLAG_THRESHOLD = 3;              // distinct IPs in window → flag
+const IP_EVENT_RETENTION_DAYS = 30;
+
+function createSession(jti, userId, deviceLabel = '', ipAddress = '') {
+  db.prepare(`
+    INSERT INTO sessions (jti, user_id, device_label, ip_address)
+    VALUES (?, ?, ?, ?)
+  `).run(jti, userId, deviceLabel || '', ipAddress || '');
+}
+
+function getSessionByJti(jti) {
+  if (!jti) return null;
+  return db.prepare('SELECT * FROM sessions WHERE jti=?').get(jti);
+}
+
+function touchSession(jti, ipAddress) {
+  // Called on every authenticated request to keep lastSeenAt accurate so
+  // "oldest" means "least recently active", not "earliest login".
+  db.prepare(`
+    UPDATE sessions
+    SET last_seen_at = unixepoch(),
+        ip_address   = COALESCE(NULLIF(?, ''), ip_address)
+    WHERE jti = ?
+  `).run(ipAddress || '', jti);
+}
+
+function revokeSession(jti) {
+  db.prepare('DELETE FROM sessions WHERE jti=?').run(jti);
+}
+
+function revokeAllSessionsForUser(userId) {
+  db.prepare('DELETE FROM sessions WHERE user_id=?').run(userId);
+}
+
+/**
+ * Enforce MAX_SESSIONS_PER_USER. Call before inserting a new session on login.
+ * Returns the number of sessions revoked (0, 1, or more).
+ */
+function enforceSessionLimit(userId) {
+  const rows = db.prepare(`
+    SELECT jti FROM sessions
+    WHERE user_id=?
+    ORDER BY last_seen_at DESC
+  `).all(userId);
+  if (rows.length < MAX_SESSIONS_PER_USER) return 0;
+  // We're about to add one more. Keep (MAX-1) most recent, revoke the rest.
+  const toKeep = MAX_SESSIONS_PER_USER - 1;
+  const toRevoke = rows.slice(toKeep);
+  const stmt = db.prepare('DELETE FROM sessions WHERE jti=?');
+  for (const row of toRevoke) stmt.run(row.jti);
+  return toRevoke.length;
+}
+
+// ── IP EVENTS (Session 2) ──
+
+/**
+ * Log an IP event for a user if this IP hasn't been seen for them in the
+ * retention window. Returns { flagged, distinctIps } so callers can log alerts.
+ */
+function logIpEvent(userId, ipAddress) {
+  if (!userId || !ipAddress) return { flagged: false, distinctIps: 0 };
+  const cutoff = Math.floor(Date.now() / 1000) - IP_WINDOW_SECONDS;
+  try {
+    const existing = db.prepare(`
+      SELECT id FROM ip_events
+      WHERE user_id=? AND ip_address=? AND created_at>=?
+      LIMIT 1
+    `).get(userId, ipAddress, cutoff);
+    if (!existing) {
+      db.prepare(`INSERT INTO ip_events (user_id, ip_address) VALUES (?, ?)`)
+        .run(userId, ipAddress);
+    }
+    const distinctIps = db.prepare(`
+      SELECT COUNT(DISTINCT ip_address) as n FROM ip_events
+      WHERE user_id=? AND created_at>=?
+    `).get(userId, cutoff).n;
+    return { flagged: distinctIps >= IP_FLAG_THRESHOLD, distinctIps };
+  } catch(e) {
+    console.error('[logIpEvent error]', e.message);
+    return { flagged: false, distinctIps: 0 };
+  }
+}
+
+function pruneOldIpEvents() {
+  // Kept short; call opportunistically (e.g., on app start).
+  const cutoff = Math.floor(Date.now() / 1000) - (IP_EVENT_RETENTION_DAYS * 86400);
+  try {
+    db.prepare('DELETE FROM ip_events WHERE created_at < ?').run(cutoff);
+  } catch(e) {
+    console.error('[pruneOldIpEvents error]', e.message);
+  }
+}
+
+// ── ADMIN DASHBOARD HELPERS (Session 2) ──
+
+/**
+ * Users with chat_count or analysis_count above threshold in the last 24h.
+ * Uses Toronto date (today + yesterday rows) to match daily bucket rollover.
+ */
+function getHighUsageUsers({ chatMin = 100, analysisMin = 5, limit = 50 } = {}) {
+  const today = torontoDateString();
+  const yesterday = torontoDateString(new Date(Date.now() - 86400 * 1000));
+  return db.prepare(`
+    SELECT u.id, u.email, u.name, u.plan,
+           SUM(au.chat_count)     AS chat_count,
+           SUM(au.analysis_count) AS analysis_count,
+           SUM(au.token_count)    AS token_count
+    FROM api_usage au
+    JOIN users u ON u.id = au.user_id
+    WHERE au.date IN (?, ?)
+      AND (au.chat_count >= ? OR au.analysis_count >= ?)
+    GROUP BY u.id
+    ORDER BY chat_count DESC
+    LIMIT ?
+  `).all(today, yesterday, chatMin, analysisMin, limit);
+}
+
+/**
+ * Users flagged by IP detection — distinct IPs in the last 24h ≥ threshold.
+ */
+function getIpFlaggedUsers({ limit = 50 } = {}) {
+  const cutoff = Math.floor(Date.now() / 1000) - IP_WINDOW_SECONDS;
+  return db.prepare(`
+    SELECT u.id, u.email, u.name, u.plan,
+           COUNT(DISTINCT ie.ip_address) AS distinct_ips,
+           MAX(ie.created_at)            AS last_seen
+    FROM ip_events ie
+    JOIN users u ON u.id = ie.user_id
+    WHERE ie.created_at >= ?
+    GROUP BY u.id
+    HAVING distinct_ips >= ?
+    ORDER BY distinct_ips DESC, last_seen DESC
+    LIMIT ?
+  `).all(cutoff, IP_FLAG_THRESHOLD, limit);
+}
+
+/**
+ * Counsel users at or past the soft-warn threshold today.
+ */
+function getCounselSoftWarnUsers({ threshold = 150, limit = 50 } = {}) {
+  const today = torontoDateString();
+  return db.prepare(`
+    SELECT u.id, u.email, u.name, u.plan,
+           au.chat_count, au.analysis_count, au.token_count
+    FROM api_usage au
+    JOIN users u ON u.id = au.user_id
+    WHERE au.date = ?
+      AND u.plan = 'counsel'
+      AND au.chat_count >= ?
+    ORDER BY au.chat_count DESC
+    LIMIT ?
+  `).all(today, threshold, limit);
+}
+
+/**
+ * Top N users by chat volume this week (last 7 Toronto-days).
+ */
+function getTopChatUsers({ days = 7, limit = 20 } = {}) {
+  const dates = [];
+  for (let i = 0; i < days; i++) {
+    dates.push(torontoDateString(new Date(Date.now() - i * 86400 * 1000)));
+  }
+  const placeholders = dates.map(() => '?').join(',');
+  return db.prepare(`
+    SELECT u.id, u.email, u.name, u.plan,
+           SUM(au.chat_count)     AS chat_count,
+           SUM(au.analysis_count) AS analysis_count,
+           SUM(au.token_count)    AS token_count
+    FROM api_usage au
+    JOIN users u ON u.id = au.user_id
+    WHERE au.date IN (${placeholders})
+    GROUP BY u.id
+    ORDER BY chat_count DESC
+    LIMIT ?
+  `).all(...dates, limit);
+}
+
+/**
+ * Active session count per user — for admin visibility into the 2-device limit.
+ */
+function getUsersWithMultipleSessions() {
+  return db.prepare(`
+    SELECT u.id, u.email, u.name, u.plan,
+           COUNT(s.jti) AS session_count,
+           MAX(s.last_seen_at) AS last_seen_at
+    FROM sessions s
+    JOIN users u ON u.id = s.user_id
+    GROUP BY u.id
+    HAVING session_count >= 2
+    ORDER BY last_seen_at DESC
+    LIMIT 50
+  `).all();
+}
+
 module.exports = {
   db, PLANS, 
   createUser, getUserByEmail, getUserById,
@@ -1738,6 +1967,26 @@ module.exports = {
   trackApiUsage,
   trackGlobalApiUsage,
   checkCounselLimits,
+  // Sessions (Session 2 — 2-device limit)
+  createSession,
+  getSessionByJti,
+  touchSession,
+  revokeSession,
+  revokeAllSessionsForUser,
+  enforceSessionLimit,
+  MAX_SESSIONS_PER_USER,
+  // IP detection (Session 2)
+  logIpEvent,
+  pruneOldIpEvents,
+  IP_FLAG_THRESHOLD,
+  // Admin dashboard (Session 2)
+  getHighUsageUsers,
+  getIpFlaggedUsers,
+  getCounselSoftWarnUsers,
+  getTopChatUsers,
+  getUsersWithMultipleSessions,
+  // Toronto date helper (re-exported for any caller importing from ./db)
+  torontoDateString,
   // Conversations (chat persistence)
   createConversation,
   listConversations,

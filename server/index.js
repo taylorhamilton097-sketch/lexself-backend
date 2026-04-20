@@ -6,7 +6,8 @@ const cors      = require('cors');
 const path      = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet    = require('helmet');
-const jwt       = require('jsonwebtoken');
+
+const { chatLimiter, analysisLimiter } = require('./middleware/aiLimiter');
 
 // ── UNHANDLED REJECTION SAFETY ──
 process.on('unhandledRejection', (err) => {
@@ -69,8 +70,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// ── RATE LIMITERS ──
-// General API limit
+// ── GENERAL RATE LIMITERS (IP-keyed, cover the whole API) ──
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
@@ -89,37 +89,17 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// AI rate limiter — Counsel tier bypasses per-minute limit
-const aiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 20,
-  message: { error: 'Too many requests. Please slow down or upgrade to Counsel for unlimited access.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: async (req) => {
-    try {
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token) return false;
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'changeme');
-      const uid = decoded.sub || decoded.userId || decoded.id;
-      if (!uid) return false;
-      const { db } = require('./db');
-      const user = db.prepare('SELECT plan FROM users WHERE id=?').get(uid);
-      return user?.plan === 'counsel';
-    } catch {
-      return false;
-    }
-  },
-});
-
 // Apply rate limiters
 app.use('/api/', generalLimiter);
 app.use('/api/auth/login',    authLimiter);
 app.use('/api/auth/register', authLimiter);
-app.use('/api/chat',          aiLimiter);
-app.use('/api/family/chat',   aiLimiter);
-app.use('/api/analyze',       aiLimiter);
-app.use('/api/family/analyze',aiLimiter);
+
+// Tier-aware AI limiters — per-minute, keyed by userId. Sit in front of
+// route-level checkLimit() which enforces per-hour and per-month caps.
+app.use('/api/chat',           chatLimiter);
+app.use('/api/family/chat',    chatLimiter);
+app.use('/api/analyze',        analysisLimiter);
+app.use('/api/family/analyze', analysisLimiter);
 
 // ── FAILED LOGIN MONITORING ──
 app.use('/api/auth/login', (req, res, next) => {
@@ -159,7 +139,6 @@ app.use('/api/family/chat',    require('./routes/family-chat'));
 app.use('/api/dictation',      require('./routes/dictation'));
 app.use('/api/family/analyze', require('./routes/family-analyze'));
 app.use('/api/admin',          require('./routes/admin'));
-app.use('/api/forms',          require('./routes/forms'));
 app.use('/api/chat',           require('./routes/criminal-chat'));
 app.use('/api/analyze',        require('./routes/analyze'));
 
@@ -232,11 +211,19 @@ const PORT = process.env.PORT || 3000;
   }
 })();
 
+// Opportunistic prune of old ip_events rows on startup
+(function startupMaintenance() {
+  try {
+    const { pruneOldIpEvents } = require('./db');
+    pruneOldIpEvents();
+  } catch(e) { /* non-fatal */ }
+})();
+
 const server = app.listen(PORT, () => {
   console.log(`ClearStand v2 → http://localhost:${PORT}`);
   console.log(`  DB: ${process.env.DB_PATH || '/app/data/lexself.db'}`);
   console.log(`  ENV: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`  Security: helmet ✓ rate-limiting ✓ CORS ✓`);
+  console.log(`  Security: helmet ✓ rate-limiting ✓ tier-aware AI ✓ CORS ✓`);
 });
 
 // ── GRACEFUL SHUTDOWN ──
