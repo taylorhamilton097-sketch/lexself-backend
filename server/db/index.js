@@ -421,55 +421,67 @@ try {
 }
 
 // ── PLAN CONFIG ──
-// products: 'criminal' | 'family' | 'both'
-// plan:     'free' | 'essential' | 'complete'
+// products:      'criminal' | 'family' | 'both' | 'clearsplit'
+// plan:          'free' | 'essential' | 'complete' | 'counsel' | 'admin'
+// chatPerMonth:  monthly chat cap; null = lifetime bucket (free tier only)
+// chatPerHour:   hourly rate-limit ceiling; Infinity = no hourly cap (admin only)
+// analysisPerMonth: monthly analysis cap; null = lifetime bucket (free tier only)
+// analysisPerHour: hourly rate-limit ceiling; Infinity = no hourly cap
+// price:         CAD cents for standalone monthly (reference only; canonical prices live in Stripe)
 const PLANS = {
   free: {
     label: 'Free',
-    chatPerMonth: null, chatLifetime: 10,
+    chatPerMonth: null,  chatLifetime: 10,
+    chatPerHour: 5,
     analysisPerMonth: null, analysisLifetime: 1,
+    analysisPerHour: 1,
     price: 0,
   },
   essential: {
     label: 'Essential',
-    chatPerMonth: 250, analysisPerMonth: 3,
+    chatPerMonth: 150,   chatPerHour: 10,
+    analysisPerMonth: 3, analysisPerHour: 2,
     price: 2900,
   },
   complete: {
     label: 'Complete',
-    chatPerMonth: 750, analysisPerMonth: 5,
-    price: 7900,
+    chatPerMonth: 500,   chatPerHour: 20,
+    analysisPerMonth: 10, analysisPerHour: 3,
+    price: 6900,
   },
   counsel: {
     label: 'Counsel',
-    chatPerMonth: 2000, analysisPerMonth: 30,
-    price: 15900,
+    chatPerMonth: 1500,  chatPerHour: 30,
+    analysisPerMonth: 20, analysisPerHour: 5,
+    price: 14900,
   },
   admin: {
     label: 'Admin',
-    chatPerMonth: Infinity, analysisPerMonth: Infinity,
+    chatPerMonth: Infinity, chatPerHour: Infinity,
+    analysisPerMonth: Infinity, analysisPerHour: Infinity,
     price: 0,
   },
 };
 
-// Stripe price IDs — set in env
-const STRIPE_PRICES = {
-  // Criminal only
-  criminal_essential: process.env.STRIPE_PRICE_CRIMINAL_ESSENTIAL,
-  criminal_complete:  process.env.STRIPE_PRICE_CRIMINAL_COMPLETE,
-  // Family only
-  family_essential:   process.env.STRIPE_PRICE_FAMILY_ESSENTIAL,
-  family_complete:    process.env.STRIPE_PRICE_FAMILY_COMPLETE,
-  // Both products
-  both_essential:     process.env.STRIPE_PRICE_BOTH_ESSENTIAL,
-  both_complete:      process.env.STRIPE_PRICE_BOTH_COMPLETE,
-};
+
 
 // ── TIME HELPERS ──
 const daysAgo = n => Math.floor(Date.now()/1000) - n * 86400;
 const todayStart = () => { const d=new Date(); d.setHours(0,0,0,0); return Math.floor(d/1000); };
 const monthStart = () => { const d=new Date(); d.setDate(1); d.setHours(0,0,0,0); return Math.floor(d/1000); };
+const hourStart  = () => { const d=new Date(); d.setMinutes(0,0,0); return Math.floor(d/1000); };
 
+// Toronto-local date string (YYYY-MM-DD) — handles EST/EDT transitions automatically via IANA tz
+const torontoDateString = () => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date());
+  const y = parts.find(p => p.type === 'year').value;
+  const m = parts.find(p => p.type === 'month').value;
+  const d = parts.find(p => p.type === 'day').value;
+  return `${y}-${m}-${d}`;
+};
 // ── USAGE ──
 function getChatCount(userId, product) {
   const plan = PLANS[db.prepare('SELECT plan FROM users WHERE id=?').get(userId)?.plan || 'free'];
@@ -516,12 +528,27 @@ function checkLimit(user, product, action) {
   if (!access.allowed) return { allowed: false, ...access };
 
   const plan = PLANS[user.plan] || PLANS.free;
+  const isFree = user.plan === 'free';
 
   if (action === 'chat') {
-    const isFree = user.plan === 'free';
+    // Hourly rate limit — checked before monthly so abuse gets caught fast
+    const hourlyLimit = plan.chatPerHour ?? Infinity;
+    if (hourlyLimit !== Infinity) {
+      const hourlyUsed = getHourlyCount(user.id, product, 'chat');
+      if (hourlyUsed >= hourlyLimit) {
+        return {
+          allowed: false,
+          reason: 'hourly_chat_limit',
+          used: hourlyUsed,
+          limit: hourlyLimit,
+          message: `You have reached the hourly rate limit for your plan. Please wait a few minutes before sending more messages.`,
+        };
+      }
+    }
+
     const used = getChatCount(user.id, product);
     const limit = isFree ? plan.chatLifetime : plan.chatPerMonth;
-    if (limit !== Infinity && used >= limit) {
+    if (limit !== null && limit !== Infinity && used >= limit) {
       return {
         allowed: false,
         reason: isFree ? 'free_chat_exhausted' : 'monthly_chat_limit',
@@ -535,10 +562,25 @@ function checkLimit(user, product, action) {
     if (hasOneTimePurchase(user.id, product + '_analysis')) {
       return { allowed: true, oneTime: true };
     }
-    const isFree = user.plan === 'free';
+
+    // Hourly rate limit first
+    const hourlyLimit = plan.analysisPerHour ?? Infinity;
+    if (hourlyLimit !== Infinity) {
+      const hourlyUsed = getHourlyCount(user.id, product, 'analysis');
+      if (hourlyUsed >= hourlyLimit) {
+        return {
+          allowed: false,
+          reason: 'hourly_analysis_limit',
+          used: hourlyUsed,
+          limit: hourlyLimit,
+          message: `You have reached the hourly analysis limit for your plan. Please wait before running another analysis.`,
+        };
+      }
+    }
+
     const used = getAnalysisCount(user.id, product);
     const limit = isFree ? plan.analysisLifetime : plan.analysisPerMonth;
-    if (limit !== Infinity && used >= limit) {
+    if (limit !== null && limit !== Infinity && used >= limit) {
       return {
         allowed: false,
         reason: isFree ? 'free_analysis_exhausted' : 'monthly_analysis_limit',
@@ -1642,7 +1684,7 @@ function getFinancialStatement(userId) {
 }
 
 module.exports = {
-  db, PLANS, STRIPE_PRICES,
+  db, PLANS, 
   createUser, getUserByEmail, getUserById,
   updateUserPlan, updateStripeCustomer, addOneTimePurchase,
   getCaseProfile, saveCaseProfile,
