@@ -839,14 +839,17 @@ select.fi { cursor: pointer; }
       <div class="pp-card" onclick="checkout('essential')">
         <div class="pp-name">Essential</div>
         <div class="pp-price">$29 <span>/ month CAD</span></div>
+        <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin-top:4px">Up to 3 analyses · 150 chats/month</div>
       </div>
       <div class="pp-card" onclick="checkout('complete')">
         <div class="pp-name">Complete — Criminal &amp; Family</div>
-        <div class="pp-price">$59 <span>/ month CAD</span></div>
+        <div class="pp-price">$69 <span>/ month CAD</span></div>
+        <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin-top:4px">Up to 10 analyses · 500 chats/month · Affidavit interview builder</div>
       </div>
       <div class="pp-card" onclick="checkout('counsel')">
-        <div class="pp-name">Counsel — Unlimited + Premium Features</div>
-        <div class="pp-price">$129 <span>/ month CAD</span></div>
+        <div class="pp-name">Counsel — Our highest limits + every premium feature</div>
+        <div class="pp-price">$149 <span>/ month CAD</span></div>
+        <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin-top:4px">Up to 20 analyses · 1,500 chats/month · Voice dictation</div>
       </div>
     </div>
     <button class="pw-close" onclick="closePw()">Continue with Free Plan</button>
@@ -1113,12 +1116,12 @@ function switchToCriminal() {
 let umAnnual = false;
 let umPreviewData = null;
 const UM_BUNDLES = [
-  { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:429, annualKey:'bundle_essential_annual',
-    features:['50 chats/day per product','3 analyses/month per product','Both Family Law and Criminal Defence'] },
-  { key:'bundle_complete', name:'Complete Bundle', monthly:129, annual:1099, annualKey:'bundle_complete_annual',
-    features:['100 chats/day per product','5 analyses/month per product','Both products'], popular:true },
-  { key:'bundle_counsel', name:'Counsel Bundle', monthly:279, annual:2499, annualKey:'bundle_counsel_annual',
-    features:['Unlimited everything','All premium features on both products','Voice dictation, interview builder, cross-exam prep'] },
+  { key:'bundle_essential', name:'Essential Bundle', monthly:49, annual:419, annualKey:'bundle_essential_annual',
+    features:['Up to 150 chats/month per product','Up to 3 analyses/month per product','Both Family Law and Criminal Defence'] },
+  { key:'bundle_complete', name:'Complete Bundle', monthly:109, annual:929, annualKey:'bundle_complete_annual',
+    features:['Up to 500 chats/month per product','Up to 10 analyses/month per product','Both products'], popular:true },
+  { key:'bundle_counsel', name:'Counsel Bundle', monthly:239, annual:2029, annualKey:'bundle_counsel_annual',
+    features:['Up to 1,500 chats/month per product','Up to 20 analyses/month per product','Voice dictation, interview builder, cross-exam prep'] },
 ];
 
 async function openUpgradeModal(targetProduct) {
@@ -1234,8 +1237,18 @@ function handleLimitError(d) {
   const msgs = {
     wrong_product:`Your plan does not include ClearStand Family. Upgrade to add family law access.`,
     free_chat_exhausted:`You've used all 10 free chat messages. Upgrade to continue getting family law guidance.`,
-    daily_chat_limit:`You've reached your 50 daily chat messages. Upgrade to Complete for unlimited.`,
+    free_analysis_exhausted:`You've used your 1 free document analysis. Upgrade to continue.`,
+    monthly_chat_limit:`You've used your ${d.limit || ''} chats this month. Upgrade for more, or wait until the 1st for your reset.`,
+    monthly_analysis_limit:`You've used your ${d.limit || ''} analyses this month. Upgrade to Counsel for our highest limits, or wait until the 1st for your reset.`,
+    daily_safety_cap: d.message || "You've reached today's usage limit. Please wait until tomorrow or contact support.",
+    hourly_chat_limit: d.message || "You're sending messages faster than your plan allows. Please wait a few minutes before continuing.",
+    hourly_analysis_limit: d.message || "You've reached your hourly analysis limit. Please wait before running another analysis.",
   };
+  // Hourly rate-limit hits should NOT trigger the upgrade paywall — show a toast instead.
+  if (d.code === 'hourly_chat_limit' || d.code === 'hourly_analysis_limit') {
+    toast(msgs[d.code]);
+    return;
+  }
   openPaywall(d.code,'Limit Reached',msgs[d.code]||'Upgrade to continue.');
 }
 async function checkout(planKey) {

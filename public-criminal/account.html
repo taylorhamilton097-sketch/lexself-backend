@@ -236,7 +236,7 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div>
-            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">Buy 3 Analyses — $29</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--white);margin-bottom:4px">Buy 3 Analyses — $19</div>
             <div style="font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2)">No subscription required. Use any time.</div>
             <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text3);margin-top:4px" id="analysisRemaining"></div>
           </div>
@@ -609,20 +609,20 @@ function renderUpgrades() {
   // ── Define all possible upgrades based on current plan + products ──
   const STANDALONE = {
     family:   [
-      { key:'family_essential', name:'Essential', monthly:29,  features:['250 chats/month','3 analyses/month','PDF export'] },
-      { key:'family_complete',  name:'Complete',  monthly:79,  features:['750 chats/month','5 analyses/month','Advanced tools'] },
-      { key:'family_counsel',   name:'Counsel',   monthly:159, features:['Up to 2,000 chats/month','Voice dictation','Affidavit builder'] },
+      { key:'family_essential', name:'Essential', monthly:29,  features:['Up to 150 chats/month','Up to 3 analyses/month','PDF export'] },
+      { key:'family_complete',  name:'Complete',  monthly:69,  features:['Up to 500 chats/month','Up to 10 analyses/month','Advanced tools'] },
+      { key:'family_counsel',   name:'Counsel',   monthly:149, features:['Up to 1,500 chats/month','Up to 20 analyses/month','Voice dictation','Affidavit builder'] },
     ],
     criminal: [
-      { key:'criminal_essential', name:'Essential', monthly:29,  features:['250 chats/month','3 analyses/month','PDF export'] },
-      { key:'criminal_complete',  name:'Complete',  monthly:79,  features:['750 chats/month','5 analyses/month','Cross-examination builder'] },
-      { key:'criminal_counsel',   name:'Counsel',   monthly:159, features:['Up to 2,000 chats/month','Voice dictation','Cross-exam builder'] },
+      { key:'criminal_essential', name:'Essential', monthly:29,  features:['Up to 150 chats/month','Up to 3 analyses/month','PDF export'] },
+      { key:'criminal_complete',  name:'Complete',  monthly:69,  features:['Up to 500 chats/month','Up to 10 analyses/month','Cross-examination builder'] },
+      { key:'criminal_counsel',   name:'Counsel',   monthly:149, features:['Up to 1,500 chats/month','Up to 20 analyses/month','Voice dictation','Cross-exam builder'] },
     ],
   };
   const BUNDLES = [
-    { key:'bundle_essential', name:'Essential Bundle', monthly:49,  features:['Both products','250 chats/month per product','3 analyses/month per product'] },
-    { key:'bundle_complete',  name:'Complete Bundle',  monthly:129, features:['Both products','750 chats/month per product','5 analyses/month per product'] },
-    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:279, features:['Both products','Up to 2,000 chats/month per product','All premium features on both'] },
+    { key:'bundle_essential', name:'Essential Bundle', monthly:49,  features:['Both products','Up to 150 chats/month per product','Up to 3 analyses/month per product'] },
+    { key:'bundle_complete',  name:'Complete Bundle',  monthly:109, features:['Both products','Up to 500 chats/month per product','Up to 10 analyses/month per product'] },
+    { key:'bundle_counsel',   name:'Counsel Bundle',   monthly:239, features:['Both products','Up to 1,500 chats/month per product','Up to 20 analyses/month per product','All premium features on both'] },
   ];
 
   const TIER_ORDER = ['free','essential','complete','counsel'];
