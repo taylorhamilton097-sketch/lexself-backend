@@ -500,7 +500,13 @@ function getAnalysisCount(userId, product) {
   }
   return db.prepare(`SELECT COUNT(*) as n FROM usage WHERE user_id=? AND product=? AND type='analysis' AND created_at>=?`).get(userId, product, monthStart()).n;
 }
-
+// Hourly usage count for rate-limiting — counts rows in the `usage` table
+// within the current clock hour for a specific user/product/type.
+function getHourlyCount(userId, product, type) {
+  return db.prepare(
+    `SELECT COUNT(*) as n FROM usage WHERE user_id=? AND product=? AND type=? AND created_at>=?`
+  ).get(userId, product, type, hourStart()).n;
+}
 function hasOneTimePurchase(userId, product) {
   return !!db.prepare(`SELECT id FROM one_time_purchases WHERE user_id=? AND product=? AND used=0`).get(userId, product);
 }
@@ -710,7 +716,7 @@ function joinClearSplitAgreement(code, party2UserId) {
   db.prepare(`UPDATE users SET clearsplit_role='participant', clearsplit_agreement_id=? WHERE id=?`)
     .run(agreement.id, party2UserId);
   return { success: true, agreement: getClearSplitAgreementByCode(code) };
-}
+}function checkC
 
 function updateClearSplitInvite(code, party2Email) {
   db.prepare(`
@@ -769,24 +775,47 @@ function trackGlobalApiUsage(tokens = 0) {
 }
 
 function checkCounselLimits(userId) {
-  const today = new Date().toISOString().split('T')[0];
+  // Counsel daily safety bucket — chats only. Analyses have their own per-month
+  // and per-hour caps enforced in checkLimit(). This function guards against
+  // chat-volume abuse specifically (bots, scripts, runaway clients).
+  //
+  // 150 chats/day → soft warn (non-blocking banner)
+  // 200 chats/day → hard block until midnight Toronto time
+  //
+  // The api_usage table stores `date` as a UTC-derived string today. For the
+  // Counsel safety bucket we want midnight *Toronto* reset, so we use our own
+  // torontoDateString() and query the matching row.
+  const today = torontoDateString();
   try {
-    const usage = db.prepare('SELECT chat_count, analysis_count FROM api_usage WHERE user_id=? AND date=?').get(userId, today);
-    if (!usage) return { allowed: true };
-    // Shared daily safety bucket: chats + analyses count toward the same cap
-    const combined = (usage.chat_count || 0) + (usage.analysis_count || 0);
-    if (combined >= 500) {
+    const usage = db.prepare('SELECT chat_count FROM api_usage WHERE user_id=? AND date=?').get(userId, today);
+    const chats = usage?.chat_count || 0;
+
+    if (chats >= 200) {
       return {
         allowed: false,
-        message: 'You have reached your daily limit. Your access resets tomorrow. If you need immediate assistance contact support@clearstand.ca',
+        chats,
+        threshold: 200,
+        message: 'You have reached today\u2019s safety cap of 200 messages. Your access will reset at midnight Toronto time. If you need immediate assistance, contact support@clearstand.ca.',
       };
     }
-    return { allowed: true };
+
+    if (chats >= 150) {
+      // Soft warning — still allowed, but frontend can surface a banner
+      return {
+        allowed: true,
+        warning: 'approaching_daily_cap',
+        chats,
+        threshold: 200,
+        message: `You have used ${chats} messages today. Counsel accounts are capped at 200 messages per day to prevent abuse. Your access will reset at midnight Toronto time.`,
+      };
+    }
+
+    return { allowed: true, chats };
   } catch(e) {
+    console.error('[checkCounselLimits error]', e.message);
     return { allowed: true }; // fail open — don't block on tracking errors
   }
 }
-
 function saveClearSplitAgreementData(agreementId, data, userId) {
   db.prepare(`
     UPDATE clearsplit_agreements
