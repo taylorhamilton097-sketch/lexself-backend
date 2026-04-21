@@ -446,8 +446,47 @@ try {
 } catch(e) { console.error('[DB] IP events table error:', e.message); }
 
 
-// ── STARTUP HEAL — fix users with paid plan but inactive status ──
-// Self-heals any accounts affected by past webhook failures
+// ── STRIPE EVENTS (Session 5 — webhook idempotency) ──
+// Every incoming Stripe webhook inserts a row here keyed by event.id. If the
+// insert conflicts, we've seen this event before and return 200 immediately
+// without re-processing. This is Stripe's own recommended pattern — they
+// retry on any 5xx, any timeout, any client disconnect, and without dedupe
+// we can easily double-apply state (analysis packs granted twice, plan
+// changes stomped). status='ok' when processed cleanly, 'error' when the
+// handler threw; error_message carries the exception text for triage.
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS stripe_events (
+      event_id       TEXT PRIMARY KEY,
+      type           TEXT NOT NULL,
+      livemode       INTEGER NOT NULL DEFAULT 0,
+      received_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+      status         TEXT NOT NULL DEFAULT 'ok',
+      error_message  TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_stripe_events_received ON stripe_events(received_at);
+    CREATE INDEX IF NOT EXISTS idx_stripe_events_status   ON stripe_events(status, received_at);
+  `);
+} catch(e) { console.error('[DB] Stripe events table error:', e.message); }
+
+// ── one_time_purchases — belt-and-suspenders uniqueness (Session 5) ──
+// Even with top-level event dedupe, enforce at the DB layer that a single
+// Stripe payment_intent can produce at most one analysis-pack row. Partial
+// index so legacy NULL rows (pre-Session-5) don't conflict.
+try {
+  db.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_otp_payment_intent_unique
+    ON one_time_purchases(stripe_payment_intent)
+    WHERE stripe_payment_intent IS NOT NULL AND stripe_payment_intent != ''
+  `);
+} catch(e) { console.error('[DB] one_time_purchases unique index error:', e.message); }
+
+
+// ── STARTUP HEAL — belt-and-suspenders (Session 5 reframing) ──
+// After Session 5's webhook idempotency + defensive metadata handling, the
+// canonical path for keeping subscription_status correct is the webhook.
+// This heal stays as insurance: if it ever finds anything to fix, that's a
+// signal a webhook path is still buggy and should be investigated.
 try {
   const healed = db.prepare(`
     UPDATE users
@@ -457,7 +496,9 @@ try {
       AND subscription_status = 'inactive'
   `).run();
   if (healed.changes > 0) {
-    console.log(`[DB] Healed subscription_status for ${healed.changes} user(s)`);
+    console.warn(`[DB] Healed subscription_status for ${healed.changes} user(s) — INVESTIGATE: webhook path may be broken`);
+  } else {
+    console.log('[DB] Startup heal: subscription_status consistent, no changes needed');
   }
 } catch(e) {
   console.error('[DB] Healing query error:', e.message);
@@ -654,7 +695,19 @@ function updateStripeCustomer(userId, customerId) {
   db.prepare(`UPDATE users SET stripe_customer_id=?,updated_at=unixepoch() WHERE id=?`).run(customerId, userId);
 }
 function addOneTimePurchase(userId, product, paymentIntentId) {
-  db.prepare(`INSERT INTO one_time_purchases (user_id,product,stripe_payment_intent) VALUES (?,?,?)`).run(userId, product, paymentIntentId);
+  // Session 5: partial unique index on stripe_payment_intent enforces that
+  // a single Stripe payment can produce at most one analysis-pack row.
+  // Swallow the constraint error so a webhook retry becomes a no-op.
+  try {
+    db.prepare(`INSERT INTO one_time_purchases (user_id,product,stripe_payment_intent) VALUES (?,?,?)`).run(userId, product, paymentIntentId);
+    return true;
+  } catch(e) {
+    if (e.code === 'SQLITE_CONSTRAINT_UNIQUE' || /UNIQUE constraint failed/.test(e.message)) {
+      console.log(`[addOneTimePurchase] Duplicate payment_intent ${paymentIntentId} — skipping`);
+      return false;
+    }
+    throw e;
+  }
 }
 
 // ── CASE PROFILES ──
@@ -1959,6 +2012,93 @@ function pruneOldIpEvents() {
   }
 }
 
+// ── STRIPE EVENT IDEMPOTENCY (Session 5) ──
+
+const STRIPE_EVENT_RETENTION_DAYS = 90;
+
+/**
+ * Attempt to record that a Stripe event has been seen. Returns true if this
+ * was a genuinely new event (insert succeeded), false if it's a duplicate
+ * (already in the table — the caller should return 200 without processing).
+ *
+ * Intended to be called as the FIRST step inside a webhook handler, right
+ * after signature verification. Insert succeeds exactly once per event.id
+ * because event_id is the PRIMARY KEY.
+ */
+function markStripeEventSeen(eventId, type, livemode) {
+  if (!eventId) return true; // degenerate case — better to process than drop
+  try {
+    db.prepare(`
+      INSERT INTO stripe_events (event_id, type, livemode)
+      VALUES (?, ?, ?)
+    `).run(eventId, type || 'unknown', livemode ? 1 : 0);
+    return true;
+  } catch(e) {
+    // SQLITE_CONSTRAINT_PRIMARYKEY — duplicate event, already processed
+    if (e.code === 'SQLITE_CONSTRAINT_PRIMARYKEY' || /UNIQUE constraint failed/.test(e.message)) {
+      return false;
+    }
+    // Any other error: log and treat as new so we don't drop the event
+    console.error('[markStripeEventSeen error]', e.message);
+    return true;
+  }
+}
+
+/**
+ * Record that a webhook handler threw while processing an event we already
+ * wrote to stripe_events. Used for triage — you can query
+ * `SELECT * FROM stripe_events WHERE status='error'` to find failed events.
+ * Does not delete the row; the event_id stays so Stripe retries still dedupe
+ * (we'd prefer one error log over an infinite retry loop).
+ */
+function markStripeEventError(eventId, errorMessage) {
+  if (!eventId) return;
+  try {
+    db.prepare(`
+      UPDATE stripe_events
+      SET status='error', error_message=?
+      WHERE event_id=?
+    `).run(String(errorMessage || '').slice(0, 2000), eventId);
+  } catch(e) {
+    console.error('[markStripeEventError]', e.message);
+  }
+}
+
+/**
+ * Return recent Stripe events for the admin dashboard, newest first.
+ */
+function getRecentStripeEvents({ limit = 100 } = {}) {
+  try {
+    return db.prepare(`
+      SELECT event_id, type, livemode, received_at, status, error_message
+      FROM stripe_events
+      ORDER BY received_at DESC
+      LIMIT ?
+    `).all(limit);
+  } catch(e) {
+    console.error('[getRecentStripeEvents error]', e.message);
+    return [];
+  }
+}
+
+/**
+ * Drop stripe_events rows older than STRIPE_EVENT_RETENTION_DAYS. Called on
+ * startup. Stripe's own dashboard retains full history, so local-table
+ * retention is purely a convenience for recent-triage.
+ */
+function pruneOldStripeEvents() {
+  const cutoff = Math.floor(Date.now() / 1000) - (STRIPE_EVENT_RETENTION_DAYS * 86400);
+  try {
+    const r = db.prepare('DELETE FROM stripe_events WHERE received_at < ?').run(cutoff);
+    if (r.changes > 0) console.log(`[DB] Pruned ${r.changes} stripe_events rows older than ${STRIPE_EVENT_RETENTION_DAYS}d`);
+  } catch(e) {
+    console.error('[pruneOldStripeEvents error]', e.message);
+  }
+}
+
+// Opportunistic prune at module load. Cheap, runs once per process start.
+try { pruneOldStripeEvents(); } catch(e) { /* non-fatal */ }
+
 // ── ADMIN DASHBOARD HELPERS (Session 2) ──
 
 /**
@@ -2101,6 +2241,12 @@ module.exports = {
   // Session 4 — urgent threshold + recent-IPs helper for alert emails
   IP_FLAG_URGENT_THRESHOLD,
   getRecentIpsForUser,
+  // Session 5 — Stripe webhook idempotency
+  markStripeEventSeen,
+  markStripeEventError,
+  getRecentStripeEvents,
+  pruneOldStripeEvents,
+  STRIPE_EVENT_RETENTION_DAYS,
   // Admin dashboard (Session 2)
   getHighUsageUsers,
   getIpFlaggedUsers,
