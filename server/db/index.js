@@ -379,6 +379,14 @@ try { db.exec(`ALTER TABLE clearsplit_agreements ADD COLUMN party2_invited_email
 try { db.exec(`ALTER TABLE clearsplit_agreements ADD COLUMN invite_sent_at DATETIME DEFAULT NULL`); } catch(e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN password_changed_at INTEGER DEFAULT NULL`); } catch(e) {}
 
+// ── SESSION 4 — IP flag alert dedupe tracking ──
+// ip_flag_alerted_at    = unix seconds of last alert email sent for this user
+// ip_flag_alerted_count = the distinctIps count at the time of that last alert
+// Used by logIpEvent to avoid spamming the admin inbox: re-alert only when
+// it's been >24h since the last alert OR when the distinct-IP count grows.
+try { db.exec(`ALTER TABLE users ADD COLUMN ip_flag_alerted_at    INTEGER DEFAULT NULL`); } catch(e) {}
+try { db.exec(`ALTER TABLE users ADD COLUMN ip_flag_alerted_count INTEGER DEFAULT 0`);    } catch(e) {}
+
 // ── API USAGE TRACKING (Counsel soft ceiling + cost protection) ──
 try {
   db.exec(`
@@ -1748,6 +1756,7 @@ function getFinancialStatement(userId) {
 const MAX_SESSIONS_PER_USER = 2;
 const IP_WINDOW_SECONDS = 24 * 60 * 60;   // 24h lookback for IP detection
 const IP_FLAG_THRESHOLD = 3;              // distinct IPs in window → flag
+const IP_FLAG_URGENT_THRESHOLD = 5;       // distinct IPs in window → urgent subject
 const IP_EVENT_RETENTION_DAYS = 30;
 
 function createSession(jti, userId, deviceLabel = '', ipAddress = '') {
@@ -1804,10 +1813,16 @@ function enforceSessionLimit(userId) {
 
 /**
  * Log an IP event for a user if this IP hasn't been seen for them in the
- * retention window. Returns { flagged, distinctIps } so callers can log alerts.
+ * retention window. Returns { flagged, distinctIps, urgent, alerted } so
+ * callers can log alerts.
+ *
+ * Session 4: when the flag threshold is crossed and the user hasn't been
+ * alerted in the last 24h (or the count has grown since the last alert),
+ * fires an email to ADMIN_EMAIL via the `sendIpFlagAlert` helper. The send
+ * is fire-and-forget — it never blocks the user's request and never throws.
  */
 function logIpEvent(userId, ipAddress) {
-  if (!userId || !ipAddress) return { flagged: false, distinctIps: 0 };
+  if (!userId || !ipAddress) return { flagged: false, distinctIps: 0, urgent: false, alerted: false };
   const cutoff = Math.floor(Date.now() / 1000) - IP_WINDOW_SECONDS;
   try {
     const existing = db.prepare(`
@@ -1823,10 +1838,114 @@ function logIpEvent(userId, ipAddress) {
       SELECT COUNT(DISTINCT ip_address) as n FROM ip_events
       WHERE user_id=? AND created_at>=?
     `).get(userId, cutoff).n;
-    return { flagged: distinctIps >= IP_FLAG_THRESHOLD, distinctIps };
+
+    const flagged = distinctIps >= IP_FLAG_THRESHOLD;
+    const urgent  = distinctIps >= IP_FLAG_URGENT_THRESHOLD;
+
+    // Dedup: only email if flagged AND (never alerted OR stale OR count grew)
+    let alerted = false;
+    if (flagged) {
+      alerted = maybeSendIpFlagAlert(userId, ipAddress, distinctIps, urgent);
+    }
+
+    return { flagged, distinctIps, urgent, alerted };
   } catch(e) {
     console.error('[logIpEvent error]', e.message);
-    return { flagged: false, distinctIps: 0 };
+    return { flagged: false, distinctIps: 0, urgent: false, alerted: false };
+  }
+}
+
+/**
+ * Decide whether to send an IP flag alert email and, if so, fire it
+ * fire-and-forget. Updates the user's dedupe columns synchronously so
+ * concurrent requests don't each try to send. Returns true if an email
+ * was dispatched (meaning: the send promise was created), false otherwise.
+ *
+ * Dedupe rules (any one of these permits a fresh alert):
+ *   1. No alert has ever been sent for this user.
+ *   2. The last alert was more than 24h ago.
+ *   3. The distinct-IP count has grown since the last alert.
+ *
+ * Kept in-file so everything stays wired by one export (logIpEvent). The
+ * email itself is dispatched via utils/email.sendIpFlagAlert.
+ */
+function maybeSendIpFlagAlert(userId, ipAddress, distinctIps, urgent) {
+  const row = db.prepare(
+    'SELECT id, email, name, plan, ip_flag_alerted_at, ip_flag_alerted_count FROM users WHERE id=?'
+  ).get(userId);
+  if (!row) return false;
+
+  const now = Math.floor(Date.now() / 1000);
+  const ALERT_COOLDOWN_SECONDS = 24 * 60 * 60;
+  const lastAt    = row.ip_flag_alerted_at    || 0;
+  const lastCount = row.ip_flag_alerted_count || 0;
+  const stale     = (now - lastAt) >= ALERT_COOLDOWN_SECONDS;
+  const grew      = distinctIps > lastCount;
+
+  if (lastAt && !stale && !grew) return false; // recently alerted at >= this count — skip
+
+  // Mark as alerted BEFORE dispatching so a concurrent request in the same
+  // second doesn't send a duplicate. Last-write-wins is fine — the count is
+  // monotonically non-decreasing within a 24h window.
+  try {
+    db.prepare(
+      'UPDATE users SET ip_flag_alerted_at=?, ip_flag_alerted_count=? WHERE id=?'
+    ).run(now, distinctIps, userId);
+  } catch(e) {
+    console.error('[maybeSendIpFlagAlert dedupe update]', e.message);
+    // If we couldn't record the dedupe, don't send — better to miss one
+    // alert than risk a loop.
+    return false;
+  }
+
+  const recentIps = getRecentIpsForUser(userId);
+
+  // Resolve lazily to avoid a require-cycle surprise at module load time.
+  let sendIpFlagAlert;
+  try {
+    sendIpFlagAlert = require('../utils/email').sendIpFlagAlert;
+  } catch(e) {
+    console.error('[maybeSendIpFlagAlert require]', e.message);
+    return false;
+  }
+
+  // Fire-and-forget. Swallow errors — never break a user request.
+  Promise.resolve()
+    .then(() => sendIpFlagAlert({
+      user: { id: row.id, email: row.email, name: row.name, plan: row.plan },
+      distinctIps,
+      recentIps,
+      urgent,
+    }))
+    .catch((err) => console.error('[sendIpFlagAlert async]', err?.message || err));
+
+  console.warn('[IP FLAG]', {
+    userId: row.id, email: row.email, distinctIps, urgent,
+    triggeringIp: ipAddress, previousCount: lastCount,
+  });
+  return true;
+}
+
+/**
+ * Return the distinct IPs seen for a user inside the IP_WINDOW, each with
+ * its first_seen and last_seen timestamps. Used to populate the alert body.
+ */
+function getRecentIpsForUser(userId) {
+  const cutoff = Math.floor(Date.now() / 1000) - IP_WINDOW_SECONDS;
+  try {
+    return db.prepare(`
+      SELECT ip_address,
+             MIN(created_at) AS first_seen,
+             MAX(created_at) AS last_seen
+      FROM ip_events
+      WHERE user_id=? AND created_at>=?
+      GROUP BY ip_address
+      ORDER BY last_seen DESC
+      LIMIT 20
+    `).all(userId, cutoff);
+  } catch(e) {
+    console.error('[getRecentIpsForUser error]', e.message);
+    return [];
   }
 }
 
@@ -1979,6 +2098,9 @@ module.exports = {
   logIpEvent,
   pruneOldIpEvents,
   IP_FLAG_THRESHOLD,
+  // Session 4 — urgent threshold + recent-IPs helper for alert emails
+  IP_FLAG_URGENT_THRESHOLD,
+  getRecentIpsForUser,
   // Admin dashboard (Session 2)
   getHighUsageUsers,
   getIpFlaggedUsers,

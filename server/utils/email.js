@@ -499,6 +499,128 @@ ClearSplit does not provide legal advice. If you have concerns, consult a lawyer
   await sendEmail({ to: toEmail, subject: `${party1FirstName} has invited you to a ClearSplit agreement`, html, text });
 }
 
+// ══════════════════════════════════════════════════
+// SECURITY — IP flag alert (Session 4)
+//
+// Sent to ADMIN_EMAIL when a user crosses the distinct-IPs-in-24h threshold.
+// Dedup logic lives in db/index.js::logIpEvent — this function only formats
+// and dispatches. Never blocks a user request.
+//
+// Args:
+//   user        — { id, email, name, plan }
+//   distinctIps — number (current count inside the 24h window)
+//   recentIps   — [{ ip_address, last_seen, first_seen }]  Unix seconds
+//   urgent      — true when distinctIps >= URGENT_THRESHOLD (default 5)
+// ══════════════════════════════════════════════════
+async function sendIpFlagAlert({ user, distinctIps, recentIps = [], urgent = false }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) { console.log('[Email] Skipping IP flag alert — no RESEND_API_KEY'); return; }
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) { console.warn('[Email] ADMIN_EMAIL not set — cannot send IP flag alert'); return; }
+
+  const subjectPrefix = urgent ? '[URGENT] ClearStand' : '[ClearStand Alert]';
+  const subject = `${subjectPrefix} User ${user.email} flagged — ${distinctIps} distinct IPs in 24h`;
+
+  const fmtTs = (unix) => {
+    if (!unix) return '—';
+    const d = new Date(unix * 1000);
+    return d.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+  };
+
+  const ipRowsHtml = recentIps.length
+    ? recentIps.map((r) => `
+        <tr>
+          <td style="font-family:'Courier New',monospace;font-size:13px;color:#0D1B2A;padding:8px 12px;border-bottom:1px solid #EEF0F2;">${String(r.ip_address || '').replace(/[<>&"']/g, '')}</td>
+          <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;padding:8px 12px;border-bottom:1px solid #EEF0F2;">${fmtTs(r.first_seen)}</td>
+          <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;padding:8px 12px;border-bottom:1px solid #EEF0F2;">${fmtTs(r.last_seen)}</td>
+        </tr>`).join('')
+    : `<tr><td colspan="3" style="font-family:Arial,sans-serif;font-size:13px;color:#6B7A8D;text-align:center;padding:16px;">(no IP details available)</td></tr>`;
+
+  const ipRowsText = recentIps.length
+    ? recentIps.map((r) => `  ${r.ip_address}  first: ${fmtTs(r.first_seen)}  last: ${fmtTs(r.last_seen)}`).join('\n')
+    : '  (no IP details available)';
+
+  const dashboardUrl = `${process.env.APP_URL || 'https://clearstand.ca'}/api/admin/usage`;
+  const safeName  = String(user.name  || '').replace(/[<>&"']/g, '');
+  const safeEmail = String(user.email || '').replace(/[<>&"']/g, '');
+  const safePlan  = String(user.plan  || 'free').replace(/[<>&"']/g, '');
+
+  const urgencyBanner = urgent
+    ? `<tr><td style="background:#991B1B;padding:14px 24px;text-align:center;">
+         <span style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.12em;">Urgent — ${distinctIps} distinct IPs detected</span>
+       </td></tr>`
+    : '';
+
+  const html = emailHeader('IP Flag Alert') + `
+${urgencyBanner}
+<tr><td style="background:#0D1B2A;padding:28px 32px 32px;">
+  <p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:#2E86C1;">Security Alert</p>
+  <h1 style="margin:0 0 10px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#fff;line-height:1.3;">User flagged: ${distinctIps} distinct IPs in 24 hours</h1>
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:rgba(244,246,248,0.70);">This is a log-and-surface alert. No automatic action has been taken. Review and decide whether to investigate further.</p>
+</td></tr>
+<tr><td style="background:#fff;padding:28px 32px 8px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:6px 0;width:140px;">Email</td>
+      <td style="font-family:'Courier New',monospace;font-size:14px;color:#0D1B2A;padding:6px 0;">${safeEmail}</td>
+    </tr>
+    <tr>
+      <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:6px 0;">Name</td>
+      <td style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding:6px 0;">${safeName || '—'}</td>
+    </tr>
+    <tr>
+      <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:6px 0;">Plan</td>
+      <td style="font-family:Arial,sans-serif;font-size:14px;color:#0D1B2A;padding:6px 0;">${safePlan}</td>
+    </tr>
+    <tr>
+      <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:6px 0;">User ID</td>
+      <td style="font-family:'Courier New',monospace;font-size:14px;color:#0D1B2A;padding:6px 0;">${user.id}</td>
+    </tr>
+    <tr>
+      <td style="font-family:Arial,sans-serif;font-size:12px;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:6px 0;">Distinct IPs</td>
+      <td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${urgent ? '#991B1B' : '#D97706'};padding:6px 0;">${distinctIps}</td>
+    </tr>
+  </table>
+</td></tr>
+<tr><td style="background:#fff;padding:20px 32px 28px;">
+  <p style="margin:0 0 12px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#2E86C1;">Recent IPs (last 24h)</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEF0F2;">
+    <thead>
+      <tr style="background:#F4F6F8;">
+        <th align="left" style="font-family:Arial,sans-serif;font-size:11px;font-weight:600;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:10px 12px;">IP</th>
+        <th align="left" style="font-family:Arial,sans-serif;font-size:11px;font-weight:600;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:10px 12px;">First seen</th>
+        <th align="left" style="font-family:Arial,sans-serif;font-size:11px;font-weight:600;color:#6B7A8D;text-transform:uppercase;letter-spacing:0.08em;padding:10px 12px;">Last seen</th>
+      </tr>
+    </thead>
+    <tbody>${ipRowsHtml}</tbody>
+  </table>
+</td></tr>
+<tr><td style="background:#fff;padding:0 32px 28px;">
+  <a href="${dashboardUrl}" style="display:inline-block;background:#2E86C1;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;text-decoration:none;padding:12px 24px;border-radius:3px;">Open admin dashboard →</a>
+</td></tr>
+${emailSupport()}${emailFooter()}`;
+
+  const text = `ClearStand security alert — IP flag
+
+${urgent ? `*** URGENT — ${distinctIps} distinct IPs detected ***\n\n` : ''}User flagged: ${distinctIps} distinct IPs in 24 hours
+
+Email:        ${user.email}
+Name:         ${user.name || '—'}
+Plan:         ${user.plan || 'free'}
+User ID:      ${user.id}
+Distinct IPs: ${distinctIps}
+
+Recent IPs (last 24h):
+${ipRowsText}
+
+Open dashboard: ${dashboardUrl}
+
+This is a log-and-surface alert. No automatic action has been taken.`;
+
+  await sendEmail({ to: adminEmail, subject, html, text });
+}
+
 module.exports = {
   sendWelcomeEmail,
   sendClearSplitPurchaseEmail,
@@ -506,4 +628,8 @@ module.exports = {
   sendClearSplitParty2Email,
   sendClearSplitExpiryWarningEmail,
   sendClearSplitExtensionEmail,
+  // Session 4 — security alerts
+  sendIpFlagAlert,
+  // Generic low-level sender (for internal use by other modules)
+  sendEmail,
 };

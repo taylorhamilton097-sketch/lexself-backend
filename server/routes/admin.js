@@ -255,4 +255,38 @@ router.get('/usage.json', requireAdmin, (req, res) => {
   res.json(collectData());
 });
 
+// ── GET /api/admin/test-ip-alert (Session 4) ──
+// Fires a dummy IP flag alert email to ADMIN_EMAIL so you can verify that
+// Resend is wired up end-to-end without needing to actually trip a real
+// flag. Does NOT touch the ip_events or users tables.
+//
+// Optional query params:
+//   ?urgent=1   → use the URGENT subject line template
+router.get('/test-ip-alert', requireAdmin, async (req, res) => {
+  const urgent = req.query.urgent === '1' || req.query.urgent === 'true';
+  try {
+    const { sendIpFlagAlert } = require('../utils/email');
+    const now = Math.floor(Date.now() / 1000);
+    await sendIpFlagAlert({
+      user: {
+        id: 0,
+        email: 'test-user@example.com',
+        name: 'Test User (dummy — no real account)',
+        plan: 'essential',
+      },
+      distinctIps: urgent ? 6 : 3,
+      recentIps: [
+        { ip_address: '203.0.113.10', first_seen: now - 80000, last_seen: now - 300   },
+        { ip_address: '198.51.100.5', first_seen: now - 40000, last_seen: now - 1200  },
+        { ip_address: '192.0.2.42',   first_seen: now - 10000, last_seen: now - 60    },
+      ],
+      urgent,
+    });
+    res.json({ ok: true, sentTo: ADMIN_EMAIL, urgent });
+  } catch(err) {
+    console.error('[test-ip-alert]', err);
+    res.status(500).json({ ok: false, error: err?.message || String(err) });
+  }
+});
+
 module.exports = router;
