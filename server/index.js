@@ -2,6 +2,7 @@
 
 require('dotenv').config();
 const express   = require('express');
+app.use(require('../maintenance'));
 const cors      = require('cors');
 const path      = require('path');
 const rateLimit = require('express-rate-limit');
