@@ -26,6 +26,8 @@ const {
   getUsersWithMultipleSessions,
   IP_FLAG_THRESHOLD,
   torontoDateString,
+  // Session 5
+  getRecentStripeEvents,
 } = require('../db');
 
 const ADMIN_EMAIL    = process.env.ADMIN_EMAIL || '';
@@ -158,7 +160,7 @@ router.get('/usage', requireAdmin, (req, res) => {
 <body>
 <header>
   <h1>ClearStand — Usage Dashboard</h1>
-  <div class="sub">Toronto date: ${esc(d.today)} &middot; Session 2 abuse prevention</div>
+  <div class="sub">Toronto date: ${esc(d.today)} &middot; <a href="/api/admin/stripe-events" style="color:#a7b5c2;text-decoration:none;">Stripe events →</a></div>
 </header>
 <main>
   <div class="flags">
@@ -287,6 +289,115 @@ router.get('/test-ip-alert', requireAdmin, async (req, res) => {
     console.error('[test-ip-alert]', err);
     res.status(500).json({ ok: false, error: err?.message || String(err) });
   }
+});
+
+// ── GET /api/admin/stripe-events (Session 5) ──
+// Recent Stripe webhook events with processing status. Errors surface
+// here for triage — status='error' means the handler threw while processing
+// the event. The row stays so Stripe retries dedupe correctly (we don't
+// want an infinite retry loop on application bugs); manual replay is a
+// deliberate operator action.
+router.get('/stripe-events', requireAdmin, (req, res) => {
+  const events = getRecentStripeEvents({ limit: 100 });
+  const errorCount = events.filter((e) => e.status === 'error').length;
+  const rows = events.map((e) => ({
+    event_id: e.event_id,
+    type: e.type,
+    livemode: e.livemode ? 'live' : 'test',
+    received_at: e.received_at ? new Date(e.received_at * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : '',
+    status: e.status,
+    error_message: e.error_message || '',
+  }));
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ClearStand Admin — Stripe events</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --navy:#0D1B2A; --steel:#2E86C1; --warn:#d97706; --err:#991B1B; --ok:#065f46; --bg:#f7f7f5; --border:#e3e3df; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; color:var(--navy); background:var(--bg); }
+  header { background:var(--navy); color:#fff; padding:16px 24px; }
+  header h1 { margin:0; font-size:20px; font-weight:600; }
+  header .sub { color:#a7b5c2; font-size:13px; margin-top:4px; }
+  header a { color:#a7b5c2; text-decoration:none; font-size:12px; margin-right:16px; }
+  header a:hover { color:#fff; }
+  main { max-width:1200px; margin:0 auto; padding:24px; }
+  .flags { display:flex; gap:12px; margin:16px 0 24px; flex-wrap:wrap; }
+  .flag { background:#fff; border:1px solid var(--border); border-radius:6px; padding:12px 16px; min-width:160px; }
+  .flag .n { font-size:24px; font-weight:700; color:var(--navy); }
+  .flag .l { font-size:12px; color:#666; text-transform:uppercase; letter-spacing:.04em; }
+  .flag.err .n { color:var(--err); }
+  section { background:#fff; border:1px solid var(--border); border-radius:6px; margin:16px 0; padding:16px 20px; }
+  section h2 { margin:0 0 6px; font-size:16px; color:var(--steel); font-weight:600; }
+  section .note { margin:0 0 12px; font-size:13px; color:#666; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { background:#fafaf8; font-weight:600; color:#555; }
+  td.empty { text-align:center; color:#999; padding:16px; }
+  tr:last-child td { border-bottom:none; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+  .pill-ok { background:#c7f0d6; color:var(--ok); }
+  .pill-error { background:#fecaca; color:var(--err); }
+  .pill-live { background:#dbeafe; color:#1e40af; }
+  .pill-test { background:#eee; color:#555; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; }
+  .errmsg { color:var(--err); font-size:12px; white-space:pre-wrap; word-break:break-word; max-width:400px; }
+  footer { text-align:center; font-size:12px; color:#888; padding:24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ClearStand — Stripe events</h1>
+  <div class="sub"><a href="/api/admin/usage">← Usage dashboard</a> &middot; Session 5 webhook audit</div>
+</header>
+<main>
+  <div class="flags">
+    <div class="flag"><div class="n">${events.length}</div><div class="l">Recent events</div></div>
+    <div class="flag ${errorCount ? 'err' : ''}"><div class="n">${errorCount}</div><div class="l">With errors</div></div>
+  </div>
+  <section>
+    <h2>Last 100 Stripe webhook events</h2>
+    <p class="note">Top-level idempotency is handled by the <code>stripe_events</code> primary key. Rows with status=error mean the handler threw while processing an event we'd already committed to dedupe. Check logs for the stack trace, fix, and if needed replay from the Stripe dashboard (Developers → Events → Resend).</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Received</th>
+          <th>Type</th>
+          <th>Mode</th>
+          <th>Event ID</th>
+          <th>Status</th>
+          <th>Error</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.length
+          ? rows.map((r) => `
+            <tr>
+              <td class="mono">${esc(r.received_at)}</td>
+              <td class="mono">${esc(r.type)}</td>
+              <td><span class="pill pill-${esc(r.livemode)}">${esc(r.livemode)}</span></td>
+              <td class="mono">${esc(r.event_id)}</td>
+              <td><span class="pill pill-${esc(r.status)}">${esc(r.status)}</span></td>
+              <td class="errmsg">${esc(r.error_message)}</td>
+            </tr>`).join('')
+          : `<tr><td colspan="6" class="empty">No events recorded yet.</td></tr>`}
+      </tbody>
+    </table>
+  </section>
+</main>
+<footer>ClearStand admin &middot; rendered ${esc(new Date().toISOString())}</footer>
+</body>
+</html>`;
+
+  res.type('text/html').send(html);
+});
+
+// ── GET /api/admin/stripe-events.json ──
+router.get('/stripe-events.json', requireAdmin, (req, res) => {
+  res.json({ events: getRecentStripeEvents({ limit: 100 }) });
 });
 
 module.exports = router;

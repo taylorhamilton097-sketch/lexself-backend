@@ -3,7 +3,11 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { getUserById, updateUserPlan, updateStripeCustomer, addOneTimePurchase } = require('../db');
+const {
+  getUserById, updateUserPlan, updateStripeCustomer, addOneTimePurchase,
+  // Session 5 — webhook idempotency
+  markStripeEventSeen, markStripeEventError,
+} = require('../db');
 
 // ══════════════════════════════════════════════════
 // STRIPE_PRICES — central price ID configuration
@@ -748,8 +752,21 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   try {
     event = s.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch(err) {
+    console.error('[Webhook] Signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+
+  // ── Session 5: top-level event-id dedupe ──
+  // Stripe retries on 5xx, timeouts, client disconnects. Without this, the
+  // same event can mutate state multiple times. markStripeEventSeen returns
+  // false when event.id is already in the stripe_events table.
+  const isNew = markStripeEventSeen(event.id, event.type, event.livemode);
+  if (!isNew) {
+    console.log(`[Webhook] Duplicate event ${event.id} (${event.type}) — returning 200 without reprocessing`);
+    return res.json({ received: true, duplicate: true });
+  }
+
+  console.log(`[Webhook] received ${event.type} ${event.id} livemode=${event.livemode ? 1 : 0}`);
 
   try {
     switch(event.type) {
@@ -761,14 +778,16 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         if (session.mode === 'payment') {
           // One-time purchases
           if (product === 'clearsplit_standard' || product === 'clearsplit_subscriber') {
-            // New ClearSplit purchase
+            // New ClearSplit purchase — has its own payment_intent dedupe
             await handleClearSplitPurchase(session, product, userId);
           } else if (product === 'clearsplit_extension') {
             // Extension purchase
             await handleClearSplitExtension(session);
           } else if (product && userId) {
-            // Analysis pack
-            addOneTimePurchase(userId, product, session.payment_intent);
+            // Analysis pack — addOneTimePurchase is now idempotent via
+            // the partial unique index on stripe_payment_intent.
+            const inserted = addOneTimePurchase(userId, product, session.payment_intent);
+            console.log(`[Webhook] analysis pack userId=${userId} product=${product} payment=${session.payment_intent} inserted=${inserted}`);
           }
         }
         break;
@@ -778,17 +797,30 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       case 'customer.subscription.updated': {
         const sub = event.data.object;
         const userId = parseInt(sub.metadata?.userId);
-        if (!userId) break;
-        const plan     = sub.metadata?.plan     || 'essential';
-        const products = sub.metadata?.products || 'criminal';
+        if (!userId) {
+          console.warn(`[Webhook] ${event.type} ${event.id} missing userId metadata — skipping (sub: ${sub.id})`);
+          break;
+        }
+
+        // ── Session 5: defensive metadata handling ──
+        // If plan/products metadata is missing (manual Stripe dashboard
+        // edit, Portal-initiated change), DO NOT default to
+        // 'essential'/'criminal' — that silently downgrades real users.
+        // Preserve the existing values from the user row instead.
+        const existing = getUserById(userId);
+        const plan     = sub.metadata?.plan     || existing?.plan     || 'essential';
+        const products = sub.metadata?.products || existing?.products || 'criminal';
         const status   = sub.status;
-        const nextBilling = sub.current_period_end
-          ? new Date(sub.current_period_end * 1000).toISOString()
-          : null;
+
         if (status === 'active' || status === 'trialing') {
           updateUserPlan(userId, plan, products, sub.id, sub.current_period_end, status);
+          console.log(`[Webhook] ${event.type} userId=${userId} → plan=${plan} products=${products} status=${status} sub=${sub.id}`);
         } else if (status === 'canceled' || status === 'unpaid' || status === 'past_due') {
+          // Downgrade to free but preserve products string so re-subscribe works
           updateUserPlan(userId, 'free', products, sub.id, null, status);
+          console.warn(`[Webhook] ${event.type} userId=${userId} → free (status=${status}) sub=${sub.id}`);
+        } else {
+          console.log(`[Webhook] ${event.type} userId=${userId} status=${status} — no state change`);
         }
         break;
       }
@@ -796,18 +828,23 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
         const userId = parseInt(sub.metadata?.userId);
-        if (!userId) break;
-        updateUserPlan(userId, 'free', sub.metadata?.products || 'criminal', null, null, 'canceled');
-        console.log(`[Webhook] Subscription canceled for user ${userId}`);
+        if (!userId) {
+          console.warn(`[Webhook] subscription.deleted missing userId metadata — skipping (sub: ${sub.id})`);
+          break;
+        }
+        // Preserve products from DB if metadata is missing
+        const existing = getUserById(userId);
+        const products = sub.metadata?.products || existing?.products || 'criminal';
+        updateUserPlan(userId, 'free', products, null, null, 'canceled');
+        console.log(`[Webhook] subscription.deleted userId=${userId} → free sub=${sub.id}`);
         break;
       }
 
       case 'invoice.payment_failed': {
         const inv = event.data.object;
-        const custId = inv.customer;
-        console.error(`[Webhook] Payment failed — customer: ${custId}, invoice: ${inv.id}`);
-        // Grace period handled by Stripe Smart Retries — we log only
-        // Access restriction happens via subscription.updated → past_due
+        console.error(`[Webhook] Payment failed — customer: ${inv.customer}, invoice: ${inv.id}, subscription: ${inv.subscription || 'n/a'}`);
+        // Grace period handled by Stripe Smart Retries — we log only.
+        // Access restriction happens via subscription.updated → past_due.
         break;
       }
 
@@ -817,17 +854,36 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           // Renewal — confirm access is active
           const sub = await getStripe().subscriptions.retrieve(inv.subscription);
           const userId = parseInt(sub.metadata?.userId);
-          if (userId && (sub.status === 'active')) {
-            const plan     = sub.metadata?.plan     || 'essential';
-            const products = sub.metadata?.products || 'criminal';
-            updateUserPlan(userId, plan, products, sub.id, sub.current_period_end, 'active');
+          if (!userId) {
+            console.warn(`[Webhook] invoice.payment_succeeded (renewal) missing userId metadata — sub: ${sub.id}`);
+            break;
           }
+          if (sub.status === 'active') {
+            // Defensive metadata handling — same as subscription.updated
+            const existing = getUserById(userId);
+            const plan     = sub.metadata?.plan     || existing?.plan     || 'essential';
+            const products = sub.metadata?.products || existing?.products || 'criminal';
+            updateUserPlan(userId, plan, products, sub.id, sub.current_period_end, 'active');
+            console.log(`[Webhook] renewal userId=${userId} → plan=${plan} products=${products} sub=${sub.id}`);
+          }
+        } else {
+          console.log(`[Webhook] invoice.payment_succeeded reason=${inv.billing_reason} invoice=${inv.id} — no state change`);
         }
         break;
       }
+
+      default:
+        console.log(`[Webhook] unhandled event type ${event.type} ${event.id} — acknowledging`);
     }
+
+    console.log(`[Webhook] processed ${event.type} ${event.id} → ok`);
   } catch(err) {
-    console.error('Webhook handler error:', err);
+    console.error(`[Webhook] processed ${event.type} ${event.id} → error: ${err?.message || err}`);
+    console.error(err?.stack || '');
+    // Record the failure so it's visible in /api/admin/stripe-events and
+    // we can decide whether to manually replay. Crucially we still return
+    // 200 below so Stripe doesn't retry indefinitely on application bugs.
+    markStripeEventError(event.id, err?.message || String(err));
   }
 
   res.json({ received: true });
