@@ -115,6 +115,39 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.35; color: #F4F6F8; }
 .sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
+
+/* ── Onboarding checklist (Session 6a) ── */
+.ob-sec { border-bottom: 1px solid var(--border); padding: 12px 14px 10px; background: rgba(46,134,193,0.04); }
+.ob-sec.hidden { display: none; }
+.ob-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
+.ob-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); font-weight: 600; }
+.ob-skip { background:none; border:none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 2px 4px; }
+.ob-skip:hover { color: var(--text2); }
+.ob-progress-wrap { height: 4px; background: var(--navy); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.ob-progress-bar { height: 100%; background: var(--blue-light); transition: width 0.3s ease; }
+.ob-step { display: grid; grid-template-columns: 18px 1fr; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(42,63,86,0.35); cursor: pointer; }
+.ob-step:first-of-type { border-top: none; }
+.ob-check { width: 14px; height: 14px; border: 1.5px solid var(--text3); border-radius: 50%; margin-top: 2px; flex-shrink: 0; background: transparent; transition: all 0.15s; position: relative; }
+.ob-step.done .ob-check { background: var(--blue-light); border-color: var(--blue-light); }
+.ob-step.done .ob-check::after { content:'\2713'; color: var(--navy); font-size: 10px; font-weight: 700; position: absolute; top: -3px; left: 2px; }
+.ob-step-body { min-width: 0; }
+.ob-step-title { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.ob-step.done .ob-step-title { color: var(--text2); text-decoration: line-through; text-decoration-color: rgba(139,163,186,0.4); }
+.ob-step-desc { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text2); line-height: 1.4; margin-top: 3px; display: none; }
+.ob-step.expanded .ob-step-desc { display: block; }
+.ob-step-cta { display: none; margin-top: 8px; }
+.ob-step.expanded:not(.done) .ob-step-cta { display: block; }
+.ob-cta-btn { background: var(--blue); border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: 600; }
+.ob-cta-btn:hover { background: var(--blue-light); }
+.ob-collapsed { padding: 10px 14px; background: rgba(46,134,193,0.04); border-bottom: 1px solid var(--border); display: none; }
+.ob-collapsed.show { display: flex; align-items: center; gap: 8px; }
+.ob-collapsed-fill { flex: 1; height: 4px; background: var(--navy); border-radius: 2px; overflow: hidden; }
+.ob-collapsed-fill > div { height: 100%; background: var(--blue-light); }
+.ob-collapsed-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+.ob-footer-link { padding: 10px 16px; display: none; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); cursor: pointer; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; }
+.ob-footer-link.show { display: block; }
+.ob-footer-link:hover { color: var(--blue-light); }
+
 /* ── My Charges sidebar section ── */
 .sbt.in-case { position: relative; }
 .sbt.in-case::after { content: '●'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--blue-light); font-size: 8px; }
@@ -503,6 +536,18 @@ select.fi { cursor: pointer; }
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+    <div class="ob-sec hidden" id="obSec">
+      <div class="ob-hdr">
+        <span class="ob-title">Get started</span>
+        <button type="button" class="ob-skip" onclick="obDismiss()">Skip tour</button>
+      </div>
+      <div class="ob-progress-wrap"><div class="ob-progress-bar" id="obProgressBar" style="width:0%"></div></div>
+      <div id="obSteps"></div>
+    </div>
+    <div class="ob-collapsed" id="obCollapsed">
+      <div class="ob-collapsed-fill"><div style="width:100%"></div></div>
+      <div class="ob-collapsed-label">Setup complete</div>
+    </div>
     <div class="sb-sec" id="myChargesSec" style="display:none">
       <div class="sb-hdr" style="color:var(--blue-light);display:flex;align-items:center;justify-content:space-between">
         <span>My Charges</span>
@@ -559,6 +604,7 @@ select.fi { cursor: pointer; }
       <button class="sbt" onclick="showPanel('crossex');bnActive('crossex');sbActive(this)"><span class="lbl">Cross-Examination Builder<span class="tag">Witness · Questions · Strategy</span></span></button>
       <button class="sbt" onclick="showPanel('defence-org');bnActive('defence-org');sbActive(this)"><span class="lbl">Defence Organization<span class="tag">Timeline · Evidence · Deadlines</span></span></button>
     </div>
+    <button type="button" class="ob-footer-link" id="obFooterLink" onclick="obReopen()">&#8635; Show onboarding</button>
   </aside>
 
   <!-- UPLOAD PANEL -->
@@ -3073,6 +3119,153 @@ function obSkip() {
   document.getElementById('obOv').style.display = 'none';
 }
 
+
+// ── Onboarding checklist (Session 6a) ──
+var OB_PRODUCT = 'criminal';
+var obState = null;
+var obExpandedId = null;
+
+async function obLoadState() {
+  try {
+    var tok = localStorage.getItem('ls_tok');
+    if (!tok) return;
+    var r = await fetch('/api/onboarding/state?product=' + OB_PRODUCT, {
+      headers: { 'Authorization': 'Bearer ' + tok }
+    });
+    if (!r.ok) return;
+    obState = await r.json();
+    obRender();
+  } catch (e) { /* non-fatal */ }
+}
+
+function obEsc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function obRender() {
+  if (!obState) return;
+  var sec       = document.getElementById('obSec');
+  var collapsed = document.getElementById('obCollapsed');
+  var footer    = document.getElementById('obFooterLink');
+  if (!sec || !collapsed || !footer) return;
+
+  if (obState.skipForPlan) {
+    sec.classList.add('hidden');
+    collapsed.classList.remove('show');
+    footer.classList.remove('show');
+    return;
+  }
+
+  var total = (obState.steps || []).length;
+  var done  = (obState.completed || []).length;
+  var pct   = total ? Math.round(done / total * 100) : 0;
+
+  if (obState.dismissed) {
+    sec.classList.add('hidden');
+    collapsed.classList.remove('show');
+    footer.classList.add('show');
+    return;
+  }
+
+  if (total > 0 && done >= total) {
+    sec.classList.add('hidden');
+    collapsed.classList.add('show');
+    footer.classList.remove('show');
+    return;
+  }
+
+  sec.classList.remove('hidden');
+  collapsed.classList.remove('show');
+  footer.classList.remove('show');
+
+  var pb = document.getElementById('obProgressBar');
+  if (pb) pb.style.width = pct + '%';
+
+  var list = document.getElementById('obSteps');
+  var html = '';
+  var doneSet = new Set(obState.completed || []);
+  (obState.steps || []).forEach(function(step) {
+    var isDone     = doneSet.has(step.id);
+    var isExpanded = obExpandedId === step.id && !isDone;
+    var cls = 'ob-step' + (isDone ? ' done' : '') + (isExpanded ? ' expanded' : '');
+    html += '<div class="' + cls + '" data-step="' + step.id + '" onclick="obToggle(\'' + step.id + '\')">'
+          +   '<div class="ob-check"></div>'
+          +   '<div class="ob-step-body">'
+          +     '<div class="ob-step-title">' + obEsc(step.title) + '</div>'
+          +     '<div class="ob-step-desc">' + obEsc(step.description) + '</div>'
+          +     '<div class="ob-step-cta"><button type="button" class="ob-cta-btn" '
+          +       'onclick="event.stopPropagation(); obRunCta(\'' + step.ctaAction + '\')">'
+          +       obEsc(step.ctaLabel) + '</button></div>'
+          +   '</div>'
+          + '</div>';
+  });
+  if (list) list.innerHTML = html;
+}
+
+function obToggle(stepId) {
+  if (!obState) return;
+  var doneSet = new Set(obState.completed || []);
+  if (doneSet.has(stepId)) return;
+  obExpandedId = (obExpandedId === stepId) ? null : stepId;
+  obRender();
+}
+
+async function obDismiss() {
+  try {
+    var tok = localStorage.getItem('ls_tok');
+    await fetch('/api/onboarding/dismiss', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + tok }
+    });
+  } catch (e) {}
+  if (obState) obState.dismissed = true;
+  obRender();
+}
+
+async function obReopen() {
+  try {
+    var tok = localStorage.getItem('ls_tok');
+    await fetch('/api/onboarding/undismiss', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + tok }
+    });
+  } catch (e) {}
+  await obLoadState();
+}
+
+function obRefresh() { obLoadState(); }
+
+function obRunCta(action) {
+  try {
+    if (typeof obRunCtaApp === 'function') obRunCtaApp(action);
+  } catch (e) { console.warn('[onboarding cta]', e); }
+}
+
+// Refresh when tab regains focus — catches completions done elsewhere.
+window.addEventListener('focus', function() { if (obState) obRefresh(); });
+
+// App-specific CTA handlers for the onboarding checklist.
+function obRunCtaApp(action) {
+  switch (action) {
+    case 'open-case-profile':
+      // Criminal charges live in the /case-profile route.
+      window.location.href = '/case-profile';
+      break;
+    case 'open-upload':
+      // Upload panel is the default panel (id="panel-upload") — just show it.
+      if (typeof showPanel === 'function') showPanel('upload');
+      break;
+    case 'open-chat':
+      if (typeof showPanel === 'function') showPanel('chat');
+      break;
+    default:
+      console.warn('[onboarding] Unknown cta action:', action);
+  }
+}
+
+
 (async function init(){
   showWelcome();
 
@@ -3116,6 +3309,7 @@ function obSkip() {
 
         renderUsage();
         loadStoredProfile();
+        obLoadState();
       }
     }
     // Any other error (500, network, etc) — stay in app with token

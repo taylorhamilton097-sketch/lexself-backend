@@ -8,9 +8,14 @@ const {
   getCaseProfile, saveCaseProfile,
   getUserUsageSummary, updateUserPlan,
   enforceSessionLimit, revokeAllSessionsForUser,
+  getOnboardingState, computeOnboardingStatus,
 } = require('../db');
 const { signToken, requireAuth } = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
+const { getStepsForProduct } = require('../config/onboarding');
+
+// Plans that skip onboarding by default. Mirrors the set in routes/onboarding.js.
+const SKIP_ONBOARDING_PLANS = new Set(['counsel', 'admin']);
 
 // ── INPUT SANITIZATION (no external deps) ──
 const sanitize = (input, maxLen = 500) => {
@@ -34,6 +39,30 @@ const validatePassword = (pass) =>
 function issueToken(userId, req) {
   try { enforceSessionLimit(userId); } catch(e) { console.error('[enforceSessionLimit]', e.message); }
   return signToken(userId, req);
+}
+
+/**
+ * Build the onboarding payload for /auth/me.
+ * Bundled into /me so the app can render the checklist on first paint
+ * without a second round-trip.
+ */
+function buildOnboardingPayload(user, product) {
+  const steps = getStepsForProduct(product);
+  const state = getOnboardingState(user.id);
+  const completed = computeOnboardingStatus(user.id, product, steps);
+  return {
+    product,
+    steps: steps.map(s => ({
+      id: s.id,
+      title: s.title,
+      description: s.description,
+      ctaLabel: s.ctaLabel,
+      ctaAction: s.ctaAction,
+    })),
+    completed,
+    dismissed: !!state.dismissed,
+    skipForPlan: SKIP_ONBOARDING_PLANS.has(user.plan || ''),
+  };
 }
 
 // ──────────────────────────────────────────────────
@@ -128,8 +157,19 @@ router.post('/login', async (req, res) => {
 // GET /api/auth/me
 // ──────────────────────────────────────────────────
 router.get('/me', requireAuth, (req, res) => {
-  const product = req.query.product || 'criminal';
+  const product = (req.query.product === 'family') ? 'family' : 'criminal';
   const usage = getUserUsageSummary(req.user, product);
+
+  // Session 6a — bundle onboarding state so the client can render the
+  // checklist on first paint without a second API call. If this fails
+  // for any reason we still return a valid /me response.
+  let onboarding = null;
+  try {
+    onboarding = buildOnboardingPayload(req.user, product);
+  } catch(e) {
+    console.warn('[onboarding payload]', e.message);
+  }
+
   res.json({
     user: {
       id:                 req.user.id,
@@ -141,6 +181,7 @@ router.get('/me', requireAuth, (req, res) => {
       planPeriodEnd:      req.user.plan_period_end,
     },
     usage,
+    onboarding,
   });
 });
 
