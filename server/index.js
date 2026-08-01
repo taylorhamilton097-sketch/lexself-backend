@@ -2,7 +2,6 @@
 
 require('dotenv').config();
 const express   = require('express');
-app.use(require('../maintenance'));
 const cors      = require('cors');
 const path      = require('path');
 const rateLimit = require('express-rate-limit');
@@ -19,6 +18,9 @@ process.on('uncaughtException', (err) => {
 });
 
 const app = express();
+
+// ── BETA GATE — HTTP Basic Auth on all requests ──
+app.use(require('./beta-gate'));
 
 // ── TRUST PROXY — Railway sits in front of this app ──
 // Required for express-rate-limit to see real user IPs via X-Forwarded-For
