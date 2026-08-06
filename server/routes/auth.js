@@ -9,6 +9,7 @@ const {
   getUserUsageSummary, updateUserPlan,
   enforceSessionLimit, revokeAllSessionsForUser,
   getOnboardingState, computeOnboardingStatus,
+  deleteUserAccount,
 } = require('../db');
 const { signToken, requireAuth } = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
@@ -296,6 +297,117 @@ router.post('/logout-all', requireAuth, (req, res) => {
   } catch(e) {
     console.error('[Logout-all error]', e.message);
     res.json({ success: true });
+  }
+});
+
+// ──────────────────────────────────────────────────
+// POST /api/auth/delete-account   { password, confirm: 'DELETE' }
+//
+// Permanently deletes the account, cancels any Stripe subscription,
+// and removes every piece of data associated with the user. There is
+// no recovery window and no soft delete — the Account page tells the
+// user exactly this before they get here.
+//
+// Order matters: Stripe is cancelled FIRST. If we deleted the row
+// first and the Stripe call then failed, the subscription would keep
+// billing a card with no account behind it and no record linking the
+// two. Cancelling first means the worst case is a cancelled
+// subscription on a surviving account, which the user can see and we
+// can fix.
+// ──────────────────────────────────────────────────
+router.post('/delete-account', requireAuth, async (req, res) => {
+  const { password, confirm } = req.body || {};
+
+  if (confirm !== 'DELETE') {
+    return res.status(400).json({ error: 'Confirmation text did not match.' });
+  }
+  if (!password) {
+    return res.status(400).json({ error: 'Your password is required to delete your account.' });
+  }
+
+  // Re-authenticate. A stolen or borrowed session must not be able to
+  // destroy an account on its own.
+  let user;
+  try {
+    user = getUserById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Account not found.' });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ error: 'Password is incorrect.' });
+  } catch(e) {
+    console.error('[Delete account] auth check failed:', e.message);
+    return res.status(500).json({ error: 'Could not verify your password. Please try again.' });
+  }
+
+  // Safety rail: never let the admin account delete itself out of the
+  // system. Remove ADMIN_EMAIL from Railway first if this is intended.
+  const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
+  if (adminEmail && user.email.toLowerCase().trim() === adminEmail) {
+    return res.status(403).json({
+      error: 'The administrator account cannot be deleted from this page.',
+    });
+  }
+
+  // ── 1. Cancel the Stripe subscription ──
+  if (user.stripe_subscription_id) {
+    try {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      await stripe.subscriptions.cancel(user.stripe_subscription_id);
+      console.log('[Delete account] Stripe subscription cancelled', {
+        userId: user.id,
+        subscriptionId: user.stripe_subscription_id,
+      });
+    } catch(e) {
+      // resource_missing means it's already gone — that's the state we
+      // wanted, so carry on. Anything else, stop: we will not delete an
+      // account while a live subscription may still bill it.
+      const alreadyGone =
+        e?.code === 'resource_missing' ||
+        /No such subscription/i.test(e?.message || '');
+      if (alreadyGone) {
+        console.warn('[Delete account] Subscription already cancelled or missing', {
+          userId: user.id,
+          subscriptionId: user.stripe_subscription_id,
+        });
+      } else {
+        console.error('[Delete account] Stripe cancellation failed:', e.message);
+        return res.status(502).json({
+          error: 'We could not cancel your subscription, so your account has not been deleted. '
+               + 'Nothing has changed. Please contact support@clearstand.ca and we will complete this for you.',
+        });
+      }
+    }
+  }
+
+  // ── 2. Delete everything ──
+  try {
+    const result = deleteUserAccount(user.id);
+
+    console.log('[Delete account] Completed', {
+      userId:     user.id,
+      clearsplit: result.clearsplit,
+      leftovers:  result.leftovers.length ? result.leftovers : 'none',
+      timestamp:  new Date().toISOString(),
+    });
+
+    if (result.leftovers.length) {
+      // The account is gone but something survived. Surface it rather
+      // than reporting a clean delete that didn't happen.
+      console.error('[Delete account] PARTIAL DELETE — manual cleanup required', {
+        userId: user.id,
+        leftovers: result.leftovers,
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Your account and all associated data have been permanently deleted.',
+    });
+  } catch(e) {
+    console.error('[Delete account] Deletion failed:', e.message, e.stack);
+    return res.status(500).json({
+      error: 'Account deletion failed and nothing was removed. '
+           + 'Please contact support@clearstand.ca so we can complete this for you.',
+    });
   }
 });
 

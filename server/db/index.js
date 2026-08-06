@@ -2200,6 +2200,199 @@ function getUsersWithMultipleSessions() {
   `).all();
 }
 
+// ══════════════════════════════════════════════════
+// ACCOUNT DELETION — permanent, irreversible
+// ══════════════════════════════════════════════════
+//
+// Why explicit DELETEs instead of relying on ON DELETE CASCADE:
+// most user-linked tables do cascade, but three do not, and a silent
+// partial delete would make the product's own deletion promise false.
+// Listing every table explicitly makes the behaviour auditable and
+// removes any dependency on the foreign_keys pragma being active.
+//
+//   - api_usage has NO foreign key at all, so it never cascades.
+//   - clearsplit_agreements references users(id) with no ON DELETE
+//     action. With foreign_keys=ON, deleting a party would throw a
+//     constraint error and abort the whole transaction.
+//   - conversation_messages links via conversation_id, not user_id.
+//
+// Any table added in future that stores user data MUST be added to
+// USER_DATA_TABLES below or it will silently survive deletion.
+
+const USER_DATA_TABLES = [
+  // Core account + usage
+  'usage',
+  'one_time_purchases',
+  'case_profiles',
+  'api_usage',              // no FK — would not cascade
+  // Case profile (Unit 2)
+  'user_profiles',
+  'case_parties',
+  'case_children',
+  'family_case_info',
+  'criminal_case_info',
+  'criminal_charges',
+  // Financial statement (Unit 4b — Form 13.1)
+  'fs_valuation_dates',
+  'fs_income_meta',
+  'fs_income',
+  'fs_noncash_benefits',
+  'fs_expenses',
+  'fs_household',
+  'fs_assets',
+  'fs_debts',
+  'fs_marriage_date_property',
+  'fs_excluded_property',
+  'fs_disposed_property',
+  'fs_schedule_b',
+  'fs_schedule_b_meta',
+  // Security / session
+  'sessions',
+  'ip_events',
+];
+
+/**
+ * Detach a user from any ClearSplit agreements before deleting them.
+ *
+ * party1_user_id is NOT NULL, so a departing party 1 cannot simply be
+ * nulled out. If the other party is still on the agreement we promote
+ * them to party 1 and clear party 2, which preserves their access and
+ * their data. If the departing user is the only party, the agreement
+ * and its contents are deleted with them.
+ *
+ * Returns { promoted, removed, detached } for logging.
+ */
+function detachClearSplitForUser(userId) {
+  let promoted = 0, removed = 0, detached = 0;
+
+  const asParty1 = db.prepare(`
+    SELECT id, party1_user_id, party2_user_id
+    FROM clearsplit_agreements
+    WHERE party1_user_id = ?
+  `).all(userId);
+
+  for (const a of asParty1) {
+    if (a.party2_user_id && a.party2_user_id !== userId) {
+      // Other party survives — promote them, drop the departing party.
+      db.prepare(`
+        UPDATE clearsplit_agreements
+        SET party1_user_id = ?, party2_user_id = NULL
+        WHERE id = ?
+      `).run(a.party2_user_id, a.id);
+      promoted++;
+    } else {
+      // Sole party — the agreement goes with them.
+      db.prepare('DELETE FROM clearsplit_agreements WHERE id = ?').run(a.id);
+      removed++;
+    }
+  }
+
+  // Remaining agreements where this user is party 2 (party 1 is someone else).
+  const r = db.prepare(`
+    UPDATE clearsplit_agreements
+    SET party2_user_id = NULL
+    WHERE party2_user_id = ?
+  `).run(userId);
+  detached = r.changes;
+
+  // Clear the audit pointer on any agreement this user last edited.
+  db.prepare(`
+    UPDATE clearsplit_agreements
+    SET last_modified_by = NULL
+    WHERE last_modified_by = ?
+  `).run(userId);
+
+  return { promoted, removed, detached };
+}
+
+/**
+ * Confirm nothing survived. Runs after the transaction commits.
+ * Returns an array of { table, rows } for anything still holding rows
+ * for this user — empty array means a clean delete.
+ */
+function verifyUserDataRemoved(userId) {
+  const leftovers = [];
+  for (const table of USER_DATA_TABLES) {
+    try {
+      const row = db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE user_id = ?`).get(userId);
+      if (row && row.n > 0) leftovers.push({ table, rows: row.n });
+    } catch(e) { /* table absent — nothing to verify */ }
+  }
+  try {
+    const conv = db.prepare('SELECT COUNT(*) AS n FROM conversations WHERE user_id = ?').get(userId);
+    if (conv && conv.n > 0) leftovers.push({ table: 'conversations', rows: conv.n });
+  } catch(e) {}
+  try {
+    const u = db.prepare('SELECT COUNT(*) AS n FROM users WHERE id = ?').get(userId);
+    if (u && u.n > 0) leftovers.push({ table: 'users', rows: u.n });
+  } catch(e) {}
+  return leftovers;
+}
+
+/**
+ * Permanently delete a user and every piece of data associated with them.
+ *
+ * Runs as a single transaction: either everything goes or nothing does.
+ * There is no soft delete and no recovery window — conversations are
+ * hard-deleted here regardless of their deleted_at flag.
+ *
+ * Does NOT touch Stripe. The caller must cancel the subscription first;
+ * this function has no way to reach it once the row is gone.
+ *
+ * Returns { deleted: true, clearsplit, leftovers }.
+ */
+function deleteUserAccount(userId) {
+  const uid = Number(userId);
+  if (!Number.isInteger(uid) || uid <= 0) {
+    throw new Error('deleteUserAccount: invalid user id');
+  }
+
+  const run = db.transaction((id) => {
+    const clearsplit = detachClearSplitForUser(id);
+
+    // Chat messages hang off conversations, not users — clear them first.
+    try {
+      db.prepare(`
+        DELETE FROM conversation_messages
+        WHERE conversation_id IN (SELECT id FROM conversations WHERE user_id = ?)
+      `).run(id);
+    } catch(e) {
+      console.error('[deleteUserAccount] conversation_messages:', e.message);
+      throw e;
+    }
+    try {
+      db.prepare('DELETE FROM conversations WHERE user_id = ?').run(id);
+    } catch(e) {
+      console.error('[deleteUserAccount] conversations:', e.message);
+      throw e;
+    }
+
+    for (const table of USER_DATA_TABLES) {
+      try {
+        db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(id);
+      } catch(e) {
+        // A table that doesn't exist in this database is fine; anything
+        // else is a real failure and must roll the transaction back.
+        if (/no such table/i.test(e.message)) continue;
+        console.error(`[deleteUserAccount] ${table}:`, e.message);
+        throw e;
+      }
+    }
+
+    db.prepare('DELETE FROM users WHERE id = ?').run(id);
+    return clearsplit;
+  });
+
+  const clearsplit = run(uid);
+
+  const leftovers = verifyUserDataRemoved(uid);
+  if (leftovers.length) {
+    console.error('[deleteUserAccount] INCOMPLETE DELETE', { userId: uid, leftovers });
+  }
+
+  return { deleted: true, clearsplit, leftovers };
+}
+
 module.exports = {
   db, PLANS, 
   createUser, getUserByEmail, getUserById,
@@ -2287,4 +2480,8 @@ module.exports = {
   listScheduleB, addScheduleB, updateScheduleB, deleteScheduleB,
   getScheduleBMeta, saveScheduleBMeta,
   getFinancialStatement,
+  // Account deletion (permanent, irreversible)
+  deleteUserAccount,
+  verifyUserDataRemoved,
+  USER_DATA_TABLES,
 };
