@@ -28,6 +28,9 @@ const {
   torontoDateString,
   // Session 5
   getRecentStripeEvents,
+  // CanLII citation verification
+  citationCache,
+  citationCacheStats,
 } = require('../db');
 
 const ADMIN_EMAIL    = process.env.ADMIN_EMAIL || '';
@@ -398,6 +401,44 @@ router.get('/stripe-events', requireAdmin, (req, res) => {
 // ── GET /api/admin/stripe-events.json ──
 router.get('/stripe-events.json', requireAdmin, (req, res) => {
   res.json({ events: getRecentStripeEvents({ limit: 100 }) });
+});
+
+// ── GET /api/admin/canlii-test ──
+// Verifies the CanLII integration end to end without touching any user
+// flow. Pass either a bare citation or a sentence containing several.
+//
+//   /api/admin/canlii-test?q=2016 SCC 27
+//   /api/admin/canlii-test?q=R v Jordan, 2016 SCC 27 and R v Fake, 2016 SCC 9999
+//
+// Defaults to a mixed sample covering every status the verifier can
+// return, so a single call proves the whole path works.
+router.get('/canlii-test', requireAdmin, async (req, res) => {
+  const canlii = require('../utils/canlii');
+
+  const sample = 'R v Jordan, 2016 SCC 27 set the ceilings. See R. v. Grant 2009 SCC 32. '
+               + 'Compare R v Nonexistent, 2016 SCC 9999. Older: R v Stinchcombe [1991] 3 SCR 326. '
+               + 'Wrong name test: R v Smith, 2020 SCC 14.';
+  const q = (req.query.q || '').toString().trim() || sample;
+
+  const started = Date.now();
+  try {
+    const { citations, summary } = await canlii.verifyText(q, citationCache);
+    res.json({
+      keyConfigured: !!process.env.CANLII_API_KEY,
+      query: q,
+      elapsedMs: Date.now() - started,
+      budgetRemainingToday: canlii.budgetRemaining(),
+      cache: citationCacheStats(),
+      summary,
+      citations,
+    });
+  } catch(e) {
+    res.status(500).json({
+      keyConfigured: !!process.env.CANLII_API_KEY,
+      error: e.message,
+      code: e.code || null,
+    });
+  }
 });
 
 module.exports = router;

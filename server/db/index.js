@@ -469,6 +469,35 @@ try {
   `);
 } catch(e) { console.error('[DB] Stripe events table error:', e.message); }
 
+// ── citation_cache — CanLII lookup results ──
+//
+// CanLII grants 5,000 queries/day at 2 requests/second, 1 at a time.
+// Criminal law has a small working canon — Grant, Jordan, Stinchcombe,
+// Gladue, Zora recur constantly — so caching turns most verifications
+// into a local read and keeps the daily budget for genuinely new cases.
+//
+// Negative results are cached too (found=0), because a hallucinated
+// citation will often be produced repeatedly by the same prompt.
+//
+// Holds only metadata CanLII returns for a public decision. No user
+// data, so nothing here is touched by account deletion.
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS citation_cache (
+      database_id    TEXT NOT NULL,
+      case_id        TEXT NOT NULL,
+      found          INTEGER NOT NULL DEFAULT 0,
+      title          TEXT,
+      citation       TEXT,
+      decision_date  TEXT,
+      url            TEXT,
+      checked_at     INTEGER NOT NULL DEFAULT (unixepoch()),
+      PRIMARY KEY (database_id, case_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_citation_cache_checked ON citation_cache(checked_at);
+  `);
+} catch(e) { console.error('[DB] Citation cache table error:', e.message); }
+
 // ── one_time_purchases — belt-and-suspenders uniqueness (Session 5) ──
 // Even with top-level event dedupe, enforce at the DB layer that a single
 // Stripe payment_intent can produce at most one analysis-pack row. Partial
@@ -2393,6 +2422,57 @@ function deleteUserAccount(userId) {
   return { deleted: true, clearsplit, leftovers };
 }
 
+// ══════════════════════════════════════════════════
+// CITATION CACHE — CanLII lookups
+// ══════════════════════════════════════════════════
+//
+// Negative results (found=0) expire; a citation that 404s today may be
+// a decision CanLII simply hasn't published yet. Positive results never
+// expire — a decision's style of cause and date do not change.
+
+const NEGATIVE_CACHE_TTL = 7 * 24 * 60 * 60;  // 7 days
+
+function getCachedCitation(databaseId, caseId) {
+  const row = db.prepare(
+    'SELECT * FROM citation_cache WHERE database_id = ? AND case_id = ?'
+  ).get(databaseId, caseId);
+  if (!row) return null;
+  if (row.found === 0 && (Math.floor(Date.now() / 1000) - row.checked_at) > NEGATIVE_CACHE_TTL) {
+    return null;   // stale miss — re-check
+  }
+  return row;
+}
+
+function putCachedCitation({ databaseId, caseId, found, title, citation, decisionDate, url }) {
+  db.prepare(`
+    INSERT INTO citation_cache (database_id, case_id, found, title, citation, decision_date, url, checked_at)
+    VALUES (?,?,?,?,?,?,?,unixepoch())
+    ON CONFLICT(database_id, case_id) DO UPDATE SET
+      found         = excluded.found,
+      title         = excluded.title,
+      citation      = excluded.citation,
+      decision_date = excluded.decision_date,
+      url           = excluded.url,
+      checked_at    = excluded.checked_at
+  `).run(databaseId, caseId, found ? 1 : 0, title || null, citation || null, decisionDate || null, url || null);
+}
+
+function citationCacheStats() {
+  const r = db.prepare(`
+    SELECT COUNT(*) AS total,
+           SUM(CASE WHEN found = 1 THEN 1 ELSE 0 END) AS hits,
+           SUM(CASE WHEN found = 0 THEN 1 ELSE 0 END) AS misses
+    FROM citation_cache
+  `).get();
+  return { total: r.total || 0, hits: r.hits || 0, misses: r.misses || 0 };
+}
+
+/** Adapter matching the shape utils/canlii.js expects. */
+const citationCache = {
+  get: (databaseId, caseId) => getCachedCitation(databaseId, caseId),
+  put: (row) => putCachedCitation(row),
+};
+
 module.exports = {
   db, PLANS, 
   createUser, getUserByEmail, getUserById,
@@ -2484,4 +2564,6 @@ module.exports = {
   deleteUserAccount,
   verifyUserDataRemoved,
   USER_DATA_TABLES,
+  // CanLII citation cache
+  getCachedCitation, putCachedCitation, citationCacheStats, citationCache,
 };
