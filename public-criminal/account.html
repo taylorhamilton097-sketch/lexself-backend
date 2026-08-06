@@ -330,8 +330,19 @@ h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--white);marg
 <div class="modal-ov" id="deleteModal">
   <div class="modal-box">
     <div class="modal-title">Delete Your Account</div>
-    <div class="modal-body">This will permanently delete your account and all data. This cannot be undone.<br><br>Type <strong style="color:var(--white)">DELETE</strong> to confirm.</div>
+    <div class="modal-body">
+      <strong style="color:var(--white)">This cannot be undone.</strong> Your account, case profile, saved case
+      information, chat history and any ClearSplit agreement will be permanently deleted immediately. There is no
+      recovery period and no backup we can restore from.<br><br>
+      <span style="color:var(--red)">Export anything you want to keep as a PDF before you continue.</span>
+      Once deleted, your documents cannot be retrieved.<br><br>
+      Any active subscription will be cancelled at the same time. No refund is issued for the remainder of the
+      current billing period.<br><br>
+      Enter your password and type <strong style="color:var(--white)">DELETE</strong> to confirm.
+    </div>
+    <input class="modal-confirm-input" type="password" id="deletePasswordInput" placeholder="Your password" autocomplete="current-password">
     <input class="modal-confirm-input" type="text" id="deleteConfirmInput" placeholder="Type DELETE to confirm">
+    <div id="deleteError" style="display:none;font-family:'Inter',sans-serif;font-size:.82rem;color:var(--red);line-height:1.5;margin-bottom:16px"></div>
     <div class="modal-actions">
       <button class="btn btn-danger" onclick="confirmDelete()" style="flex:1">Delete My Account</button>
       <button class="btn btn-ghost" onclick="closeDeleteModal()" style="flex:1">Cancel</button>
@@ -877,20 +888,66 @@ function openDeleteModal() { document.getElementById('deleteModal').classList.ad
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('show');
   document.getElementById('deleteConfirmInput').value = '';
+  const pw = document.getElementById('deletePasswordInput');
+  if (pw) pw.value = '';
+  const err = document.getElementById('deleteError');
+  if (err) { err.style.display = 'none'; err.textContent = ''; }
 }
 
 async function confirmDelete() {
-  const input = document.getElementById('deleteConfirmInput').value.trim();
-  if (input !== 'DELETE') {
-    toast('Type DELETE in all caps to confirm.');
-    return;
-  }
+  const input    = document.getElementById('deleteConfirmInput').value.trim();
+  const password = document.getElementById('deletePasswordInput').value;
+  const errEl    = document.getElementById('deleteError');
+  const btn      = document.querySelector('#deleteModal .btn-danger');
+
+  const showErr = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
+  errEl.style.display = 'none';
+
+  if (input !== 'DELETE') { showErr('Type DELETE in all caps to confirm.'); return; }
+  if (!password)          { showErr('Enter your password to confirm.'); return; }
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Deleting…';
+
   try {
-    // For now just log out — full account deletion endpoint can be added later
-    toast('Account deletion request received. Contact support@clearstand.ca to complete.');
-    closeDeleteModal();
-    setTimeout(doLogout, 3000);
-  } catch(e) { toast('Error. Please contact support@clearstand.ca'); }
+    const res = await fetch('/api/auth/delete-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('ls_tok'),
+      },
+      body: JSON.stringify({ password, confirm: 'DELETE' }),
+    });
+    const d = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      showErr(d.error || 'Deletion failed. Please contact support@clearstand.ca');
+      btn.disabled = false;
+      btn.textContent = originalText;
+      return;
+    }
+
+    // Clear every trace of case data held in this browser, not just the token.
+    try {
+      ['ls_tok','lsc_p','lsc_people','cs_dorg','ls_family_profile',
+       'cs_onboarded','cs_last_product'].forEach(k => localStorage.removeItem(k));
+    } catch(e) {}
+
+    document.getElementById('deleteModal').classList.remove('show');
+    document.body.innerHTML =
+      '<div style="max-width:520px;margin:120px auto;padding:0 24px;text-align:center;' +
+      'font-family:Inter,sans-serif;color:#8BA3BA;line-height:1.7">' +
+      '<div style="font-family:\'Playfair Display\',serif;font-size:1.5rem;color:#F4F6F8;margin-bottom:14px">' +
+      'Your account has been deleted.</div>' +
+      '<p>All of your data has been permanently removed and any active subscription has been cancelled.</p>' +
+      '<p style="margin-top:20px"><a href="/" style="color:#3EA4E4;text-decoration:none">Return to ClearStand</a></p>' +
+      '</div>';
+  } catch(e) {
+    showErr('Network error. Your account has not been deleted. Please try again.');
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
 }
 
 // ── INIT ──
