@@ -55,6 +55,11 @@ const EXEMPT_PREFIXES = [
   '/api/billing/webhook',  // Stripe cannot authenticate
   '/health',               // Railway platform health check
   '/api/health',
+  // ACME / Let's Encrypt certificate validation. The validator fetches a
+  // token from this path over plain HTTP and cannot send credentials — a
+  // 401 here makes certificate renewal fail silently, which is a very
+  // quiet way to lose your site 60 days later.
+  '/.well-known',
 ];
 
 /**

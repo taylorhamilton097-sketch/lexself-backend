@@ -26,10 +26,32 @@ app.use(require('./beta-gate'));
 // Required for express-rate-limit to see real user IPs via X-Forwarded-For
 app.set('trust proxy', 1);
 
-// ── CANONICAL DOMAIN — www → clearstand.ca ──
+// ── CANONICAL DOMAIN ──
+//
+// Driven by the CANONICAL_HOST environment variable rather than
+// hardcoded, because a hardcoded redirect can strand the whole site.
+//
+// What happened in August 2026: the apex certificate for clearstand.ca
+// expired while www.clearstand.ca stayed valid. The redirect sent every
+// working www request to the broken apex, so there was no way into the
+// site at all — the good domain handed visitors to the dead one.
+//
+//   CANONICAL_HOST unset      → no redirect; every domain serves directly
+//   CANONICAL_HOST=clearstand.ca      → www redirects to apex
+//   CANONICAL_HOST=www.clearstand.ca  → apex redirects to www
+//
+// Set it only to a host you have confirmed has a valid certificate.
+// Leaving it unset is always safe.
+const CANONICAL_HOST = (process.env.CANONICAL_HOST || '').trim().toLowerCase();
+
 app.use((req, res, next) => {
-  if (req.headers.host === 'www.clearstand.ca') {
-    return res.redirect(301, 'https://clearstand.ca' + req.originalUrl);
+  if (!CANONICAL_HOST) return next();
+  const host = (req.headers.host || '').toLowerCase().split(':')[0];
+  // Only redirect between the apex and its www form — never anything else.
+  const apex = CANONICAL_HOST.replace(/^www\./, '');
+  const isOurDomain = (host === apex || host === 'www.' + apex);
+  if (isOurDomain && host !== CANONICAL_HOST) {
+    return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
   }
   next();
 });
@@ -51,10 +73,21 @@ app.use(helmet({
     },
   },
   crossOriginEmbedderPolicy: false,
+  // HSTS. preload is deliberately OFF.
+  //
+  // With preload enabled, Chrome refuses to offer the "proceed anyway"
+  // option when anything is wrong with the certificate — which is how a
+  // routine expiry became a total lockout with no way in. It also means
+  // a user on a network doing TLS inspection (courthouse wifi, a
+  // corporate laptop) gets a hard wall rather than a warning.
+  //
+  // Turn preload back on only once the apex certificate is stable and
+  // you intend to submit the domain to the browser preload list — which
+  // is difficult to reverse.
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true,
+    preload: false,
   },
 }));
 
