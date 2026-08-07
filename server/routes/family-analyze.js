@@ -189,7 +189,7 @@ router.post('/', requireAuth, async (req, res) => {
 
       res.json(parsed);
     } catch(e) {
-      console.error('JSON parse error:', e.message, 'Text:', text.slice(0, 200));
+      console.error('JSON parse error:', e.message);
       res.status(500).json({ error: 'Failed to parse analysis results.' });
     }
 
