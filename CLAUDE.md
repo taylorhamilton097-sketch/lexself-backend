@@ -39,14 +39,49 @@ in dependency order and stop between each for confirmation.
    means finding everything that calls it.
 3. **State what you're about to change and why**, then wait.
 
-## After you change anything
+## Two working modes
 
-1. `node --check <file>` on every JavaScript file touched.
-2. For HTML with inline `<script>`, extract the script block and
-   `node --check` it separately. A syntax error there fails silently in
-   the browser and takes the page down with no server-side error.
-3. Show the diff. Explain what changed in plain language.
-4. Do not commit or push until Taylor confirms.
+Taylor will say which mode. If he doesn't, infer from the task and say
+which one you're using before starting.
+
+### Batch mode (default for routine work)
+
+Use when changes are related, cosmetic, or easily reversible.
+
+1. Make all the requested changes.
+2. Run `node --check` on every JavaScript file touched. For HTML with
+   inline `<script>`, extract and check the script separately. Do this
+   automatically and report results.
+3. Show one combined summary: every file changed and what changed in each,
+   in plain language. Show full diffs only if he asks.
+4. On his confirmation, commit and push:
+
+   ```bash
+   git add -A && git commit -m "<description>" && git push origin master
+   ```
+
+5. Remind him to restart the Railway container and confirm
+   [www.clearstand.ca](https://www.clearstand.ca) loads.
+
+### Careful mode (required, not optional)
+
+Use for anything touching: authentication, session handling, the beta gate,
+middleware order in `server/index.js`, Stripe or billing, the database schema
+or migrations, account deletion, or anything affecting more than one route.
+
+One change. Full diff. Explicit confirmation. Push. Confirm the site is up
+before starting the next one.
+
+If a batch-mode request includes anything from that list, switch to careful
+mode for that part and say why.
+
+### Always
+
+- Never skip the syntax check.
+- Never push without confirmation.
+- If a push breaks the site, the fastest fix is Railway's dashboard —
+  Deployments, then redeploy the previous one. Say this rather than
+  attempting a git revert.
 
 ---
 
