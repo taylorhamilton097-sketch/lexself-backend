@@ -69,28 +69,16 @@ function createMap() {
   return { entries: [], _counters: {} };
 }
 
-// Allocate (or reuse) a token for `real`. Same string always gets
-// the same token within one map.
-function assign(map, real, prefix, kind) {
-  const value = String(real || '').trim();
-  if (!value) return '';
-  const existing = map.entries.find(e => e.real.toLowerCase() === value.toLowerCase());
-  if (existing) return existing.token;
-  const n = (map._counters[prefix] = (map._counters[prefix] || 0) + 1);
-  const token = `[${prefix}_${n}]`;
-  map.entries.push({ real: value, token, kind });
-  return token;
-}
-
-// Singleton token — no numeric suffix. For one-per-case roles.
-function assignSingleton(map, real, prefix, kind) {
-  const value = String(real || '').trim();
-  if (!value) return '';
-  const existing = map.entries.find(e => e.real.toLowerCase() === value.toLowerCase());
-  if (existing) return existing.token;
-  const token = `[${prefix}]`;
-  map.entries.push({ real: value, token, kind });
-  return token;
+// Default allocator: counters held in the map itself. Correct for a
+// single request, but numbering restarts next time — fine for tests
+// and any caller without a database. Routes pass a persistent
+// allocator instead so tokens survive across requests.
+function memoryAllocator(map) {
+  return function (value, prefix, numbered) {
+    if (numbered === false) return `[${prefix}]`;
+    const n = (map._counters[prefix] = (map._counters[prefix] || 0) + 1);
+    return `[${prefix}_${n}]`;
+  };
 }
 
 function prefixForRole(role) {
@@ -108,22 +96,52 @@ function prefixForRole(role) {
 // city and province are deliberately never redaction targets.
 const MIN_REDACT_LEN = 6;
 
-function assignRedaction(map, value, prefix, kind) {
-  const v = String(value || '').trim();
-  if (v.length < MIN_REDACT_LEN) return '';
-  return assign(map, v, prefix, kind);
-}
-
 /**
  * Build the real-value → token map for one user's case.
- * @param {object} data { product, profile, caseInfo, parties, children, charges }
+ *
+ * @param {object} data     { product, profile, caseInfo, parties, children, charges }
+ * @param {function} [allocate] (value, prefix, numbered) => token.
+ *        Omit for in-memory numbering; routes pass a DB-backed allocator
+ *        so tokens are stable across requests.
+ * @param {Array}  [seed]   Previously allocated { real, token, kind } rows.
+ *        Seeded first so restore() still resolves tokens whose underlying
+ *        party has since been deleted from the case.
  * @returns {object} map
  */
-function buildPseudonymMap(data) {
+function buildPseudonymMap(data, allocate, seed) {
   const { product, profile, caseInfo, parties, children, charges } = data || {};
   const map = createMap();
+  const alloc = allocate || memoryAllocator(map);
 
-  // The user themselves.
+  for (const row of seed || []) {
+    if (row && row.real && row.token) {
+      map.entries.push({ real: String(row.real), token: row.token, kind: row.kind || '' });
+    }
+  }
+
+  // Record and allocate. Deduped here so the allocator is called once
+  // per distinct value regardless of how many places it appears in.
+  function take(value, prefix, kind, numbered) {
+    const v = String(value || '').trim();
+    if (!v) return '';
+    const hit = map.entries.find(e => e.real.toLowerCase() === v.toLowerCase());
+    if (hit) return hit.token;
+    const token = alloc(v, prefix, numbered !== false);
+    if (!token) return '';
+    map.entries.push({ real: v, token, kind });
+    return token;
+  }
+
+  // Never emitted as a structured field, but still has to be strippable
+  // from prose. Short values are skipped — see MIN_REDACT_LEN.
+  function takeRedaction(value, prefix, kind) {
+    const v = String(value || '').trim();
+    if (v.length < MIN_REDACT_LEN) return '';
+    return take(v, prefix, kind, true);
+  }
+
+  // The user themselves — the one role guaranteed not to change hands,
+  // so it gets a bare token.
   const selfName = fullName(profile);
   if (selfName) {
     const selfPrefix = product === 'criminal'
@@ -131,55 +149,55 @@ function buildPseudonymMap(data) {
       : prefixForRole(caseInfo && caseInfo.role) === 'PARTY'
         ? 'APPLICANT'
         : prefixForRole(caseInfo && caseInfo.role);
-    assignSingleton(map, selfName, selfPrefix, 'self');
+    take(selfName, selfPrefix, 'self', false);
   }
 
   for (const p of parties || []) {
     const n = fullName(p);
-    if (n) assign(map, n, prefixForRole(p.role), 'party');
-    if (p.firm) assign(map, p.firm, 'FIRM', 'firm');
+    if (n) take(n, prefixForRole(p.role), 'party');
+    if (p.firm) take(p.firm, 'FIRM', 'firm');
   }
 
   for (const ch of children || []) {
     const n = fullName(ch);
-    if (n) assign(map, n, 'CHILD', 'child');
+    if (n) take(n, 'CHILD', 'child');
   }
 
   // Officers appear in two places and must share one counter so the
   // same officer named on the case and on a charge gets one token.
-  if (caseInfo && caseInfo.officer)    assign(map, caseInfo.officer, 'OFFICER', 'officer');
+  if (caseInfo && caseInfo.officer)    take(caseInfo.officer, 'OFFICER', 'officer');
   for (const c of charges || []) {
-    if (c.arresting_officer) assign(map, c.arresting_officer, 'OFFICER', 'officer');
+    if (c.arresting_officer) take(c.arresting_officer, 'OFFICER', 'officer');
   }
 
-  if (caseInfo && caseInfo.detachment) assign(map, caseInfo.detachment, 'DETACHMENT', 'detachment');
+  if (caseInfo && caseInfo.detachment) take(caseInfo.detachment, 'DETACHMENT', 'detachment');
   // Numbered, not singleton: a case can change judges, and a bare
   // [JUSTICE] would have to be re-pointed at the new one — silently
   // rewriting who old saved conversations were talking about.
-  if (caseInfo && caseInfo.judge)      assign(map, caseInfo.judge, 'JUSTICE', 'judge');
+  if (caseInfo && caseInfo.judge)      take(caseInfo.judge, 'JUSTICE', 'judge');
 
   // Represented-party counsel lives on family_case_info, not case_parties.
   const lawyer = fullName({ first: caseInfo && caseInfo.ml_lawyer_first, last: caseInfo && caseInfo.ml_lawyer_last });
-  if (lawyer) assign(map, lawyer, 'COUNSEL', 'counsel');
-  if (caseInfo && caseInfo.ml_lawyer_firm) assign(map, caseInfo.ml_lawyer_firm, 'FIRM', 'firm');
+  if (lawyer) take(lawyer, 'COUNSEL', 'counsel');
+  if (caseInfo && caseInfo.ml_lawyer_firm) take(caseInfo.ml_lawyer_firm, 'FIRM', 'firm');
 
   // Free-text leak targets — dropped from structured output, still
   // scrubbed from bail conditions, prior record, and notes.
   if (profile) {
-    assignRedaction(map, profile.address, 'ADDRESS', 'address');
-    assignRedaction(map, profile.phone,   'PHONE',   'phone');
-    assignRedaction(map, profile.email,   'EMAIL',   'email');
+    takeRedaction(profile.address, 'ADDRESS', 'address');
+    takeRedaction(profile.phone,   'PHONE',   'phone');
+    takeRedaction(profile.email,   'EMAIL',   'email');
   }
   if (caseInfo) {
-    assignRedaction(map, caseInfo.court_file_number, 'FILE_NO', 'file_no');
+    takeRedaction(caseInfo.court_file_number, 'FILE_NO', 'file_no');
   }
   for (const p of parties || []) {
-    assignRedaction(map, p.address, 'ADDRESS', 'address');
-    assignRedaction(map, p.phone,   'PHONE',   'phone');
-    assignRedaction(map, p.email,   'EMAIL',   'email');
+    takeRedaction(p.address, 'ADDRESS', 'address');
+    takeRedaction(p.phone,   'PHONE',   'phone');
+    takeRedaction(p.email,   'EMAIL',   'email');
   }
   for (const c of charges || []) {
-    assignRedaction(map, c.location, 'LOCATION', 'location');
+    takeRedaction(c.location, 'LOCATION', 'location');
   }
 
   return map;

@@ -6,7 +6,9 @@ const { requireAuth } = require('../middleware/auth');
 const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
         createConversation, getConversation, addMessageToConversation,
         updateConversationTitle, autoTitleFromMessage,
-        getUserProfile, getCriminalInfo, listParties, listCharges } = require('../db');
+        getUserProfile, getCriminalInfo, listParties, listCharges,
+        listPseudonyms, allocatePseudonym } = require('../db');
+const { buildPseudonymMap, buildSystemPrompt, scrub, restore } = require('../lib/caseContext');
 
 const CRIMINAL_SYSTEM = `You are ClearStand Criminal, an AI-powered Canadian criminal defence assistant for self-represented accused and their supporters. You were built by a 25-year Canadian law enforcement veteran who left policing due to institutional corruption — you understand both sides of the system deeply.
 
@@ -135,58 +137,61 @@ router.post('/', requireAuth, async (req, res) => {
     }
   }
 
-  let system = CRIMINAL_SYSTEM;
+  // ── Prompt assembly (see server/lib/caseContext.js) ──
+  // Name, DOB, address, phone, email, and court file number are not
+  // emitted by any path here. The module has no builder that produces
+  // them, so no request flag can turn identity back on.
+  const caseData = {
+    product:  'criminal',
+    profile:  getUserProfile(user.id),
+    caseInfo: getCriminalInfo(user.id),
+    parties:  listParties(user.id, 'criminal'),
+    charges:  listCharges(user.id),
+  };
 
-  // Allow cross-ex builder to override system prompt
-  if (context?.systemOverride) system = context.systemOverride;
-  if (context?.jsonMode) system += '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no preamble, just the JSON object.';
+  // Seeded with every token this user already has so restore() still
+  // resolves names from conversations saved before a party was removed.
+  const pseudonyms = buildPseudonymMap(
+    caseData,
+    (value, prefix, numbered) => allocatePseudonym(user.id, 'criminal', value, prefix, '', numbered),
+    listPseudonyms(user.id, 'criminal')
+  );
 
-  // Load structured profile from new DB tables (unless override is active)
-  if (!context?.systemOverride && !context?.jsonMode) {
-    const coreProfile = getUserProfile(user.id);
-    const criminalInfo = getCriminalInfo(user.id);
-    const parties = listParties(user.id, 'criminal');
-    const charges = listCharges(user.id);
+  // Builders that supply their own prompt keep the input they have
+  // today: no case block. This gate preserves their current output —
+  // it is not the privacy control. Identity is absent either way.
+  const withCaseBlock = !context?.systemOverride && !context?.jsonMode;
 
-    const hasCore = coreProfile && (coreProfile.first || coreProfile.last);
-    const hasCaseInfo = criminalInfo && (criminalInfo.court_file_number || criminalInfo.court);
-    const hasCharges = charges && charges.length > 0;
-
-    if (hasCore || hasCaseInfo || hasCharges) {
-      const c = coreProfile || {};
-      const ci = criminalInfo || {};
-      system += `\n\n## USER PROFILE (the accused)
-Name: ${c.first||''} ${c.last||''}
-DOB: ${c.dob||'N/A'} | Address: ${c.address||''}, ${c.city||''}, ${c.province||'Ontario'} ${c.postal||''}
-Phone: ${c.phone||'N/A'} | Email: ${c.email||user.email||'N/A'}
-Court File: ${ci.court_file_number||'N/A'} | Court: ${ci.court||'N/A'}
-Next Date: ${ci.next_date||'N/A'} (${ci.next_event||''})
-Bail Conditions: ${ci.bail_conditions||'N/A'}
-Prior Record: ${ci.prior_record||'Not specified'}
-Indigenous: ${ci.indigenous||'Not specified'}${ci.officer ? `\nArresting Officer: ${ci.officer}${ci.detachment ? ' ('+ci.detachment+')' : ''}` : ''}`;
-
-      if (hasCharges) {
-        system += `\n\n## CHARGES`;
-        charges.forEach((ch, i) => {
-          system += `\n${i+1}. ${ch.charge_label||'(unspecified)'} ${ch.section ? '— '+ch.section : ''}${ch.charge_date ? ' (offence date: '+ch.charge_date+')' : ''}${ch.location ? ' at '+ch.location : ''}${ch.notes ? '\n   Notes: '+ch.notes : ''}`;
-        });
-      }
-
-      if (parties && parties.length) {
-        system += `\n\nOther parties: ${parties.map(p => `${p.first||''} ${p.last||''} (${p.role||'unknown'})${p.firm ? ', '+p.firm : ''}`).filter(s => s.trim() !== '  ()').join('; ')}`;
-      }
-    }
+  const extras = [];
+  if (context?.jsonMode) {
+    extras.push('IMPORTANT: Respond ONLY with valid JSON. No markdown, no preamble, just the JSON object.');
   }
-
-  // Inject analysis results if available
   if (context?.analysisResults) {
     const r = context.analysisResults;
     const summary = [];
     if (r.pass1?.inconsistencies?.length) summary.push(`${r.pass1.inconsistencies.length} narrative inconsistencies found`);
     if (r.pass2?.charterIssues?.length) summary.push(`${r.pass2.charterIssues.length} Charter issues identified`);
-    if (r.pass5?.defenceTheory) summary.push(`Defence theory: ${r.pass5.defenceTheory.slice(0,200)}`);
-    if (summary.length) system += `\n\nDISCLOSURE ANALYSIS CONTEXT:\n${summary.join('\n')}`;
+    if (r.pass5?.defenceTheory) summary.push(`Defence theory: ${scrub(r.pass5.defenceTheory.slice(0,200), pseudonyms)}`);
+    if (summary.length) extras.push(`DISCLOSURE ANALYSIS CONTEXT:\n${summary.join('\n')}`);
   }
+
+  const system = buildSystemPrompt({
+    basePrompt:     CRIMINAL_SYSTEM,
+    clientOverride: context?.systemOverride,
+    product:        'criminal',
+    data:           withCaseBlock ? caseData : null,
+    map:            pseudonyms,
+    extra:          extras.join('\n\n'),
+  });
+
+  // Typed messages carry names the profile never sees. Full-name matches
+  // only — substituting bare first names would wreck ordinary prose.
+  // The original text is what gets persisted below, not this copy.
+  const outboundMessages = Array.isArray(messages)
+    ? messages.map(m => (typeof m.content === 'string'
+        ? { ...m, content: scrub(m.content, pseudonyms) }
+        : m))
+    : messages;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -200,13 +205,21 @@ Indigenous: ${ci.indigenous||'Not specified'}${ci.officer ? `\nArresting Officer
         model: 'claude-sonnet-4-5-20250929',
         max_tokens: 1500,
         system,
-        messages,
+        messages: outboundMessages,
       }),
     });
 
     const data = await resp.json();
 
     if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message || 'API error' });
+
+    // Put the real names back before anything downstream sees the reply —
+    // the client, the saved conversation, and any export all get the same
+    // text the user would have got before this change.
+    if (Array.isArray(data.content)) {
+      data.content = data.content.map(b =>
+        b && b.type === 'text' ? { ...b, text: restore(b.text, pseudonyms) } : b);
+    }
 
     recordUsage(user.id, 'criminal', 'chat');
 
