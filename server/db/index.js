@@ -177,9 +177,47 @@ db.exec(`
     created_at        INTEGER NOT NULL DEFAULT (unixepoch())
   );
 
+  -- Stable real-name → placeholder mapping for prompts sent to the API.
+  -- Tokens must survive across requests: a conversation saved months ago
+  -- has to restore [WITNESS_1] to the same person it meant at the time,
+  -- so ordinals are allocated once here and never recycled.
+  --
+  -- real_value is COLLATE NOCASE so "Jane Smith" and "jane smith" share
+  -- one token (ASCII folding only — accented spellings allocate separately).
+  -- prefix + ordinal are stored rather than parsed back out of token,
+  -- because '_' is a LIKE wildcard and pattern-matching the token would
+  -- need escaping to get right.
+  CREATE TABLE IF NOT EXISTS case_pseudonyms (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product         TEXT NOT NULL,
+    real_value      TEXT NOT NULL COLLATE NOCASE,
+    prefix          TEXT NOT NULL,
+    ordinal         INTEGER NOT NULL DEFAULT 0,
+    token           TEXT NOT NULL,
+    kind            TEXT DEFAULT '',
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  -- Ordinals must never be recycled. Deriving the next one from
+  -- MAX(ordinal) looks equivalent but is not: delete the row holding
+  -- [WITNESS_2] and the next allocation reuses _2, so a conversation
+  -- saved earlier would restore that token to a different person.
+  -- This counter only ever increases, so a token retired by a deletion
+  -- stays retired.
+  CREATE TABLE IF NOT EXISTS pseudonym_counters (
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product         TEXT NOT NULL,
+    prefix          TEXT NOT NULL,
+    last_ordinal    INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, product, prefix)
+  );
+
   CREATE INDEX IF NOT EXISTS idx_parties_user   ON case_parties(user_id, product);
   CREATE INDEX IF NOT EXISTS idx_children_user  ON case_children(user_id);
   CREATE INDEX IF NOT EXISTS idx_charges_user   ON criminal_charges(user_id);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_pseudonym_value ON case_pseudonyms(user_id, product, real_value);
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_pseudonym_token ON case_pseudonyms(user_id, product, token);
 `);
 
 // ── FORM 13.1 FINANCIAL SCHEMA (Unit 4b — family-only) ──
@@ -1240,6 +1278,87 @@ function deleteCharge(chargeId, userId) {
   return result.changes > 0;
 }
 
+// ── PSEUDONYMS (privacy) ──
+// Persistent backing for server/lib/caseContext.js. Allocation lives here
+// rather than in the module because tokens must be stable across requests.
+
+function listPseudonyms(userId, product) {
+  return db.prepare(
+    `SELECT real_value AS real, prefix, ordinal, token, kind
+       FROM case_pseudonyms WHERE user_id=? AND product=? ORDER BY id`
+  ).all(userId, product);
+}
+
+/**
+ * Return the token for realValue, allocating one if it has not been seen.
+ *
+ * numbered=false produces a bare [PREFIX] for roles where exactly one
+ * person holds the role for the life of the case — currently only the
+ * user themselves. If a singleton's real value changes (a corrected
+ * spelling, a married name) the existing row is updated rather than a
+ * second token allocated, so previously saved conversations still
+ * restore to the right person.
+ *
+ * Do NOT pass numbered=false for a role that can legitimately change
+ * hands mid-case, such as the presiding judge — rewriting that row would
+ * silently re-point old conversations at a different person.
+ */
+function allocatePseudonym(userId, product, realValue, prefix, kind, numbered = true) {
+  const value = String(realValue || '').trim();
+  if (!value) return '';
+
+  const found = db.prepare(
+    'SELECT token FROM case_pseudonyms WHERE user_id=? AND product=? AND real_value=?'
+  ).get(userId, product, value);
+  if (found) return found.token;
+
+  if (!numbered) {
+    const token = `[${prefix}]`;
+    const held = db.prepare(
+      'SELECT id FROM case_pseudonyms WHERE user_id=? AND product=? AND token=?'
+    ).get(userId, product, token);
+    if (held) {
+      db.prepare('UPDATE case_pseudonyms SET real_value=? WHERE id=?').run(value, held.id);
+      return token;
+    }
+    db.prepare(
+      `INSERT INTO case_pseudonyms (user_id, product, real_value, prefix, ordinal, token, kind)
+       VALUES (?,?,?,?,0,?,?)`
+    ).run(userId, product, value, prefix, token, kind || '');
+    return token;
+  }
+
+  // Monotonic counter, not MAX(ordinal) over surviving rows — see the
+  // pseudonym_counters comment in the schema for why that distinction
+  // matters. Upsert-and-return in one statement so the read and the
+  // increment cannot interleave.
+  const counter = db.prepare(
+    `INSERT INTO pseudonym_counters (user_id, product, prefix, last_ordinal)
+     VALUES (?,?,?,1)
+     ON CONFLICT(user_id, product, prefix)
+     DO UPDATE SET last_ordinal = last_ordinal + 1
+     RETURNING last_ordinal`
+  ).get(userId, product, prefix);
+  const ordinal = counter.last_ordinal;
+  const token = `[${prefix}_${ordinal}]`;
+
+  try {
+    db.prepare(
+      `INSERT INTO case_pseudonyms (user_id, product, real_value, prefix, ordinal, token, kind)
+       VALUES (?,?,?,?,?,?,?)`
+    ).run(userId, product, value, prefix, ordinal, token, kind || '');
+    return token;
+  } catch (e) {
+    // Unique index tripped — a concurrent request allocated this value
+    // first. Its token is the correct one; ours was never written.
+    const retry = db.prepare(
+      'SELECT token FROM case_pseudonyms WHERE user_id=? AND product=? AND real_value=?'
+    ).get(userId, product, value);
+    if (retry) return retry.token;
+    throw e;
+  }
+}
+
 // Aggregated profile — one endpoint returns everything relevant
 function getFullProfile(userId, products) {
   // products: string from users.products — 'family' | 'criminal' | 'both' | 'clearsplit'
@@ -2261,6 +2380,8 @@ const USER_DATA_TABLES = [
   'family_case_info',
   'criminal_case_info',
   'criminal_charges',
+  'case_pseudonyms',        // holds real names — must not survive deletion
+  'pseudonym_counters',     // paired with case_pseudonyms
   // Financial statement (Unit 4b — Form 13.1)
   'fs_valuation_dates',
   'fs_income_meta',
@@ -2543,6 +2664,7 @@ module.exports = {
   getFamilyInfo, saveFamilyInfo,
   getCriminalInfo, saveCriminalInfo,
   listCharges, addCharge, updateCharge, deleteCharge,
+  listPseudonyms, allocatePseudonym,
   getFullProfile,
   // Financial statement (Unit 4b — Form 13.1)
   pickFieldsTyped,

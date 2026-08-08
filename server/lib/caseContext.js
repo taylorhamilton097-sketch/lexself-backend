@@ -153,7 +153,10 @@ function buildPseudonymMap(data) {
   }
 
   if (caseInfo && caseInfo.detachment) assign(map, caseInfo.detachment, 'DETACHMENT', 'detachment');
-  if (caseInfo && caseInfo.judge)      assignSingleton(map, caseInfo.judge, 'JUSTICE', 'judge');
+  // Numbered, not singleton: a case can change judges, and a bare
+  // [JUSTICE] would have to be re-pointed at the new one — silently
+  // rewriting who old saved conversations were talking about.
+  if (caseInfo && caseInfo.judge)      assign(map, caseInfo.judge, 'JUSTICE', 'judge');
 
   // Represented-party counsel lives on family_case_info, not case_parties.
   const lawyer = fullName({ first: caseInfo && caseInfo.ml_lawyer_first, last: caseInfo && caseInfo.ml_lawyer_last });
