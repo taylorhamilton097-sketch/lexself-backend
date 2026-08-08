@@ -5,6 +5,7 @@ const router   = express.Router();
 const bcrypt   = require('bcryptjs');
 const { requireAuth, signToken } = require('../middleware/auth');
 const db = require('../db');
+const { buildPseudonymMap, scrub, restore } = require('../lib/caseContext');
 
 // ══════════════════════════════════════════════════
 // POST /api/clearsplit/validate-code
@@ -235,6 +236,22 @@ router.post('/chat', requireAuth, async (req, res) => {
   const status = db.getClearSplitStatus(agreement);
   if (!status.isActive) return res.status(403).json({ error: 'Agreement is archived. AI assistance is not available.' });
 
+  // ClearSplit has no case tables of its own, so the map covers the
+  // user's own profile: their name, and their address, phone and email
+  // as free-text redaction targets. Single product, so no cross-product
+  // token collision to worry about.
+  const pseudonyms = buildPseudonymMap(
+    { product: 'clearsplit', profile: db.getUserProfile(req.user.id), caseInfo: { role: 'spouse' } },
+    (value, prefix, numbered) => db.allocatePseudonym(req.user.id, 'clearsplit', value, prefix, '', numbered),
+    db.listPseudonyms(req.user.id, 'clearsplit')
+  );
+
+  const outboundMessages = Array.isArray(messages)
+    ? messages.map(m => (typeof m.content === 'string'
+        ? { ...m, content: scrub(m.content, pseudonyms) }
+        : m))
+    : messages;
+
   try {
     const fetch = globalThis.fetch || require('node-fetch');
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -248,12 +265,12 @@ router.post('/chat', requireAuth, async (req, res) => {
         model: 'claude-opus-4-6',
         max_tokens: 1024,
         system: `You are ClearSplit AI, a separation agreement advisor for Ontario, Canada. You help couples create fair, legally structured separation agreements. You know the Divorce Act, Family Law Act (Ontario), Federal Child Support Guidelines, and Spousal Support Advisory Guidelines. Be helpful, clear, and neutral. Never take sides. Always recommend independent legal advice before signing.`,
-        messages,
+        messages: outboundMessages,
       }),
     });
     const data = await resp.json();
     const text = data.content?.[0]?.text || '';
-    res.json({ reply: text });
+    res.json({ reply: restore(text, pseudonyms) });
   } catch(e) {
     res.status(500).json({ error: 'AI service unavailable.' });
   }

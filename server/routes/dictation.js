@@ -3,6 +3,8 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
+const { listPseudonyms } = require('../db');
+const { mapFromEntries, mergeMaps, scrub, restore } = require('../lib/caseContext');
 
 // POST /api/dictation/clean
 // Cleans up voice dictation — removes filler words, fixes punctuation
@@ -17,6 +19,15 @@ router.post('/clean', requireAuth, async (req, res) => {
   if (text.trim().split(' ').length < 4) {
     return res.json({ cleaned: text.trim() });
   }
+
+  // This route has no case of its own and no product context, so it
+  // recognises only names some other route has already tokenised, and
+  // allocates nothing itself. A name spoken before the user has ever
+  // used chat or forms is not in the map and passes through.
+  const pseudonyms = mergeMaps(
+    ...['criminal', 'family', 'clearsplit']
+      .map(p => mapFromEntries(listPseudonyms(req.user.id, p)))
+  );
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -43,7 +54,7 @@ Instructions:
 - Return ONLY the cleaned text — no commentary, no explanation, no quotation marks
 
 Voice input:
-${text.trim()}`
+${scrub(text.trim(), pseudonyms)}`
         }]
       }),
     });
@@ -58,7 +69,9 @@ ${text.trim()}`
     const cleaned = data.content?.[0]?.text?.trim();
     if (!cleaned) return res.json({ cleaned: text.trim(), fallback: true });
 
-    res.json({ cleaned });
+    // Fallback paths above return the caller's own text untouched, so
+    // they need no restore — only the model's output carries tokens.
+    res.json({ cleaned: restore(cleaned, pseudonyms) });
 
   } catch (err) {
     console.error('Dictation cleanup error:', err.message);

@@ -275,6 +275,49 @@ function restoreDeep(value, map) {
   return value;
 }
 
+/**
+ * A map built purely from already-allocated rows, with no entity walk
+ * and no allocation. For routes that need to scrub and restore but have
+ * no case data of their own — they can only recognise names some other
+ * route has already tokenised.
+ */
+function mapFromEntries(rows) {
+  const map = createMap();
+  for (const r of rows || []) {
+    if (r && r.real && r.token) {
+      map.entries.push({ real: String(r.real), token: r.token, kind: r.kind || '' });
+    }
+  }
+  return map;
+}
+
+/**
+ * Combine maps from different products for a single user.
+ *
+ * Tokens are unique per product, not per user: the same [WITNESS_1] can
+ * mean one person in a criminal matter and someone else in a family one.
+ * Restoring a merged map would then swap one name for another and quietly
+ * corrupt the text. Any token that resolves to two different values is
+ * therefore dropped from both — those names go unscrubbed, which is what
+ * happens today anyway and is far better than rewriting them wrongly.
+ */
+function mergeMaps(...maps) {
+  const byToken = new Map();
+  const conflicted = new Set();
+  for (const m of maps) {
+    for (const e of (m && m.entries) || []) {
+      const prev = byToken.get(e.token);
+      if (!prev) byToken.set(e.token, e);
+      else if (prev.real.toLowerCase() !== e.real.toLowerCase()) conflicted.add(e.token);
+    }
+  }
+  const merged = createMap();
+  for (const [token, entry] of byToken) {
+    if (!conflicted.has(token)) merged.entries.push(entry);
+  }
+  return merged;
+}
+
 /** The client needs real↔token but never the internal counters. */
 function publicMap(map) {
   return (map && map.entries ? map.entries : []).map(e => ({ real: e.real, token: e.token, kind: e.kind }));
@@ -412,6 +455,8 @@ module.exports = {
   restore,
   restoreDeep,
   residualTokens,
+  mapFromEntries,
+  mergeMaps,
   publicMap,
   // exported for stage 2 + tests
   ageFromDob,
