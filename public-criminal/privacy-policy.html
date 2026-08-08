@@ -41,7 +41,7 @@ footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
 <main>
   <span class="eyebrow">Legal</span>
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: April 17, 2026</p>
+  <p class="updated">Last updated: August 8, 2026</p>
 
   <p>ClearStand is operated by Taylor Hamilton ("we", "us", "our"). This Privacy Policy describes how we collect, use, store, and protect your personal information when you use ClearStand, and your rights under the <em>Personal Information Protection and Electronic Documents Act</em> (PIPEDA).</p>
 
@@ -66,10 +66,32 @@ footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
   <h2>Who We Share With</h2>
   <ul>
     <li><strong>Stripe</strong> — payment processing only. Stripe's privacy policy governs their handling of payment data.</li>
-    <li><strong>Anthropic</strong> — AI query processing only. We do not send personally identifying information (name, email, account details) to Anthropic. Your legal content is processed to generate responses.</li>
+    <li><strong>Anthropic</strong> — AI query processing only. The facts of your case are sent so the AI can answer; your stored identity details are not. See <a href="#ai-data">What We Send to the AI Provider</a> for exactly what this means.</li>
     <li><strong>Resend</strong> — transactional email delivery only.</li>
   </ul>
   <p>We do not sell your data to third parties. We do not share your data with advertisers. We do not use your data to train AI models.</p>
+
+  <h2 id="ai-data">What We Send to the AI Provider</h2>
+  <p>ClearStand uses Anthropic's Claude API to generate legal guidance, analysis, and draft documents. This section describes what leaves our servers when you use those features.</p>
+
+  <p><strong>We do not send:</strong></p>
+  <ul>
+    <li>Your legal name, date of birth, home address, postal code, phone number, or email address</li>
+    <li>Your court file number</li>
+    <li>The names of other parties, children, police officers, judges, or counsel. These are replaced with role placeholders such as [ACCUSED], [WITNESS_1], or [CHILD_1] before anything is sent, and put back before you see the response</li>
+    <li>Children's dates of birth. Where a child's age is relevant, the AI is told the age only</li>
+  </ul>
+
+  <p><strong>We do send:</strong></p>
+  <ul>
+    <li><strong>The facts of your case</strong> — charges and Criminal Code sections, court and court type, hearing dates, bail conditions, prior record, your role in the proceeding, and the substance of what is in dispute. The AI cannot give useful guidance without these.</li>
+    <li><strong>Text you type or dictate</strong> — chat messages and dictated narratives are sent as you write or speak them. We remove names already saved in your profile where we can match them, but we cannot remove a name or detail we have never been given.</li>
+    <li><strong>Documents you upload, in full and unredacted.</strong> A disclosure package, financial statement, or affidavit uploaded for analysis is transmitted exactly as provided, including every name, address, and account number it contains.</li>
+  </ul>
+
+  <div class="highlight">
+    <p><strong>Please understand the limit of this.</strong> Case facts can identify a person even with every name removed. A charge, a courthouse, and a hearing date may be enough to identify a specific matter in a small community. Replacing names reduces what we send about you; it does not make your case anonymous.</p>
+  </div>
 
   <h2>Retention Periods</h2>
   <ul>
@@ -109,11 +131,11 @@ footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
     </li>
   </ul>
   <p>ClearStand maintains records of all privacy breaches for a minimum of 24 months as required by law.</p>
-  <p>To report a suspected security issue: <a href="mailto:taylor@clearstand.ca">taylor@clearstand.ca</a></p>
+  <p>To report a suspected security issue: <a href="mailto:support@clearstand.ca">support@clearstand.ca</a></p>
 
   <h2>Your Rights Under PIPEDA</h2>
   <ul>
-    <li><strong>Right to access your data</strong> — email <a href="mailto:taylor@clearstand.ca">taylor@clearstand.ca</a></li>
+    <li><strong>Right to access your data</strong> — email <a href="mailto:support@clearstand.ca">support@clearstand.ca</a></li>
     <li><strong>Right to delete your account and data</strong> — available in Account Settings → Danger Zone, or by emailing us</li>
     <li><strong>Right to correct inaccurate information</strong> — available in Account Settings → Profile</li>
     <li><strong>Right to withdraw consent</strong> — you may cancel your subscription and request data deletion at any time</li>
@@ -129,7 +151,7 @@ footer a{color:var(--text3);text-decoration:none;margin:0 8px;}
   <p>We will notify registered users by email of any material changes to this Privacy Policy. Continued use of ClearStand after changes constitutes acceptance of the updated policy.</p>
 
   <h2>Contact</h2>
-  <p>Privacy inquiries: <a href="mailto:taylor@clearstand.ca">taylor@clearstand.ca</a><br>
+  <p>Privacy inquiries: <a href="mailto:support@clearstand.ca">support@clearstand.ca</a><br>
   Office of the Privacy Commissioner of Canada: <a href="https://www.priv.gc.ca" target="_blank" rel="noopener">priv.gc.ca</a></p>
 </main>
 <footer>
