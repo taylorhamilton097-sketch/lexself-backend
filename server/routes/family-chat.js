@@ -6,7 +6,9 @@ const { requireAuth } = require('../middleware/auth');
 const { checkLimit, recordUsage, getCaseProfile, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
         createConversation, getConversation, addMessageToConversation,
         updateConversationTitle, autoTitleFromMessage,
-        getUserProfile, listChildren, getFamilyInfo, listParties } = require('../db');
+        getUserProfile, listChildren, getFamilyInfo, listParties,
+        listPseudonyms, allocatePseudonym } = require('../db');
+const { buildPseudonymMap, buildSystemPrompt, scrub, restore } = require('../lib/caseContext');
 
 const FAMILY_SYSTEM = `You are ClearStand Family, an Ontario family law assistant for self-represented litigants (SRLs). You are always on the side of the person you are helping.
 
@@ -146,44 +148,52 @@ router.post('/', requireAuth, async (req, res) => {
     }
   }
 
-  // Build system prompt with profile and context
-  // Allow affidavit builder and other tools to override the system prompt
-  let system = context?.systemOverride || FAMILY_SYSTEM;
+  // ── Prompt assembly (see server/lib/caseContext.js) ──
+  // Name, DOB, address, phone, email, court file number, and the
+  // children's names and dates of birth are not emitted by any path
+  // here. Children are described by age instead, which is what the
+  // best-interests and support analysis actually needs.
+  const caseData = {
+    product:  'family',
+    profile:  getUserProfile(user.id),
+    caseInfo: getFamilyInfo(user.id),
+    parties:  listParties(user.id, 'family'),
+    children: listChildren(user.id),
+  };
 
-  // Load structured profile from new DB tables
-  const coreProfile = getUserProfile(user.id);
-  const familyInfo = getFamilyInfo(user.id);
-  const children = listChildren(user.id);
-  const parties = listParties(user.id, 'family');
+  const pseudonyms = buildPseudonymMap(
+    caseData,
+    (value, prefix, numbered) => allocatePseudonym(user.id, 'family', value, prefix, '', numbered),
+    listPseudonyms(user.id, 'family')
+  );
 
-  const hasCore = coreProfile && (coreProfile.first || coreProfile.last);
-  const hasCaseInfo = familyInfo && (familyInfo.role || familyInfo.court_file_number);
-
-  if (hasCore || hasCaseInfo) {
-    const c = coreProfile || {};
-    const f = familyInfo || {};
-    const lawyerLine = f.ml_status === 'represented' && f.ml_lawyer_first
-      ? ` | Counsel: ${f.ml_lawyer_first} ${f.ml_lawyer_last||''}${f.ml_lawyer_firm ? ', '+f.ml_lawyer_firm : ''}${f.ml_lawyer_lso ? ' (LSO#'+f.ml_lawyer_lso+')' : ''}`
-      : '';
-    system += `\n\n## USER PROFILE (use in all drafts)
-Name: ${c.first||''} ${c.last||''} | Role: ${f.role||'unknown'}${lawyerLine}
-DOB: ${c.dob||'N/A'} | Address: ${c.address||''}, ${c.city||''}, ${c.province||'Ontario'} ${c.postal||''}
-Phone: ${c.phone||'N/A'} | Email: ${c.email||user.email||'N/A'}
-Representation: ${f.ml_status||'self-represented'}
-Court File: ${f.court_file_number||'N/A'} | Court: ${f.court||'N/A'} | Type: ${f.court_type||'N/A'}
-Next Date: ${f.next_date||'N/A'} (${f.next_event||''})${f.judge ? ` | Justice: ${f.judge}` : ''}`;
-
-    if (children && children.length) {
-      system += `\nChildren: ${children.map(ch => `${ch.first||''} ${ch.last||''}${ch.dob ? ' (DOB: '+ch.dob+')' : ''}${ch.residency ? ' — '+ch.residency : ''}`).filter(s => s.trim()).join('; ')}`;
-    }
-    if (parties && parties.length) {
-      system += `\nOther parties: ${parties.map(p => `${p.first||''} ${p.last||''} (${p.role||'unknown'})${p.firm ? ', '+p.firm : ''}`).filter(s => s.trim() !== '  ()').join('; ')}`;
-    }
-  }
-
+  // The case block stays on when a builder supplies its own prompt.
+  // This route sends the profile block on every request today, including
+  // override paths, so keeping the case facts is what preserves the
+  // affidavit builder's current input. Criminal-chat gates it off for
+  // the same reason inverted — that route sends nothing today. Same
+  // rule both places: keep what the builder gets now, minus identity.
+  const extras = [];
   if (context?.currentForm) {
-    system += `\n\nThe user is currently working on: ${context.currentForm}. Focus your response on this form's requirements, common mistakes, and relevant caselaw.`;
+    extras.push(`The user is currently working on: ${scrub(String(context.currentForm), pseudonyms)}. Focus your response on this form's requirements, common mistakes, and relevant caselaw.`);
   }
+
+  const system = buildSystemPrompt({
+    basePrompt:     FAMILY_SYSTEM,
+    clientOverride: context?.systemOverride,
+    product:        'family',
+    data:           caseData,
+    map:            pseudonyms,
+    extra:          extras.join('\n\n'),
+  });
+
+  // Typed messages carry names the profile never sees. Full-name matches
+  // only. The original text is what gets persisted below, not this copy.
+  const outboundMessages = Array.isArray(messages)
+    ? messages.map(m => (typeof m.content === 'string'
+        ? { ...m, content: scrub(m.content, pseudonyms) }
+        : m))
+    : messages;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -197,12 +207,20 @@ Next Date: ${f.next_date||'N/A'} (${f.next_event||''})${f.judge ? ` | Justice: $
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
         system,
-        messages,
+        messages: outboundMessages,
       }),
     });
 
     const data = await resp.json();
     if (!resp.ok) return res.status(resp.status).json({ error: data.error?.message });
+
+    // Real names back before the client, the saved conversation, or any
+    // export sees the reply. Matters more here than in criminal chat:
+    // this route drafts affidavit text that gets filed.
+    if (Array.isArray(data.content)) {
+      data.content = data.content.map(b =>
+        b && b.type === 'text' ? { ...b, text: restore(b.text, pseudonyms) } : b);
+    }
 
     recordUsage(user.id, 'family', 'chat');
 
