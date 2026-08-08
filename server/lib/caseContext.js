@@ -66,7 +66,31 @@ function ageFromDob(dob) {
 // in stage 2, to the case_pseudonyms table.
 
 function createMap() {
-  return { entries: [], _counters: {} };
+  // `self` is the token for the user themselves, set during the walk.
+  // Callers that need it must not look it up by kind: seeded entries
+  // carry whatever kind the database row had, and the walk returns
+  // early on an already-seeded value without re-tagging it.
+  return { entries: [], self: '', _counters: {} };
+}
+
+// Every prefix this module can mint, for residual-token detection.
+const TOKEN_PREFIXES = [
+  ...new Set(Object.values(ROLE_PREFIX)),
+  'PARTY', 'ACCUSED', 'CHILD', 'FIRM', 'JUSTICE', 'DETACHMENT',
+  'ADDRESS', 'PHONE', 'EMAIL', 'FILE_NO', 'LOCATION',
+];
+const TOKEN_RE = new RegExp(`\\[(?:${TOKEN_PREFIXES.join('|')})(?:_\\d+)?\\]`, 'g');
+
+/**
+ * Tokens from this module's namespace still present in text after a
+ * restore() — i.e. a leak. Deliberately narrow: prompts elsewhere in
+ * this codebase instruct the model to emit literal placeholders like
+ * [name], [City] and [Applicant/Respondent], and those must not be
+ * mistaken for ours. Matching is case-sensitive and ours are all caps.
+ */
+function residualTokens(text) {
+  if (!text) return [];
+  return [...new Set(String(text).match(TOKEN_RE) || [])];
 }
 
 // Default allocator: counters held in the map itself. Correct for a
@@ -149,7 +173,7 @@ function buildPseudonymMap(data, allocate, seed) {
       : prefixForRole(caseInfo && caseInfo.role) === 'PARTY'
         ? 'APPLICANT'
         : prefixForRole(caseInfo && caseInfo.role);
-    take(selfName, selfPrefix, 'self', false);
+    map.self = take(selfName, selfPrefix, 'self', false);
   }
 
   for (const p of parties || []) {
@@ -387,6 +411,7 @@ module.exports = {
   scrub,
   restore,
   restoreDeep,
+  residualTokens,
   publicMap,
   // exported for stage 2 + tests
   ageFromDob,

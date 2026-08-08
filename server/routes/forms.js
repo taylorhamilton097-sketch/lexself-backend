@@ -6,7 +6,11 @@ const { requireAuth } = require('../middleware/auth');
 const {
   getUserProfile, listChildren, getFamilyInfo, listParties,
   getFinancialStatement,
+  listPseudonyms, allocatePseudonym,
 } = require('../db');
+const {
+  buildPseudonymMap, fullName, scrub, restore, residualTokens,
+} = require('../lib/caseContext');
 
 const { generateForm } = require('../forms/generator');
 
@@ -95,14 +99,37 @@ router.post('/14a/clean-paragraphs', requireAuth, requirePaidFamilyAccess, async
     return res.status(400).json({ error: 'Text too long. Please break into smaller chunks.' });
   }
 
-  // Load the user's profile so Claude can speak in their voice
+  // Load the user's profile so Claude can speak in their voice.
+  // An affidavit is written in the first person, so the model does not
+  // need to know who the deponent actually is to draft it — a role token
+  // is enough. Real names go back in on the way out, before the text
+  // reaches the preview or the .docx.
   const profile = getUserProfile(req.user.id);
   const familyInfo = getFamilyInfo(req.user.id);
   const parties = listParties(req.user.id, 'family');
   const respondent = parties.find(x => x.role === 'respondent');
 
-  const userName = [profile.first, profile.last].filter(Boolean).join(' ') || 'the deponent';
-  const respondentName = respondent ? [respondent.first, respondent.last].filter(Boolean).join(' ') : 'the respondent';
+  const caseData = {
+    product:  'family',
+    profile,
+    caseInfo: familyInfo,
+    parties,
+    children: listChildren(req.user.id),
+  };
+  const pseudonyms = buildPseudonymMap(
+    caseData,
+    (value, prefix, numbered) => allocatePseudonym(req.user.id, 'family', value, prefix, '', numbered),
+    listPseudonyms(req.user.id, 'family')
+  );
+
+  const respondentReal = fullName(respondent);
+  const respondentEntry = respondentReal
+    ? pseudonyms.entries.find(e => e.real.toLowerCase() === respondentReal.toLowerCase())
+    : null;
+
+  // Same fallbacks as before when the profile has no name on file.
+  const userName = pseudonyms.self || 'the deponent';
+  const respondentName = (respondentEntry && respondentEntry.token) || 'the respondent';
   const userRole = (familyInfo.role || 'applicant');
 
   const system = `You are drafting paragraphs for an Ontario family court Affidavit (Form 14A). Convert the user's dictated or typed narrative into clear, numbered affidavit paragraphs that will stand up in court.
@@ -118,7 +145,9 @@ RULES:
 8. Do not include numbering — just output one paragraph per line separated by blank lines. The form template will add the numbers.
 9. Do not include any preamble, explanation, or commentary. Output ONLY the paragraphs.`;
 
-  const userPrompt = `Convert this narrative into clear affidavit paragraphs:\n\n${rawText}`;
+  // The dictated narrative is where names actually turn up — "Dana told
+  // me she would not return Ella". Full-name matches only.
+  const userPrompt = `Convert this narrative into clear affidavit paragraphs:\n\n${scrub(rawText, pseudonyms)}`;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -143,9 +172,23 @@ RULES:
     }
 
     const data = await resp.json();
-    const cleaned = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n\n').trim();
+    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n\n').trim();
 
-    if (!cleaned) return res.status(502).json({ error: 'Empty response from AI.' });
+    if (!raw) return res.status(502).json({ error: 'Empty response from AI.' });
+
+    const cleaned = restore(raw, pseudonyms);
+
+    // These paragraphs end up in a document that gets filed. If a token
+    // survives restore — because the model invented one that was never
+    // allocated, say [RESPONDENT_2] when only _1 exists — it would be
+    // typed into an affidavit. Log it so it is visible; the user reviews
+    // the paragraphs in the preview before generating the .docx, so the
+    // draft is still worth returning. Token names only, never the text.
+    const residual = residualTokens(cleaned);
+    if (residual.length) {
+      console.error('[14a clean-paragraphs] unrestored tokens in output',
+        { userId: req.user.id, tokens: residual });
+    }
 
     res.json({ cleaned });
   } catch(err) {
