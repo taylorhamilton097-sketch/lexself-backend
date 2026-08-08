@@ -231,6 +231,26 @@ function restore(text, map) {
   return out;
 }
 
+/**
+ * restore() applied to every string inside a parsed structure.
+ *
+ * For routes where the model returns JSON. Restoring the raw text before
+ * JSON.parse would risk corrupting the document — a real name containing
+ * a quote or backslash would break the escaping. Parse first, restore
+ * after. Object keys are schema field names, not data, so they are left
+ * alone.
+ */
+function restoreDeep(value, map) {
+  if (typeof value === 'string') return restore(value, map);
+  if (Array.isArray(value)) return value.map(v => restoreDeep(v, map));
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const k of Object.keys(value)) out[k] = restoreDeep(value[k], map);
+    return out;
+  }
+  return value;
+}
+
 /** The client needs real↔token but never the internal counters. */
 function publicMap(map) {
   return (map && map.entries ? map.entries : []).map(e => ({ real: e.real, token: e.token, kind: e.kind }));
@@ -366,6 +386,7 @@ module.exports = {
   buildSystemPrompt,
   scrub,
   restore,
+  restoreDeep,
   publicMap,
   // exported for stage 2 + tests
   ageFromDob,

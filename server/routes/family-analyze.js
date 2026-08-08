@@ -3,7 +3,10 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
+const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
+        getUserProfile, getFamilyInfo, listParties, listChildren,
+        listPseudonyms, allocatePseudonym } = require('../db');
+const { buildPseudonymMap, buildSystemPrompt, scrub, restoreDeep } = require('../lib/caseContext');
 
 const ANALYSIS_SYSTEM = `You are an expert Ontario family law analyst. You analyze documents filed by one party in a family law proceeding and produce a three-part report for the self-represented opposing party.
 
@@ -92,7 +95,11 @@ Be specific, accurate, and practically useful. Cite actual Family Law Rules and 
 
 // POST /api/family/analyze
 router.post('/', requireAuth, async (req, res) => {
-  const { base64, role, issues, ctx, profile } = req.body;
+  // profile is deliberately NOT read from req.body. This route used to
+  // take the user's name and court file number from the request and pass
+  // them to the API. Identity now comes from the database or not at all,
+  // so a client cannot supply it even if it still sends the field.
+  const { base64, role, issues, ctx } = req.body;
   const user = req.user;
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -122,15 +129,36 @@ router.post('/', requireAuth, async (req, res) => {
     }
   }
 
-  // Build context string
+  // ── Prompt assembly (see server/lib/caseContext.js) ──
+  const caseData = {
+    product:  'family',
+    profile:  getUserProfile(user.id),
+    caseInfo: getFamilyInfo(user.id),
+    parties:  listParties(user.id, 'family'),
+    children: listChildren(user.id),
+  };
+
+  const pseudonyms = buildPseudonymMap(
+    caseData,
+    (value, prefix, numbered) => allocatePseudonym(user.id, 'family', value, prefix, '', numbered),
+    listPseudonyms(user.id, 'family')
+  );
+
+  // Court and court file used to come from the request body. Court now
+  // comes from the case block below; the file number is not sent at all.
+  // issues and ctx are typed by the user about their own matter, so they
+  // get the same full-name scrub as chat messages.
   let userContext = `The person I am helping is the ${role === 'applicant' ? 'Applicant' : 'Respondent'}.`;
-  if (issues) userContext += ` Issues in dispute: ${issues}.`;
-  if (ctx) userContext += ` Additional context: ${ctx}.`;
-  if (profile?.first) {
-    userContext += ` Their name is ${profile.first} ${profile.last || ''}.`;
-    if (profile.cf_number) userContext += ` Court file: ${profile.cf_number}.`;
-    if (profile.cf_court) userContext += ` Court: ${profile.cf_court}.`;
-  }
+  if (issues) userContext += ` Issues in dispute: ${scrub(String(issues), pseudonyms)}.`;
+  if (ctx)    userContext += ` Additional context: ${scrub(String(ctx), pseudonyms)}.`;
+
+  const system = buildSystemPrompt({
+    basePrompt: ANALYSIS_SYSTEM,
+    product:    'family',
+    data:       caseData,
+    map:        pseudonyms,
+    extra:      'IMPORTANT: Respond ONLY with valid JSON. No markdown, no preamble, no explanation.',
+  });
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -143,11 +171,14 @@ router.post('/', requireAuth, async (req, res) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
         max_tokens: 4000,
-        system: ANALYSIS_SYSTEM + '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no preamble, no explanation.',
+        system,
         messages: [{
           role: 'user',
           content: [
             {
+              // The document itself is sent as uploaded. Its contents are
+              // not redacted and cannot be with the current pipeline —
+              // this is the known gap the case-block work does not close.
               type: 'document',
               source: {
                 type: 'base64',
@@ -177,7 +208,10 @@ router.post('/', requireAuth, async (req, res) => {
     // Parse JSON response
     try {
       const clean = text.replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(clean);
+      // Parse before restoring: putting real names back into the raw
+      // string first would break the JSON if a name contained a quote
+      // or a backslash.
+      const parsed = restoreDeep(JSON.parse(clean), pseudonyms);
 
       // Record usage only after successful parse (failed parses shouldn't burn quota)
       recordUsage(user.id, 'family', 'analysis');
