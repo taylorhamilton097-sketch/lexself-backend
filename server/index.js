@@ -209,7 +209,7 @@ app.get('/clearsplit/app',  (req, res) => res.sendFile(path.join(__dirname, '../
 // ── SECURITY.TXT ──
 app.get('/.well-known/security.txt', (req, res) => {
   res.type('text/plain').send(
-`Contact: taylor@clearstand.ca
+`Contact: mailto:support@clearstand.ca
 Preferred-Languages: en
 Policy: https://clearstand.ca/privacy-policy`
   );
