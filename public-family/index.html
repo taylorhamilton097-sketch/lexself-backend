@@ -560,7 +560,7 @@ select.fi { cursor: pointer; }
 
       <div class="pr-sec-t">Your Information</div>
       <div class="fg"><label class="fl">Your Role in This Matter</label>
-        <select class="fi" id="p_role"><option value="">Select…</option><option>Applicant</option><option>Respondent</option><option>Moving Party</option><option>Responding Party</option></select></div>
+        <select class="fi" id="p_role"><option value="">Select…</option><option>Applicant</option><option>Respondent</option></select></div>
       <div class="fr">
         <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="p_first" style="font-size:16px"></div>
         <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="p_last" style="font-size:16px"></div>
@@ -1503,7 +1503,12 @@ async function loadProfileFromServer() {
 }
 
 function applyProfileToUI(p) {
-  Object.entries(PIDS).forEach(([k,id]) => { const el=document.getElementById(id); if(el&&p[k]!==undefined)el.value=p[k]; });
+  // A <select> assigned a value with no matching option lands on
+  // selectedIndex -1 and renders blank. Fall back to the empty
+  // "Select…" option so the user is asked rather than shown an empty
+  // box. Reachable for profiles saved while an option still existed —
+  // 'Moving Party' and 'Responding Party' were removed from p_role.
+  Object.entries(PIDS).forEach(([k,id]) => { const el=document.getElementById(id); if(el&&p[k]!==undefined){el.value=p[k];if(el.tagName==='SELECT'&&el.selectedIndex===-1)el.value='';} });
   document.getElementById('childList').innerHTML='';
   (p.children||[]).forEach(c=>{addChild();const bl=document.querySelectorAll('.child-blk');const b=bl[bl.length-1];b.querySelector('.cf').value=c.first||'';b.querySelector('.cl').value=c.last||'';b.querySelector('.cd').value=c.dob||'';if(b.querySelector('.cg'))b.querySelector('.cg').value=c.gender||'';});
   document.getElementById('partyList').innerHTML='';

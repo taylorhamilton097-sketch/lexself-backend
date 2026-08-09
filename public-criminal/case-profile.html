@@ -279,8 +279,6 @@ nav { background: var(--navy-mid); border-bottom: 1px solid var(--border); heigh
               <option value="">Select…</option>
               <option value="Applicant">Applicant</option>
               <option value="Respondent">Respondent</option>
-              <option value="Moving Party">Moving Party</option>
-              <option value="Responding Party">Responding Party</option>
             </select>
           </div>
           <div class="field"><label>Representation</label>
@@ -837,7 +835,14 @@ async function api(method, path, body) {
 
 function setVal(id, value) {
   const el = document.getElementById(id);
-  if (el) el.value = value || '';
+  if (!el) return;
+  el.value = value || '';
+  // A <select> assigned a value with no matching option lands on
+  // selectedIndex -1 and renders blank. Fall back to the empty
+  // "Select…" option so the user is asked rather than shown an empty
+  // box. Reachable for profiles saved while an option still existed —
+  // 'Moving Party' and 'Responding Party' were removed from fam-role.
+  if (el.tagName === 'SELECT' && el.selectedIndex === -1) el.value = '';
 }
 function getVal(id) {
   const el = document.getElementById(id);
