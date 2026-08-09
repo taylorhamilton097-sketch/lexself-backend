@@ -9,7 +9,7 @@ const {
   listPseudonyms, allocatePseudonym,
 } = require('../db');
 const {
-  buildPseudonymMap, fullName, scrub, restore, residualTokens,
+  buildPseudonymMap, fullName, scrub, restore, residualTokens, normalizeRole,
 } = require('../lib/caseContext');
 
 const { generateForm } = require('../forms/generator');
@@ -107,7 +107,6 @@ router.post('/14a/clean-paragraphs', requireAuth, requirePaidFamilyAccess, async
   const profile = getUserProfile(req.user.id);
   const familyInfo = getFamilyInfo(req.user.id);
   const parties = listParties(req.user.id, 'family');
-  const respondent = parties.find(x => x.role === 'respondent');
 
   const caseData = {
     product:  'family',
@@ -122,24 +121,59 @@ router.post('/14a/clean-paragraphs', requireAuth, requirePaidFamilyAccess, async
     listPseudonyms(req.user.id, 'family')
   );
 
-  const respondentReal = fullName(respondent);
-  const respondentEntry = respondentReal
-    ? pseudonyms.entries.find(e => e.real.toLowerCase() === respondentReal.toLowerCase())
+  // Which side of the file the deponent is on. The profile is
+  // authoritative; it may hold a per-motion role like "Moving Party",
+  // which identifies no side, or nothing at all.
+  //
+  // Where it does not say, infer in one direction only: if another party
+  // is recorded as the Applicant then someone else filed the originating
+  // application, so this deponent is a respondent. The reverse does not
+  // follow — a child protection matter has the Society as applicant and
+  // both parents as respondents, so another party being a Respondent
+  // does not make this deponent the Applicant. In that case the side
+  // stays unknown and the prompt says less.
+  const ROLE_LABEL = { applicant: 'Applicant', respondent: 'Respondent' };
+  let selfRole = normalizeRole(familyInfo.role);
+  if (!selfRole && parties.some(p => normalizeRole(p.role) === 'applicant')) {
+    selfRole = 'respondent';
+  }
+  const opposingRole = selfRole === 'applicant' ? 'respondent'
+                     : selfRole === 'respondent' ? 'applicant'
+                     : '';
+
+  // The opposing party is whoever holds the other designation — not
+  // always the Respondent. An affidavit sworn by the respondent refers
+  // to the Applicant as the opposing party, and calling them "the
+  // Respondent" would be wrong in a document that gets filed.
+  //
+  // Roles are stored capitalised ("Respondent"), so the exact lowercase
+  // comparison used here previously never matched and the opposing
+  // party's name was never reaching the prompt at all.
+  const opposing = opposingRole
+    ? parties.find(p => normalizeRole(p.role) === opposingRole)
+    : null;
+  const opposingReal = fullName(opposing);
+  const opposingEntry = opposingReal
+    ? pseudonyms.entries.find(e => e.real.toLowerCase() === opposingReal.toLowerCase())
     : null;
 
-  // Same fallbacks as before when the profile has no name on file.
+  // Fallbacks stay generic rather than guessing a side: an affidavit
+  // that names the wrong party is worse than one that says less.
   const userName = pseudonyms.self || 'the deponent';
-  const respondentName = (respondentEntry && respondentEntry.token) || 'the respondent';
-  const userRole = (familyInfo.role || 'applicant');
+  const deponentClause = selfRole ? `, who is the ${ROLE_LABEL[selfRole]} in this matter` : '';
+  const opposingLabel = opposingRole ? `the ${ROLE_LABEL[opposingRole]}` : 'the other party';
+  const opposingMention = opposingEntry
+    ? `"${opposingLabel}" or ${opposingEntry.token}`
+    : `"${opposingLabel}"`;
 
   const system = `You are drafting paragraphs for an Ontario family court Affidavit (Form 14A). Convert the user's dictated or typed narrative into clear, numbered affidavit paragraphs that will stand up in court.
 
 RULES:
-1. Write in first person ("I did", "I saw", "I believe") — the deponent is ${userName}, who is the ${userRole} in this matter.
+1. Write in first person ("I did", "I saw", "I believe") — the deponent is ${userName}${deponentClause}.
 2. One fact per paragraph. Short, clear sentences. No compound paragraphs.
 3. Strip emotional language and stick to facts. ("He was aggressive" → "He raised his voice and stepped toward me.")
 4. Use past tense for events that already happened. Use dates where the user gave them.
-5. When referring to the opposing party, use "the Respondent" or their name (${respondentName}) — do not use "he/she" without antecedent.
+5. When referring to the opposing party, use ${opposingMention} — do not use "he/she" without antecedent.
 6. If the user mentions hearsay (something someone else told them), structure it as "I was told by [name] that..." followed by "I believe this to be true" — this is required in affidavits.
 7. Do not add facts the user did not mention. Do not embellish.
 8. Do not include numbering — just output one paragraph per line separated by blank lines. The form template will add the numbers.

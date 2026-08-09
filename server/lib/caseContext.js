@@ -110,6 +110,29 @@ function prefixForRole(role) {
   return ROLE_PREFIX[key] || 'PARTY';
 }
 
+/**
+ * Collapse a stored role to the side of the file it identifies, or ''
+ * when it identifies none.
+ *
+ * Applicant and Respondent are fixed for the life of a file and set by
+ * who filed the originating application. Moving Party and Responding
+ * Party are per-motion and say nothing about that — a respondent who
+ * brings a motion is the moving party and is still the respondent, and
+ * an applicant answering it is the responding party and is still the
+ * applicant. Those resolve to '' and the caller decides what to do.
+ *
+ * Matching is exact for the same reason: a prefix test on 'respond'
+ * would wrongly capture 'Responding Party'. It is case-insensitive
+ * because the profile stores 'Respondent' and the analyze screen sends
+ * 'respondent'.
+ */
+function normalizeRole(value) {
+  const s = String(value || '').trim().toLowerCase();
+  if (s === 'applicant')  return 'applicant';
+  if (s === 'respondent') return 'respondent';
+  return '';
+}
+
 // Identifiers we never emit as structured fields but which routinely
 // turn up inside free text — "Reside at 412 Bathurst St" is a standard
 // bail term. Dropping the column is not enough; the value has to be
@@ -462,5 +485,6 @@ module.exports = {
   ageFromDob,
   fullName,
   prefixForRole,
+  normalizeRole,
   PLACEHOLDER_NOTICE,
 };
