@@ -16,6 +16,7 @@ const {
   Document, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, WidthType, BorderStyle,
 } = require('docx');
+const { normalizeRole, roleKey } = require('../../lib/caseContext');
 
 const BORDER = { style: BorderStyle.SINGLE, size: 4, color: '000000' };
 const BORDERS_ALL = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER };
@@ -102,15 +103,31 @@ function build(data) {
   const { profile = {}, familyInfo = {}, parties = [], children = [],
           form8aFields = {} } = data;
 
-  const respondent = parties.find(x => x.role === 'respondent');
-  const myCounsel = parties.find(x => x.role === 'my_counsel');
-  const opposingCounsel = parties.find(x => x.role === 'opposing_counsel');
+  // Comparisons go through the shared normalisers: party roles are
+  // written by several screens in several conventions, and the previous
+  // `x.role === 'respondent'` never matched values stored as
+  // 'Respondent'.
+  const selfRole = normalizeRole(familyInfo.role);
+  const opposingRole = selfRole === 'applicant' ? 'respondent'
+                     : selfRole === 'respondent' ? 'applicant'
+                     : '';
+  const opposing = opposingRole
+    ? parties.find(x => normalizeRole(x.role) === opposingRole)
+    : null;
+  const byRole = key => parties.find(x => roleKey(x.role) === key);
+  const myCounsel = byRole('my_counsel');
+  const opposingCounsel = byRole('opposing_counsel');
 
-  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
-  const applicant = userIsApplicant ? profile : (respondent || {});
-  const respondentParty = userIsApplicant ? (respondent || {}) : profile;
-  const applicantLawyer = userIsApplicant ? myCounsel : opposingCounsel;
-  const respondentLawyer = userIsApplicant ? opposingCounsel : myCounsel;
+  // Unknown side leaves both party boxes empty rather than placing the
+  // user on a side they may not be on — this form gets filed.
+  const applicant = selfRole === 'applicant' ? profile
+                  : selfRole === 'respondent' ? (opposing || {}) : {};
+  const respondentParty = selfRole === 'respondent' ? profile
+                        : selfRole === 'applicant' ? (opposing || {}) : {};
+  const applicantLawyer = selfRole === 'applicant' ? myCounsel
+                        : selfRole === 'respondent' ? opposingCounsel : null;
+  const respondentLawyer = selfRole === 'respondent' ? myCounsel
+                         : selfRole === 'applicant' ? opposingCounsel : null;
 
   // Form 8A specific fields (filled inline via form preview)
   const f = form8aFields;
@@ -226,9 +243,14 @@ function build(data) {
   const childrenToShow = children.length ? children : Array(3).fill({});
   childrenToShow.forEach(child => {
     const name = [child.first, child.last].filter(Boolean).join(' ').trim();
+    // 'with_user' / 'with_other' are relative to the deponent, so they
+    // can only be labelled once the side is known. Left blank otherwise
+    // rather than naming a side the user may not be on.
+    const SELF_LABEL = { applicant: 'Applicant', respondent: 'Respondent' }[selfRole] || '';
+    const OTHER_LABEL = { applicant: 'Respondent', respondent: 'Applicant' }[selfRole] || '';
     const resLabel = {
-      'with_user': userIsApplicant ? 'Applicant' : 'Respondent',
-      'with_other': userIsApplicant ? 'Respondent' : 'Applicant',
+      'with_user': SELF_LABEL,
+      'with_other': OTHER_LABEL,
       'shared': 'Shared',
     }[child.residency] || '';
     childRows.push(new TableRow({ children: [
@@ -293,7 +315,12 @@ function build(data) {
     groundsChildren.push(p('   (It is not necessary to name any other person involved.)'));
   }
   if (f.grounds === 'cruelty') {
-    groundsChildren.push(p(`${checkBox(true)} Cruelty: ${f.crueltySpouseName || '_______________'} has treated ${f.crueltySpouseTarget || (userIsApplicant ? applicant.first + ' ' + applicant.last : 'me')} with physical or mental cruelty of such a kind as to make continued cohabitation intolerable.`));
+    // The deponent is the target unless the preview says otherwise. Name
+    // them where the profile gives a name, otherwise "me" — which reads
+    // correctly in a document sworn by that person either way.
+    const deponentName = [profile.first, profile.last].filter(Boolean).join(' ').trim();
+    const crueltyTarget = f.crueltySpouseTarget || deponentName || 'me';
+    groundsChildren.push(p(`${checkBox(true)} Cruelty: ${f.crueltySpouseName || '_______________'} has treated ${crueltyTarget} with physical or mental cruelty of such a kind as to make continued cohabitation intolerable.`));
     if (f.crueltyDetails) groundsChildren.push(p(`   Details: ${f.crueltyDetails}`));
   }
 

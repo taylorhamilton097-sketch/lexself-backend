@@ -13,20 +13,65 @@
 // in stage 2 and slots in behind loadMap().
 // ──────────────────────────────────────────────────────────────
 
-// Party role → token prefix. Unknown roles fall back to PARTY.
+/**
+ * Fold a role value to one comparable form.
+ *
+ * case_parties.role is written by four different screens with four
+ * different conventions: snake_case ('my_counsel'), lowercase
+ * ('respondent'), and capitalised prose ('Arresting Officer',
+ * "Children's Aid Society"). Collapsing everything that is not a letter
+ * or digit to a single underscore makes one map entry cover all of them,
+ * and folds straight and curly apostrophes together.
+ */
+function roleKey(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+// Role → token prefix, keyed by roleKey(). Unknown roles fall back to
+// PARTY, which is correct but uninformative — the placeholder design
+// depends on the model seeing [OFFICER_1] rather than [PARTY_3], so
+// every value the profile screens can actually produce is listed here.
 const ROLE_PREFIX = {
-  applicant:   'APPLICANT',
-  respondent:  'RESPONDENT',
-  complainant: 'COMPLAINANT',
-  witness:     'WITNESS',
-  officer:     'OFFICER',
-  police:      'OFFICER',
-  crown:       'CROWN',
-  counsel:     'COUNSEL',
-  lawyer:      'COUNSEL',
-  solicitor:   'COUNSEL',
-  spouse:      'SPOUSE',
-  partner:     'SPOUSE',
+  // Parties to a family proceeding
+  applicant:               'APPLICANT',
+  respondent:              'RESPONDENT',
+  moving_party:            'PARTY',        // per-motion; identifies no side
+  responding_party:        'PARTY',
+  // Parties to a criminal proceeding
+  complainant:             'COMPLAINANT',
+  alleged_victim:          'COMPLAINANT',
+  redacted_alleged_victim: 'COMPLAINANT',
+  co_accused:              'CO_ACCUSED',
+  crown:                   'CROWN',
+  // Witnesses
+  witness:                 'WITNESS',
+  redacted_witness:        'WITNESS',
+  // Police
+  officer:                 'OFFICER',
+  police:                  'OFFICER',
+  arresting_officer:       'OFFICER',
+  investigating_officer:   'OFFICER',
+  charging_officer:        'OFFICER',
+  witness_officer:         'OFFICER',
+  // Counsel
+  counsel:                 'COUNSEL',
+  lawyer:                  'COUNSEL',
+  solicitor:               'COUNSEL',
+  my_counsel:              'COUNSEL',
+  opposing_counsel:        'COUNSEL',
+  // Agencies — kept distinct because the Society and the Office of the
+  // Children's Lawyer are different bodies with different standing
+  cas_worker:              'CAS',
+  children_s_aid_society:  'CAS',
+  ocl:                     'OCL',
+  // Relationships
+  spouse:                  'SPOUSE',
+  partner:                 'SPOUSE',
+  other:                   'PARTY',
 };
 
 // Prepended to every case block so the model uses the placeholders
@@ -79,7 +124,11 @@ const TOKEN_PREFIXES = [
   'PARTY', 'ACCUSED', 'CHILD', 'FIRM', 'JUSTICE', 'DETACHMENT',
   'ADDRESS', 'PHONE', 'EMAIL', 'FILE_NO', 'LOCATION',
 ];
-const TOKEN_RE = new RegExp(`\\[(?:${TOKEN_PREFIXES.join('|')})(?:_\\d+)?\\]`, 'g');
+// Longest first: alternation is first-match-wins, so a prefix that is
+// itself the start of another would otherwise match short and leave the
+// remainder unconsumed.
+const TOKEN_RE = new RegExp(
+  `\\[(?:${[...TOKEN_PREFIXES].sort((a, b) => b.length - a.length).join('|')})(?:_\\d+)?\\]`, 'g');
 
 /**
  * Tokens from this module's namespace still present in text after a
@@ -106,8 +155,7 @@ function memoryAllocator(map) {
 }
 
 function prefixForRole(role) {
-  const key = String(role || '').trim().toLowerCase();
-  return ROLE_PREFIX[key] || 'PARTY';
+  return ROLE_PREFIX[roleKey(role)] || 'PARTY';
 }
 
 /**
@@ -127,9 +175,9 @@ function prefixForRole(role) {
  * 'respondent'.
  */
 function normalizeRole(value) {
-  const s = String(value || '').trim().toLowerCase();
-  if (s === 'applicant')  return 'applicant';
-  if (s === 'respondent') return 'respondent';
+  const k = roleKey(value);
+  if (k === 'applicant')  return 'applicant';
+  if (k === 'respondent') return 'respondent';
   return '';
 }
 
@@ -486,5 +534,6 @@ module.exports = {
   fullName,
   prefixForRole,
   normalizeRole,
+  roleKey,
   PLACEHOLDER_NOTICE,
 };

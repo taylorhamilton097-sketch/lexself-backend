@@ -19,6 +19,7 @@ const {
   Document, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, WidthType, BorderStyle, PageBreak, HeightRule,
 } = require('docx');
+const { normalizeRole, roleKey } = require('../../lib/caseContext');
 
 const BORDER = { style: BorderStyle.SINGLE, size: 4, color: '000000' };
 const BORDERS_ALL = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER };
@@ -272,17 +273,31 @@ function build(data) {
   const scheduleB = fin.schedule_b || [];
   const scheduleBMeta = fin.schedule_b_meta || {};
 
-  const respondent = parties.find(x => x.role === 'respondent');
-  const myCounsel = parties.find(x => x.role === 'my_counsel');
-  const opposingCounsel = parties.find(x => x.role === 'opposing_counsel');
+  // Comparisons go through the shared normalisers: party roles are
+  // written by several screens in several conventions, and the previous
+  // `x.role === 'respondent'` never matched values stored as
+  // 'Respondent'.
+  const selfRole = normalizeRole(familyInfo.role);
+  const opposingRole = selfRole === 'applicant' ? 'respondent'
+                     : selfRole === 'respondent' ? 'applicant'
+                     : '';
+  const opposing = opposingRole
+    ? parties.find(x => normalizeRole(x.role) === opposingRole)
+    : null;
+  const byRole = key => parties.find(x => roleKey(x.role) === key);
+  const myCounsel = byRole('my_counsel');
+  const opposingCounsel = byRole('opposing_counsel');
 
-  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
-  const applicant = userIsApplicant ? profile : (respondent || {});
-  const respondentParty = userIsApplicant ? (respondent || {}) : profile;
-  const applicantLawyer = userIsApplicant ? myCounsel : opposingCounsel;
-  const respondentLawyer = userIsApplicant ? opposingCounsel : myCounsel;
-
-  const filedByApplicant = userIsApplicant;
+  // Unknown side leaves both party boxes empty rather than placing the
+  // user on a side they may not be on — this form gets filed.
+  const applicant = selfRole === 'applicant' ? profile
+                  : selfRole === 'respondent' ? (opposing || {}) : {};
+  const respondentParty = selfRole === 'respondent' ? profile
+                        : selfRole === 'applicant' ? (opposing || {}) : {};
+  const applicantLawyer = selfRole === 'applicant' ? myCounsel
+                        : selfRole === 'respondent' ? opposingCounsel : null;
+  const respondentLawyer = selfRole === 'respondent' ? myCounsel
+                         : selfRole === 'applicant' ? opposingCounsel : null;
   const deponentName = [profile.first, profile.last].filter(Boolean).join(' ');
   const deponentMuniProv = [profile.city, profile.province].filter(Boolean).join(', ');
 
@@ -402,7 +417,9 @@ function build(data) {
       new TableRow({ children: [
         cell([
           boldP('This form is filed by:'),
-          p(`${checkBox(filedByApplicant)} applicant    ${checkBox(!filedByApplicant)} respondent`),
+          // Neither box is ticked when the side is unknown: on a filed
+          // financial statement a wrong tick is worse than a blank one.
+          p(`${checkBox(selfRole === 'applicant')} applicant    ${checkBox(selfRole === 'respondent')} respondent`),
         ]),
       ]}),
     ],

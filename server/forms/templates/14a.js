@@ -19,6 +19,7 @@ const {
   AlignmentType, WidthType, BorderStyle, HeightRule, VerticalAlign,
   HeadingLevel,
 } = require('docx');
+const { normalizeRole, roleKey } = require('../../lib/caseContext');
 
 // ── Helpers ──
 const BORDER = { style: BorderStyle.SINGLE, size: 4, color: '000000' };
@@ -114,10 +115,21 @@ function build(data) {
   const { profile = {}, familyInfo = {}, parties = [], affidavitBody = '',
           sworn_at = '', sworn_in = '', sworn_date = '' } = data;
 
-  // Find the respondent and lawyers from parties
-  const respondent = parties.find(x => x.role === 'respondent');
-  const myCounsel = parties.find(x => x.role === 'my_counsel');
-  const opposingCounsel = parties.find(x => x.role === 'opposing_counsel');
+  // Which side of the file the user is on, and who is opposite them.
+  // Party roles are written by several screens in several conventions,
+  // so comparisons go through the shared normalisers rather than exact
+  // string equality — the previous `x.role === 'respondent'` never
+  // matched values stored as 'Respondent'.
+  const selfRole = normalizeRole(familyInfo.role);
+  const opposingRole = selfRole === 'applicant' ? 'respondent'
+                     : selfRole === 'respondent' ? 'applicant'
+                     : '';
+  const opposing = opposingRole
+    ? parties.find(x => normalizeRole(x.role) === opposingRole)
+    : null;
+  const byRole = key => parties.find(x => roleKey(x.role) === key);
+  const myCounsel = byRole('my_counsel');
+  const opposingCounsel = byRole('opposing_counsel');
 
   // Today's date for the form's "dated" header
   const dateStr = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -144,18 +156,26 @@ function build(data) {
   });
 
   // ── PARTIES TABLE ──
-  // Applicant (the user, if role is Applicant) or Respondent (if they're Respondent)
-  // We render from the user's perspective: whichever party they are goes in the "applicant" box if they're applicant, otherwise respondent.
-  const userIsApplicant = (familyInfo.role || '').toLowerCase().includes('applicant') || !familyInfo.role;
+  // Rendered from the user's perspective: their block goes in whichever
+  // box matches their own designation, and the opposing party's in the
+  // other.
+  //
+  // When the side is unknown both boxes are left empty for completion by
+  // hand. This form gets filed: a blank field is a gap the user fills in,
+  // whereas guessing puts a party on the wrong side of a court document.
   const userBlock = formatPartyAddress(profile);
-  const respondentBlock = formatPartyAddress(respondent);
-  const userLawyerBlock = formatLawyerBlock(userIsApplicant ? myCounsel : opposingCounsel);
-  const otherLawyerBlock = formatLawyerBlock(userIsApplicant ? opposingCounsel : myCounsel);
+  const opposingBlock = formatPartyAddress(opposing);
+  const myLawyerBlock = formatLawyerBlock(myCounsel);
+  const otherLawyerBlock = formatLawyerBlock(opposingCounsel);
 
-  const applicantSideBlock = userIsApplicant ? userBlock : respondentBlock;
-  const respondentSideBlock = userIsApplicant ? respondentBlock : userBlock;
-  const applicantSideLawyer = userIsApplicant ? userLawyerBlock : otherLawyerBlock;
-  const respondentSideLawyer = userIsApplicant ? otherLawyerBlock : userLawyerBlock;
+  const applicantSideBlock  = selfRole === 'applicant' ? userBlock
+                            : selfRole === 'respondent' ? opposingBlock : '';
+  const respondentSideBlock = selfRole === 'respondent' ? userBlock
+                            : selfRole === 'applicant' ? opposingBlock : '';
+  const applicantSideLawyer  = selfRole === 'applicant' ? myLawyerBlock
+                             : selfRole === 'respondent' ? otherLawyerBlock : '';
+  const respondentSideLawyer = selfRole === 'respondent' ? myLawyerBlock
+                             : selfRole === 'applicant' ? otherLawyerBlock : '';
 
   const partiesTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
