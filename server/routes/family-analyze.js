@@ -93,6 +93,17 @@ YOUR ANALYSIS MUST PRODUCE VALID JSON with this exact structure:
 
 Be specific, accurate, and practically useful. Cite actual Family Law Rules and case law. The person reading this is a self-represented litigant who needs to understand exactly what to do next.`;
 
+// Collapse either selector's vocabulary to 'applicant' | 'respondent'.
+// A motion's moving party is the one who brought it and the responding
+// party is the one answering, which is the same distinction the analysis
+// needs: whose document is being examined.
+function normalizeRole(value) {
+  const s = String(value || '').trim().toLowerCase();
+  if (s.startsWith('respond')) return 'respondent';           // respondent, responding party
+  if (s.startsWith('applic') || s.startsWith('moving')) return 'applicant';
+  return '';
+}
+
 // POST /api/family/analyze
 router.post('/', requireAuth, async (req, res) => {
   // profile is deliberately NOT read from req.body. This route used to
@@ -160,7 +171,15 @@ router.post('/', requireAuth, async (req, res) => {
   // user deliberately entered and the one family-chat and forms.js
   // already use. The request value is the fallback for users who have not
   // filled in their case profile yet.
-  const effectiveRole = (caseData.caseInfo && caseData.caseInfo.role) || role;
+  // The two sources do not share a vocabulary. The profile selector
+  // stores 'Applicant', 'Respondent', 'Moving Party' or 'Responding
+  // Party'; the analyze selector sends lowercase 'applicant' or
+  // 'respondent'. A direct comparison against 'applicant' fails on the
+  // capitalised profile value and silently yields the opposite role,
+  // so both are normalised before use.
+  const effectiveRole = normalizeRole(caseData.caseInfo && caseData.caseInfo.role)
+                     || normalizeRole(role)
+                     || 'applicant';
   let userContext = `The person I am helping is the ${effectiveRole === 'applicant' ? 'Applicant' : 'Respondent'}.`;
   if (issues) userContext += ` Issues in dispute: ${scrub(String(issues), pseudonyms)}.`;
   if (ctx)    userContext += ` Additional context: ${scrub(String(ctx), pseudonyms)}.`;

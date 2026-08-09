@@ -1509,6 +1509,21 @@ function applyProfileToUI(p) {
   document.getElementById('partyList').innerHTML='';
   (p.otherParties||[]).forEach(op=>{addParty();const bl=document.querySelectorAll('.party-blk');const b=bl[bl.length-1];b.querySelector('.or').value=op.role||'';b.querySelector('.of').value=op.first||'';b.querySelector('.ol').value=op.last||'';b.querySelector('.oa').value=op.addr||'';b.querySelector('.op').value=op.phone||'';b.querySelector('.oe').value=op.email||'';});
   if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim()+(p.cf_number?' · '+p.cf_number:'');document.getElementById('ctxPill').classList.remove('none');}
+  applyRoleToAnalyze(p.role);
+}
+
+// The analyze screen has its own role selector, and its options are
+// lowercase 'applicant'/'respondent' while the profile stores
+// 'Applicant', 'Respondent', 'Moving Party' or 'Responding Party'.
+// Assigning the profile value straight across would not match any
+// option and would blank the select, so it is mapped. Keep this in
+// step with normalizeRole() in server/routes/family-analyze.js.
+function applyRoleToAnalyze(role){
+  const el=document.getElementById('analRole');
+  if(!el)return;
+  const r=String(role||'').trim().toLowerCase();
+  if(r.startsWith('respond'))el.value='respondent';
+  else if(r.startsWith('applic')||r.startsWith('moving'))el.value='applicant';
 }
 
 async function saveProfile() {
