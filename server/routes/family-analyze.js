@@ -148,7 +148,20 @@ router.post('/', requireAuth, async (req, res) => {
   // comes from the case block below; the file number is not sent at all.
   // issues and ctx are typed by the user about their own matter, so they
   // get the same full-name scrub as chat messages.
-  let userContext = `The person I am helping is the ${role === 'applicant' ? 'Applicant' : 'Respondent'}.`;
+
+  // Role is stated twice — here and as "Your Role" in the case block —
+  // and the two sources can disagree. The analyze screen's selector is
+  // hardcoded to default to "applicant" and is never prefilled from the
+  // profile, so a respondent who does not touch it sends "applicant".
+  //
+  // This route analyses the OTHER side's document, so the role decides
+  // whose case is being attacked; getting it backwards inverts the whole
+  // analysis. The saved profile wins where it is set: it is the value the
+  // user deliberately entered and the one family-chat and forms.js
+  // already use. The request value is the fallback for users who have not
+  // filled in their case profile yet.
+  const effectiveRole = (caseData.caseInfo && caseData.caseInfo.role) || role;
+  let userContext = `The person I am helping is the ${effectiveRole === 'applicant' ? 'Applicant' : 'Respondent'}.`;
   if (issues) userContext += ` Issues in dispute: ${scrub(String(issues), pseudonyms)}.`;
   if (ctx)    userContext += ` Additional context: ${scrub(String(ctx), pseudonyms)}.`;
 
