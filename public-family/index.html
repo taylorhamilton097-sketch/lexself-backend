@@ -1512,18 +1512,24 @@ function applyProfileToUI(p) {
   applyRoleToAnalyze(p.role);
 }
 
-// The analyze screen has its own role selector, and its options are
-// lowercase 'applicant'/'respondent' while the profile stores
+// The analyze screen has its own role selector, with lowercase
+// 'applicant'/'respondent' options, while the profile stores
 // 'Applicant', 'Respondent', 'Moving Party' or 'Responding Party'.
-// Assigning the profile value straight across would not match any
-// option and would blank the select, so it is mapped. Keep this in
-// step with normalizeRole() in server/routes/family-analyze.js.
+// Assigning the profile value straight across would match no option and
+// blank the select, so it is mapped.
+//
+// Moving Party and Responding Party are per-motion roles and do not say
+// which side of the file you are on — a respondent who brings a motion
+// is the moving party and is still the respondent. Those values are
+// therefore left alone rather than guessed at, and the user's own choice
+// on the analyze screen stands. Keep this in step with normalizeRole()
+// in server/routes/family-analyze.js.
 function applyRoleToAnalyze(role){
   const el=document.getElementById('analRole');
   if(!el)return;
   const r=String(role||'').trim().toLowerCase();
-  if(r.startsWith('respond'))el.value='respondent';
-  else if(r.startsWith('applic')||r.startsWith('moving'))el.value='applicant';
+  if(r==='applicant')el.value='applicant';
+  else if(r==='respondent')el.value='respondent';
 }
 
 async function saveProfile() {

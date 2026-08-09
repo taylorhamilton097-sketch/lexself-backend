@@ -93,14 +93,24 @@ YOUR ANALYSIS MUST PRODUCE VALID JSON with this exact structure:
 
 Be specific, accurate, and practically useful. Cite actual Family Law Rules and case law. The person reading this is a self-represented litigant who needs to understand exactly what to do next.`;
 
-// Collapse either selector's vocabulary to 'applicant' | 'respondent'.
-// A motion's moving party is the one who brought it and the responding
-// party is the one answering, which is the same distinction the analysis
-// needs: whose document is being examined.
+// Collapse either selector's vocabulary to 'applicant' | 'respondent',
+// or to '' when the value does not identify a side.
+//
+// Applicant and Respondent are fixed for the life of the file and are
+// set by who filed the originating application. Moving Party and
+// Responding Party are per-motion and say nothing about that: a
+// respondent who brings a motion is the moving party and is still the
+// respondent, and an applicant answering that motion is the responding
+// party and is still the applicant.
+//
+// So those two values are not mapped to a side. They return '' and the
+// caller falls back to the analyze screen, where the user picks one of
+// the two explicitly. Matching is exact for the same reason — a prefix
+// test on 'respond' would wrongly capture 'Responding Party'.
 function normalizeRole(value) {
   const s = String(value || '').trim().toLowerCase();
-  if (s.startsWith('respond')) return 'respondent';           // respondent, responding party
-  if (s.startsWith('applic') || s.startsWith('moving')) return 'applicant';
+  if (s === 'applicant')  return 'applicant';
+  if (s === 'respondent') return 'respondent';
   return '';
 }
 
