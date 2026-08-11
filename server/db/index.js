@@ -1378,6 +1378,134 @@ function allocatePseudonym(userId, product, realValue, prefix, kind, numbered = 
   }
 }
 
+// ── LEGACY BLOB BACKFILL ──
+// public-family/index.html saves the whole profile as one JSON blob via
+// POST /api/auth/profile; case-profile.html writes the tables above.
+// Nothing on the server reads the blob, so a user who only ever used the
+// family app's own profile panel has an empty case block, blank
+// generated forms and no pseudonyms.
+//
+// This copies the blob into the tables once, and only for users who have
+// no normalised family data at all. It never merges and never overwrites:
+// if there is anything in the tables the blob is left alone, because a
+// stale blob value could otherwise refill a field the user deliberately
+// cleared. The blob itself is never modified or deleted.
+
+const BLOB_TO_USER_PROFILE = {
+  first: 'first', last: 'last', dob: 'dob', addr: 'address', city: 'city',
+  prov: 'province', postal: 'postal', phone: 'phone', email: 'email',
+  occupation: 'occupation',
+};
+const BLOB_TO_FAMILY_INFO = {
+  role: 'role', cf_number: 'court_file_number', cf_court: 'court',
+  cf_addr: 'court_address', cf_type: 'court_type', cf_nextdate: 'next_date',
+  cf_nextevent: 'next_event', cf_judge: 'judge', ml_status: 'ml_status',
+  ml_first: 'ml_lawyer_first', ml_last: 'ml_lawyer_last',
+  ml_firm: 'ml_lawyer_firm', ml_lso: 'ml_lawyer_lso',
+  ml_phone: 'ml_lawyer_phone', ml_fax: 'ml_lawyer_fax',
+};
+
+// province and ml_status are excluded from the "already has data" test.
+// getUserProfile and getFamilyInfo auto-create their rows on first read,
+// seeded with 'Ontario' and 'self-represented', so counting those two
+// would make every user who has ever hit any route look populated and
+// the backfill would silently never run for anyone.
+const PROFILE_SIGNAL_FIELDS = USER_PROFILE_FIELDS.filter(f => f !== 'province');
+const FAMILY_SIGNAL_FIELDS  = FAMILY_INFO_FIELDS.filter(f => f !== 'ml_status');
+
+function hasNormalizedFamilyData(userId) {
+  const nonEmpty = (row, fields) =>
+    !!row && fields.some(f => String(row[f] == null ? '' : row[f]).trim() !== '');
+
+  const prof = db.prepare('SELECT * FROM user_profiles WHERE user_id=?').get(userId);
+  if (nonEmpty(prof, PROFILE_SIGNAL_FIELDS)) return true;
+
+  const fam = db.prepare('SELECT * FROM family_case_info WHERE user_id=?').get(userId);
+  if (nonEmpty(fam, FAMILY_SIGNAL_FIELDS)) return true;
+
+  const kids = db.prepare('SELECT COUNT(*) AS n FROM case_children WHERE user_id=?').get(userId);
+  if (kids && kids.n > 0) return true;
+
+  const parties = db.prepare(
+    "SELECT COUNT(*) AS n FROM case_parties WHERE user_id=? AND (product='family' OR product='both')"
+  ).get(userId);
+  return !!(parties && parties.n > 0);
+}
+
+/** @returns {boolean} true if anything was written */
+function migrateFamilyBlob(userId, blob) {
+  if (!blob || typeof blob !== 'object') return false;
+  if (hasNormalizedFamilyData(userId)) return false;
+
+  const pick = (map) => {
+    const out = {};
+    for (const [blobKey, column] of Object.entries(map)) {
+      const v = String(blob[blobKey] == null ? '' : blob[blobKey]).trim();
+      if (v) out[column] = v;
+    }
+    return out;
+  };
+  const core = pick(BLOB_TO_USER_PROFILE);
+  const fam  = pick(BLOB_TO_FAMILY_INFO);
+
+  const str = v => String(v == null ? '' : v).trim();
+  const kids = (Array.isArray(blob.children) ? blob.children : [])
+    .map(c => ({ first: str(c.first), last: str(c.last), dob: str(c.dob), gender: str(c.gender) }))
+    .filter(c => c.first || c.last || c.dob);
+
+  // addParty rejects a party with no role, so those are dropped rather
+  // than aborting the whole user's migration.
+  const parties = (Array.isArray(blob.otherParties) ? blob.otherParties : [])
+    .map(p => ({
+      role: str(p.role), first: str(p.first), last: str(p.last),
+      address: str(p.addr), phone: str(p.phone), email: str(p.email),
+    }))
+    .filter(p => p.role && (p.first || p.last));
+
+  if (!Object.keys(core).length && !Object.keys(fam).length && !kids.length && !parties.length) {
+    return false;
+  }
+
+  db.transaction(() => {
+    if (Object.keys(core).length) saveUserProfile(userId, core);
+    if (Object.keys(fam).length)  saveFamilyInfo(userId, fam);
+    for (const c of kids)    addChild(userId, c);
+    for (const p of parties) addParty(userId, 'family', p);
+  })();
+  return true;
+}
+
+/**
+ * Runs at boot. Naturally idempotent: a user migrated on one boot has
+ * normalised data on the next and is skipped. One bad blob is logged and
+ * skipped rather than stopping startup.
+ */
+function backfillFamilyProfilesFromBlob() {
+  let migrated = 0, skipped = 0, failed = 0;
+  let rows = [];
+  try {
+    rows = db.prepare("SELECT user_id, data FROM case_profiles WHERE product='family'").all();
+  } catch (e) {
+    console.error('[profile backfill] could not read case_profiles:', e.message);
+    return;
+  }
+  for (const row of rows) {
+    try {
+      let blob;
+      try { blob = JSON.parse(row.data || '{}'); }
+      catch (e) { throw new Error('unparseable blob'); }
+      if (migrateFamilyBlob(row.user_id, blob)) migrated++; else skipped++;
+    } catch (e) {
+      failed++;
+      // User id only — never blob contents, which are case data.
+      console.error('[profile backfill] user', row.user_id, '-', e.message);
+    }
+  }
+  if (migrated || failed) {
+    console.log(`[profile backfill] migrated=${migrated} skipped=${skipped} failed=${failed}`);
+  }
+}
+
 // Aggregated profile — one endpoint returns everything relevant
 function getFullProfile(userId, products) {
   // products: string from users.products — 'family' | 'criminal' | 'both' | 'clearsplit'
@@ -2612,6 +2740,11 @@ const citationCache = {
   get: (databaseId, caseId) => getCachedCitation(databaseId, caseId),
   put: (row) => putCachedCitation(row),
 };
+
+// Runs once every boot, after all the writers above are defined. Skips
+// any user who already has normalised data, so on a settled database it
+// does nothing and logs nothing.
+backfillFamilyProfilesFromBlob();
 
 module.exports = {
   db, PLANS, 
