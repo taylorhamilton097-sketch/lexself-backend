@@ -1711,6 +1711,15 @@ function generatePDF() {
   const content  = document.getElementById('pdf_content').value||'';
   const sign     = document.getElementById('pdf_signatory').value||'';
   const dateVal  = document.getElementById('pdf_date').value||'';
+  // Without a body this still produces a court-shaped document — real
+  // name, file number, signature line, commissioner's oath block — and
+  // nothing in it. The toolbar Export PDF opens this sheet empty, so it
+  // is reachable in one click.
+  if(!content.trim()){
+    toast('Nothing to export yet — use the Export PDF button under an answer to bring its text in');
+    document.getElementById('pdf_content').focus();
+    return;
+  }
   doc.setFillColor(235,242,248);doc.rect(ml,y,tw,7,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(30,80,130);
   doc.text('NOT LEGAL ADVICE — AI-assisted document. Review carefully with a licensed Ontario lawyer before filing.',ml+2,y+4.5);
