@@ -192,7 +192,11 @@ RULES:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        // See family-chat.js — claude-sonnet-4-20250514 retired 2026-06-15.
+        // thinking disabled so max_tokens still covers the paragraphs
+        // alone, as it did before.
+        model: 'claude-sonnet-5',
+        thinking: { type: 'disabled' },
         max_tokens: 4000,
         system,
         messages: [{ role: 'user', content: userPrompt }],

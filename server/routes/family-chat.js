@@ -204,7 +204,17 @@ router.post('/', requireAuth, async (req, res) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        // claude-sonnet-4-20250514 retired 2026-06-15 and returns 404,
+        // which surfaced to users as the assistant replying with the
+        // model id — the client renders data.error when there is no
+        // content block.
+        //
+        // Sonnet 5 runs adaptive thinking when `thinking` is omitted, and
+        // max_tokens covers thinking plus the reply. Disabled here to keep
+        // the same output budget as before rather than change two things
+        // while restoring service.
+        model: 'claude-sonnet-5',
+        thinking: { type: 'disabled' },
         max_tokens: 4000,
         system,
         messages: outboundMessages,
