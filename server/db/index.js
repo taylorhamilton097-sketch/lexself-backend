@@ -220,6 +220,25 @@ db.exec(`
   CREATE UNIQUE INDEX IF NOT EXISTS idx_pseudonym_token ON case_pseudonyms(user_id, product, token);
 `);
 
+// ── Columns the family app's profile panel collects but these tables
+// had nowhere to put.
+//
+// public-family/index.html saves the whole profile as one JSON blob via
+// POST /api/auth/profile; case-profile.html writes the tables above.
+// Twenty of the blob's fields map onto existing columns. These five did
+// not, so a migration from the blob — or repointing that app at
+// /api/profile/* — would silently stop saving them.
+//
+// Nothing on the server reads them today. They exist so the data the
+// user typed survives the move.
+//
+// SQLite has no IF NOT EXISTS for columns — use try/catch, as elsewhere.
+try { db.exec(`ALTER TABLE user_profiles    ADD COLUMN occupation        TEXT DEFAULT ''`); } catch(e) {}
+try { db.exec(`ALTER TABLE family_case_info ADD COLUMN court_address     TEXT DEFAULT ''`); } catch(e) {}
+try { db.exec(`ALTER TABLE family_case_info ADD COLUMN ml_lawyer_phone   TEXT DEFAULT ''`); } catch(e) {}
+try { db.exec(`ALTER TABLE family_case_info ADD COLUMN ml_lawyer_fax     TEXT DEFAULT ''`); } catch(e) {}
+try { db.exec(`ALTER TABLE case_children    ADD COLUMN gender            TEXT DEFAULT ''`); } catch(e) {}
+
 // ── FORM 13.1 FINANCIAL SCHEMA (Unit 4b — family-only) ──
 db.exec(`
   CREATE TABLE IF NOT EXISTS fs_valuation_dates (
@@ -1118,10 +1137,10 @@ function autoTitleFromMessage(content) {
 
 // ── CASE PROFILE (Unit 2) ──
 // Whitelist of allowed columns per table — protects against mass-assignment attacks
-const USER_PROFILE_FIELDS = ['first','last','dob','address','city','province','postal','phone','email'];
+const USER_PROFILE_FIELDS = ['first','last','dob','address','city','province','postal','phone','email','occupation'];
 const PARTY_FIELDS        = ['role','first','last','address','city','province','postal','phone','email','lso_number','firm','notes'];
-const CHILD_FIELDS        = ['first','last','dob','residency','notes'];
-const FAMILY_INFO_FIELDS  = ['role','court_file_number','court','court_type','next_date','next_event','judge','ml_status','ml_lawyer_first','ml_lawyer_last','ml_lawyer_firm','ml_lawyer_lso'];
+const CHILD_FIELDS        = ['first','last','dob','residency','notes','gender'];
+const FAMILY_INFO_FIELDS  = ['role','court_file_number','court','court_type','next_date','next_event','judge','ml_status','ml_lawyer_first','ml_lawyer_last','ml_lawyer_firm','ml_lawyer_lso','court_address','ml_lawyer_phone','ml_lawyer_fax'];
 const CRIMINAL_INFO_FIELDS = ['court_file_number','court','next_date','next_event','bail_conditions','prior_record','indigenous','officer','detachment'];
 const CHARGE_FIELDS       = ['charge_key','charge_label','section','charge_date','arresting_officer','location','notes'];
 
