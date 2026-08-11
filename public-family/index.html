@@ -1389,9 +1389,18 @@ function addMsg(role,content) {
   const b=document.createElement('div'); b.className='mb';
   b.innerHTML=fmt(content);
   if(role==='assistant'&&content.length>80) {
+    // Handlers are attached, not written into onclick attributes. The
+    // reply text used to be interpolated into an inline onclick delimited
+    // by double quotes, escaping only backslashes and backticks — so any
+    // answer containing a quotation mark ended the attribute early and
+    // left both buttons dead. Legal answers contain them constantly:
+    // case names, quoted statute language, "best interests of the child".
     const ma=document.createElement('div'); ma.className='ma';
-    const esc=content.replace(/\\/g,'\\\\').replace(/`/g,'\\`');
-    ma.innerHTML=`<button onclick="cpTxt(this,\`${esc}\`)">Copy</button><button onclick="exportDoc(\`${esc}\`)">Export PDF</button>`;
+    const copyBtn=document.createElement('button'); copyBtn.type='button'; copyBtn.textContent='Copy';
+    copyBtn.addEventListener('click',()=>cpTxt(copyBtn,content));
+    const expBtn=document.createElement('button'); expBtn.type='button'; expBtn.textContent='Export PDF';
+    expBtn.addEventListener('click',()=>exportDoc(content));
+    ma.appendChild(copyBtn); ma.appendChild(expBtn);
     b.appendChild(ma);
   }
   if(role==='assistant'&&hasCaseLaw(content)){
