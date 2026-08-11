@@ -1495,11 +1495,96 @@ async function stopVoice(){
 
 const PIDS={role:'p_role',first:'p_first',last:'p_last',dob:'p_dob',addr:'p_addr',city:'p_city',prov:'p_prov',postal:'p_postal',phone:'p_phone',email:'p_email',occupation:'p_occupation',cf_number:'cf_number',cf_court:'cf_court',cf_addr:'cf_addr',cf_type:'cf_type',cf_nextdate:'cf_nextdate',cf_nextevent:'cf_nextevent',cf_judge:'cf_judge',ml_status:'ml_status',ml_first:'ml_first',ml_last:'ml_last',ml_firm:'ml_firm',ml_lso:'ml_lso',ml_phone:'ml_phone',ml_fax:'ml_fax'};
 
+// ── Normalised profile API ──
+// This app used to keep the whole profile as one JSON blob that nothing
+// on the server could read, so its users had an empty case block, blank
+// generated forms and no pseudonyms. Load and save now go through
+// /api/profile/*, the same tables case-profile.html writes.
+//
+// caseProfile keeps its original flat shape, so the chat, analyze and
+// onboarding code that reads it is untouched — only the two functions
+// that talk to the server change.
+//
+// The blob is still written as a backup until this is confirmed working.
+const CORE_TO_BLOB = { first:'first', last:'last', dob:'dob', address:'addr',
+  city:'city', province:'prov', postal:'postal', phone:'phone', email:'email',
+  occupation:'occupation' };
+const FAM_TO_BLOB = { role:'role', court_file_number:'cf_number', court:'cf_court',
+  court_address:'cf_addr', court_type:'cf_type', next_date:'cf_nextdate',
+  next_event:'cf_nextevent', judge:'cf_judge', ml_status:'ml_status',
+  ml_lawyer_first:'ml_first', ml_lawyer_last:'ml_last', ml_lawyer_firm:'ml_firm',
+  ml_lawyer_lso:'ml_lso', ml_lawyer_phone:'ml_phone', ml_lawyer_fax:'ml_fax' };
+
+// Row ids seen at load, so save can tell an edit from a new row and
+// spot the ones the user deleted.
+let loadedChildIds = [], loadedPartyIds = [];
+
 async function loadProfileFromServer() {
-  const d = await api('GET','/auth/profile?product=family');
-  if (!d?.profile || !Object.keys(d.profile).length) return;
-  caseProfile = d.profile;
+  const d = await api('GET','/profile');
+  if (!d || d.error || !d.profile) return;
+  const p = {};
+  for (const [col,key] of Object.entries(CORE_TO_BLOB)) p[key] = d.profile[col] || '';
+  const fam = (d.family && d.family.info) || {};
+  for (const [col,key] of Object.entries(FAM_TO_BLOB)) p[key] = fam[col] || '';
+  p.children = (d.children||[]).map(c => ({ id:c.id, first:c.first||'', last:c.last||'',
+    dob:c.dob||'', gender:c.gender||'' }));
+  p.otherParties = ((d.family && d.family.parties)||[]).map(x => ({ id:x.id, role:x.role||'',
+    first:x.first||'', last:x.last||'', addr:x.address||'', phone:x.phone||'', email:x.email||'' }));
+  loadedChildIds = p.children.map(c => c.id).filter(Boolean);
+  loadedPartyIds = p.otherParties.map(x => x.id).filter(Boolean);
+  caseProfile = p;
   applyProfileToUI(caseProfile);
+}
+
+const apiOk = r => !!r && !r.error;
+
+// Reconcile one list against the server: update rows that already exist,
+// create the new ones, delete the ones the user removed. A row whose
+// update fails — a stale id, say — is created instead rather than
+// failing the whole save.
+async function syncRows(items, loadedIds, pathBase, toBody, isEmpty, extra) {
+  const kept = [];
+  for (const it of items) {
+    const body = { ...toBody(it), ...(extra||{}) };
+    if (isEmpty(it)) continue;
+    if (it.id) {
+      const u = await api('PUT', `${pathBase}/${it.id}`, body);
+      if (apiOk(u)) { kept.push(String(it.id)); continue; }
+    }
+    const n = await api('POST', pathBase, body);
+    if (!apiOk(n)) throw new Error('save failed');
+    const created = n.child || n.party;
+    if (created && created.id) { it.id = created.id; kept.push(String(created.id)); }
+  }
+  for (const id of loadedIds) {
+    if (!kept.includes(String(id))) await api('DELETE', `${pathBase}/${id}`);
+  }
+  return kept;
+}
+
+async function saveProfileToServer(p) {
+  try {
+    const core = {}; for (const [col,key] of Object.entries(CORE_TO_BLOB)) core[col] = p[key] || '';
+    const fam  = {}; for (const [col,key] of Object.entries(FAM_TO_BLOB))  fam[col]  = p[key] || '';
+    if (!apiOk(await api('PUT','/profile/core', core)))   throw new Error('core');
+    if (!apiOk(await api('PUT','/profile/family', fam)))  throw new Error('family');
+
+    loadedChildIds = await syncRows(p.children, loadedChildIds, '/profile/children',
+      c => ({ first:c.first, last:c.last, dob:c.dob, gender:c.gender }),
+      c => !(c.first || c.last || c.dob));
+    // addParty rejects a party with no role, so those are left unsaved
+    // rather than failing everything else.
+    loadedPartyIds = await syncRows(p.otherParties, loadedPartyIds, '/profile/parties',
+      x => ({ role:x.role, first:x.first, last:x.last, address:x.addr, phone:x.phone, email:x.email }),
+      x => !x.role || !(x.first || x.last),
+      { product:'family' });
+
+    // Backup copy — removed once the normalised path is confirmed.
+    await api('POST','/auth/profile?product=family',{profile:p});
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
 
 function applyProfileToUI(p) {
@@ -1510,9 +1595,10 @@ function applyProfileToUI(p) {
   // 'Moving Party' and 'Responding Party' were removed from p_role.
   Object.entries(PIDS).forEach(([k,id]) => { const el=document.getElementById(id); if(el&&p[k]!==undefined){el.value=p[k];if(el.tagName==='SELECT'&&el.selectedIndex===-1)el.value='';} });
   document.getElementById('childList').innerHTML='';
-  (p.children||[]).forEach(c=>{addChild();const bl=document.querySelectorAll('.child-blk');const b=bl[bl.length-1];b.querySelector('.cf').value=c.first||'';b.querySelector('.cl').value=c.last||'';b.querySelector('.cd').value=c.dob||'';if(b.querySelector('.cg'))b.querySelector('.cg').value=c.gender||'';});
+  // dataset.id carries the row id so save can tell an edit from a new row.
+  (p.children||[]).forEach(c=>{addChild();const bl=document.querySelectorAll('.child-blk');const b=bl[bl.length-1];b.dataset.id=c.id||'';b.querySelector('.cf').value=c.first||'';b.querySelector('.cl').value=c.last||'';b.querySelector('.cd').value=c.dob||'';if(b.querySelector('.cg'))b.querySelector('.cg').value=c.gender||'';});
   document.getElementById('partyList').innerHTML='';
-  (p.otherParties||[]).forEach(op=>{addParty();const bl=document.querySelectorAll('.party-blk');const b=bl[bl.length-1];b.querySelector('.or').value=op.role||'';b.querySelector('.of').value=op.first||'';b.querySelector('.ol').value=op.last||'';b.querySelector('.oa').value=op.addr||'';b.querySelector('.op').value=op.phone||'';b.querySelector('.oe').value=op.email||'';});
+  (p.otherParties||[]).forEach(op=>{addParty();const bl=document.querySelectorAll('.party-blk');const b=bl[bl.length-1];b.dataset.id=op.id||'';b.querySelector('.or').value=op.role||'';b.querySelector('.of').value=op.first||'';b.querySelector('.ol').value=op.last||'';b.querySelector('.oa').value=op.addr||'';b.querySelector('.op').value=op.phone||'';b.querySelector('.oe').value=op.email||'';});
   if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim()+(p.cf_number?' · '+p.cf_number:'');document.getElementById('ctxPill').classList.remove('none');}
   applyRoleToAnalyze(p.role);
 }
@@ -1541,11 +1627,17 @@ async function saveProfile() {
   const p={};
   Object.entries(PIDS).forEach(([k,id])=>{const el=document.getElementById(id);if(el)p[k]=el.value;});
   p.children=[];
-  document.querySelectorAll('.child-blk').forEach(b=>{p.children.push({first:b.querySelector('.cf')?.value||'',last:b.querySelector('.cl')?.value||'',dob:b.querySelector('.cd')?.value||'',gender:b.querySelector('.cg')?.value||''});});
+  document.querySelectorAll('.child-blk').forEach(b=>{p.children.push({id:b.dataset.id||'',first:b.querySelector('.cf')?.value||'',last:b.querySelector('.cl')?.value||'',dob:b.querySelector('.cd')?.value||'',gender:b.querySelector('.cg')?.value||''});});
   p.otherParties=[];
-  document.querySelectorAll('.party-blk').forEach(b=>{p.otherParties.push({role:b.querySelector('.or')?.value||'',first:b.querySelector('.of')?.value||'',last:b.querySelector('.ol')?.value||'',addr:b.querySelector('.oa')?.value||'',phone:b.querySelector('.op')?.value||'',email:b.querySelector('.oe')?.value||''});});
+  document.querySelectorAll('.party-blk').forEach(b=>{p.otherParties.push({id:b.dataset.id||'',role:b.querySelector('.or')?.value||'',first:b.querySelector('.of')?.value||'',last:b.querySelector('.ol')?.value||'',addr:b.querySelector('.oa')?.value||'',phone:b.querySelector('.op')?.value||'',email:b.querySelector('.oe')?.value||''});});
   caseProfile=p;
-  if(authToken) await api('POST','/auth/profile?product=family',{profile:p});
+  if(authToken){
+    if(!await saveProfileToServer(p)){toast('Could not save your profile. Please try again.');return;}
+    // Newly created rows now have ids — write them back so the next save
+    // updates instead of duplicating.
+    document.querySelectorAll('.child-blk').forEach((b,i)=>{if(p.children[i]&&p.children[i].id)b.dataset.id=p.children[i].id;});
+    document.querySelectorAll('.party-blk').forEach((b,i)=>{if(p.otherParties[i]&&p.otherParties[i].id)b.dataset.id=p.otherParties[i].id;});
+  }
   localStorage.setItem('ls_family_profile',JSON.stringify(p));
   if(p.first){document.getElementById('ctxPill').textContent=`${p.first} ${p.last||''}`.trim()+(p.cf_number?' · '+p.cf_number:'');document.getElementById('ctxPill').classList.remove('none');}
   const ok=document.getElementById('sok');ok.classList.add('show');setTimeout(()=>ok.classList.remove('show'),2400);
