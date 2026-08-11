@@ -177,6 +177,14 @@ router.post('/', requireAuth, async (req, res) => {
   if (context?.currentForm) {
     extras.push(`The user is currently working on: ${scrub(String(context.currentForm), pseudonyms)}. Focus your response on this form's requirements, common mistakes, and relevant caselaw.`);
   }
+  // The affidavit builder sends jsonMode and parses the reply; anything
+  // that is not valid JSON leaves its document pane empty and export
+  // reports no content. criminal-chat has always reinforced this, this
+  // route never did. It goes in extras so it lands after the case block
+  // rather than being buried above several hundred words of markdown.
+  if (context?.jsonMode) {
+    extras.push('IMPORTANT: Respond ONLY with valid JSON. No markdown, no preamble, no explanation, no code fences.');
+  }
 
   const system = buildSystemPrompt({
     basePrompt:     FAMILY_SYSTEM,
