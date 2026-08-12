@@ -135,8 +135,8 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .ob-sec { border-bottom: 1px solid var(--border); padding: 12px 14px 10px; background: rgba(46,134,193,0.04); }
 .ob-sec.hidden { display: none; }
 .ob-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
-.ob-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); font-weight: 600; }
-.ob-skip { background:none; border:none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 2px 4px; }
+.ob-title { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); font-weight: 600; }
+.ob-skip { background:none; border:none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 2px 4px; }
 .ob-skip:hover { color: var(--text2); }
 .ob-progress-wrap { height: 4px; background: var(--navy); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
 .ob-progress-bar { height: 100%; background: var(--blue-light); transition: width 0.3s ease; }
@@ -144,7 +144,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .ob-step:first-of-type { border-top: none; }
 .ob-check { width: 14px; height: 14px; border: 1.5px solid var(--text3); border-radius: 50%; margin-top: 2px; flex-shrink: 0; background: transparent; transition: all 0.15s; position: relative; }
 .ob-step.done .ob-check { background: var(--blue-light); border-color: var(--blue-light); }
-.ob-step.done .ob-check::after { content:'\2713'; color: var(--navy); font-size: 10px; font-weight: 700; position: absolute; top: -3px; left: 2px; }
+.ob-step.done .ob-check::after { content:'\2713'; color: var(--navy); font-size: 12px; font-weight: 700; position: absolute; top: -3px; left: 2px; }
 .ob-step-body { min-width: 0; }
 .ob-step-title { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
 .ob-step.done .ob-step-title { color: var(--text2); text-decoration: line-through; text-decoration-color: rgba(139,163,186,0.4); }
@@ -152,19 +152,19 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .ob-step.expanded .ob-step-desc { display: block; }
 .ob-step-cta { display: none; margin-top: 8px; }
 .ob-step.expanded:not(.done) .ob-step-cta { display: block; }
-.ob-cta-btn { background: var(--blue); border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: 600; }
+.ob-cta-btn { background: var(--blue); border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: 600; }
 .ob-cta-btn:hover { background: var(--blue-light); }
 .ob-collapsed { padding: 10px 14px; background: rgba(46,134,193,0.04); border-bottom: 1px solid var(--border); display: none; }
 .ob-collapsed.show { display: flex; align-items: center; gap: 8px; }
 .ob-collapsed-fill { flex: 1; height: 4px; background: var(--navy); border-radius: 2px; overflow: hidden; }
 .ob-collapsed-fill > div { height: 100%; background: var(--blue-light); }
-.ob-collapsed-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
-.ob-footer-link { padding: 10px 16px; display: none; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); cursor: pointer; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; }
+.ob-collapsed-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+.ob-footer-link { padding: 10px 16px; display: none; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); cursor: pointer; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; }
 .ob-footer-link.show { display: block; }
 .ob-footer-link:hover { color: var(--blue-light); }
 
 .sb-sec { border-bottom: 1px solid var(--border); }
-.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #2E86C1; font-weight: 600; margin-bottom: 2px; }
+.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: #2E86C1; font-weight: 600; margin-bottom: 2px; }
 .sbt {
   width: 100%; padding: 9px 16px; background: none; border: none;
   color: var(--text2); cursor: pointer; display: flex; align-items: flex-start;
@@ -174,7 +174,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .sbt:hover { background: rgba(46,134,193,0.15); border-left-color: #2E86C1; color: var(--white); }
 .sbt.on { background: var(--navy-light); color: var(--white); border-left-color: var(--blue); }
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; line-height: 1.35; color: #F4F6F8; }
-.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.08em; }
+.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav {

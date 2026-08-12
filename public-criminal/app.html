@@ -23,7 +23,10 @@
   --white:     #F4F6F8;
   --text:      #E8EDF2;
   --text2:     #8BA3BA;
-  --text3:     #4A6680;
+  /* Was #4A6680, which is 2.9:1 against --navy — below the 4.5:1 WCAG AA
+     floor for normal text, and used for controls, so the things you can
+     act on were the least visible things on screen. #6B87A3 is ~4.7:1. */
+  --text3:     #6B87A3;
   --border:    #2A3F56;
   --hdr:       56px;
   --bot:       60px;
@@ -42,7 +45,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .tn-mode { display: none; }
 .tn-right { margin-left: auto; display: flex; align-items: center; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .tn-right::-webkit-scrollbar { display: none; }
-.tn-plan { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; display: none; }
+.tn-plan { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px; border-radius: 20px; display: none; }
 .tn-plan.free { background: #2E86C1; color: #fff; border: 1px solid #2E86C1; }
 .tn-plan.paid { background: transparent; color: var(--blue-light); border: 1px solid #2E86C1; }
 
@@ -54,17 +57,17 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .conv-icon { font-size: 0.85rem; flex-shrink: 0; }
 .conv-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
 .conv-caret { color: var(--text3); font-size: 0.7rem; flex-shrink: 0; }
-.conv-new-btn { padding: 6px 10px; background: transparent; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; border-radius: 4px; }
+.conv-new-btn { padding: 6px 10px; background: transparent; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; border-radius: 4px; }
 .conv-new-btn:hover { border-color: var(--blue); color: var(--blue-light); }
 .conv-dropdown { position: absolute; top: calc(100% + 6px); left: 0; min-width: 320px; max-width: 400px; max-height: 420px; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 12px 32px rgba(0,0,0,0.5); z-index: 200; display: flex; flex-direction: column; overflow: hidden; }
-.conv-dropdown-hdr { padding: 10px 14px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); background: var(--navy); flex-shrink: 0; }
+.conv-dropdown-hdr { padding: 10px 14px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); background: var(--navy); flex-shrink: 0; }
 .conv-list { overflow-y: auto; flex: 1; }
 .conv-item { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px 14px; border-bottom: 1px solid rgba(42,63,86,0.5); cursor: pointer; transition: background 0.15s; }
 .conv-item:hover { background: rgba(46,134,193,0.08); }
 .conv-item.current { background: rgba(46,134,193,0.12); border-left: 3px solid var(--blue); }
 .conv-item-body { min-width: 0; }
 .conv-item-title { font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.conv-item-date { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); margin-top: 2px; }
+.conv-item-date { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); margin-top: 2px; }
 .conv-item-action { background: none; border: none; color: var(--text3); cursor: pointer; padding: 4px 6px; font-size: 0.85rem; border-radius: 3px; transition: all 0.15s; }
 .conv-item-action:hover { color: var(--blue-light); background: rgba(46,134,193,0.1); }
 .conv-item-action.delete:hover { color: var(--red); background: rgba(192,57,43,0.1); }
@@ -79,20 +82,20 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .tn-btn { height: 36px; padding: 0 16px; background: transparent; border: 1px solid #2E86C1; color: #F4F6F8; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s ease; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; text-decoration: none; }
 .tn-btn:hover { background: rgba(46,134,193,0.2); color: #FFFFFF; }
 .tn-btn.active { background: #2E86C1; color: #FFFFFF; border-color: #2E86C1; }
-.report-badge { display: none; font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; background: var(--blue); color: var(--white); padding: 1px 5px; border-radius: 2px; margin-left: 4px; }
+.report-badge { display: none; font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; background: var(--blue); color: var(--white); padding: 1px 5px; border-radius: 2px; margin-left: 4px; }
 .report-badge.show { display: inline; }
 
 /* ── USAGE STRIP ── */
 .usage-strip { background: var(--navy); border-bottom: 1px solid var(--border); padding: 5px 16px; display: none; align-items: center; gap: 12px; flex-shrink: 0; }
 .usage-strip.show { display: flex; }
-.us-item { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+.us-item { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
 .us-pips { display: flex; gap: 3px; }
 .us-pip { width: 10px; height: 10px; background: var(--navy-border); border-radius: 2px; transition: background 0.2s; }
 .us-pip.on { background: var(--blue-light); }
 .us-pip.warn { background: #F0A500; }
 .us-pip.danger { background: #E87070; }
 .us-pip.inf { background: var(--blue-light); opacity: 0.8; }
-.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+.us-upgrade { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--white); cursor: pointer; background: #2E86C1; border: none; padding: 4px 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
 
 /* ── LAYOUT ── */
 .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -108,20 +111,20 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .hamburger span { width:20px;height:2px;background:var(--text2);display:block;border-radius:2px; }
 @media (min-width: 768px) { .hamburger { display:none; } }
 .sb-sec { border-bottom: 1px solid var(--border); }
-.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #2E86C1; font-weight: 600; margin-bottom: 2px; }
+.sb-hdr { padding: 12px 16px 5px; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: #2E86C1; font-weight: 600; margin-bottom: 2px; }
 .sbt { width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text2); cursor: pointer; display: flex; align-items: flex-start; gap: 8px; text-align: left; transition: all 0.15s ease; border-left: 3px solid transparent; }
 .sbt:hover { background: rgba(46,134,193,0.15); border-left-color: #2E86C1; color: var(--white); }
 .sbt.on { background: var(--navy-light); color: var(--white); border-left: 3px solid #2E86C1; }
 .sbt .lbl { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.35; color: #F4F6F8; }
-.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sbt .tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(244,246,248,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
 
 
 /* ── Onboarding checklist (Session 6a) ── */
 .ob-sec { border-bottom: 1px solid var(--border); padding: 12px 14px 10px; background: rgba(46,134,193,0.04); }
 .ob-sec.hidden { display: none; }
 .ob-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
-.ob-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); font-weight: 600; }
-.ob-skip { background:none; border:none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 2px 4px; }
+.ob-title { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); font-weight: 600; }
+.ob-skip { background:none; border:none; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 2px 4px; }
 .ob-skip:hover { color: var(--text2); }
 .ob-progress-wrap { height: 4px; background: var(--navy); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
 .ob-progress-bar { height: 100%; background: var(--blue-light); transition: width 0.3s ease; }
@@ -129,7 +132,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .ob-step:first-of-type { border-top: none; }
 .ob-check { width: 14px; height: 14px; border: 1.5px solid var(--text3); border-radius: 50%; margin-top: 2px; flex-shrink: 0; background: transparent; transition: all 0.15s; position: relative; }
 .ob-step.done .ob-check { background: var(--blue-light); border-color: var(--blue-light); }
-.ob-step.done .ob-check::after { content:'\2713'; color: var(--navy); font-size: 10px; font-weight: 700; position: absolute; top: -3px; left: 2px; }
+.ob-step.done .ob-check::after { content:'\2713'; color: var(--navy); font-size: 12px; font-weight: 700; position: absolute; top: -3px; left: 2px; }
 .ob-step-body { min-width: 0; }
 .ob-step-title { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
 .ob-step.done .ob-step-title { color: var(--text2); text-decoration: line-through; text-decoration-color: rgba(139,163,186,0.4); }
@@ -137,31 +140,31 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .ob-step.expanded .ob-step-desc { display: block; }
 .ob-step-cta { display: none; margin-top: 8px; }
 .ob-step.expanded:not(.done) .ob-step-cta { display: block; }
-.ob-cta-btn { background: var(--blue); border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: 600; }
+.ob-cta-btn { background: var(--blue); border: none; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: 600; }
 .ob-cta-btn:hover { background: var(--blue-light); }
 .ob-collapsed { padding: 10px 14px; background: rgba(46,134,193,0.04); border-bottom: 1px solid var(--border); display: none; }
 .ob-collapsed.show { display: flex; align-items: center; gap: 8px; }
 .ob-collapsed-fill { flex: 1; height: 4px; background: var(--navy); border-radius: 2px; overflow: hidden; }
 .ob-collapsed-fill > div { height: 100%; background: var(--blue-light); }
-.ob-collapsed-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
-.ob-footer-link { padding: 10px 16px; display: none; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); cursor: pointer; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; }
+.ob-collapsed-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+.ob-footer-link { padding: 10px 16px; display: none; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); cursor: pointer; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; }
 .ob-footer-link.show { display: block; }
 .ob-footer-link:hover { color: var(--blue-light); }
 
 /* ── My Charges sidebar section ── */
 .sbt.in-case { position: relative; }
-.sbt.in-case::after { content: '●'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--blue-light); font-size: 8px; }
+.sbt.in-case::after { content: '●'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--blue-light); font-size: 12px; }
 .my-charge-item { width: 100%; padding: 8px 16px; background: rgba(46,134,193,0.08); border: none; border-left: 3px solid var(--blue); color: var(--text); cursor: pointer; display: flex; flex-direction: column; gap: 2px; text-align: left; transition: all 0.15s; }
 .my-charge-item:hover { background: rgba(46,134,193,0.18); }
 .my-charge-item .mc-label { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--white); }
-.my-charge-item .mc-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+.my-charge-item .mc-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
 
 /* ── "Is this your charge?" inline prompt ── */
 .charge-inline-prompt { background: rgba(46,134,193,0.1); border: 1px solid rgba(46,134,193,0.3); border-left: 3px solid var(--blue); padding: 14px 18px; margin-bottom: 16px; border-radius: 4px; }
 .charge-inline-prompt-hdr { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--white); margin-bottom: 6px; font-weight: 500; }
 .charge-inline-prompt-sub { font-family: 'Source Serif 4', serif; font-size: 0.82rem; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
 .charge-inline-prompt-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.cip-btn { padding: 7px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 3px; transition: all 0.15s; }
+.cip-btn { padding: 7px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 3px; transition: all 0.15s; }
 .cip-btn:hover { border-color: var(--blue-light); color: var(--blue-light); }
 .cip-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
 .cip-btn.primary:hover { background: var(--blue-light); color: #fff; }
@@ -174,7 +177,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .charge-mini-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .charge-mini-form-grid .field-full { grid-column: 1 / -1; }
 .charge-mini-field { display: flex; flex-direction: column; gap: 4px; }
-.charge-mini-field label { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); }
+.charge-mini-field label { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); }
 .charge-mini-field input, .charge-mini-field textarea { background: var(--navy); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; padding: 8px 10px; border-radius: 3px; outline: none; min-height: 36px; }
 .charge-mini-field input:focus, .charge-mini-field textarea:focus { border-color: var(--blue); }
 .charge-mini-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
@@ -186,20 +189,20 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .bn-item.on { color: var(--blue-light); border-top-color: var(--blue); }
 .bn-item:active { background: rgba(46,134,193,.1); }
 .bn-icon { font-size: 1.1rem; line-height: 1; }
-.bn-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.42rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.bn-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* ── DRAWER ── */
 .dw-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; }
 .dw-ov.show { display: block; }
 .dw-ov.visible .drawer { transform: translateY(0); }
 .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy-mid); border-top: 1px solid var(--border); z-index: 201; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.32,.72,0,1); max-height: 80vh; display: flex; flex-direction: column; padding-bottom: var(--safe-bot); }
-.dw-title { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.dw-title { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text3); padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .dw-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 1rem; }
 .dw-scroll { overflow-y: auto; flex: 1; }
-.dw-hdr { padding: 8px 16px 3px; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); }
+.dw-hdr { padding: 8px 16px 3px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); }
 .drawer-btn { width: 100%; padding: 10px 16px; background: none; border: none; border-bottom: 1px solid var(--border); color: var(--text2); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
 .drawer-btn:active { background: var(--navy-light); }
-.dw-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); display: block; margin-top: 1px; }
+.dw-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); display: block; margin-top: 1px; }
 
 /* ── PANELS ── */
 .panel { display: none; flex: 1; overflow-y: auto; } /* v2 */
@@ -211,13 +214,13 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 /* ── UPLOAD PANEL ── */
 .upload-wrap { flex: 1; overflow-y: auto; padding: 24px 16px; max-width: 680px; margin: 0 auto; width: 100%; }
 .upload-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 6px; }
-.upload-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 24px; }
+.upload-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 24px; }
 .drop-zone { border: 2px dashed var(--border); padding: 36px 20px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
 .drop-zone:hover, .drop-zone.drag { border-color: var(--blue); background: var(--navy-light); }
 .dz-icon { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--text3); margin-bottom: 12px; letter-spacing: 0.1em; }
 .dz-title { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text2); margin-bottom: 6px; }
-.dz-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
-.sel-label { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; margin-top: 14px; }
+.dz-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
+.sel-label { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; margin-top: 14px; }
 .sel-input { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; margin-bottom: 10px; }
 .sel-input:focus { border-color: var(--blue); }
 .analyze-btn { width: 100%; padding: 14px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: background 0.15s; margin-top: 4px; min-height: 50px; }
@@ -230,7 +233,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .progress-wrap.show { display: block; }
 .pb { height: 3px; background: var(--navy-border); margin-bottom: 14px; }
 .pbi { height: 100%; background: var(--blue); width: 0; transition: width 0.4s; }
-.ps { padding: 8px 12px; border: 1px solid var(--border); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px; }
+.ps { padding: 8px 12px; border: 1px solid var(--border); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px; }
 .ps.act { border-color: var(--blue); color: var(--blue-light); }
 .ps.done { border-color: var(--navy-border); color: var(--text3); }
 .ps.done::before { content: '✓'; color: var(--blue); }
@@ -244,22 +247,22 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .rep-full.show { display: flex; }
 .rep-hdr { padding: 16px; background: var(--navy-mid); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .rep-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--white); margin-bottom: 2px; }
-.rep-charge { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+.rep-charge { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
 .rep-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.rtag { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border: 1px solid var(--border); color: var(--text3); }
+.rtag { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border: 1px solid var(--border); color: var(--text3); }
 .rtag.r { border-color: var(--red-dim); color: #E87070; }
 .rtag.b { border-color: var(--blue-dim); color: var(--blue-light); }
 .rtag.g { border-color: #1E3A1E; color: #5A8A5A; }
 .rtag.strong, .rtag.viable { border-color: var(--blue-dim); color: var(--blue-light); }
 .rtag.uphill { border-color: #5A3D1A; color: #F4A261; }
 .rep-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--navy-mid); }
-.rtab { padding: 10px 14px; background: none; border: none; color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+.rtab { padding: 10px 14px; background: none; border: none; color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
 .rtab.on { color: var(--blue-light); border-bottom-color: var(--blue); }
 .rep-body { flex: 1; overflow-y: auto; }
 .rsec { display: none; padding: 16px; }
 .rsec.on { display: block; }
 .rep-actions { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; background: var(--navy-mid); }
-.ra-btn { padding: 8px 14px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; }
+.ra-btn { padding: 8px 14px; background: none; border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; }
 .ra-btn:hover { border-color: var(--blue); color: var(--blue-light); }
 .ra-btn.primary { background: var(--blue); color: var(--white); border-color: var(--blue); }
 
@@ -271,7 +274,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .fc.arguable { border-left: 3px solid var(--blue); }
 .fc.low { border-left: 3px solid var(--text3); }
 .fch { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
-.fcb { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; padding: 2px 6px; text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
+.fcb { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; padding: 2px 6px; text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
 .fcb.high, .fcb.strong { background: rgba(232,112,112,0.12); color: #E87070; border: 1px solid rgba(232,112,112,0.3); }
 .fcb.medium { background: rgba(244,162,97,0.12); color: #F4A261; border: 1px solid rgba(244,162,97,0.3); }
 .fcb.arguable { background: rgba(46,134,193,0.12); color: var(--blue-light); border: 1px solid var(--blue-dim); }
@@ -281,12 +284,12 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .dv { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--blue-light); border-top: 1px solid var(--border); padding-top: 6px; margin-top: 6px; line-height: 1.5; }
 .qp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
 .qb { background: var(--navy-light); padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--text2); line-height: 1.5; }
-.qbl { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); display: block; margin-bottom: 4px; }
+.qbl { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); display: block; margin-bottom: 4px; }
 .qbl.cx { color: #E87070; }
 .cc { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-.chip { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; padding: 2px 7px; border: 1px solid var(--blue-dim); color: var(--blue-light); }
-.sec-title { font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); margin: 14px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-.stc { font-size: 0.48rem; padding: 1px 5px; background: var(--navy-light); border: 1px solid var(--border); color: var(--text3); }
+.chip { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; padding: 2px 7px; border: 1px solid var(--blue-dim); color: var(--blue-light); }
+.sec-title { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); margin: 14px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.stc { font-size: 0.71rem; padding: 1px 5px; background: var(--navy-light); border: 1px solid var(--border); color: var(--text3); }
 .stc.r { border-color: var(--red-dim); color: #E87070; }
 .stc.g { border-color: #1E3A1E; color: #5A8A5A; }
 .ab2 { font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--text2); line-height: 1.7; margin-bottom: 12px; padding: 10px 14px; background: var(--navy-light); border-left: 3px solid var(--blue); }
@@ -296,11 +299,11 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .vba.uphill { color: #F4A261; border: 1px solid #5A3D1A; }
 .vba.insufficient { color: #E87070; border: 1px solid var(--red-dim); }
 .ia { background: rgba(46,134,193,0.08); border: 1px solid var(--blue-dim); padding: 12px 14px; margin-bottom: 12px; }
-.iat { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); margin-bottom: 8px; }
+.iat { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-light); margin-bottom: 8px; }
 .ial { padding-left: 16px; }
 .ial li { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); margin-bottom: 4px; line-height: 1.5; }
 .sc { border: 1px solid var(--border); padding: 14px; margin-bottom: 8px; }
-.sty { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 4px; }
+.sty { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 4px; }
 .sr { color: var(--blue-light); }
 .stit { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 6px; }
 .sal { padding-left: 16px; margin: 6px 0; }
@@ -310,12 +313,12 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 /* ── CHAT PANEL ── */
 .chat-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .ctx-bar { padding: 6px 14px; background: var(--navy); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.ctx-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; color: var(--blue-light); border: 1px solid var(--blue-dim); padding: 2px 8px; text-transform: uppercase; flex-shrink: 0; }
+.ctx-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; color: var(--blue-light); border: 1px solid var(--blue-dim); padding: 2px 8px; text-transform: uppercase; flex-shrink: 0; }
 .ctx-pill.none { display: none; }
 .msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .msg { animation: mIn 0.2s ease; }
 @keyframes mIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-.mm { font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 4px; }
+.mm { font-family: 'JetBrains Mono', monospace; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 4px; }
 .mb { font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.65; color: var(--text); }
 .mb p { margin-bottom: 8px; }
 .mb p:last-child { margin-bottom: 0; }
@@ -326,7 +329,10 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .msg.user .mb { background: var(--navy-light); border: 1px solid var(--border); padding: 10px 14px; }
 .msg.assistant .mb { background: var(--navy-mid); border: 1px solid var(--border); padding: 12px 14px; border-left: 3px solid var(--blue); }
 .ma { display: flex; gap: 6px; margin-top: 8px; }
-.ma button { padding: 4px 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; min-height: 28px; transition: all 0.15s; }
+/* Given a fill and a lighter label so these read as buttons. Transparent
+   with a hairline border and the palette's faintest grey, they looked
+   like text that happened to highlight on hover. Matches the family app. */
+.ma button { padding: 5px 12px; background: var(--navy-light); border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.08em; min-height: 32px; transition: all 0.15s; }
 .ma button:hover { border-color: var(--blue); color: var(--blue-light); }
 .ti { display: flex; gap: 5px; align-items: center; padding: 12px 14px; }
 .td { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; animation: tda 1.2s ease infinite; }
@@ -336,7 +342,7 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 
 /* Welcome */
 .wlc { padding: 32px 16px; max-width: 560px; margin: 0 auto; }
-.wg { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue); margin-bottom: 12px; }
+.wg { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue); margin-bottom: 12px; }
 .wlc h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 10px; }
 .wlc p { font-size: 0.9rem; color: var(--text2); line-height: 1.65; margin-bottom: 20px; }
 .chips2 { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -345,38 +351,38 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 
 /* Input bar */
 .input-bar { padding: 10px 12px; background: var(--navy-mid); border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
-.it { flex-shrink: 0; padding: 8px 16px; background: rgba(46,134,193,.15); border: 1px solid #2E86C1; color: #2E86C1; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; min-height: 38px; white-space: nowrap; transition: all 0.15s; font-weight: 600; }
+.it { flex-shrink: 0; padding: 8px 16px; background: rgba(46,134,193,.15); border: 1px solid #2E86C1; color: #2E86C1; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.79rem; text-transform: uppercase; letter-spacing: 0.08em; min-height: 38px; white-space: nowrap; transition: all 0.15s; font-weight: 600; }
 .it:hover { border-color: var(--blue); color: var(--blue-light); }
 .it.rec { border-color: #E87070; color: #E87070; }
-.vs { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: #E87070; display: none; padding: 0 4px; }
+.vs { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: #E87070; display: none; padding: 0 4px; }
 .vs.on { display: block; }
 #ci { flex: 1; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; font-family: 'Inter', sans-serif; font-size: 0.9rem; resize: none; height: 42px; max-height: 120px; line-height: 1.5; outline: none; transition: border-color 0.15s; }
 #ci:focus { border-color: var(--blue); }
 #ci::placeholder { color: var(--text3); }
-.send-btn { padding: 0 16px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; height: 42px; transition: background 0.15s; flex-shrink: 0; font-weight: 500; }
+.send-btn { padding: 0 16px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; height: 42px; transition: background 0.15s; flex-shrink: 0; font-weight: 500; }
 .send-btn:hover { background: var(--blue-light); }
 .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── PROFILE PANEL ── */
 .profile-wrap { flex: 1; overflow-y: auto; padding: 20px 16px; max-width: 700px; margin: 0 auto; width: 100%; }
 .ptitle { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--white); margin-bottom: 4px; }
-.psub { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 20px; }
-.prof-tab { flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;min-height:40px; }
+.psub { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 20px; }
+.prof-tab { flex:1;padding:10px;background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;min-height:40px; }
 .prof-tab.on { color:var(--blue-light);border-bottom-color:var(--blue); }
 .prof-section { flex:1; }
 
-.pr-sec-t { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-top: 20px; }
+.pr-sec-t { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-light); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-top: 20px; }
 .fr { display: flex; gap: 10px; }
 .fg { flex: 1; margin-bottom: 10px; }
-.fl { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
+.fl { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
 .fi { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.15s; }
 .fi:focus { border-color: var(--blue); }
 select.fi { cursor: pointer; }
-.bp { padding: 11px 18px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 42px; font-weight: 500; transition: background 0.15s; }
+.bp { padding: 11px 18px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 42px; font-weight: 500; transition: background 0.15s; }
 .bp:hover { background: var(--blue-light); }
-.bs { padding: 11px 14px; background: none; color: var(--text2); border: 1px solid var(--border); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 42px; transition: all 0.15s; }
+.bs { padding: 11px 14px; background: none; color: var(--text2); border: 1px solid var(--border); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 42px; transition: all 0.15s; }
 .bs:hover { border-color: var(--blue); color: var(--text); }
-.sok { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: var(--blue-light); opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 0.1em; }
+.sok { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--blue-light); opacity: 0; transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 0.1em; }
 .sok.show { opacity: 1; }
 
 /* ── PAYWALL ── */
@@ -388,10 +394,10 @@ select.fi { cursor: pointer; }
 .pw-plans { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .pp-card { padding: 14px 16px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s; background: var(--navy); }
 .pp-card:hover { border-color: var(--blue); }
-.pp-name { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text2); margin-bottom: 2px; }
+.pp-name { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text2); margin-bottom: 2px; }
 .pp-price { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--white); }
 .pp-price span { font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--text3); font-weight: 400; }
-.pw-close { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 40px; }
+.pw-close { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; min-height: 40px; }
 
 /* ── ACCOUNT PANEL ── */
 .acct-ov { position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:flex-start;justify-content:flex-end;padding:56px 16px 0 0; }
@@ -399,23 +405,23 @@ select.fi { cursor: pointer; }
 .acct-box { background:var(--navy-mid);border:1px solid var(--border);width:320px;max-height:calc(100vh - 72px);overflow-y:auto; }
 .acct-hdr { padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
 .acct-name { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
-.acct-email { font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px; }
+.acct-email { font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px; }
 .acct-close { background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem; }
 .acct-plan { padding:14px 16px;border-bottom:1px solid var(--border);background:var(--navy-light); }
-.acct-plan-label { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px; }
+.acct-plan-label { font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px; }
 .acct-plan-name { font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-light);margin-bottom:10px; }
 .acct-usage { display:flex;flex-direction:column;gap:8px; }
 .acct-usage-row { display:flex;align-items:center;justify-content:space-between;gap:8px; }
-.acct-usage-label { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
-.acct-usage-val { font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--text2); }
+.acct-usage-label { font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
+.acct-usage-val { font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--text2); }
 .acct-usage-bar { height:3px;background:var(--border);flex:1;border-radius:2px;overflow:hidden; }
 .acct-usage-fill { height:100%;background:var(--blue);border-radius:2px;transition:width .3s; }
 .acct-usage-fill.warn { background:#F4A261; }
 .acct-usage-fill.danger { background:#E87070; }
-.acct-upgrade { margin:14px 16px;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;width:calc(100% - 32px);font-weight:500;transition:background .15s; }
+.acct-upgrade { margin:14px 16px;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;width:calc(100% - 32px);font-weight:500;transition:background .15s; }
 .acct-upgrade:hover { background:var(--blue-light); }
 .acct-section { padding:12px 16px;border-bottom:1px solid var(--border); }
-.acct-section-title { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px; }
+.acct-section-title { font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px; }
 .acct-link { display:block;padding:8px 0;font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text2);cursor:pointer;background:none;border:none;text-align:left;width:100%;transition:color .15s; }
 .acct-link:hover { color:var(--text); }
 .acct-link.danger { color:#E87070; }
@@ -426,20 +432,20 @@ select.fi { cursor: pointer; }
 .pdf-box { background: var(--navy-mid); border-top: 1px solid var(--border); width: 100%; padding: 20px 16px max(20px,env(safe-area-inset-bottom,20px)); max-height: 80vh; overflow-y: auto; }
 .pdf-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
 .pdf-title-hdr { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--white); margin-bottom: 16px; }
-.pf-l { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
+.pf-l { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; }
 .pf-i { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; margin-bottom: 10px; }
 .pf-i:focus { border-color: var(--blue); }
-.pdf-dl-btn { width: 100%; padding: 13px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 500; margin-top: 4px; min-height: 46px; transition: background 0.15s; }
+.pdf-dl-btn { width: 100%; padding: 13px; background: var(--blue); color: var(--white); border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.79rem; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 500; margin-top: 4px; min-height: 46px; transition: background 0.15s; }
 .pdf-dl-btn:hover { background: var(--blue-light); }
-.pdf-cancel { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; min-height: 40px; }
+.pdf-cancel { width: 100%; padding: 10px; background: none; border: 1px solid var(--border); color: var(--text3); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; min-height: 40px; }
 
 /* ── DEFENCE ORG ── */
-.dorg-tab { width:100%;padding:14px 14px;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;text-align:left;transition:all .15s;border-left:3px solid transparent; }
+.dorg-tab { width:100%;padding:14px 14px;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;text-align:left;transition:all .15s;border-left:3px solid transparent; }
 .dorg-tab.on { color:var(--white);background:var(--navy-light);border-left-color:var(--blue); }
 .dorg-section { display:flex;flex-direction:column;flex:1;overflow:hidden; }
 .dorg-hdr { padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
 .dorg-title { font-family:'Playfair Display',serif;font-size:1rem;color:var(--white); }
-.dorg-add-btn { padding:9px 20px;background:#2E86C1;font-weight:600;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;transition:background .15s;font-weight:600; }
+.dorg-add-btn { padding:9px 20px;background:#2E86C1;font-weight:600;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;transition:background .15s;font-weight:600; }
 .dorg-add-btn:hover { background:var(--blue-light); }
 .dorg-list { flex:1;overflow-y:auto;padding:12px; }
 .dorg-item { border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px; }
@@ -447,33 +453,33 @@ select.fi { cursor: pointer; }
 .dorg-item.important { border-left:3px solid #F4A261; }
 .dorg-item.normal { border-left:3px solid var(--blue); }
 .dorg-item-title { font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:2px; }
-.dorg-item-meta { font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
+.dorg-item-meta { font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3); }
 .dorg-item-notes { font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2);margin-top:4px; }
 .dorg-del { background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:2px 6px;flex-shrink:0; }
 .dorg-del:hover { color:#E87070; }
-.dorg-empty { font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:48px 24px; }
+.dorg-empty { font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:48px 24px; }
 .dorg-fi { width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;margin-bottom:10px;transition:border-color .15s; }
 .dorg-fi:focus { border-color:var(--blue); }
-.dorg-fl { font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block; }
+.dorg-fl { font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block; }
 
 /* ── ONBOARDING ── */
 .ob-ov { position:fixed;inset:0;background:rgba(13,27,42,0.97);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px; }
 .ob-box { background:var(--navy-mid);border:1px solid var(--border);width:100%;max-width:480px;padding:36px 32px; }
 .ob-step { display:none; }
 .ob-step.on { display:block; }
-.ob-eyebrow { font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.16em;color:var(--blue);margin-bottom:12px; }
+.ob-eyebrow { font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;color:var(--blue);margin-bottom:12px; }
 .ob-title { font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:8px; }
 .ob-body { font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text2);line-height:1.65;margin-bottom:24px; }
 .ob-progress { display:flex;gap:6px;margin-bottom:24px; }
 .ob-dot { height:3px;flex:1;background:var(--border);transition:background .3s; }
 .ob-dot.on { background:var(--blue); }
-.ob-btn { width:100%;padding:14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;font-weight:500;transition:background .15s;min-height:48px; }
+.ob-btn { width:100%;padding:14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.79rem;text-transform:uppercase;letter-spacing:.14em;font-weight:500;transition:background .15s;min-height:48px; }
 .ob-btn:hover { background:var(--blue-light); }
-.ob-skip { display:block;text-align:center;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);cursor:pointer;background:none;border:none;width:100%; }
+.ob-skip { display:block;text-align:center;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);cursor:pointer;background:none;border:none;width:100%; }
 .ob-skip:hover { color:var(--text2); }
 
 /* ── TOAST ── */
-.toast { position: fixed; bottom: calc(var(--bot) + var(--safe-bot) + 12px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--navy-light); border: 1px solid var(--border); padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text); z-index: 999; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis; }
+.toast { position: fixed; bottom: calc(var(--bot) + var(--safe-bot) + 12px); left: 50%; transform: translateX(-50%) translateY(8px); background: var(--navy-light); border: 1px solid var(--border); padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text); z-index: 999; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (min-width: 768px) {
@@ -529,7 +535,7 @@ select.fi { cursor: pointer; }
 </div>
 
 <!-- DISCLAIMER -->
-<div style="background:rgba(46,134,193,0.08);border-bottom:1px solid var(--border);padding:5px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0">ClearStand is a legal preparation tool, not a substitute for legal advice.</div>
+<div style="background:rgba(46,134,193,0.08);border-bottom:1px solid var(--border);padding:5px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.71rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0">ClearStand is a legal preparation tool, not a substitute for legal advice.</div>
 
 <!-- MAIN -->
 <div class="app-body">
@@ -551,7 +557,7 @@ select.fi { cursor: pointer; }
     <div class="sb-sec" id="myChargesSec" style="display:none">
       <div class="sb-hdr" style="color:var(--blue-light);display:flex;align-items:center;justify-content:space-between">
         <span>My Charges</span>
-        <a href="/case-profile" style="font-size:9px;color:var(--text3);text-decoration:none" title="Manage in case profile">edit →</a>
+        <a href="/case-profile" style="font-size:12px;color:var(--text3);text-decoration:none" title="Manage in case profile">edit →</a>
       </div>
       <div id="myChargesList"></div>
     </div>
@@ -692,8 +698,8 @@ select.fi { cursor: pointer; }
     <div class="chat-wrap">
       <div class="ctx-bar">
         <span class="ctx-pill none" id="ctxName">General Defence Assistant</span>
-        <span id="fileNumBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;padding:2px 8px;border:1px solid var(--border)">File: <span id="fileNumVal"></span></span>
-        <button onclick="showPanel('profile');bnActive('profile')" style="margin-left:8px;padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em" id="addFileBtn" title="Add court file number">+ File #</button>
+        <span id="fileNumBadge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.71rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;padding:2px 8px;border:1px solid var(--border)">File: <span id="fileNumVal"></span></span>
+        <button onclick="showPanel('profile');bnActive('profile')" style="margin-left:8px;padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.08em" id="addFileBtn" title="Add court file number">+ File #</button>
       </div>
       <div class="msgs" id="msgs"></div>
       <div class="input-bar">
@@ -799,7 +805,7 @@ select.fi { cursor: pointer; }
               <div class="fg"><label class="fl">Address <span style="color:var(--text3)">(optional)</span></label><input class="fi" type="text" id="pp_address" placeholder="Street address" style="font-size:16px"></div>
             </div>
           </div>
-          <div id="pp_redacted_note" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Will be auto-labelled in ascending order (e.g. Witness #1, Victim #1)</div>
+          <div id="pp_redacted_note" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Will be auto-labelled in ascending order (e.g. Witness #1, Victim #1)</div>
           <div class="fg" style="margin-bottom:10px">
             <label class="fl">Notes <span style="color:var(--text3)">(optional)</span></label>
             <textarea class="fi" id="pp_notes" rows="2" placeholder="Relevant notes about this person…" style="font-size:16px;resize:vertical"></textarea>
@@ -874,8 +880,8 @@ select.fi { cursor: pointer; }
       <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white);margin-bottom:20px" id="dorg-modal-title">Add Item</div>
       <div id="dorg-modal-fields"></div>
       <div style="display:flex;gap:10px;margin-top:16px">
-        <button onclick="saveDorgItem()" style="flex:1;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:500">Save</button>
-        <button onclick="closeDorgModal()" style="padding:12px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em">Cancel</button>
+        <button onclick="saveDorgItem()" style="flex:1;padding:12px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;font-weight:500">Save</button>
+        <button onclick="closeDorgModal()" style="padding:12px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em">Cancel</button>
       </div>
     </div>
   </div>
@@ -887,22 +893,22 @@ select.fi { cursor: pointer; }
       <div style="padding:12px 16px;background:var(--navy-mid);border-bottom:1px solid var(--border);flex-shrink:0">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--white)">Cross-Examination Builder</div>
-          <button id="cxFullBtn" onclick="toggleCxFullscreen()" style="padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.08em">⛶ Expand</button>
+          <button id="cxFullBtn" onclick="toggleCxFullscreen()" style="padding:4px 10px;background:none;border:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.08em">⛶ Expand</button>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-          <select id="cxWitnessType" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:.6rem;outline:none">
+          <select id="cxWitnessType" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:.76rem;outline:none">
             <option value="">Select witness type…</option>
             <option value="complainant">Complainant</option>
             <option value="officer">Police Officer</option>
             <option value="civilian">Civilian Witness</option>
             <option value="expert">Expert Witness</option>
           </select>
-          <button onclick="document.getElementById('cxDocFile').click()" style="padding:8px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
+          <button onclick="document.getElementById('cxDocFile').click()" style="padding:8px 16px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap" id="cxUploadBtn">+ Upload Statement</button>
           <input type="file" id="cxDocFile" accept=".pdf" style="display:none" onchange="cxLoadDoc(event)">
-          <button onclick="openCxOutline()" style="padding:8px 16px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap;font-weight:600" id="cxViewBtn" style="font-weight:600;font-size:.55rem;padding:8px 18px">View Outline ↗</button>
+          <button onclick="openCxOutline()" style="padding:8px 16px;background:#2E86C1;color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;white-space:nowrap;font-weight:600" id="cxViewBtn" style="font-weight:600;font-size:.76rem;padding:8px 18px">View Outline ↗</button>
         </div>
-        <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
+        <div id="cxDocStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.71rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">AI-guided · Commit · Confront · Credibility · Upload officer notes or will-say</div>
       </div>
       <!-- Full width interview -->
       <div id="cxMsgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
@@ -910,10 +916,10 @@ select.fi { cursor: pointer; }
       <div id="cxDoc" style="display:none"></div>
       <!-- Input bar -->
       <div style="padding:10px 12px;background:var(--navy-mid);border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
-        <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 16px;height:42px;background:rgba(46,134,193,.15);border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;font-weight:600"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice</button>
+        <button id="cxVBtn" onclick="toggleCxVoice()" style="flex-shrink:0;padding:0 16px;height:42px;background:rgba(46,134,193,.15);border:1px solid #2E86C1;color:#2E86C1;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;font-weight:600"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Voice</button>
         <textarea id="cx-ci" placeholder="Type your answer or use Voice…" rows="1" oninput="cxAr(this)" onkeydown="cxHk(event)" style="flex:1;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:42px;max-height:120px;outline:none;transition:border-color .15s"></textarea>
-        <button onclick="resetCx()" style="padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Restart</button>
-        <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
+        <button onclick="resetCx()" style="padding:0 10px;height:42px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">Restart</button>
+        <button id="cxSBtn" onclick="submitCxAnswer()" style="padding:0 14px;background:var(--blue);color:var(--white);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;height:42px;transition:background .15s;flex-shrink:0">Next →</button>
       </div>
     </div>
   </div>
@@ -971,8 +977,8 @@ select.fi { cursor: pointer; }
       <button class="drawer-btn" onclick="loadTopic('sentencing');closeDrawer()">Sentencing — Gladue · Lacasse</button>
     </div>
         <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.48rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px">Just need analyses?</div>
-        <button onclick="startCheckout('analysis_pack')" style="padding:8px 18px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em">$19 — 3 Analyses, No Subscription</button>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px">Just need analyses?</div>
+        <button onclick="startCheckout('analysis_pack')" style="padding:8px 18px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em">$19 — 3 Analyses, No Subscription</button>
       </div>
     </div>
   </div>
@@ -991,10 +997,10 @@ select.fi { cursor: pointer; }
       <div class="ob-title">Welcome to ClearStand Criminal.</div>
       <div class="ob-body">Let's get your case profile set up so ClearStand can personalize your defence analysis. Takes about 60 seconds.</div>
       <div style="display:flex;gap:10px;margin-bottom:12px">
-        <div style="flex:1"><label style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">First Name</label><input id="ob_first" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Inter',sans-serif;font-size:16px;outline:none" type="text" placeholder="Your first name"></div>
-        <div style="flex:1"><label style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">Last Name</label><input id="ob_last" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Inter',sans-serif;font-size:16px;outline:none" type="text" placeholder="Your last name"></div>
+        <div style="flex:1"><label style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">First Name</label><input id="ob_first" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Inter',sans-serif;font-size:16px;outline:none" type="text" placeholder="Your first name"></div>
+        <div style="flex:1"><label style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">Last Name</label><input id="ob_last" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Inter',sans-serif;font-size:16px;outline:none" type="text" placeholder="Your last name"></div>
       </div>
-      <div style="margin-bottom:16px"><label style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">Primary Charge (if known)</label><input id="ob_charge" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Inter',sans-serif;font-size:16px;outline:none" type="text" placeholder="e.g. Assault s.266, Impaired s.320.14"></div>
+      <div style="margin-bottom:16px"><label style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;display:block">Primary Charge (if known)</label><input id="ob_charge" style="width:100%;background:var(--navy);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'Inter',sans-serif;font-size:16px;outline:none" type="text" placeholder="e.g. Assault s.266, Impaired s.320.14"></div>
       <button class="ob-btn" onclick="obNext(1)">Save & Continue →</button>
       <button class="ob-skip" onclick="obSkip()">Skip for now</button>
     </div>
@@ -1039,10 +1045,10 @@ select.fi { cursor: pointer; }
     <div class="pw-msg" id="pwMsg"></div>
     <div class="pw-plans">
       <div class="pp-card" onclick="startCheckout('counsel')" style="border:2px solid var(--blue);position:relative">
-        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap">Recommended</div>
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap">Recommended</div>
         <div class="pp-name" style="color:var(--blue-light)">Counsel — $149/month</div>
         <div style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);margin:6px 0 4px;line-height:1.5">Our highest limits + every premium feature</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--text3);line-height:1.8">🎙 Voice dictation + language cleanup<br>⚖️ Cross-examination builder<br>📋 Up to 20 analyses/month<br>📁 Defence organization tool</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.71rem;color:var(--text3);line-height:1.8">🎙 Voice dictation + language cleanup<br>⚖️ Cross-examination builder<br>📋 Up to 20 analyses/month<br>📁 Defence organization tool</div>
       </div>
       <div class="pp-card" onclick="startCheckout('complete')">
         <div class="pp-name">Complete — $69/month</div>
@@ -1097,7 +1103,7 @@ select.fi { cursor: pointer; }
 
       <!-- Proration summary -->
       <div id="umProration" style="background:var(--navy);border:1px solid var(--border);padding:18px 20px;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:.85rem;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:12px">Your Upgrade Summary</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue-light);margin-bottom:12px">Your Upgrade Summary</div>
         <div id="umProrationContent" style="color:var(--text3);font-size:.82rem">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
             <div style="width:16px;height:16px;border:2px solid var(--blue);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0"></div>
@@ -1108,13 +1114,13 @@ select.fi { cursor: pointer; }
 
       <!-- Annual toggle -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)" id="umLblM">Monthly</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)" id="umLblM">Monthly</span>
         <label style="position:relative;width:40px;height:22px;cursor:pointer;display:inline-block">
           <input type="checkbox" id="umAnnualToggle" onchange="umSetAnnual(this.checked)" style="opacity:0;width:0;height:0">
           <span id="umTrack" style="position:absolute;inset:0;background:var(--border);border-radius:22px;transition:.3s"></span>
           <span id="umKnob" style="position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
         </label>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light)" id="umLblA">Annual — Save 20%</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light)" id="umLblA">Annual — Save 20%</span>
       </div>
     </div>
 
@@ -1593,12 +1599,12 @@ function buildUmCards() {
   document.getElementById('umCards').innerHTML = UM_BUNDLES.map(b => {
     const price = umAnnual ? Math.round(b.annual / 12) : b.monthly;
     const isRecommended = b.key.includes(userPlan) && userPlan !== 'free';
-    const discountNote = isClearSplit ? `<div style="font-family:'JetBrains Mono',monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light);margin-top:4px">ClearSplit discount applied — 20% off</div>` : '';
+    const discountNote = isClearSplit ? `<div style="font-family:'JetBrains Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue-light);margin-top:4px">ClearSplit discount applied — 20% off</div>` : '';
     return `<div style="border:${b.popular ? '2px solid var(--blue)' : '1px solid var(--border)'};padding:18px 20px;position:relative;background:var(--navy);">
-      ${isRecommended ? '<div style="position:absolute;top:-10px;left:16px;background:var(--blue);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap">Recommended</div>' : ''}
+      ${isRecommended ? '<div style="position:absolute;top:-10px;left:16px;background:var(--blue);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 10px;white-space:nowrap">Recommended</div>' : ''}
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
         <div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light)">${b.name}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light)">${b.name}</div>
           ${discountNote}
         </div>
         <div style="text-align:right">
@@ -1608,7 +1614,7 @@ function buildUmCards() {
         </div>
       </div>
       <ul style="list-style:none;margin-bottom:14px">${b.features.map(f => `<li style="font-family:'Inter',sans-serif;font-size:.78rem;color:var(--text2);padding:2px 0;display:flex;gap:7px"><span style="color:var(--blue-light)">✓</span>${f}</li>`).join('')}</ul>
-      <button onclick="selectUmBundle('${umAnnual ? b.annualKey : b.key}', this)" style="width:100%;padding:11px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;min-height:44px">Select ${b.name}</button>
+      <button onclick="selectUmBundle('${umAnnual ? b.annualKey : b.key}', this)" style="width:100%;padding:11px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;min-height:44px">Select ${b.name}</button>
     </div>`;
   }).join('');
 }
@@ -2004,7 +2010,7 @@ function buildReport(r, meta) {
     ${(p2.charterIssues||[]).map(ci=>`<div class="fc ${(ci.severity||'arguable').toLowerCase()}">
       <div class="fch"><div class="fcb ${(ci.severity||'arguable').toLowerCase()}">${ci.severity||'ARG'}</div>
         <div><div class="fct">${ci.section} — ${ci.breach||''}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);margin-top:1px">Remedy: ${ci.remedy||''}</div></div></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--text3);margin-top:1px">Remedy: ${ci.remedy||''}</div></div></div>
       <div class="fcd">${ci.factualBasis||''}</div>
       <div class="cc">${ci.keyCase?`<span class="chip">${ci.keyCase}</span>`:''} ${(ci.supportingCases||[]).map(c=>`<span class="chip">${c}</span>`).join('')}</div>
       ${ci.applicationStrategy?`<div class="dv">${ci.applicationStrategy}</div>`:''}
@@ -2029,13 +2035,13 @@ function buildReport(r, meta) {
     ${(p4.missingItems||[]).map(mi=>`<div class="fc ${(mi.importance||'moderate').toLowerCase()}">
       <div class="fch"><div class="fcb ${(mi.importance||'moderate').toLowerCase()}">${mi.importance||'MOD'}</div>
         <div><div class="fct">${mi.item||''}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text3);margin-top:1px">${mi.legalBasis||''}</div></div></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--text3);margin-top:1px">${mi.legalBasis||''}</div></div></div>
       ${mi.howToRequest?`<div class="fcd"><strong>Request:</strong> ${mi.howToRequest}</div>`:''}
       ${mi.ifNotProduced?`<div class="dv">${mi.ifNotProduced}</div>`:''}
     </div>`).join('')}
     ${p4.disclosureRequestLetter?`
     <div class="sec-title" style="margin-top:14px">Stinchcombe Request Letter</div>
-    <button onclick="copyDisclosureLetter()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;min-height:36px;transition:all .15s">Copy Letter</button>
+    <button onclick="copyDisclosureLetter()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;min-height:36px;transition:all .15s">Copy Letter</button>
     <div class="dl-txt" id="dlTxt">${p4.disclosureRequestLetter}</div>`:''}`;
 }
 
@@ -2589,7 +2595,7 @@ When complete set complete to true. The outline should be court-ready with actua
 async function startCrossEx() {
   cxHistory = [];
   document.getElementById('cxMsgs').innerHTML = '';
-  document.getElementById('cxDoc').innerHTML = '<div id="cxDocEmpty" style="color:var(--text3);font-family:JetBrains Mono,monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:32px">Your cross-examination outline will appear here</div>';
+  document.getElementById('cxDoc').innerHTML = '<div id="cxDocEmpty" style="color:var(--text3);font-family:JetBrains Mono,monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:32px">Your cross-examination outline will appear here</div>';
   const witnessType = document.getElementById('cxWitnessType')?.value;
   const firstMsg = witnessType 
     ? `Start the cross-examination interview for a ${witnessType}. ${cxDocBase64 ? 'I have uploaded their statement/notes for you to analyze.' : 'Ask me for details about this witness.'}`
@@ -2601,7 +2607,7 @@ function showCxQuestion(q, progress) {
   const msgs = document.getElementById('cxMsgs');
   const div = document.createElement('div');
   div.style.cssText = 'font-family:Inter,sans-serif;font-size:.88rem;line-height:1.6;color:var(--blue-light);padding:10px 12px;border-left:3px solid var(--blue);background:var(--navy-light)';
-  div.innerHTML = `<span style="font-family:JetBrains Mono,monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);display:block;margin-bottom:4px">ClearStand</span>${q}`;
+  div.innerHTML = `<span style="font-family:JetBrains Mono,monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);display:block;margin-bottom:4px">ClearStand</span>${q}`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -2610,7 +2616,7 @@ function showCxAnswer(a) {
   const msgs = document.getElementById('cxMsgs');
   const div = document.createElement('div');
   div.style.cssText = 'font-family:Inter,sans-serif;font-size:.88rem;line-height:1.6;color:var(--text);padding:10px 12px;background:var(--navy-mid);border:1px solid var(--border)';
-  div.innerHTML = `<span style="font-family:JetBrains Mono,monospace;font-size:.46rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);display:block;margin-bottom:4px">You</span>${a}`;
+  div.innerHTML = `<span style="font-family:JetBrains Mono,monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);display:block;margin-bottom:4px">You</span>${a}`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -2636,7 +2642,7 @@ async function sendCxMessage(userAnswer, isFirst = false, firstMsg = null) {
   const msgs = document.getElementById('cxMsgs');
   const typing = document.createElement('div');
   typing.id = 'cxTyping';
-  typing.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:10px 12px';
+  typing.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:.73rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:10px 12px';
   typing.textContent = 'Building outline…';
   msgs.appendChild(typing);
   msgs.scrollTop = msgs.scrollHeight;
@@ -2930,7 +2936,7 @@ function removePerson(id) {
 function renderPeople() {
   const list = document.getElementById('pp_list');
   if (!casePeople.length) {
-    list.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:24px">No people added yet</div>';
+    list.innerHTML = '<div style="font-family:JetBrains Mono,monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-align:center;padding:24px">No people added yet</div>';
     return;
   }
 
@@ -2943,12 +2949,12 @@ function renderPeople() {
 
   let html = '';
   Object.entries(groups).forEach(([grp, people]) => {
-    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:.54rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">${grp}</div>`;
+    html += `<div style="font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.14em;color:var(--blue-light);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">${grp}</div>`;
     people.forEach(p => {
       html += `<div style="border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
         <div style="flex:1">
           <div style="font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;color:var(--white);margin-bottom:2px">${p.label || p.name}</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:${p.notes ? '6px' : '0'}">${p.role}${p.division ? ' · ' + p.division : ''}${p.address ? ' · ' + p.address : ''}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.73rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:${p.notes ? '6px' : '0'}">${p.role}${p.division ? ' · ' + p.division : ''}${p.address ? ' · ' + p.address : ''}</div>
           ${p.notes ? `<div style="font-family:'Inter',sans-serif;font-size:.82rem;color:var(--text2)">${p.notes}</div>` : ''}
         </div>
         <button onclick="removePerson(${p.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;flex-shrink:0;padding:2px 6px" title="Remove">✕</button>
