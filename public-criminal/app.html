@@ -220,6 +220,18 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .dz-icon { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--text3); margin-bottom: 12px; letter-spacing: 0.1em; }
 .dz-title { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text2); margin-bottom: 6px; }
 .dz-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
+/* Staged disclosure package — what has been added, and what can be removed */
+.file-list { display: none; margin-bottom: 16px; }
+.file-list.show { display: block; }
+.fl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 8px; }
+.fl-clear { background: none; border: none; padding: 0; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); }
+.fl-clear:hover { color: var(--red-light); }
+.fl-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); background: var(--navy); margin-bottom: 6px; }
+.fl-n { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); min-width: 24px; }
+.fl-name { flex: 1; min-width: 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fl-size { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--text3); white-space: nowrap; }
+.fl-x { background: none; border: none; cursor: pointer; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1; color: var(--text3); }
+.fl-x:hover { color: var(--red-light); }
 .sel-label { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 4px; display: block; margin-top: 14px; }
 .sel-input { width: 100%; background: var(--navy); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-family: 'Inter', sans-serif; font-size: 0.85rem; outline: none; margin-bottom: 10px; }
 .sel-input:focus { border-color: var(--blue); }
@@ -621,11 +633,16 @@ select.fi { cursor: pointer; }
 
       <div class="drop-zone" id="dz" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
         <div class="dz-icon">PDF</div>
-        <div class="dz-title" id="dzTitle">Tap to select Crown Brief PDF</div>
-        <div class="dz-sub">Police disclosure, officer notes, will-says, ITO — any PDF up to 25MB</div>
-        <div class="dz-sub" style="margin-top:6px;color:var(--text3)">Processed in memory only — not stored on server</div>
+        <div class="dz-title" id="dzTitle">Tap to select Crown Brief PDFs</div>
+        <div class="dz-sub">Police disclosure, officer notes, will-says, ITO — select as many as you need</div>
+        <div class="dz-sub" style="margin-top:6px;color:var(--text3)">Up to 20 PDFs · 25MB each · processed in memory only, not stored on server</div>
       </div>
-      <input type="file" id="fileInput" accept=".pdf" style="display:none" onchange="onFileSel(event)">
+      <input type="file" id="fileInput" accept=".pdf" multiple style="display:none" onchange="onFileSel(event)">
+
+      <!-- Staged package. Populated by renderFileList(); rows are built in JS
+           rather than as markup so filenames containing quotes or apostrophes
+           cannot break a handler or be injected into the page. -->
+      <div class="file-list" id="fileList"></div>
 
       <label class="sel-label">Primary Charge</label>
       <select class="sel-input" id="chargeSelect">
@@ -1173,7 +1190,7 @@ let analysisResults = null, chatHist = [], chatBusy = false;
 let currentConversationId = null;  // null = new chat, number = existing conversation
 let conversationsList = [];         // cached list for dropdown
 let voiceRec = null, isRecording = false;
-let caseProf = {}, selFile = null;
+let caseProf = {}, selFiles = [];
 let currentPanel = 'upload';
 
 // Unified charge data — label, section (for case profile), and educational prompt
@@ -1856,28 +1873,169 @@ async function startCheckout(plan) {
   } catch(e) { toast('Network error. Please try again.'); }
 }
 
+// These mirror the server's limits in server/routes/analyze.js so an
+// oversized package is caught here, before an upload that would be refused.
+// The page ceiling cannot be checked here — counting pages needs the server.
+const MAX_FILES = 20;
+const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
+
 function onDragOver(e){e.preventDefault();document.getElementById('dz').classList.add('drag');}
 function onDragLeave(){document.getElementById('dz').classList.remove('drag');}
-function onDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')setFile(f);else toast('Please select a PDF file.');}
-function onFileSel(e){if(e.target.files[0])setFile(e.target.files[0]);}
-function setFile(f) {
-  selFile = f;
-  const mb = (f.size/1024/1024).toFixed(1);
-  document.getElementById('dzTitle').textContent = `✓ ${f.name} (${mb}MB)`;
-  document.getElementById('dz').style.borderColor = 'var(--blue)';
-  document.getElementById('aBtn').disabled = false;
-  document.getElementById('aBtnTxt').textContent = 'Run Five-Pass Analysis';
+function onDrop(e){e.preventDefault();document.getElementById('dz').classList.remove('drag');addFiles(e.dataTransfer.files);}
+function onFileSel(e){
+  addFiles(e.target.files);
+  // Cleared so choosing the same file again still fires a change event —
+  // otherwise removing a file and re-adding it appears to do nothing.
+  e.target.value = '';
+}
+
+// Files ACCUMULATE. Each selection is added to the package rather than
+// replacing it, so several trips to the file dialog build one package.
+function addFiles(list) {
+  const incoming = Array.from(list || []);
+  if (!incoming.length) return;
+
+  const rejected = [], dupes = [];
+  let added = 0;
+
+  for (const f of incoming) {
+    const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+    if (!isPdf) { rejected.push(f.name); continue; }
+    // Name and size together — selecting the same folder twice is the
+    // obvious way to add everything a second time.
+    if (selFiles.some(s => s.name === f.name && s.size === f.size)) { dupes.push(f.name); continue; }
+    if (selFiles.length >= MAX_FILES) {
+      toast(`Up to ${MAX_FILES} PDFs in one analysis. ${added ? 'The rest were added.' : 'Nothing was added.'}`);
+      break;
+    }
+    if (f.size > 25 * 1024 * 1024) {
+      toast(`${f.name} is larger than 25MB. Split it and add the parts.`);
+      continue;
+    }
+    selFiles.push(f);
+    added++;
+  }
+
+  if (rejected.length) toast(rejected.length === 1
+    ? `${rejected[0]} is not a PDF and was not added.`
+    : `${rejected.length} files were not PDFs and were not added.`);
+  else if (dupes.length && !added) toast(dupes.length === 1
+    ? `${dupes[0]} is already in the package.`
+    : `Those ${dupes.length} documents are already in the package.`);
+  else if (dupes.length) toast(`${added} added · ${dupes.length} already in the package.`);
+
+  renderFileList();
+}
+
+function removeFile(i) { selFiles.splice(i, 1); renderFileList(); }
+function clearFiles() { selFiles = []; renderFileList(); }
+
+function renderFileList() {
+  const wrap = document.getElementById('fileList');
+  const dz   = document.getElementById('dz');
+  const btn  = document.getElementById('aBtn');
+  const txt  = document.getElementById('aBtnTxt');
+  const total = selFiles.reduce((n, f) => n + f.size, 0);
+  const totalMb = (total / 1024 / 1024).toFixed(1);
+
+  wrap.textContent = '';
+
+  if (!selFiles.length) {
+    wrap.classList.remove('show');
+    dz.style.borderColor = '';
+    document.getElementById('dzTitle').textContent = 'Tap to select Crown Brief PDFs';
+    btn.disabled = true;
+    txt.textContent = 'Select a PDF to Begin';
+    return;
+  }
+
+  wrap.classList.add('show');
+  dz.style.borderColor = 'var(--blue)';
+  document.getElementById('dzTitle').textContent = selFiles.length === 1
+    ? 'Tap to add more documents'
+    : 'Tap to add more documents to this package';
+
+  const head = document.createElement('div');
+  head.className = 'fl-head';
+  const label = document.createElement('span');
+  label.textContent = `${selFiles.length} document${selFiles.length === 1 ? '' : 's'} · ${totalMb}MB`;
+  const clear = document.createElement('button');
+  clear.type = 'button';
+  clear.className = 'fl-clear';
+  clear.textContent = 'Remove all';
+  clear.addEventListener('click', clearFiles);
+  head.appendChild(label); head.appendChild(clear);
+  wrap.appendChild(head);
+
+  selFiles.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.className = 'fl-row';
+
+    const n = document.createElement('span');
+    n.className = 'fl-n';
+    n.textContent = String(i + 1).padStart(2, '0');
+
+    // textContent, not innerHTML — a filename is user-supplied text and
+    // Crown filenames routinely carry apostrophes.
+    const name = document.createElement('span');
+    name.className = 'fl-name';
+    name.textContent = f.name;
+    name.title = f.name;
+
+    const size = document.createElement('span');
+    size.className = 'fl-size';
+    size.textContent = `${(f.size / 1024 / 1024).toFixed(1)}MB`;
+
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'fl-x';
+    x.textContent = '×';
+    x.setAttribute('aria-label', `Remove ${f.name}`);
+    x.addEventListener('click', () => removeFile(i));
+
+    row.appendChild(n); row.appendChild(name); row.appendChild(size); row.appendChild(x);
+    wrap.appendChild(row);
+  });
+
+  // Over the package ceiling the analysis would be refused by the server
+  // after a long upload, so it is blocked here instead and the reason said.
+  if (total > MAX_PACKAGE_BYTES) {
+    const warn = document.createElement('div');
+    warn.className = 'fl-head';
+    warn.style.color = 'var(--red-light)';
+    warn.style.marginTop = '8px';
+    warn.textContent = `Package is ${totalMb}MB — over the ${MAX_PACKAGE_BYTES / 1024 / 1024}MB limit. Remove a document.`;
+    wrap.appendChild(warn);
+    btn.disabled = true;
+    txt.textContent = 'Package too large';
+    return;
+  }
+
+  btn.disabled = false;
+  txt.textContent = selFiles.length === 1
+    ? 'Run Five-Pass Analysis'
+    : `Analyse ${selFiles.length} Documents`;
+}
+
+// Restores the button to whatever the staged package says it should read,
+// rather than to a fixed string — after a failure the label has to match
+// however many documents are still staged.
+function resetAnalyseBtn() {
+  const btn = document.getElementById('aBtn');
+  btn.classList.remove('loading');
+  renderFileList();
 }
 
 async function startAnalysis() {
-  if (!selFile) return;
+  if (!selFiles.length) return;
   const btn = document.getElementById('aBtn');
   btn.disabled = true; btn.classList.add('loading');
   document.getElementById('aBtnTxt').textContent = 'Analysing…';
   document.getElementById('pw').classList.add('show');
   document.querySelectorAll('.ps').forEach(s => s.classList.remove('done','act'));
   const fd = new FormData();
-  fd.append('disclosure', selFile);
+  // One field name repeated — the server reads them as an array.
+  for (const f of selFiles) fd.append('disclosure', f);
   const cv = document.getElementById('chargeSelect').value;
   const ctx = document.getElementById('addlCtx').value;
   fd.append('chargeContext', (cv === 'auto' ? '' : cv) + ' ' + ctx);
@@ -1888,17 +2046,15 @@ async function startAnalysis() {
     if (resp.status === 429) {
       const e = await resp.json();
       // Reset button text to idle BEFORE the cooldown helper snapshots it,
-      // so after the countdown expires the button reads "Run Five-Pass
-      // Analysis" again, not the in-flight "Analysing…" text.
-      btn.classList.remove('loading');
-      document.getElementById('aBtnTxt').textContent = 'Run Five-Pass Analysis';
+      // so after the countdown expires the button reads for the staged
+      // package again, not the in-flight "Analysing…" text.
+      resetAnalyseBtn();
       handleLimitError(e);
       return;
     }
     if (resp.status === 402) {
       const e = await resp.json(); handleLimitError(e);
-      btn.disabled = false; btn.classList.remove('loading');
-      document.getElementById('aBtnTxt').textContent = 'Run Five-Pass Analysis';
+      resetAnalyseBtn();
       return;
     }
     if (!resp.ok) { const e = await resp.json(); throw new Error(e.error || 'Analysis failed'); }
@@ -1916,8 +2072,7 @@ async function startAnalysis() {
     }
   } catch(err) {
     toast('Error: ' + err.message);
-    btn.disabled = false; btn.classList.remove('loading');
-    document.getElementById('aBtnTxt').textContent = 'Run Five-Pass Analysis';
+    resetAnalyseBtn();
   }
 }
 
