@@ -25,6 +25,29 @@ const PAGE_CEILING = {
 
 const MAX_FILES = 20;
 
+// Output ceiling per pass. A real package has far more to report than a short
+// test brief: on the first real Crown package, passes 3, 4 and 5 all ran out
+// of room at a flat 8000 and were discarded.
+//
+// Pass 4 gets the most because it lists missing disclosure across twelve
+// categories AND drafts the full Stinchcombe demand letter in the same
+// response. Pass 3 and pass 5 follow, being the credibility analysis and the
+// synthesis of everything before them.
+//
+// A ceiling is not a charge — output bills on what the model actually writes,
+// so a ceiling that is never reached costs nothing. The model's own limit is
+// far above these.
+const PASS_MAX_TOKENS = {
+  pass1: 12000, pass2: 12000, pass3: 14000, pass4: 16000, pass5: 14000,
+};
+
+// A pass that still runs out of room is retried once with half again as much.
+// The document is read from cache on the retry, so what the retry costs is the
+// output — worth paying rather than losing the credibility analysis outright
+// and showing the user zero findings.
+const RETRY_MULTIPLIER = 1.5;
+const MAX_OUTPUT_CEILING = 32000;
+
 // The Anthropic request has a hard payload limit and base64 inflates a PDF by
 // about a third, so the raw total has to stay comfortably under it.
 const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
@@ -316,6 +339,28 @@ router.post('/', requireAuth, async (req, res) => {
     // 0.1x and the initial write at about 1.25x, so these three numbers
     // are what turn a token count into a cost.
     let cacheWriteTokens = 0, cacheReadTokens = 0, freshInputTokens = 0, outputTokens = 0;
+    // How many passes had to be run twice. A number worth watching: if it is
+    // routinely above zero the ceilings are set too low and every retry is
+    // output paid for and thrown away.
+    let retried = 0;
+
+    // Called for every API response including a retry, so a pass that ran
+    // twice is billed as twice.
+    //
+    // input_tokens counts only the uncached remainder, so with caching on, the
+    // package sits in cache_read instead. All four are summed so token_count
+    // keeps meaning "tokens processed" and stays comparable with rows written
+    // before caching existed — the saving shows up as cost, not a smaller count.
+    const countTokens = (data) => {
+      const u = data.usage || {};
+      const cw = u.cache_creation_input_tokens || 0;
+      const cr = u.cache_read_input_tokens || 0;
+      freshInputTokens += u.input_tokens || 0;
+      outputTokens     += u.output_tokens || 0;
+      cacheWriteTokens += cw;
+      cacheReadTokens  += cr;
+      totalTokens += (u.input_tokens || 0) + (u.output_tokens || 0) + cw + cr;
+    };
 
     try {
       // Extract charge info first
@@ -345,74 +390,77 @@ router.post('/', requireAuth, async (req, res) => {
           ? `\n\nPrevious analysis results:\n${JSON.stringify(usable, null, 2)}`
           : '';
 
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-          },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-5-20250929',
-            // A ceiling, not a charge — output is billed on what the model
-            // actually writes. At 3000 the passes were finishing within a
-            // few percent of the limit, which meant the longer ones (the
-            // Stinchcombe demand letter, the full strategy) were being cut
-            // off mid-JSON and discarded. Headroom costs nothing until used.
-            max_tokens: 8000,
-            messages: [{
-              role: 'user',
-              content: [
-                // The whole package is sent on every one of the five passes.
-                // cache_control on the last document means pass 1 writes it
-                // to the cache and passes 2-5 read it back at roughly a tenth
-                // of the price, instead of paying full rate five times.
-                //
-                // Caching is a prefix match, so this only works while these
-                // blocks stay byte-identical across passes and everything
-                // that varies — the pass prompt, the charge context, the
-                // accumulated results — stays in the text block below them.
-                // Do not move anything that changes per pass above this point.
-                //
-                // The five-minute cache lifetime refreshes on each read, so
-                // sequential passes keep it alive.
-                ...documentContent,
-                {
-                  type: 'text',
-                  text: PASS_PROMPTS[pass] + packageNote + contextNote + prevResults,
-                }
-              ],
-            }],
-          }),
-        });
+        // Extracted so a pass that runs out of room can be run again with
+        // more of it. Everything above the text block is unchanged between
+        // the two attempts, so the retry reads the package from cache.
+        const runPass = async (maxTokens) => {
+          const resp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey,
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-5-20250929',
+              max_tokens: maxTokens,
+              messages: [{
+                role: 'user',
+                content: [
+                  // The whole package is sent on every one of the five passes.
+                  // cache_control on the last document means pass 1 writes it
+                  // to the cache and passes 2-5 read it back at roughly a tenth
+                  // of the price, instead of paying full rate five times.
+                  //
+                  // Caching is a prefix match, so this only works while these
+                  // blocks stay byte-identical across passes and everything
+                  // that varies — the pass prompt, the charge context, the
+                  // accumulated results — stays in the text block below them.
+                  // Do not move anything that changes per pass above this point.
+                  //
+                  // The five-minute cache lifetime refreshes on each read, so
+                  // sequential passes keep it alive.
+                  ...documentContent,
+                  {
+                    type: 'text',
+                    text: PASS_PROMPTS[pass] + packageNote + contextNote + prevResults,
+                  }
+                ],
+              }],
+            }),
+          });
 
-        if (!resp.ok) {
-          const e = await resp.json();
-          throw new Error(e.error?.message || `Pass ${i+1} failed`);
-        }
-
-        const data = await resp.json();
-        const text = data.content?.[0]?.text || '{}';
+          if (!resp.ok) {
+            const e = await resp.json();
+            throw new Error(e.error?.message || `Pass ${i+1} failed`);
+          }
+          return resp.json();
+        };
 
         // stop_reason 'max_tokens' means the model was still writing when it
         // ran out of room. The JSON is then unterminated and unparseable.
-        const truncated = data.stop_reason === 'max_tokens';
+        const ceiling = PASS_MAX_TOKENS[pass] || 12000;
+        let data = await runPass(ceiling);
+        let truncated = data.stop_reason === 'max_tokens';
+        countTokens(data);
 
-        // Accumulate tokens across all 5 passes (decision 1a — track once at end)
-        //
-        // input_tokens counts only the uncached remainder, so once caching
-        // is on the document moves out of it and into cache_read. All four
-        // are summed here so token_count keeps meaning "tokens processed"
-        // and stays comparable with rows written before caching existed —
-        // the saving shows up as cost, not as a smaller count.
-        const u = data.usage || {};
-        const cw = u.cache_creation_input_tokens || 0;
-        const cr = u.cache_read_input_tokens || 0;
-        freshInputTokens += u.input_tokens || 0;
-        outputTokens     += u.output_tokens || 0;
-        cacheWriteTokens += cw;
-        cacheReadTokens  += cr;
-        totalTokens += (u.input_tokens || 0) + (u.output_tokens || 0) + cw + cr;
+        if (truncated) {
+          const bigger = Math.min(Math.round(ceiling * RETRY_MULTIPLIER), MAX_OUTPUT_CEILING);
+          if (bigger > ceiling) {
+            // Numbers only.
+            console.error(`[analysis] ${pass} hit ${ceiling} output tokens, retrying at ${bigger}`);
+            send({
+              type: 'progress', pass, percent,
+              message: `Pass ${i+1} — ${passNames[pass]} (longer than expected, retrying)…`,
+            });
+            data = await runPass(bigger);
+            truncated = data.stop_reason === 'max_tokens';
+            countTokens(data);
+            retried++;
+          }
+        }
+
+        const text = data.content?.[0]?.text || '{}';
 
         // A pass that cannot be used is recorded as unusable, not as an empty
         // object. The report reads a missing array as zero findings, so before
@@ -455,6 +503,7 @@ router.post('/', requireAuth, async (req, res) => {
         cacheRead: cacheReadTokens,
         output: outputTokens,
         total: totalTokens,
+        retried,
         incomplete: warnings.length,
       });
 
