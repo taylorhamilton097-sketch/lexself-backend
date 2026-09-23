@@ -204,6 +204,10 @@ router.post('/', requireAuth, async (req, res) => {
       pass5: 'Defence Strategy',
     };
     let totalTokens = 0;
+    // Split out so the saving is measurable. Cached reads bill at about
+    // 0.1x and the initial write at about 1.25x, so these three numbers
+    // are what turn a token count into a cost.
+    let cacheWriteTokens = 0, cacheReadTokens = 0, freshInputTokens = 0, outputTokens = 0;
 
     try {
       // Extract charge info first
@@ -233,8 +237,23 @@ router.post('/', requireAuth, async (req, res) => {
               role: 'user',
               content: [
                 {
+                  // The same document is sent on every one of the five
+                  // passes. cache_control means pass 1 writes it to the
+                  // cache and passes 2-5 read it back at roughly a tenth
+                  // of the price, instead of paying full rate five times.
+                  //
+                  // Caching is a prefix match, so this only works while
+                  // the document block stays byte-identical across passes
+                  // and everything that varies — the pass prompt, the
+                  // charge context, the accumulated results — stays in
+                  // the text block below it. Do not move anything that
+                  // changes per pass above this point.
+                  //
+                  // The five-minute cache lifetime refreshes on each read,
+                  // so sequential passes keep it alive.
                   type: 'document',
                   source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+                  cache_control: { type: 'ephemeral' },
                 },
                 {
                   type: 'text',
@@ -254,7 +273,20 @@ router.post('/', requireAuth, async (req, res) => {
         const text = data.content?.[0]?.text || '{}';
 
         // Accumulate tokens across all 5 passes (decision 1a — track once at end)
-        totalTokens += (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0);
+        //
+        // input_tokens counts only the uncached remainder, so once caching
+        // is on the document moves out of it and into cache_read. All four
+        // are summed here so token_count keeps meaning "tokens processed"
+        // and stays comparable with rows written before caching existed —
+        // the saving shows up as cost, not as a smaller count.
+        const u = data.usage || {};
+        const cw = u.cache_creation_input_tokens || 0;
+        const cr = u.cache_read_input_tokens || 0;
+        freshInputTokens += u.input_tokens || 0;
+        outputTokens     += u.output_tokens || 0;
+        cacheWriteTokens += cw;
+        cacheReadTokens  += cr;
+        totalTokens += (u.input_tokens || 0) + (u.output_tokens || 0) + cw + cr;
 
         try {
           const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
@@ -270,6 +302,19 @@ router.post('/', requireAuth, async (req, res) => {
       // System B — one analysis, summed tokens across all 5 passes
       trackApiUsage(user.id, 'analysis', totalTokens);
       trackGlobalApiUsage(totalTokens);
+
+      // Numbers only — never document content. cacheRead near zero across
+      // a whole analysis means the cache is not being hit and the document
+      // is being paid for five times; that is the thing to watch for.
+      console.log('[analysis tokens]', {
+        userId: user.id,
+        passes: passes.length,
+        freshInput: freshInputTokens,
+        cacheWrite: cacheWriteTokens,
+        cacheRead: cacheReadTokens,
+        output: outputTokens,
+        total: totalTokens,
+      });
 
       // Try to detect charge from pass1
       const chargeDetected = results.pass1?.chargeDetected || chargeContext || 'Unknown Charge';
