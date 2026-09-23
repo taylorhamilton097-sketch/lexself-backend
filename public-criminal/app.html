@@ -304,6 +304,13 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .stc { font-size: 0.71rem; padding: 1px 5px; background: var(--navy-light); border: 1px solid var(--border); color: var(--text3); }
 .stc.r { border-color: var(--red-dim); color: #E87070; }
 .stc.g { border-color: #1E3A1E; color: #5A8A5A; }
+/* Incomplete passes. A missing section must never read as "nothing found" */
+.rep-warn { border: 1px solid var(--red-dim); background: rgba(192,57,43,0.10); padding: 12px 14px; margin-top: 12px; }
+.rep-warn-t { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: #E87070; margin-bottom: 6px; }
+.rep-warn-d { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); line-height: 1.65; }
+.rep-warn-l { margin: 6px 0 0 18px; padding: 0; }
+.rep-warn-l li { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); line-height: 1.6; margin-bottom: 3px; }
+.pass-warn { border: 1px solid var(--red-dim); background: rgba(192,57,43,0.08); padding: 12px 14px; margin-bottom: 14px; }
 .ab2 { font-family: 'Inter', sans-serif; font-size: 0.88rem; color: var(--text2); line-height: 1.7; margin-bottom: 12px; padding: 10px 14px; background: var(--navy-light); border-left: 3px solid var(--blue); }
 .vb { margin-bottom: 12px; }
 .vba { font-family: 'Playfair Display', serif; font-size: 1.1rem; padding: 4px 10px; display: inline-block; margin-bottom: 8px; }
@@ -2095,15 +2102,23 @@ function handleAnalysisEvent(ev) {
     analysisResults = ev.results;
     document.querySelectorAll('.ps').forEach(s => { s.classList.remove('act'); s.classList.add('done'); });
     document.getElementById('pbi').style.width = '100%';
-    buildReport(ev.results, ev.meta);
+    buildReport(ev.results, ev.meta, ev.warnings);
     setTimeout(() => {
       showPanel('report'); bnActive('report');
       document.getElementById('reportBadge').classList.add('show');
       document.getElementById('ctxName').textContent = 'Disclosure Loaded';
       document.getElementById('ctxName').classList.remove('none');
-      const inc = ev.results.pass1?.inconsistencies?.length || 0;
-      const ch = ev.results.pass2?.charterIssues?.length || 0;
-      toast(`Analysis done — ${inc} inconsistencies · ${ch} Charter issues`);
+      // An incomplete analysis is reported as incomplete. Announcing
+      // "0 inconsistencies · 0 Charter issues" for passes that never
+      // finished would be the same false reassurance in a smaller box.
+      const failed = (ev.warnings || []).length;
+      if (failed) {
+        toast(`Analysis incomplete — ${failed} of 5 passes did not finish. See the report.`);
+      } else {
+        const inc = ev.results.pass1?.inconsistencies?.length || 0;
+        const ch = ev.results.pass2?.charterIssues?.length || 0;
+        toast(`Analysis done — ${inc} inconsistencies · ${ch} Charter issues`);
+      }
       refreshUsage();
     }, 500);
     const btn = document.getElementById('aBtn');
@@ -2118,7 +2133,30 @@ function handleAnalysisEvent(ev) {
   }
 }
 
-function buildReport(r, meta) {
+// A pass the server could not use. It arrives carrying _incomplete rather
+// than as an empty object, because an empty object renders as zero findings —
+// and "0 Charter issues" on a failed Charter pass says the opposite of the
+// truth. Anything derived from a failed pass shows a dash, never a number.
+function passFailed(p) { return !!(p && p._incomplete); }
+function countOf(p, n) { return passFailed(p) ? '—' : (n || 0); }
+
+// Sits at the top of the section the pass feeds, so it is seen whichever tab
+// is open. Every string here is ours — pass names come from a fixed map on
+// the server and no document content reaches it.
+function passNotice(p, name) {
+  if (!passFailed(p)) return '';
+  const why = p._reason === 'truncated'
+    ? 'was cut off before it could finish'
+    : 'came back in a form the app could not read';
+  return `<div class="pass-warn">
+    <div class="rep-warn-t">${name} — incomplete</div>
+    <div class="rep-warn-d">This part of the analysis ${why}, so nothing below comes from it.
+    Do not read the absence of findings here as an absence of issues. Running the analysis
+    again usually resolves it.</div>
+  </div>`;
+}
+
+function buildReport(r, meta, warnings) {
   const p1=r.pass1||{}, p2=r.pass2||{}, p3=r.pass3||{}, p4=r.pass4||{}, p5=r.pass5||{};
   const highCnt = (p1.inconsistencies||[]).filter(i=>i.severity==='HIGH').length + (p2.charterIssues||[]).filter(i=>i.severity==='STRONG').length;
   const verdict = p5.verdictOutlook?.assessment || 'UNKNOWN';
@@ -2126,19 +2164,34 @@ function buildReport(r, meta) {
   const chargeLabel = r.chargeLabel || r.chargeDetected || 'Unknown Charge';
   document.getElementById('repEmpty').style.display = 'none';
   document.getElementById('repFull').classList.add('show');
-  document.getElementById('incTab').textContent = `Inconsistencies (${p1.inconsistencies?.length||0})`;
-  document.getElementById('charterTab').textContent = `Charter (${p2.charterIssues?.length||0})`;
+  document.getElementById('incTab').textContent = `Inconsistencies (${countOf(p1, p1.inconsistencies?.length)})`;
+  document.getElementById('charterTab').textContent = `Charter (${countOf(p2, p2.charterIssues?.length)})`;
+
+  // Named in one place at the top, so an incomplete report cannot be mistaken
+  // for a complete one without opening every tab.
+  const failed = (warnings || []).filter(w => w && w.name);
+  const docCount = meta?.documents?.length || 0;
+  const banner = failed.length ? `
+    <div class="rep-warn">
+      <div class="rep-warn-t">${failed.length} of 5 passes incomplete</div>
+      <div class="rep-warn-d">This report is not a complete analysis. These parts did not finish:</div>
+      <ul class="rep-warn-l">${failed.map(w => `<li>${w.name}</li>`).join('')}</ul>
+      <div class="rep-warn-d" style="margin-top:8px">Sections fed by them show a dash rather than a
+      count. Run the analysis again before relying on it.</div>
+    </div>` : '';
+
   document.getElementById('repHdr').innerHTML = `
     <div class="rep-title">Analysis Report</div>
-    <div class="rep-charge">${chargeLabel} · ${meta?.pages||'?'} pages</div>
+    <div class="rep-charge">${chargeLabel} · ${meta?.pages||'?'} pages${docCount > 1 ? ` · ${docCount} documents` : ''}</div>
     <div class="rep-tags">
-      <div class="rtag r">${highCnt} High</div>
-      <div class="rtag b">${p2.charterIssues?.length||0} Charter</div>
-      <div class="rtag g">${p3.motivesToFabricate?.length||0} Motives</div>
-      <div class="rtag">${p4.missingItems?.length||0} Missing</div>
-      <div class="rtag ${vc}">${verdict}</div>
-    </div>`;
+      <div class="rtag r">${passFailed(p1)&&passFailed(p2) ? '—' : highCnt} High</div>
+      <div class="rtag b">${countOf(p2, p2.charterIssues?.length)} Charter</div>
+      <div class="rtag g">${countOf(p3, p3.motivesToFabricate?.length)} Motives</div>
+      <div class="rtag">${countOf(p4, p4.missingItems?.length)} Missing</div>
+      <div class="rtag ${vc}">${passFailed(p5) ? 'INCOMPLETE' : verdict}</div>
+    </div>${banner}`;
   document.getElementById('rs1').innerHTML = `
+    ${passNotice(p5, 'Defence Strategy')}
     ${p5.verdictOutlook ? `<div class="vb"><div class="vba ${vc}">${verdict}</div><div style="font-size:.8rem;color:var(--text2);line-height:1.75;margin-bottom:10px">${p5.verdictOutlook.reasoning||''}</div></div>` : ''}
     ${p5.immediateActions?.length ? `<div class="ia"><div class="iat">Immediate Actions</div><ul class="ial">${p5.immediateActions.map(a=>`<li>${a}</li>`).join('')}</ul></div>` : ''}
     ${p5.defenceTheory ? `<div class="sec-title">Defence Theory</div><div class="ab2">${p5.defenceTheory}</div>` : ''}
@@ -2152,6 +2205,7 @@ function buildReport(r, meta) {
       ${s.whatYouNeed ? `<div class="dv">${s.whatYouNeed}</div>` : ''}
     </div>`).join('')}`;
   document.getElementById('rs2').innerHTML = `
+    ${passNotice(p1, 'Narrative & Inconsistencies')}
     ${p1.overallNarrativeAssessment ? `<div class="ab2">${p1.overallNarrativeAssessment}</div>` : ''}
     ${(p1.inconsistencies||[]).map(i=>`<div class="fc ${(i.severity||'low').toLowerCase()}">
       <div class="fch"><div class="fcb ${(i.severity||'low').toLowerCase()}">${i.severity||'LOW'}</div>
@@ -2161,6 +2215,7 @@ function buildReport(r, meta) {
       ${i.defenceValue?`<div class="dv">${i.defenceValue}</div>`:''}
     </div>`).join('')}`;
   document.getElementById('rs3').innerHTML = `
+    ${passNotice(p2, 'Charter Analysis')}
     ${p2.overallCharterAssessment ? `<div class="ab2">${p2.overallCharterAssessment}</div>` : ''}
     ${(p2.charterIssues||[]).map(ci=>`<div class="fc ${(ci.severity||'arguable').toLowerCase()}">
       <div class="fch"><div class="fcb ${(ci.severity||'arguable').toLowerCase()}">${ci.severity||'ARG'}</div>
@@ -2171,6 +2226,7 @@ function buildReport(r, meta) {
       ${ci.applicationStrategy?`<div class="dv">${ci.applicationStrategy}</div>`:''}
     </div>`).join('')}`;
   document.getElementById('rs4').innerHTML = `
+    ${passNotice(p3, 'Credibility & Fabrication')}
     ${p3.wDAnalysis ? `<div class="ab2"><strong>W(D) Analysis:</strong> ${p3.wDAnalysis}</div>` : ''}
     <div class="sec-title">Credibility Issues <span class="stc">${p3.complainantCredibility?.issues?.length||0}</span></div>
     ${(p3.complainantCredibility?.issues||[]).map(ci=>`<div class="fc medium">
@@ -2186,6 +2242,7 @@ function buildReport(r, meta) {
       ${m.howToEstablish?`<div class="dv">${m.howToEstablish}</div>`:''}
     </div>`).join('')}`;
   document.getElementById('rs5').innerHTML = `
+    ${passNotice(p4, 'Missing Disclosure')}
     ${p4.overallDisclosureAssessment ? `<div class="ab2">${p4.overallDisclosureAssessment}</div>` : ''}
     ${(p4.missingItems||[]).map(mi=>`<div class="fc ${(mi.importance||'moderate').toLowerCase()}">
       <div class="fch"><div class="fcb ${(mi.importance||'moderate').toLowerCase()}">${mi.importance||'MOD'}</div>
@@ -2826,11 +2883,28 @@ async function sendCxMessage(userAnswer, isFirst = false, firstMsg = null) {
     // Build analysis context summary
     let analysisContext = '';
     if (analysisResults) {
-      const inc = analysisResults.pass1?.inconsistencies?.length || 0;
-      const ch = analysisResults.pass2?.charterIssues?.length || 0;
-      const mot = analysisResults.pass3?.motivesToFabricate?.length || 0;
-      const theory = analysisResults.pass5?.defenceTheory || '';
-      analysisContext = `DISCLOSURE ANALYSIS RESULTS: ${inc} narrative inconsistencies found, ${ch} Charter issues identified, ${mot} motives to fabricate. Defence theory: ${theory}`;
+      // A pass that did not finish must not be reported as a count of zero.
+      // Telling the model "0 Charter issues identified" when the Charter pass
+      // never ran is worse than telling the user — it builds the whole cross
+      // on the premise that there is nothing there.
+      const missing = ['pass1','pass2','pass3','pass5']
+        .filter(k => passFailed(analysisResults[k]))
+        .map(k => ({ pass1:'narrative inconsistencies', pass2:'Charter issues',
+                     pass3:'credibility and motive', pass5:'defence strategy' }[k]));
+      const part = (p, n, noun, verb) => passFailed(p)
+        ? `${noun}: NOT ANALYSED`
+        : `${n || 0} ${noun}${verb ? ' ' + verb : ''}`;
+      analysisContext = `DISCLOSURE ANALYSIS RESULTS: ` + [
+        part(analysisResults.pass1, analysisResults.pass1?.inconsistencies?.length, 'narrative inconsistencies', 'found'),
+        part(analysisResults.pass2, analysisResults.pass2?.charterIssues?.length, 'Charter issues', 'identified'),
+        part(analysisResults.pass3, analysisResults.pass3?.motivesToFabricate?.length, 'motives to fabricate', ''),
+      ].join(', ') + '.';
+      if (!passFailed(analysisResults.pass5) && analysisResults.pass5?.defenceTheory) {
+        analysisContext += ` Defence theory: ${analysisResults.pass5.defenceTheory}`;
+      }
+      if (missing.length) {
+        analysisContext += `\n\nIMPORTANT: the disclosure analysis did not complete for ${missing.join(', ')}. Treat those as unexamined, not as clear. Do not tell the user there are no issues in an area that was never analysed.`;
+      }
       if (analysisResults.pass1?.inconsistencies?.length) {
         analysisContext += '\n\nKEY INCONSISTENCIES FROM DISCLOSURE:\n' + 
           analysisResults.pass1.inconsistencies.slice(0,5).map(i => `- ${i.title}: ${i.description}`).join('\n');
