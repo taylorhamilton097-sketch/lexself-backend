@@ -195,6 +195,9 @@ router.post('/', requireAuth, async (req, res) => {
     const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
 
     const results = {};
+    // Passes that could not be used, so the report can say so instead of
+    // rendering them as zero findings.
+    const warnings = [];
     const passes = ['pass1', 'pass2', 'pass3', 'pass4', 'pass5'];
     const passNames = {
       pass1: 'Narrative & Inconsistencies',
@@ -219,8 +222,17 @@ router.post('/', requireAuth, async (req, res) => {
         send({ type: 'progress', pass, percent, message: `Pass ${i+1} — ${passNames[pass]}…` });
 
         const contextNote = chargeContext ? `\n\nCharge context: ${chargeContext}` : '';
-        const prevResults = Object.keys(results).length > 0
-          ? `\n\nPrevious analysis results:\n${JSON.stringify(results, null, 2)}`
+
+        // Only passes that actually parsed are carried forward. A pass that
+        // was cut off would otherwise be stringified into every later pass
+        // as a fragment — paid for on each one, and inviting the model to
+        // reason from half a sentence.
+        const usable = {};
+        for (const [key, value] of Object.entries(results)) {
+          if (value && !value._incomplete) usable[key] = value;
+        }
+        const prevResults = Object.keys(usable).length > 0
+          ? `\n\nPrevious analysis results:\n${JSON.stringify(usable, null, 2)}`
           : '';
 
         const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -232,7 +244,12 @@ router.post('/', requireAuth, async (req, res) => {
           },
           body: JSON.stringify({
             model: 'claude-sonnet-4-5-20250929',
-            max_tokens: 3000,
+            // A ceiling, not a charge — output is billed on what the model
+            // actually writes. At 3000 the passes were finishing within a
+            // few percent of the limit, which meant the longer ones (the
+            // Stinchcombe demand letter, the full strategy) were being cut
+            // off mid-JSON and discarded. Headroom costs nothing until used.
+            max_tokens: 8000,
             messages: [{
               role: 'user',
               content: [
@@ -272,6 +289,10 @@ router.post('/', requireAuth, async (req, res) => {
         const data = await resp.json();
         const text = data.content?.[0]?.text || '{}';
 
+        // stop_reason 'max_tokens' means the model was still writing when it
+        // ran out of room. The JSON is then unterminated and unparseable.
+        const truncated = data.stop_reason === 'max_tokens';
+
         // Accumulate tokens across all 5 passes (decision 1a — track once at end)
         //
         // input_tokens counts only the uncached remainder, so once caching
@@ -288,12 +309,25 @@ router.post('/', requireAuth, async (req, res) => {
         cacheReadTokens  += cr;
         totalTokens += (u.input_tokens || 0) + (u.output_tokens || 0) + cw + cr;
 
+        // A pass that cannot be used is recorded as unusable, not as an empty
+        // object. The report reads a missing array as zero findings, so before
+        // this a discarded Charter pass displayed as "0 Charter issues" —
+        // indistinguishable from a brief with no Charter problems in it.
         try {
+          if (truncated) throw new Error('cut off at the output ceiling');
           const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
           results[pass] = parsed;
         } catch(e) {
-          console.error(`Pass ${pass} JSON parse error:`, e.message);
-          results[pass] = { error: 'Parse failed', raw: text.slice(0, 200) };
+          // The reason only — never document content.
+          console.error(`[analysis] ${pass} unusable:`, e.message);
+          results[pass] = { _incomplete: true, _reason: truncated ? 'truncated' : 'unparseable' };
+          warnings.push({
+            pass,
+            name: passNames[pass],
+            message: truncated
+              ? `${passNames[pass]} was cut off before it finished. It has been left out of this report.`
+              : `${passNames[pass]} came back in a form the app could not read. It has been left out of this report.`,
+          });
         }
       }
 
@@ -314,6 +348,7 @@ router.post('/', requireAuth, async (req, res) => {
         cacheRead: cacheReadTokens,
         output: outputTokens,
         total: totalTokens,
+        incomplete: warnings.length,
       });
 
       // Try to detect charge from pass1
@@ -322,6 +357,7 @@ router.post('/', requireAuth, async (req, res) => {
       send({
         type: 'complete',
         results: { ...results, chargeLabel: chargeDetected, chargeDetected },
+        warnings,
         meta: { pages: '?' },
       });
 
