@@ -5,6 +5,30 @@ const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
 
+// A disclosure package is capped on PAGES, not on file count. One 400-page
+// PDF and ten 40-page PDFs cost exactly the same to analyse, so a file-count
+// limit would restrict the wrong thing. Pages are what the API bills for.
+//
+// These are the per-analysis ceilings. One analysis credit buys one package,
+// so without a ceiling a single credit would buy an unbounded amount of API
+// spend. Counsel at 1000 pages x 20 analyses is the tightest against its
+// price; that is the number to revisit if real packages run long.
+//
+// Free matches essential deliberately. A free account gets one analysis ever,
+// so its total exposure is about a dollar and the ceiling has nothing to bound.
+// A typical impaired brief runs 40-80 pages, and refusing a realistic first
+// analysis would cost a conversion to save nothing. Essential's value is three
+// analyses a month, not larger ones.
+const PAGE_CEILING = {
+  free: 150, essential: 150, complete: 400, counsel: 1000, admin: 4000,
+};
+
+const MAX_FILES = 20;
+
+// The Anthropic request has a hard payload limit and base64 inflates a PDF by
+// about a third, so the raw total has to stay comfortably under it.
+const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
+
 const PASS_PROMPTS = {
   pass1: `You are a Canadian criminal defence expert. Analyze this Crown disclosure document for NARRATIVE INCONSISTENCIES.
 
@@ -174,17 +198,98 @@ router.post('/', requireAuth, async (req, res) => {
     }
   }
 
-  // Get PDF from multipart form
+  // Get PDFs from multipart form. Same field name as the single-file version,
+  // so a client sending one file still works unchanged.
   const multer = require('multer');
   const storage = multer.memoryStorage();
-  const upload = multer({ storage, limits: { fileSize: 25 * 1024 * 1024 } }).single('disclosure');
+  const upload = multer({
+    storage,
+    limits: { fileSize: 25 * 1024 * 1024, files: MAX_FILES },
+  }).array('disclosure', MAX_FILES);
 
   upload(req, res, async (err) => {
-    if (err) return res.status(400).json({ error: 'File upload error: ' + err.message });
-    if (!req.file) return res.status(400).json({ error: 'No PDF file provided.' });
+    if (err) {
+      // multer's own messages are opaque, so name the limit that was hit.
+      const message =
+        err.code === 'LIMIT_FILE_SIZE'  ? 'One of those PDFs is larger than 25MB. Split it and try again.' :
+        err.code === 'LIMIT_FILE_COUNT' ? `Please add no more than ${MAX_FILES} PDFs to one analysis.` :
+        'File upload error: ' + err.message;
+      return res.status(400).json({ error: message });
+    }
 
-    const base64 = req.file.buffer.toString('base64');
+    const files = req.files || [];
+    if (!files.length) return res.status(400).json({ error: 'No PDF file provided.' });
+
+    const totalBytes = files.reduce((n, f) => n + f.size, 0);
+    if (totalBytes > MAX_PACKAGE_BYTES) {
+      const mb = (totalBytes / 1024 / 1024).toFixed(1);
+      return res.status(413).json({
+        error: `That package is ${mb}MB in total, above the ${MAX_PACKAGE_BYTES / 1024 / 1024}MB a single analysis can carry. Remove some documents, or run the package in parts.`,
+        code: 'package_too_large',
+      });
+    }
+
+    // Page count before anything is sent, so an oversized package is refused
+    // for nothing rather than failing partway through pass 3 with two passes
+    // already paid for.
+    //
+    // pdf-parse is pinned to a 2018 build of pdf.js which rejects outright on
+    // anything it dislikes, and a scanned Crown PDF it refuses may be one the
+    // API reads perfectly well. So a failed count never blocks the analysis —
+    // that file counts as unknown and the byte ceiling above backstops it.
+    const pdfParse = require('pdf-parse');
+    const pageCounts = [];
+    let totalPages = 0, unknownPages = 0;
+    for (const f of files) {
+      let pages = null;
+      try {
+        const parsed = await pdfParse(f.buffer, { max: 1 });
+        pages = parsed.numpages || null;
+      } catch (e) {
+        // Reason only — never document content.
+        console.error('[analysis] page count unavailable for one file:', e.message);
+      }
+      pageCounts.push(pages);
+      if (pages) totalPages += pages; else unknownPages++;
+    }
+
+    const ceiling = PAGE_CEILING[user.plan] || PAGE_CEILING.free;
+    if (totalPages > ceiling) {
+      return res.status(413).json({
+        error: `That package is ${totalPages} pages. Your plan allows up to ${ceiling} pages in one analysis. Remove some documents, or run the package in parts.`,
+        code: 'page_ceiling',
+        pages: totalPages,
+        limit: ceiling,
+      });
+    }
+
     const chargeContext = req.body.chargeContext || '';
+
+    // Built once and reused on all five passes. The cache is a prefix match,
+    // so these blocks have to be byte-identical every time — building them
+    // inside the pass loop would also re-encode every document five times.
+    //
+    // Labels are deliberately generic. Crown filenames routinely contain the
+    // complainant's name, and filenames are not worth sending to the API to
+    // get a label. The real names go back to the browser in meta.documents.
+    const documentContent = [];
+    files.forEach((f, idx) => {
+      documentContent.push({
+        type: 'text',
+        text: `--- Document ${idx + 1} of ${files.length} ---`,
+      });
+      documentContent.push({
+        type: 'document',
+        source: { type: 'base64', media_type: 'application/pdf', data: f.buffer.toString('base64') },
+        // One breakpoint caches everything above it and only four are
+        // available, so it goes on the last document, not on every one.
+        ...(idx === files.length - 1 ? { cache_control: { type: 'ephemeral' } } : {}),
+      });
+    });
+
+    const packageNote = files.length > 1
+      ? `\n\nYou have been given ${files.length} documents from a single Crown disclosure package, labelled Document 1 through Document ${files.length}. Analyse them together as one package — a contradiction between two documents matters as much as one inside a single document. Where a finding rests on a particular document, name its label.`
+      : '';
 
     // Set up SSE
     res.setHeader('Content-Type', 'text/event-stream');
@@ -214,7 +319,12 @@ router.post('/', requireAuth, async (req, res) => {
 
     try {
       // Extract charge info first
-      send({ type: 'progress', pass: 'extract', percent: 2, message: 'Reading disclosure document…' });
+      send({
+        type: 'progress', pass: 'extract', percent: 2,
+        message: files.length > 1
+          ? `Reading ${files.length} documents${totalPages ? ` — ${totalPages} pages` : ''}…`
+          : 'Reading disclosure document…',
+      });
 
       for (let i = 0; i < passes.length; i++) {
         const pass = passes[i];
@@ -253,28 +363,23 @@ router.post('/', requireAuth, async (req, res) => {
             messages: [{
               role: 'user',
               content: [
-                {
-                  // The same document is sent on every one of the five
-                  // passes. cache_control means pass 1 writes it to the
-                  // cache and passes 2-5 read it back at roughly a tenth
-                  // of the price, instead of paying full rate five times.
-                  //
-                  // Caching is a prefix match, so this only works while
-                  // the document block stays byte-identical across passes
-                  // and everything that varies — the pass prompt, the
-                  // charge context, the accumulated results — stays in
-                  // the text block below it. Do not move anything that
-                  // changes per pass above this point.
-                  //
-                  // The five-minute cache lifetime refreshes on each read,
-                  // so sequential passes keep it alive.
-                  type: 'document',
-                  source: { type: 'base64', media_type: 'application/pdf', data: base64 },
-                  cache_control: { type: 'ephemeral' },
-                },
+                // The whole package is sent on every one of the five passes.
+                // cache_control on the last document means pass 1 writes it
+                // to the cache and passes 2-5 read it back at roughly a tenth
+                // of the price, instead of paying full rate five times.
+                //
+                // Caching is a prefix match, so this only works while these
+                // blocks stay byte-identical across passes and everything
+                // that varies — the pass prompt, the charge context, the
+                // accumulated results — stays in the text block below them.
+                // Do not move anything that changes per pass above this point.
+                //
+                // The five-minute cache lifetime refreshes on each read, so
+                // sequential passes keep it alive.
+                ...documentContent,
                 {
                   type: 'text',
-                  text: PASS_PROMPTS[pass] + contextNote + prevResults,
+                  text: PASS_PROMPTS[pass] + packageNote + contextNote + prevResults,
                 }
               ],
             }],
@@ -343,6 +448,8 @@ router.post('/', requireAuth, async (req, res) => {
       console.log('[analysis tokens]', {
         userId: user.id,
         passes: passes.length,
+        documents: files.length,
+        pages: totalPages,
         freshInput: freshInputTokens,
         cacheWrite: cacheWriteTokens,
         cacheRead: cacheReadTokens,
@@ -358,7 +465,17 @@ router.post('/', requireAuth, async (req, res) => {
         type: 'complete',
         results: { ...results, chargeLabel: chargeDetected, chargeDetected },
         warnings,
-        meta: { pages: '?' },
+        meta: {
+          // A real count now, where pdf.js could read it. Filenames go back
+          // for display only — they were never sent to the API.
+          pages: totalPages || '?',
+          pagesUnknownFor: unknownPages,
+          documents: files.map((f, i) => ({
+            label: `Document ${i + 1}`,
+            name: f.originalname,
+            pages: pageCounts[i],
+          })),
+        },
       });
 
     } catch(err) {
