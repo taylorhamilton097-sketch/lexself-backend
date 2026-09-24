@@ -173,6 +173,30 @@ router.post('/', requireAuth, async (req, res) => {
     if (r.pass1?.inconsistencies?.length) summary.push(`${r.pass1.inconsistencies.length} narrative inconsistencies found`);
     if (r.pass2?.charterIssues?.length) summary.push(`${r.pass2.charterIssues.length} Charter issues identified`);
     if (r.pass5?.defenceTheory) summary.push(`Defence theory: ${scrub(r.pass5.defenceTheory.slice(0,200), pseudonyms)}`);
+
+    // A pass the analysis could not use arrives carrying _incomplete (see
+    // routes/analyze.js). Listing only what was found, and saying nothing
+    // about what was never examined, reads identically whether the Charter
+    // pass found no breaches or never ran at all — so the model can answer
+    // "there are no Charter issues in your disclosure" on the strength of a
+    // pass that was cut off. Naming the gap is the difference between the
+    // model not knowing and the model being wrong.
+    const notExamined = [
+      [r.pass1, 'narrative inconsistencies'],
+      [r.pass2, 'Charter issues'],
+      [r.pass3, 'credibility and motive to fabricate'],
+      [r.pass4, 'missing disclosure'],
+      [r.pass5, 'defence strategy'],
+    ].filter(([p]) => p && p._incomplete).map(([, label]) => label);
+
+    if (notExamined.length) {
+      summary.push(
+        `NOT ANALYSED — the disclosure analysis did not complete for: ${notExamined.join('; ')}. ` +
+        `Treat these as unexamined, not as clear. Do not tell the user there is nothing in an area ` +
+        `that was never analysed; say it was not analysed and that re-running the analysis would cover it.`
+      );
+    }
+
     if (summary.length) extras.push(`DISCLOSURE ANALYSIS CONTEXT:\n${summary.join('\n')}`);
   }
 
