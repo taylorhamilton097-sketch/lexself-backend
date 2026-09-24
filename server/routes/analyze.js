@@ -63,6 +63,26 @@ const REQUEST_TIMEOUT_MS = 270000;
 // about a third, so the raw total has to stay comfortably under it.
 const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
 
+// Appended to every pass. The passes were not asking for too many findings,
+// they were writing each one as prose: five or six paragraph-length fields per
+// item. Three of five passes overran the time window on a 23-page brief.
+//
+// This constrains HOW EACH FINDING IS WRITTEN and deliberately does not cap how
+// many are reported. Dropping a genuine Charter breach to save tokens is not a
+// trade this tool gets to make.
+const BREVITY = `
+
+LENGTH DISCIPLINE — this is a working document for a lawyer, not prose:
+- Each field is one or two sentences. Never a paragraph.
+- Quote at most 25 words, and only where the exact wording carries the point.
+- State each fact once. Do not restate it in a second field.
+- No preamble, no restating the instruction, no summary of your own answer.
+- Omit any optional field you have nothing specific to put in rather than
+  filling it with a generality.
+
+Report EVERY finding you identify. This applies to how each finding is written,
+not to how many you report. Order them most significant first.`;
+
 const PASS_PROMPTS = {
   pass1: `You are a Canadian criminal defence expert. Analyze this Crown disclosure document for NARRATIVE INCONSISTENCIES.
 
@@ -165,9 +185,9 @@ For each missing item:
   "ifNotProduced": "Application to make if Crown refuses"
 }
 
-Also draft a formal Stinchcombe disclosure demand letter.
+Do NOT draft the demand letter here — it is requested separately.
 
-Return JSON: { "missingItems": [...], "overallDisclosureAssessment": "...", "disclosureRequestLetter": "Full formal letter text" }
+Return JSON: { "missingItems": [...], "overallDisclosureAssessment": "..." }
 Respond ONLY with valid JSON.`,
 
   pass5: `You are a senior Canadian criminal defence counsel. Based on the disclosure analysis, develop a COMPREHENSIVE DEFENCE STRATEGY.
@@ -203,6 +223,31 @@ Return JSON: {
 }
 Respond ONLY with valid JSON.`
 };
+
+// The demand letter used to be requested inside pass 4, alongside a list of
+// missing disclosure across twelve categories with five fields each. A formal
+// letter and a long findings list were competing for one budget, and pass 4
+// overran every time. Separated, each fits comfortably.
+//
+// Returned as plain text rather than inside JSON on purpose: a letter carries
+// newlines and quotation marks, and escaping it into a JSON string is exactly
+// what produces the unparseable responses this route already has to handle.
+const LETTER_PROMPT = `You are Canadian defence counsel. Draft a formal Stinchcombe disclosure demand letter addressed to the Crown, requesting the items listed below.
+
+Requirements:
+- Standard letter form, ready to be put on letterhead and sent.
+- Ground the request in Stinchcombe [1991] 3 SCR 326 and the Crown's ongoing disclosure obligation.
+- Group the items sensibly rather than listing them mechanically.
+- State a reasonable deadline for production and the application that follows if it is not met.
+- Mark it DRAFT — REVIEW BEFORE SENDING at the top.
+- Do not invent a court file number, a date, or the names of counsel. Use a
+  clearly marked placeholder in square brackets where one is needed.
+
+Return the letter text only. No JSON, no markdown fences, no commentary before or after.`;
+
+// A letter of this kind runs to roughly 800-1500 words. 4000 tokens is ample
+// and well inside the request window.
+const LETTER_MAX_TOKENS = 4000;
 
 // POST /api/analyze — 5-pass Crown disclosure analysis (SSE streaming)
 router.post('/', requireAuth, async (req, res) => {
@@ -404,7 +449,9 @@ router.post('/', requireAuth, async (req, res) => {
         // Extracted so a pass that runs out of room can be run again with
         // more of it. Everything above the text block is unchanged between
         // the two attempts, so the retry reads the package from cache.
-        const runPass = async (maxTokens) => {
+        // promptText is passed in rather than derived, so the demand letter can
+        // reuse this with the same cached document blocks above it.
+        const runPass = async (maxTokens, promptText) => {
           // Without a signal this waits on undici's default and then reports
           // "fetch failed", which says nothing about what went wrong.
           //
@@ -444,10 +491,7 @@ router.post('/', requireAuth, async (req, res) => {
                   // The five-minute cache lifetime refreshes on each read, so
                   // sequential passes keep it alive.
                   ...documentContent,
-                  {
-                    type: 'text',
-                    text: PASS_PROMPTS[pass] + packageNote + contextNote + prevResults,
-                  }
+                  { type: 'text', text: promptText }
                 ],
               }],
             }),
@@ -499,8 +543,9 @@ router.post('/', requireAuth, async (req, res) => {
           }
         };
 
+        const promptText = PASS_PROMPTS[pass] + BREVITY + packageNote + contextNote + prevResults;
         const ceiling = PASS_MAX_TOKENS[pass] || 8000;
-        let data = await runPass(ceiling);
+        let data = await runPass(ceiling, promptText);
         countTokens(data);
         let outcome = classify(data);
 
@@ -511,7 +556,7 @@ router.post('/', requireAuth, async (req, res) => {
             type: 'progress', pass, percent,
             message: `Pass ${i+1} — ${passNames[pass]} (reformatting)…`,
           });
-          data = await runPass(ceiling);
+          data = await runPass(ceiling, promptText);
           countTokens(data);
           outcome = classify(data);
           retried++;
@@ -523,6 +568,44 @@ router.post('/', requireAuth, async (req, res) => {
         // indistinguishable from a brief with no Charter problems in it.
         if (outcome.ok) {
           results[pass] = outcome.value;
+
+          // Drafted as its own request, immediately after the items it is based
+          // on, so the progress step still reads as pass 4 and the report finds
+          // the letter where it has always looked for it.
+          if (pass === 'pass4') {
+            send({
+              type: 'progress', pass, percent,
+              message: `Pass ${i+1} — ${passNames[pass]} (drafting the demand letter)…`,
+            });
+            try {
+              const letterPrompt = LETTER_PROMPT + packageNote + contextNote +
+                `\n\nItems to request:\n${JSON.stringify(outcome.value.missingItems || [], null, 2)}`;
+              const letterData = await runPass(LETTER_MAX_TOKENS, letterPrompt);
+              countTokens(letterData);
+              const letter = letterData.content?.[0]?.text || '';
+              if (letterData.stop_reason === 'max_tokens' || !letter.trim()) {
+                // Half a demand letter is worse than none — it reads as
+                // complete and would be sent that way.
+                console.error('[analysis] demand letter unusable:',
+                  letterData.stop_reason === 'max_tokens' ? 'cut off' : 'empty');
+                warnings.push({
+                  pass: 'letter',
+                  name: 'Stinchcombe Demand Letter',
+                  message: 'The demand letter could not be drafted. The missing disclosure list above is unaffected.',
+                });
+              } else {
+                results.pass4.disclosureRequestLetter = letter.trim();
+              }
+            } catch (e) {
+              // The letter failing must not lose the four passes already done.
+              console.error('[analysis] demand letter failed:', e.message);
+              warnings.push({
+                pass: 'letter',
+                name: 'Stinchcombe Demand Letter',
+                message: 'The demand letter could not be drafted. The missing disclosure list above is unaffected.',
+              });
+            }
+          }
         } else {
           const truncated = outcome.reason === 'truncated';
           // The reason only — never document content.
