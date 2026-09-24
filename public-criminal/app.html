@@ -2033,6 +2033,25 @@ function resetAnalyseBtn() {
   renderFileList();
 }
 
+// A failed run must stop looking like a working one. The pulsing step was the
+// only thing on screen during a 22-minute wait for a request that had already
+// died, so an abandoned analysis clears the animation and says what happened
+// on the step it got to.
+function stopProgressAnimation(message) {
+  document.querySelectorAll('.ps.act').forEach(s => {
+    s.classList.remove('act');
+    if (message) {
+      const label = s.querySelector('span');
+      if (label) label.textContent = message;
+    }
+  });
+}
+
+// The server allows itself 270 seconds for a single pass, so silence for one
+// pass is legitimate. This has to sit clear of that, while still being short
+// enough that nobody waits 22 minutes on a dead connection again.
+const STALL_TIMEOUT_MS = 360000;
+
 async function startAnalysis() {
   if (!selFiles.length) return;
   const btn = document.getElementById('aBtn');
@@ -2048,8 +2067,25 @@ async function startAnalysis() {
   fd.append('chargeContext', (cv === 'auto' ? '' : cv) + ' ' + ctx);
   const headers = {};
   if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  // Nothing in here used to give up. If the connection dropped, the loop below
+  // simply ended and the function returned: no error, no reset, progress bar
+  // still animating on whichever step it had last heard about. A dead run was
+  // indistinguishable from a working one.
+  const controller = new AbortController();
+  let stalled = false, stallTimer = null;
+  // Tracked out here so the catch below can tell the difference between a
+  // request that never got started — a plan limit, a rejected upload, where
+  // the server's own message is the useful one — and a stream that began and
+  // then died, where it is not.
+  let streaming = false, sawTerminal = false;
+  const armStall = () => {
+    clearTimeout(stallTimer);
+    stallTimer = setTimeout(() => { stalled = true; controller.abort(); }, STALL_TIMEOUT_MS);
+  };
+  armStall();
+
   try {
-    const resp = await fetch('/api/analyze', { method: 'POST', body: fd, headers });
+    const resp = await fetch('/api/analyze', { method: 'POST', body: fd, headers, signal: controller.signal });
     if (resp.status === 429) {
       const e = await resp.json();
       // Reset button text to idle BEFORE the cooldown helper snapshots it,
@@ -2067,6 +2103,7 @@ async function startAnalysis() {
     if (!resp.ok) { const e = await resp.json(); throw new Error(e.error || 'Analysis failed'); }
     const reader = resp.body.getReader(), dec = new TextDecoder();
     let buf = '';
+    streaming = true;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -2074,12 +2111,37 @@ async function startAnalysis() {
       const lines = buf.split('\n'); buf = lines.pop();
       for (const ln of lines) {
         if (!ln.startsWith('data: ')) continue;
-        try { handleAnalysisEvent(JSON.parse(ln.slice(6))); } catch(e) {}
+        let ev;
+        try { ev = JSON.parse(ln.slice(6)); } catch(e) { continue; }
+        armStall();
+        if (ev.type === 'complete' || ev.type === 'error') sawTerminal = true;
+        handleAnalysisEvent(ev);
       }
     }
+    // The stream ended cleanly. Without a complete or an error event it still
+    // did not finish, and saying nothing would leave the last progress step
+    // pulsing indefinitely.
+    if (!sawTerminal) throw new Error('stream ended early');
   } catch(err) {
-    toast('Error: ' + err.message);
+    if (stalled) {
+      toast(`No response for ${Math.round(STALL_TIMEOUT_MS / 60000)} minutes — the analysis was given up on. Nothing was saved, please try again.`);
+      stopProgressAnimation('gave up waiting');
+    } else if (err.name === 'AbortError') {
+      toast('The analysis was interrupted.');
+      stopProgressAnimation('interrupted');
+    } else if (streaming && !sawTerminal) {
+      // A stream that started and then died, whether it closed cleanly or the
+      // socket was destroyed. The underlying error for an abrupt death is
+      // "terminated", which means nothing to anyone, so it is replaced.
+      toast('The connection to the server dropped before the analysis finished. Nothing was saved — please try again.');
+      stopProgressAnimation('connection lost');
+    } else {
+      toast('Error: ' + err.message);
+      stopProgressAnimation('failed');
+    }
     resetAnalyseBtn();
+  } finally {
+    clearTimeout(stallTimer);
   }
 }
 
