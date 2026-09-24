@@ -49,15 +49,11 @@ const PASS_MAX_TOKENS = {
   pass1: 8000, pass2: 8000, pass3: 8000, pass4: 9000, pass5: 8000,
 };
 
-// A pass that runs out of room is retried once with more. The document is read
-// from cache on the retry, so what it costs is the output.
-const RETRY_MULTIPLIER = 1.5;
-
-// Nothing may be requested above this, retry included. 10000 tokens is roughly
-// 170-220 seconds of generation, which leaves real margin inside the 300s
-// window rather than sitting on its edge.
-const MAX_OUTPUT_CEILING = 10000;
-
+// A pass is retried ONLY when it came back complete but malformed, and then at
+// the same ceiling. Retrying a truncated pass with a bigger budget was tried
+// and measured: it truncated again every time, because the constraint is the
+// 300-second window rather than the number. See the classify() comment below.
+//
 // Our own deadline, set below undici's 300s so a request that is going to fail
 // fails as OUR error with a message that says what happened, rather than as a
 // bare "fetch failed" from somewhere in the network stack.
@@ -479,43 +475,60 @@ router.post('/', requireAuth, async (req, res) => {
           }
         };
 
+        // Two distinct failures, which need opposite treatment.
+        //
         // stop_reason 'max_tokens' means the model was still writing when it
-        // ran out of room. The JSON is then unterminated and unparseable.
-        const ceiling = PASS_MAX_TOKENS[pass] || 12000;
-        let data = await runPass(ceiling);
-        let truncated = data.stop_reason === 'max_tokens';
-        countTokens(data);
-
-        if (truncated) {
-          const bigger = Math.min(Math.round(ceiling * RETRY_MULTIPLIER), MAX_OUTPUT_CEILING);
-          if (bigger > ceiling) {
-            // Numbers only.
-            console.error(`[analysis] ${pass} hit ${ceiling} output tokens, retrying at ${bigger}`);
-            send({
-              type: 'progress', pass, percent,
-              message: `Pass ${i+1} — ${passNames[pass]} (longer than expected, retrying)…`,
-            });
-            data = await runPass(bigger);
-            truncated = data.stop_reason === 'max_tokens';
-            countTokens(data);
-            retried++;
+        // ran out of room, so the JSON is unterminated. Retrying that is
+        // futile: truncation means the pass wants more room than the 300s
+        // window allows at ANY workable ceiling. Measured on a 23-page brief,
+        // passes 3, 4 and 5 each truncated at their ceiling and truncated
+        // again on retry — about 11 minutes and 30,000 output tokens per run
+        // spent to achieve nothing.
+        //
+        // A complete but malformed response is the opposite case. Pass 2 once
+        // returned a markdown heading instead of JSON, failing at position 0.
+        // Nothing was too long; the model just ignored the format. A second
+        // attempt at the same ceiling usually complies.
+        const classify = (data) => {
+          if (data.stop_reason === 'max_tokens') return { reason: 'truncated' };
+          const text = data.content?.[0]?.text || '{}';
+          try {
+            return { ok: true, value: JSON.parse(text.replace(/```json|```/g, '').trim()) };
+          } catch (e) {
+            return { reason: 'unparseable', detail: e.message };
           }
-        }
+        };
 
-        const text = data.content?.[0]?.text || '{}';
+        const ceiling = PASS_MAX_TOKENS[pass] || 8000;
+        let data = await runPass(ceiling);
+        countTokens(data);
+        let outcome = classify(data);
+
+        // Same ceiling — this is a formatting retry, not a bigger-budget one.
+        if (!outcome.ok && outcome.reason === 'unparseable') {
+          console.error(`[analysis] ${pass} came back malformed, retrying once`);
+          send({
+            type: 'progress', pass, percent,
+            message: `Pass ${i+1} — ${passNames[pass]} (reformatting)…`,
+          });
+          data = await runPass(ceiling);
+          countTokens(data);
+          outcome = classify(data);
+          retried++;
+        }
 
         // A pass that cannot be used is recorded as unusable, not as an empty
         // object. The report reads a missing array as zero findings, so before
         // this a discarded Charter pass displayed as "0 Charter issues" —
         // indistinguishable from a brief with no Charter problems in it.
-        try {
-          if (truncated) throw new Error('cut off at the output ceiling');
-          const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
-          results[pass] = parsed;
-        } catch(e) {
+        if (outcome.ok) {
+          results[pass] = outcome.value;
+        } else {
+          const truncated = outcome.reason === 'truncated';
           // The reason only — never document content.
-          console.error(`[analysis] ${pass} unusable:`, e.message);
-          results[pass] = { _incomplete: true, _reason: truncated ? 'truncated' : 'unparseable' };
+          console.error(`[analysis] ${pass} unusable:`,
+            truncated ? 'cut off at the output ceiling' : outcome.detail);
+          results[pass] = { _incomplete: true, _reason: outcome.reason };
           warnings.push({
             pass,
             name: passNames[pass],
