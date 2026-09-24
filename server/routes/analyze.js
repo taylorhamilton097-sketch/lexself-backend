@@ -25,28 +25,43 @@ const PAGE_CEILING = {
 
 const MAX_FILES = 20;
 
-// Output ceiling per pass. A real package has far more to report than a short
-// test brief: on the first real Crown package, passes 3, 4 and 5 all ran out
-// of room at a flat 8000 and were discarded.
+// Output ceiling per pass.
 //
-// Pass 4 gets the most because it lists missing disclosure across twelve
-// categories AND drafts the full Stinchcombe demand letter in the same
-// response. Pass 3 and pass 5 follow, being the credibility analysis and the
-// synthesis of everything before them.
+// THE BINDING CONSTRAINT IS TIME, NOT MONEY. These requests are not streamed,
+// so the API sends nothing until the whole response has finished generating,
+// and Node's fetch (undici) gives up if no body arrives within 300 seconds.
+// At roughly 45-60 output tokens a second that puts the hard limit somewhere
+// around 13,500-18,000 tokens in a single request.
 //
-// A ceiling is not a charge — output bills on what the model actually writes,
-// so a ceiling that is never reached costs nothing. The model's own limit is
-// far above these.
+// A previous version set pass3 to 14000 and allowed a retry at 21000. The
+// retry could not possibly return inside the window and the analysis died
+// with "fetch failed" partway through, leaving the browser showing a progress
+// bar for a request that no longer existed.
+//
+// So these are sized to finish comfortably inside the window, not to fit
+// everything the model would like to write. Some passes will truncate at
+// these values — that is the deliberate trade, because a truncated pass is
+// now reported honestly on screen whereas a timeout loses the whole run.
+//
+// Streaming removes this constraint entirely and is the proper fix. Until it
+// lands, do not raise these.
 const PASS_MAX_TOKENS = {
-  pass1: 12000, pass2: 12000, pass3: 14000, pass4: 16000, pass5: 14000,
+  pass1: 8000, pass2: 8000, pass3: 8000, pass4: 9000, pass5: 8000,
 };
 
-// A pass that still runs out of room is retried once with half again as much.
-// The document is read from cache on the retry, so what the retry costs is the
-// output — worth paying rather than losing the credibility analysis outright
-// and showing the user zero findings.
+// A pass that runs out of room is retried once with more. The document is read
+// from cache on the retry, so what it costs is the output.
 const RETRY_MULTIPLIER = 1.5;
-const MAX_OUTPUT_CEILING = 32000;
+
+// Nothing may be requested above this, retry included. 10000 tokens is roughly
+// 170-220 seconds of generation, which leaves real margin inside the 300s
+// window rather than sitting on its edge.
+const MAX_OUTPUT_CEILING = 10000;
+
+// Our own deadline, set below undici's 300s so a request that is going to fail
+// fails as OUR error with a message that says what happened, rather than as a
+// bare "fetch failed" from somewhere in the network stack.
+const REQUEST_TIMEOUT_MS = 270000;
 
 // The Anthropic request has a hard payload limit and base64 inflates a PDF by
 // about a third, so the raw total has to stay comfortably under it.
@@ -394,8 +409,20 @@ router.post('/', requireAuth, async (req, res) => {
         // more of it. Everything above the text block is unchanged between
         // the two attempts, so the retry reads the package from cache.
         const runPass = async (maxTokens) => {
-          const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          // Without a signal this waits on undici's default and then reports
+          // "fetch failed", which says nothing about what went wrong.
+          //
+          // The deadline has to stay live until the BODY has been read, not
+          // just until fetch resolves. fetch resolves on headers; for an
+          // unstreamed request the response text arrives afterwards and is
+          // the slow part. Clearing the timer before reading the body would
+          // leave the slowest stretch of the request unprotected.
+          const controller = new AbortController();
+          const deadline = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+          try {
+            const resp = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
+            signal: controller.signal,
             headers: {
               'Content-Type': 'application/json',
               'x-api-key': apiKey,
@@ -428,13 +455,28 @@ router.post('/', requireAuth, async (req, res) => {
                 ],
               }],
             }),
-          });
+            });
 
-          if (!resp.ok) {
-            const e = await resp.json();
-            throw new Error(e.error?.message || `Pass ${i+1} failed`);
+            if (!resp.ok) {
+              const e = await resp.json().catch(() => ({}));
+              throw new Error(e.error?.message || `Pass ${i+1} failed (HTTP ${resp.status})`);
+            }
+            return await resp.json();
+          } catch (e) {
+            if (e.name === 'AbortError') {
+              throw new Error(
+                `Pass ${i+1} (${passNames[pass]}) took longer than ${Math.round(REQUEST_TIMEOUT_MS/1000)} seconds and was stopped. ` +
+                `Try again — if it keeps happening the document is too long for a single pass.`
+              );
+            }
+            // A network failure. Surface the underlying reason: "fetch failed"
+            // on its own is undici's wrapper and tells us nothing. An error we
+            // threw ourselves above has no cause and passes through unchanged.
+            if (e.cause) throw new Error(`Pass ${i+1} could not reach the API (${e.cause.code || e.cause.message})`);
+            throw e;
+          } finally {
+            clearTimeout(deadline);
           }
-          return resp.json();
         };
 
         // stop_reason 'max_tokens' means the model was still writing when it
@@ -528,7 +570,11 @@ router.post('/', requireAuth, async (req, res) => {
       });
 
     } catch(err) {
-      console.error('Analysis error:', err.message);
+      // err.cause carries the real reason for a network failure — an undici
+      // timeout code, a DNS failure, a closed socket. Logging only err.message
+      // gave "fetch failed" and left the actual cause to be guessed at.
+      const cause = err.cause?.code || err.cause?.message || '';
+      console.error('Analysis error:', err.message, cause ? `| cause: ${cause}` : '');
       send({ type: 'error', message: err.message });
     }
 
