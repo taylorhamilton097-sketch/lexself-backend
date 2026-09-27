@@ -306,6 +306,9 @@ body { background: var(--navy); color: var(--text); font-family: 'Inter', sans-s
 .stc.g { border-color: #1E3A1E; color: #5A8A5A; }
 /* Incomplete passes. A missing section must never read as "nothing found" */
 .rep-warn { border: 1px solid var(--red-dim); background: rgba(192,57,43,0.10); padding: 12px 14px; margin-top: 12px; }
+/* A missing document, not a missing analysis — should not read as an alarm */
+.rep-warn.mild { border-color: var(--blue-dim); background: rgba(46,134,193,0.08); }
+.rep-warn.mild .rep-warn-t { color: var(--blue-light); }
 .rep-warn-t { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.12em; color: #E87070; margin-bottom: 6px; }
 .rep-warn-d { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--text2); line-height: 1.65; }
 .rep-warn-l { margin: 6px 0 0 18px; padding: 0; }
@@ -2173,13 +2176,17 @@ function handleAnalysisEvent(ev) {
       // An incomplete analysis is reported as incomplete. Announcing
       // "0 inconsistencies · 0 Charter issues" for passes that never
       // finished would be the same false reassurance in a smaller box.
-      const failed = (ev.warnings || []).length;
+      // The demand letter is not a pass, so its failure must not be announced
+      // as an incomplete analysis.
+      const failed = (ev.warnings || []).filter(w => w && w.pass !== 'letter').length;
+      const letterFailed = (ev.warnings || []).some(w => w && w.pass === 'letter');
       if (failed) {
         toast(`Analysis incomplete — ${failed} of 5 passes did not finish. See the report.`);
       } else {
         const inc = ev.results.pass1?.inconsistencies?.length || 0;
         const ch = ev.results.pass2?.charterIssues?.length || 0;
-        toast(`Analysis done — ${inc} inconsistencies · ${ch} Charter issues`);
+        toast(`Analysis done — ${inc} inconsistencies · ${ch} Charter issues`
+              + (letterFailed ? ' · demand letter not drafted' : ''));
       }
       refreshUsage();
     }, 500);
@@ -2231,9 +2238,18 @@ function buildReport(r, meta, warnings) {
 
   // Named in one place at the top, so an incomplete report cannot be mistaken
   // for a complete one without opening every tab.
-  const failed = (warnings || []).filter(w => w && w.name);
+  //
+  // The demand letter is not one of the five passes. Counting it as one said
+  // "1 of 5 passes incomplete — this report is not a complete analysis" over a
+  // report where every pass had in fact succeeded and only the letter was
+  // missing. Overstating a failure costs trust the same way understating one
+  // does, so the two are separated.
+  const raised = (warnings || []).filter(w => w && w.name);
+  const failed = raised.filter(w => w.pass !== 'letter');
+  const letterFailed = raised.some(w => w.pass === 'letter');
   const docCount = meta?.documents?.length || 0;
-  const banner = failed.length ? `
+
+  const passBanner = failed.length ? `
     <div class="rep-warn">
       <div class="rep-warn-t">${failed.length} of 5 passes incomplete</div>
       <div class="rep-warn-d">This report is not a complete analysis. These parts did not finish:</div>
@@ -2241,6 +2257,16 @@ function buildReport(r, meta, warnings) {
       <div class="rep-warn-d" style="margin-top:8px">Sections fed by them show a dash rather than a
       count. Run the analysis again before relying on it.</div>
     </div>` : '';
+
+  const letterBanner = letterFailed ? `
+    <div class="rep-warn mild">
+      <div class="rep-warn-t">Demand letter not drafted</div>
+      <div class="rep-warn-d">The analysis itself is unaffected — only the draft Stinchcombe letter
+      could not be produced. The missing disclosure list under Missing is complete. Re-running the
+      analysis usually resolves it.</div>
+    </div>` : '';
+
+  const banner = passBanner + letterBanner;
 
   document.getElementById('repHdr').innerHTML = `
     <div class="rep-title">Analysis Report</div>
@@ -2313,6 +2339,12 @@ function buildReport(r, meta, warnings) {
       ${mi.howToRequest?`<div class="fcd"><strong>Request:</strong> ${mi.howToRequest}</div>`:''}
       ${mi.ifNotProduced?`<div class="dv">${mi.ifNotProduced}</div>`:''}
     </div>`).join('')}
+    ${!p4.disclosureRequestLetter && letterFailed ? `
+    <div class="pass-warn" style="margin-top:14px">
+      <div class="rep-warn-t">Demand letter not drafted</div>
+      <div class="rep-warn-d">The list above is complete. Only the draft letter could not be
+      produced — run the analysis again to get it.</div>
+    </div>` : ''}
     ${p4.disclosureRequestLetter?`
     <div class="sec-title" style="margin-top:14px">Stinchcombe Request Letter</div>
     <button onclick="copyDisclosureLetter()" style="padding:8px 14px;background:none;border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;min-height:36px;transition:all .15s">Copy Letter</button>
