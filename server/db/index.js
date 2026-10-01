@@ -213,11 +213,43 @@ db.exec(`
     PRIMARY KEY (user_id, product, prefix)
   );
 
+  -- Completed Crown disclosure analyses. The uploaded PDFs are NOT stored
+  -- here or anywhere else — only what the analysis produced. The documents
+  -- stay on the user's own machine.
+  --
+  -- This does hold case-derived content: quotes, names and dates lifted from
+  -- the brief by the model. That makes it user data in the fullest sense, so
+  -- it is in USER_DATA_TABLES and goes on account deletion.
+  --
+  -- parent_id is what makes delayed disclosure a chain rather than a pile: a
+  -- supplementary analysis points at the one it was built on. ON DELETE SET
+  -- NULL rather than CASCADE, because deleting an earlier analysis should not
+  -- silently take later ones with it — an orphaned supplementary analysis is
+  -- still worth having.
+  CREATE TABLE IF NOT EXISTS disclosure_analyses (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    parent_id       INTEGER REFERENCES disclosure_analyses(id) ON DELETE SET NULL,
+    created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
+    label           TEXT NOT NULL DEFAULT '',
+    charge_label    TEXT DEFAULT '',
+    document_count  INTEGER NOT NULL DEFAULT 0,
+    page_count      INTEGER NOT NULL DEFAULT 0,
+    documents       TEXT NOT NULL DEFAULT '[]',
+    results         TEXT NOT NULL DEFAULT '{}',
+    warnings        TEXT NOT NULL DEFAULT '[]',
+    -- Added by a later step. Nullable so this table can ship before the
+    -- evidence inventory exists, and so rows written before it stay valid.
+    inventory       TEXT
+  );
+
   CREATE INDEX IF NOT EXISTS idx_parties_user   ON case_parties(user_id, product);
   CREATE INDEX IF NOT EXISTS idx_children_user  ON case_children(user_id);
   CREATE INDEX IF NOT EXISTS idx_charges_user   ON criminal_charges(user_id);
   CREATE UNIQUE INDEX IF NOT EXISTS idx_pseudonym_value ON case_pseudonyms(user_id, product, real_value);
   CREATE UNIQUE INDEX IF NOT EXISTS idx_pseudonym_token ON case_pseudonyms(user_id, product, token);
+  CREATE INDEX IF NOT EXISTS idx_analyses_user  ON disclosure_analyses(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_analyses_parent ON disclosure_analyses(parent_id);
 `);
 
 // ── Columns the family app's profile panel collects but these tables
@@ -1378,6 +1410,142 @@ function allocatePseudonym(userId, product, realValue, prefix, kind, numbered = 
   }
 }
 
+// ── DISCLOSURE ANALYSES ──
+// Stores what an analysis produced, never the documents it read. See the
+// disclosure_analyses comment in the schema.
+//
+// Every read and delete is scoped by user_id inside the SQL rather than
+// fetched and then checked, so a guessed or tampered id returns nothing
+// instead of someone else's brief.
+
+// A malformed blob must not take the whole list down with it. Analyses hold
+// case content, so the fallback is empty, never a partial parse.
+function parseJsonColumn(text, fallback) {
+  if (text === null || text === undefined) return fallback;
+  try { return JSON.parse(text); } catch (e) { return fallback; }
+}
+
+/**
+ * Save a completed analysis. Returns { id }.
+ *
+ * parentId links a supplementary analysis to the one it builds on. It is
+ * verified to belong to this user before being stored — otherwise a user
+ * could chain their analysis onto someone else's.
+ */
+function saveDisclosureAnalysis(userId, data = {}) {
+  const uid = Number(userId);
+  if (!Number.isInteger(uid) || uid <= 0) {
+    throw new Error('saveDisclosureAnalysis: invalid user id');
+  }
+
+  let parentId = Number(data.parentId);
+  if (!Number.isInteger(parentId) || parentId <= 0) {
+    parentId = null;
+  } else {
+    const owns = db.prepare(
+      'SELECT id FROM disclosure_analyses WHERE id = ? AND user_id = ?'
+    ).get(parentId, uid);
+    if (!owns) parentId = null;
+  }
+
+  const row = db.prepare(
+    `INSERT INTO disclosure_analyses
+       (user_id, parent_id, label, charge_label, document_count, page_count,
+        documents, results, warnings, inventory)
+     VALUES (?,?,?,?,?,?,?,?,?,?)
+     RETURNING id`
+  ).get(
+    uid,
+    parentId,
+    String(data.label || '').slice(0, 200),
+    String(data.chargeLabel || '').slice(0, 200),
+    Number(data.documentCount) || 0,
+    Number(data.pageCount) || 0,
+    JSON.stringify(data.documents || []),
+    JSON.stringify(data.results || {}),
+    JSON.stringify(data.warnings || []),
+    data.inventory === undefined || data.inventory === null
+      ? null : JSON.stringify(data.inventory)
+  );
+  return { id: row.id };
+}
+
+/**
+ * Summaries for a list view, newest first. Deliberately does not select
+ * results or inventory — those run to a hundred kilobytes each and nothing
+ * in a list needs them.
+ */
+function listDisclosureAnalyses(userId, limit = 50) {
+  const uid = Number(userId);
+  if (!Number.isInteger(uid) || uid <= 0) return [];
+  const rows = db.prepare(
+    `SELECT id, parent_id, created_at, label, charge_label,
+            document_count, page_count, warnings
+       FROM disclosure_analyses
+      WHERE user_id = ?
+      ORDER BY created_at DESC, id DESC
+      LIMIT ?`
+  ).all(uid, Math.max(1, Math.min(200, Number(limit) || 50)));
+
+  return rows.map(r => {
+    const warnings = parseJsonColumn(r.warnings, []);
+    return {
+      id: r.id,
+      parentId: r.parent_id,
+      createdAt: r.created_at,
+      label: r.label,
+      chargeLabel: r.charge_label,
+      documentCount: r.document_count,
+      pageCount: r.page_count,
+      // The count rather than the contents, so a list can mark an
+      // incomplete analysis without loading it.
+      warningCount: Array.isArray(warnings) ? warnings.length : 0,
+    };
+  });
+}
+
+/** One analysis in full, or null. Scoped by user in the query. */
+function getDisclosureAnalysis(id, userId) {
+  const uid = Number(userId), aid = Number(id);
+  if (!Number.isInteger(uid) || uid <= 0) return null;
+  if (!Number.isInteger(aid) || aid <= 0) return null;
+  const r = db.prepare(
+    'SELECT * FROM disclosure_analyses WHERE id = ? AND user_id = ?'
+  ).get(aid, uid);
+  if (!r) return null;
+  return {
+    id: r.id,
+    parentId: r.parent_id,
+    createdAt: r.created_at,
+    label: r.label,
+    chargeLabel: r.charge_label,
+    documentCount: r.document_count,
+    pageCount: r.page_count,
+    documents: parseJsonColumn(r.documents, []),
+    results: parseJsonColumn(r.results, {}),
+    warnings: parseJsonColumn(r.warnings, []),
+    inventory: parseJsonColumn(r.inventory, null),
+  };
+}
+
+/**
+ * Permanent delete of one analysis. Returns true if a row went.
+ *
+ * A hard delete, not a deleted_at flag. deleteConversation() sets a flag and
+ * leaves every message row in place, which is already on the compliance list;
+ * repeating that here would put case content beyond the user's reach while
+ * still holding it.
+ */
+function deleteDisclosureAnalysis(id, userId) {
+  const uid = Number(userId), aid = Number(id);
+  if (!Number.isInteger(uid) || uid <= 0) return false;
+  if (!Number.isInteger(aid) || aid <= 0) return false;
+  const info = db.prepare(
+    'DELETE FROM disclosure_analyses WHERE id = ? AND user_id = ?'
+  ).run(aid, uid);
+  return info.changes > 0;
+}
+
 // ── LEGACY BLOB BACKFILL ──
 // public-family/index.html saves the whole profile as one JSON blob via
 // POST /api/auth/profile; case-profile.html writes the tables above.
@@ -2529,6 +2697,10 @@ const USER_DATA_TABLES = [
   'criminal_charges',
   'case_pseudonyms',        // holds real names — must not survive deletion
   'pseudonym_counters',     // paired with case_pseudonyms
+  // Holds quotes, names and dates lifted from the Crown brief by the model.
+  // The documents themselves are never stored, but this is case content and
+  // must go with the account.
+  'disclosure_analyses',
   // Financial statement (Unit 4b — Form 13.1)
   'fs_valuation_dates',
   'fs_income_meta',
@@ -2834,6 +3006,9 @@ module.exports = {
   listScheduleB, addScheduleB, updateScheduleB, deleteScheduleB,
   getScheduleBMeta, saveScheduleBMeta,
   getFinancialStatement,
+  // Disclosure analyses (results only — never the uploaded documents)
+  saveDisclosureAnalysis, listDisclosureAnalyses,
+  getDisclosureAnalysis, deleteDisclosureAnalysis,
   // Account deletion (permanent, irreversible)
   deleteUserAccount,
   verifyUserDataRemoved,
