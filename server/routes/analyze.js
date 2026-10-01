@@ -433,39 +433,25 @@ router.post('/', requireAuth, async (req, res) => {
     };
 
     try {
-      // Extract charge info first
-      send({
-        type: 'progress', pass: 'extract', percent: 2,
-        message: files.length > 1
-          ? `Reading ${files.length} documents${totalPages ? ` — ${totalPages} pages` : ''}…`
-          : 'Reading disclosure document…',
-      });
+      const contextNote = chargeContext ? `\n\nCharge context: ${chargeContext}` : '';
 
-      for (let i = 0; i < passes.length; i++) {
-        const pass = passes[i];
-        const percent = Math.round(10 + (i / passes.length) * 85);
-        send({ type: 'progress', pass, percent, message: `Pass ${i+1} — ${passNames[pass]}…` });
+      // Steps are named explicitly rather than inferred from a single pass
+      // name, because passes no longer run one at a time and a client that
+      // guesses "everything before this one is finished" would be wrong.
+      // `pass` is kept so an older cached client still shows something sane.
+      const progress = (percent, active, done, message) =>
+        send({ type: 'progress', percent, active, done, pass: active[0], message });
 
-        const contextNote = chargeContext ? `\n\nCharge context: ${chargeContext}` : '';
-
-        // Only passes that actually parsed are carried forward. A pass that
-        // was cut off would otherwise be stringified into every later pass
-        // as a fragment — paid for on each one, and inviting the model to
-        // reason from half a sentence.
-        const usable = {};
-        for (const [key, value] of Object.entries(results)) {
-          if (value && !value._incomplete) usable[key] = value;
-        }
-        const prevResults = Object.keys(usable).length > 0
-          ? `\n\nPrevious analysis results:\n${JSON.stringify(usable, null, 2)}`
-          : '';
+      progress(2, ['extract'], [], files.length > 1
+        ? `Reading ${files.length} documents${totalPages ? ` — ${totalPages} pages` : ''}…`
+        : 'Reading disclosure document…');
 
         // Extracted so a pass that runs out of room can be run again with
         // more of it. Everything above the text block is unchanged between
         // the two attempts, so the retry reads the package from cache.
         // promptText is passed in rather than derived, so the demand letter can
         // reuse this with the same cached document blocks above it.
-        const runPass = async (maxTokens, promptText) => {
+        const runPass = async (maxTokens, promptText, label) => {
           // Without a signal this waits on undici's default and then reports
           // "fetch failed", which says nothing about what went wrong.
           //
@@ -513,20 +499,20 @@ router.post('/', requireAuth, async (req, res) => {
 
             if (!resp.ok) {
               const e = await resp.json().catch(() => ({}));
-              throw new Error(e.error?.message || `Pass ${i+1} failed (HTTP ${resp.status})`);
+              throw new Error(e.error?.message || `${label} failed (HTTP ${resp.status})`);
             }
             return await resp.json();
           } catch (e) {
             if (e.name === 'AbortError') {
               throw new Error(
-                `Pass ${i+1} (${passNames[pass]}) took longer than ${Math.round(REQUEST_TIMEOUT_MS/1000)} seconds and was stopped. ` +
+                `${label} took longer than ${Math.round(REQUEST_TIMEOUT_MS/1000)} seconds and was stopped. ` +
                 `Try again — if it keeps happening the document is too long for a single pass.`
               );
             }
             // A network failure. Surface the underlying reason: "fetch failed"
             // on its own is undici's wrapper and tells us nothing. An error we
             // threw ourselves above has no cause and passes through unchanged.
-            if (e.cause) throw new Error(`Pass ${i+1} could not reach the API (${e.cause.code || e.cause.message})`);
+            if (e.cause) throw new Error(`${label} could not reach the API (${e.cause.code || e.cause.message})`);
             throw e;
           } finally {
             clearTimeout(deadline);
@@ -557,70 +543,47 @@ router.post('/', requireAuth, async (req, res) => {
           }
         };
 
-        const promptText = PASS_PROMPTS[pass] + BREVITY + packageNote + contextNote + prevResults;
-        const ceiling = PASS_MAX_TOKENS[pass] || 8000;
-        let data = await runPass(ceiling, promptText);
-        countTokens(data);
-        let outcome = classify(data);
-
-        // Same ceiling — this is a formatting retry, not a bigger-budget one.
-        if (!outcome.ok && outcome.reason === 'unparseable') {
-          console.error(`[analysis] ${pass} came back malformed, retrying once`);
-          send({
-            type: 'progress', pass, percent,
-            message: `Pass ${i+1} — ${passNames[pass]} (reformatting)…`,
-          });
-          data = await runPass(ceiling, promptText);
-          countTokens(data);
-          outcome = classify(data);
-          retried++;
-        }
-
-        // A pass that cannot be used is recorded as unusable, not as an empty
-        // object. The report reads a missing array as zero findings, so before
-        // this a discarded Charter pass displayed as "0 Charter issues" —
-        // indistinguishable from a brief with no Charter problems in it.
-        if (outcome.ok) {
-          results[pass] = outcome.value;
-
-          // Drafted as its own request, immediately after the items it is based
-          // on, so the progress step still reads as pass 4 and the report finds
-          // the letter where it has always looked for it.
-          if (pass === 'pass4') {
-            send({
-              type: 'progress', pass, percent,
-              message: `Pass ${i+1} — ${passNames[pass]} (drafting the demand letter)…`,
-            });
-            try {
-              const letterPrompt = LETTER_PROMPT + packageNote + contextNote +
-                `\n\nItems to request:\n${JSON.stringify(outcome.value.missingItems || [], null, 2)}`;
-              const letterData = await runPass(LETTER_MAX_TOKENS, letterPrompt);
-              countTokens(letterData);
-              const letter = letterData.content?.[0]?.text || '';
-              if (letterData.stop_reason === 'max_tokens' || !letter.trim()) {
-                // Half a demand letter is worse than none — it reads as
-                // complete and would be sent that way.
-                console.error('[analysis] demand letter unusable:',
-                  letterData.stop_reason === 'max_tokens' ? 'cut off' : 'empty');
-                warnings.push({
-                  pass: 'letter',
-                  name: 'Stinchcombe Demand Letter',
-                  message: 'The demand letter could not be drafted. The missing disclosure list above is unaffected.',
-                });
-              } else {
-                results.pass4.disclosureRequestLetter = letter.trim();
-              }
-            } catch (e) {
-              // The letter failing must not lose the four passes already done.
-              console.error('[analysis] demand letter failed:', e.message);
-              warnings.push({
-                pass: 'letter',
-                name: 'Stinchcombe Demand Letter',
-                message: 'The demand letter could not be drafted. The missing disclosure list above is unaffected.',
-              });
-            }
+      // One pass start to finish. Never throws unless asked to: a pass that
+      // fails records a warning and lets the others stand, because losing the
+      // whole analysis to one timeout is worse than losing one section.
+      const runOnePass = async (pass, { fatal = false } = {}) => {
+        const label = `${passNames[pass]}`;
+        try {
+          // Snapshotted when this pass starts, so passes running together all
+          // see the same earlier results. Only passes that actually parsed are
+          // carried forward — a cut-off pass would otherwise be stringified in
+          // as a fragment, paid for, and reasoned from.
+          const usable = {};
+          for (const [key, value] of Object.entries(results)) {
+            if (value && !value._incomplete) usable[key] = value;
           }
-        } else {
+          const prevResults = Object.keys(usable).length > 0
+            ? `\n\nPrevious analysis results:\n${JSON.stringify(usable, null, 2)}`
+            : '';
+
+          const promptText = PASS_PROMPTS[pass] + BREVITY + packageNote + contextNote + prevResults;
+          const ceiling = PASS_MAX_TOKENS[pass] || 8000;
+          let data = await runPass(ceiling, promptText, label);
+          countTokens(data);
+          let outcome = classify(data);
+
+          // Same ceiling — this is a formatting retry, not a bigger-budget one.
+          if (!outcome.ok && outcome.reason === 'unparseable') {
+            console.error(`[analysis] ${pass} came back malformed, retrying once`);
+            data = await runPass(ceiling, promptText, label);
+            countTokens(data);
+            outcome = classify(data);
+            retried++;
+          }
+
+          // A pass that cannot be used is recorded as unusable, not as an empty
+          // object. The report reads a missing array as zero findings, so before
+          // this a discarded Charter pass displayed as "0 Charter issues" —
+          // indistinguishable from a brief with no Charter problems in it.
+          if (outcome.ok) {
+            results[pass] = outcome.value;
+            return;
+          }
           const truncated = outcome.reason === 'truncated';
           // The reason only — never document content.
           console.error(`[analysis] ${pass} unusable:`,
@@ -633,8 +596,81 @@ router.post('/', requireAuth, async (req, res) => {
               ? `${passNames[pass]} was cut off before it finished. It has been left out of this report.`
               : `${passNames[pass]} came back in a form the app could not read. It has been left out of this report.`,
           });
+        } catch (e) {
+          // A request-level failure: timeout, network, or an API error. Pass 1
+          // is fatal because nothing after it can work and the cache was never
+          // written, so one clear error beats five identical warnings.
+          if (fatal) throw e;
+          console.error(`[analysis] ${pass} failed:`, e.message);
+          results[pass] = { _incomplete: true, _reason: 'failed' };
+          warnings.push({
+            pass,
+            name: passNames[pass],
+            message: `${passNames[pass]} could not be completed. It has been left out of this report.`,
+          });
         }
-      }
+      };
+
+      // The demand letter. Depends on pass 4 and nothing else, so it can run
+      // alongside pass 5 rather than delaying it.
+      const draftLetter = async () => {
+        if (!results.pass4 || results.pass4._incomplete) return;
+        try {
+          const letterPrompt = LETTER_PROMPT + packageNote + contextNote +
+            `\n\nItems to request:\n${JSON.stringify(results.pass4.missingItems || [], null, 2)}`;
+          const letterData = await runPass(LETTER_MAX_TOKENS, letterPrompt, 'The demand letter');
+          countTokens(letterData);
+          const letter = letterData.content?.[0]?.text || '';
+          if (letterData.stop_reason === 'max_tokens' || !letter.trim()) {
+            // Half a demand letter is worse than none — it reads as complete
+            // and would be sent that way.
+            console.error('[analysis] demand letter unusable:',
+              letterData.stop_reason === 'max_tokens' ? 'cut off' : 'empty');
+            throw new Error('unusable');
+          }
+          results.pass4.disclosureRequestLetter = letter.trim();
+        } catch (e) {
+          // The letter failing must not cost the passes already done.
+          if (e.message !== 'unusable') console.error('[analysis] demand letter failed:', e.message);
+          warnings.push({
+            pass: 'letter',
+            name: 'Stinchcombe Demand Letter',
+            message: 'The demand letter could not be drafted. The missing disclosure list above is unaffected.',
+          });
+        }
+      };
+
+      // ── Stage 1: pass 1 alone ────────────────────────────────────────────
+      // It must finish before anything else starts. Its request is what writes
+      // the package into the cache; firing the others alongside it would have
+      // them all miss at once and pay full rate for the documents four times
+      // over, which is the entire saving thrown away.
+      progress(12, ['pass1'], ['extract'], `Pass 1 — ${passNames.pass1}…`);
+      await runOnePass('pass1', { fatal: true });
+
+      // ── Stage 2: passes 2, 3 and 4 together ──────────────────────────────
+      // Three independent readings of the same package — Charter, credibility,
+      // missing disclosure. None of their prompts refers to another's output,
+      // so running them concurrently costs nothing in quality and takes the
+      // stage down to the length of the slowest one instead of the sum.
+      //
+      // They each see pass 1's findings and not each other's. That is a real
+      // change from running them in series, and it is the trade being made.
+      progress(35, ['pass2', 'pass3', 'pass4'], ['extract', 'pass1'],
+               'Passes 2-4 — Charter, credibility and missing disclosure, together…');
+      await Promise.all([runOnePass('pass2'), runOnePass('pass3'), runOnePass('pass4')]);
+
+      // ── Stage 3: pass 5 and the demand letter together ───────────────────
+      // Pass 5 synthesises everything before it, so it has to come last. The
+      // letter depends only on pass 4, so it rides alongside rather than after.
+      progress(75, ['pass5'], ['extract', 'pass1', 'pass2', 'pass3', 'pass4'],
+               `Pass 5 — ${passNames.pass5}, and drafting the demand letter…`);
+      await Promise.all([runOnePass('pass5'), draftLetter()]);
+
+      // Concurrency means these arrive in whatever order they finished. Sorted
+      // so the report lists them in pass order, with the letter last.
+      const order = ['pass1', 'pass2', 'pass3', 'pass4', 'pass5', 'letter'];
+      warnings.sort((a, b) => order.indexOf(a.pass) - order.indexOf(b.pass));
 
       recordUsage(user.id, 'criminal', 'analysis');
 
