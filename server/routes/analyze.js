@@ -243,11 +243,25 @@ Requirements:
 - Do not invent a court file number, a date, or the names of counsel. Use a
   clearly marked placeholder in square brackets where one is needed.
 
+LENGTH — two pages of letterhead at most:
+- Group related items under short headings. Do not restate each item's
+  justification where a heading already carries it.
+- One sentence per item. The reasoning belongs in the grouping, not in
+  every line.
+- No recital of the facts of the case. The Crown has the brief.
+- No closing summary of what the letter has just said.
+
 Return the letter text only. No JSON, no markdown fences, no commentary before or after.`;
 
-// A letter of this kind runs to roughly 800-1500 words. 4000 tokens is ample
-// and well inside the request window.
-const LETTER_MAX_TOKENS = 4000;
+// A letter of this kind runs to roughly 800-1500 words, so 4000 tokens looked
+// ample. It was not: on a package of 11 documents the letter was cut off, since
+// the number of items to request grows with the package even though the letter
+// itself should not. 8000 is about 178 seconds, inside the request window.
+//
+// Unlike the analysis passes, a letter has a natural finite length, so a
+// ceiling that fits genuinely exists here — the length discipline above is
+// what keeps it from needing one this large again.
+const LETTER_MAX_TOKENS = 8000;
 
 // POST /api/analyze — 5-pass Crown disclosure analysis (SSE streaming)
 router.post('/', requireAuth, async (req, res) => {
