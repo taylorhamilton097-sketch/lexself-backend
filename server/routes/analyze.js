@@ -3,7 +3,8 @@
 const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits } = require('../db');
+const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
+        saveDisclosureAnalysis } = require('../db');
 
 // A disclosure package is capped on PAGES, not on file count. One 400-page
 // PDF and ten 40-page PDFs cost exactly the same to analyse, so a file-count
@@ -698,20 +699,52 @@ router.post('/', requireAuth, async (req, res) => {
       // Try to detect charge from pass1
       const chargeDetected = results.pass1?.chargeDetected || chargeContext || 'Unknown Charge';
 
+      // Filenames go back for display only — they were never sent to the API.
+      const documentList = files.map((f, i) => ({
+        label: `Document ${i + 1}`,
+        name: f.originalname,
+        pages: pageCounts[i],
+      }));
+
+      // Saved so a later supplementary disclosure has something to be analysed
+      // against. Results only — the uploaded PDFs are not written anywhere.
+      //
+      // An analysis with failed passes is still saved, with its warnings, so
+      // the record matches what the user was shown rather than quietly
+      // dropping the imperfect ones.
+      //
+      // A save failure must not cost the user the report they have just waited
+      // for and paid an analysis credit for, so it is logged and the complete
+      // event is sent regardless.
+      let analysisId = null;
+      try {
+        const saved = saveDisclosureAnalysis(user.id, {
+          label: `${chargeDetected} — ${files.length} document${files.length === 1 ? '' : 's'}`,
+          chargeLabel: chargeDetected,
+          documentCount: files.length,
+          pageCount: totalPages,
+          documents: documentList,
+          results,
+          warnings,
+        });
+        analysisId = saved.id;
+      } catch (e) {
+        console.error('[analysis] could not save the analysis:', e.message);
+      }
+
       send({
         type: 'complete',
+        analysisId,
         results: { ...results, chargeLabel: chargeDetected, chargeDetected },
         warnings,
         meta: {
-          // A real count now, where pdf.js could read it. Filenames go back
-          // for display only — they were never sent to the API.
+          // A real count now, where pdf.js could read it.
           pages: totalPages || '?',
           pagesUnknownFor: unknownPages,
-          documents: files.map((f, i) => ({
-            label: `Document ${i + 1}`,
-            name: f.originalname,
-            pages: pageCounts[i],
-          })),
+          documents: documentList,
+          // null means the report was produced but not kept — the user should
+          // not be told it is saved when it is not.
+          saved: analysisId !== null,
         },
       });
 
