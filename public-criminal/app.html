@@ -2036,6 +2036,19 @@ function resetAnalyseBtn() {
   renderFileList();
 }
 
+// Each step's own name is captured the first time and restored at the start of
+// every run, because a previous run may have written a stage message or a
+// failure word into the label and it would otherwise persist.
+function resetProgressSteps() {
+  document.querySelectorAll('.ps').forEach(s => {
+    s.classList.remove('done','act');
+    const label = s.querySelector('span');
+    if (!label) return;
+    if (!s.dataset.label) s.dataset.label = label.textContent;
+    label.textContent = s.dataset.label;
+  });
+}
+
 // A failed run must stop looking like a working one. The pulsing step was the
 // only thing on screen during a 22-minute wait for a request that had already
 // died, so an abandoned analysis clears the animation and says what happened
@@ -2061,7 +2074,7 @@ async function startAnalysis() {
   btn.disabled = true; btn.classList.add('loading');
   document.getElementById('aBtnTxt').textContent = 'Analysing…';
   document.getElementById('pw').classList.add('show');
-  document.querySelectorAll('.ps').forEach(s => s.classList.remove('done','act'));
+  resetProgressSteps();
   const fd = new FormData();
   // One field name repeated — the server reads them as an array.
   for (const f of selFiles) fd.append('disclosure', f);
@@ -2152,15 +2165,41 @@ function handleAnalysisEvent(ev) {
   if (ev.type === 'progress') {
     document.getElementById('pbi').style.width = ev.percent + '%';
     const map = {extract:'ps-extract',parse:'ps-extract',pass1:'ps-pass1',pass2:'ps-pass2',pass3:'ps-pass3',pass4:'ps-pass4',pass5:'ps-pass5'};
-    const sid = map[ev.pass];
-    if (sid) {
-      const all = ['ps-extract','ps-pass1','ps-pass2','ps-pass3','ps-pass4','ps-pass5'];
-      const idx = all.indexOf(sid);
-      all.forEach((id,i) => {
-        const el = document.getElementById(id); if (!el) return;
-        if (i < idx) { el.classList.remove('act'); el.classList.add('done'); }
-        else if (i === idx) { el.classList.remove('done'); el.classList.add('act'); el.querySelector('span').textContent = ev.message; }
+
+    if (Array.isArray(ev.active)) {
+      // Passes 2, 3 and 4 run at the same time, so the server names which
+      // steps are running and which have finished. Working it out from a
+      // single pass name would mark 2 and 3 finished the moment a pass 4
+      // event arrived, while all three were still going.
+      (ev.done || []).forEach(p => {
+        const el = document.getElementById(map[p]); if (!el) return;
+        el.classList.remove('act'); el.classList.add('done');
       });
+      ev.active.forEach(p => {
+        const el = document.getElementById(map[p]); if (!el) return;
+        el.classList.remove('done'); el.classList.add('act');
+      });
+      // With one step running the message adds something — "and drafting the
+      // demand letter". With three it would put the same sentence on all of
+      // them, so each keeps its own name instead.
+      if (ev.active.length === 1 && ev.message) {
+        const el = document.getElementById(map[ev.active[0]]);
+        const label = el && el.querySelector('span');
+        if (label) label.textContent = ev.message;
+      }
+    } else {
+      // An older cached copy of this page talking to the current server, or
+      // the reverse. Falls back to treating the named pass as the only one.
+      const sid = map[ev.pass];
+      if (sid) {
+        const all = ['ps-extract','ps-pass1','ps-pass2','ps-pass3','ps-pass4','ps-pass5'];
+        const idx = all.indexOf(sid);
+        all.forEach((id,i) => {
+          const el = document.getElementById(id); if (!el) return;
+          if (i < idx) { el.classList.remove('act'); el.classList.add('done'); }
+          else if (i === idx) { el.classList.remove('done'); el.classList.add('act'); el.querySelector('span').textContent = ev.message; }
+        });
+      }
     }
   }
   if (ev.type === 'complete') {
@@ -2214,9 +2253,12 @@ function countOf(p, n) { return passFailed(p) ? '—' : (n || 0); }
 // the server and no document content reaches it.
 function passNotice(p, name) {
   if (!passFailed(p)) return '';
-  const why = p._reason === 'truncated'
-    ? 'was cut off before it could finish'
-    : 'came back in a form the app could not read';
+  // 'failed' is a request that never came back — a timeout, a dropped
+  // connection, an API error. Describing that as unreadable output would be
+  // wrong, and the three have genuinely different remedies.
+  const why = p._reason === 'truncated' ? 'was cut off before it could finish'
+            : p._reason === 'failed'    ? 'did not come back — the request to the analysis service failed'
+            : 'came back in a form the app could not read';
   return `<div class="pass-warn">
     <div class="rep-warn-t">${name} — incomplete</div>
     <div class="rep-warn-d">This part of the analysis ${why}, so nothing below comes from it.
