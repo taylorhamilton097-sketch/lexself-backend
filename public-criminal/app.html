@@ -645,7 +645,11 @@ select.fi { cursor: pointer; }
         <div class="dz-icon">PDF</div>
         <div class="dz-title" id="dzTitle">Tap to select Crown Brief PDFs</div>
         <div class="dz-sub">Police disclosure, officer notes, will-says, ITO — select as many as you need</div>
-        <div class="dz-sub" style="margin-top:6px;color:var(--text3)">Up to 20 PDFs · 25MB each · processed in memory only, not stored on server</div>
+        <!-- Precise, because it stopped being true as a blanket statement once
+             analyses began being saved. The documents are still never written
+             to disk; the report they produce is. -->
+        <div class="dz-sub" style="margin-top:6px;color:var(--text3)">Up to 20 PDFs · 25MB each</div>
+        <div class="dz-sub" style="margin-top:4px;color:var(--text3)">The documents are not kept — the analysis they produce is saved to your account</div>
       </div>
       <input type="file" id="fileInput" accept=".pdf" multiple style="display:none" onchange="onFileSel(event)">
 
