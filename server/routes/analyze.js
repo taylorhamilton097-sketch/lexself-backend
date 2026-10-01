@@ -4,7 +4,8 @@ const express = require('express');
 const router  = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { checkLimit, recordUsage, trackApiUsage, trackGlobalApiUsage, checkCounselLimits,
-        saveDisclosureAnalysis } = require('../db');
+        saveDisclosureAnalysis, allocatePseudonym, listPseudonyms } = require('../db');
+const { scrubDeep, mapFromEntries } = require('../lib/caseContext');
 
 // A disclosure package is capped on PAGES, not on file count. One 400-page
 // PDF and ten 40-page PDFs cost exactly the same to analyse, so a file-count
@@ -64,6 +65,21 @@ const REQUEST_TIMEOUT_MS = 270000;
 // about a third, so the raw total has to stay comfortably under it.
 const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
 
+// Roles the inventory is allowed to use, mapped to the token prefix a person
+// in that role gets. Held here rather than added to ROLE_PREFIX in
+// caseContext, because that table is shared by six routes and this vocabulary
+// belongs to the disclosure inventory alone.
+const INVENTORY_PREFIX = {
+  complainant: 'COMPLAINANT',
+  witness:     'WITNESS',
+  officer:     'OFFICER',
+  co_accused:  'CO_ACCUSED',
+  crown:       'CROWN',
+  counsel:     'COUNSEL',
+  accused:     'ACCUSED',
+  other:       'PARTY',
+};
+
 // Appended to every pass. The passes were not asking for too many findings,
 // they were writing each one as prose: five or six paragraph-length fields per
 // item. Three of five passes overran the time window on a 23-page brief.
@@ -104,7 +120,18 @@ For each inconsistency return:
   "defenceValue": "How to use this in defence"
 }
 
-Return JSON: { "inconsistencies": [...], "overallNarrativeAssessment": "..." }
+Also record an EVIDENCE INVENTORY of what this package contains. This is not analysis — it is a factual index, and it is the only record of the package that survives, because the documents themselves are not retained. Later supplementary disclosure is assessed against it.
+
+{
+  "documents": [{ "label": "Document 1", "type": "officer notes / will-say / ITO / 911 transcript / statement / report / other", "author": "name, or empty", "date": "YYYY-MM-DD, or empty" }],
+  "people": [{ "name": "name exactly as written in the documents", "role": "one of: complainant, witness, officer, co_accused, crown, counsel, accused, other", "says": "in one sentence, the substance of what this person is recorded as saying" }],
+  "dates": [{ "date": "YYYY-MM-DD or as written", "event": "what happened, one short clause" }],
+  "exhibits": [{ "item": "what it is", "where": "Document label it is described in" }]
+}
+
+For the inventory: list every person named anywhere in the package, every date that matters to the chronology, and every exhibit or item of physical or electronic evidence referred to. Use the role vocabulary exactly as given. An expert is a witness.
+
+Return JSON: { "inconsistencies": [...], "overallNarrativeAssessment": "...", "inventory": { ... } }
 Respond ONLY with valid JSON.`,
 
   pass2: `You are a Canadian constitutional law expert. Analyze this Crown disclosure for CHARTER OF RIGHTS VIOLATIONS.
@@ -706,6 +733,45 @@ router.post('/', requireAuth, async (req, res) => {
         pages: pageCounts[i],
       }));
 
+      // ── Names do not go into the database ────────────────────────────────
+      // The findings name complainants, witnesses, officers and children,
+      // lifted out of the brief. None of those people has an account here or
+      // any dealing with ClearStand, so what is stored carries role tokens and
+      // the names live only in case_pseudonyms — one small table that goes with
+      // the account. A leak of the analyses yields roles, not identified
+      // people.
+      //
+      // Nothing could match these names before now: they are not in the user's
+      // profile, and the profile is all scrub() has ever had to work from. The
+      // inventory is where they become known, which is why pseudonymised
+      // storage and the inventory had to arrive together.
+      const inventory = results.pass1?.inventory || null;
+      const mappedNames = [];
+      let storeMap = null;
+      try {
+        for (const person of (Array.isArray(inventory?.people) ? inventory.people : [])) {
+          const name = String(person?.name || '').trim();
+          // scrub() matches whole phrases, and a lone word is as likely to be
+          // a role word as a surname. Leaving these out of the map is the
+          // honest choice: a one-word entry would risk replacing ordinary
+          // prose, and pretending it was handled would be worse.
+          if (name.split(/\s+/).length < 2) continue;
+          const prefix = INVENTORY_PREFIX[String(person?.role || '').trim().toLowerCase()] || 'PARTY';
+          allocatePseudonym(user.id, 'criminal', name, prefix, 'disclosure');
+          mappedNames.push(name);
+        }
+      } catch (e) {
+        console.error('[analysis] could not allocate pseudonyms:', e.message);
+      }
+      try {
+        // Read back rather than assembled, so whatever was allocated above is
+        // applied even if the loop failed partway, and so a name the profile
+        // already had — the user's own, say — keeps the token it already has.
+        storeMap = mapFromEntries(listPseudonyms(user.id, 'criminal'));
+      } catch (e) {
+        console.error('[analysis] could not read the pseudonym map:', e.message);
+      }
+
       // Saved so a later supplementary disclosure has something to be analysed
       // against. Results only — the uploaded PDFs are not written anywhere.
       //
@@ -718,16 +784,32 @@ router.post('/', requireAuth, async (req, res) => {
       // event is sent regardless.
       let analysisId = null;
       try {
-        const saved = saveDisclosureAnalysis(user.id, {
-          label: `${chargeDetected} — ${files.length} document${files.length === 1 ? '' : 's'}`,
-          chargeLabel: chargeDetected,
-          documentCount: files.length,
-          pageCount: totalPages,
-          documents: documentList,
-          results,
-          warnings,
-        });
-        analysisId = saved.id;
+        const storedResults = storeMap ? scrubDeep(results, storeMap) : results;
+        const storedInventory = storeMap ? scrubDeep(inventory, storeMap) : inventory;
+
+        // Verified, not assumed. Every name claimed to have been replaced must
+        // actually be gone; if one survives, storing would persist an
+        // identified third party. Refusing to store costs the user a saved
+        // copy — they still have the report on screen — and that is the
+        // smaller harm.
+        const flat = (JSON.stringify(storedResults) + JSON.stringify(storedInventory)).toLowerCase();
+        const leaked = mappedNames.filter(n => flat.includes(n.toLowerCase()));
+        if (leaked.length) {
+          // The count only — logging the names would defeat the point.
+          console.error(`[analysis] not saved: ${leaked.length} name(s) survived pseudonymisation`);
+        } else {
+          const saved = saveDisclosureAnalysis(user.id, {
+            label: `${chargeDetected} — ${files.length} document${files.length === 1 ? '' : 's'}`,
+            chargeLabel: chargeDetected,
+            documentCount: files.length,
+            pageCount: totalPages,
+            documents: documentList,
+            results: storedResults,
+            warnings,
+            inventory: storedInventory,
+          });
+          analysisId = saved.id;
+        }
       } catch (e) {
         console.error('[analysis] could not save the analysis:', e.message);
       }
