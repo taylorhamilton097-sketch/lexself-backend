@@ -335,6 +335,28 @@ function restore(text, map) {
  * after. Object keys are schema field names, not data, so they are left
  * alone.
  */
+/**
+ * scrub() applied to every string inside a parsed structure.
+ *
+ * The mirror of restoreDeep(), for storing model output with names replaced
+ * by tokens. Serialising to JSON and scrubbing the text would be shorter and
+ * wrong: a name is escaped inside a JSON string, so a pattern built from the
+ * raw name can miss it, and a replacement could land inside an escape
+ * sequence. Walk the structure instead.
+ *
+ * Object keys are schema field names, not data, so they are left alone.
+ */
+function scrubDeep(value, map) {
+  if (typeof value === 'string') return scrub(value, map);
+  if (Array.isArray(value)) return value.map(v => scrubDeep(v, map));
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const k of Object.keys(value)) out[k] = scrubDeep(value[k], map);
+    return out;
+  }
+  return value;
+}
+
 function restoreDeep(value, map) {
   if (typeof value === 'string') return restore(value, map);
   if (Array.isArray(value)) return value.map(v => restoreDeep(v, map));
@@ -523,6 +545,7 @@ module.exports = {
   buildCaseBlock,
   buildSystemPrompt,
   scrub,
+  scrubDeep,
   restore,
   restoreDeep,
   residualTokens,
