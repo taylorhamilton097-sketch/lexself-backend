@@ -240,7 +240,13 @@ db.exec(`
     warnings        TEXT NOT NULL DEFAULT '[]',
     -- Added by a later step. Nullable so this table can ship before the
     -- evidence inventory exists, and so rows written before it stay valid.
-    inventory       TEXT
+    inventory       TEXT,
+    -- Retention is measured from last use, not from creation. PIPEDA
+    -- principle 4.5 is about not keeping information longer than necessary,
+    -- and an analysis the user is still working from is still necessary.
+    -- Measuring from creation would delete the analysis for a superior court
+    -- matter still inside its 30-month Jordan ceiling.
+    last_used_at    INTEGER NOT NULL DEFAULT (unixepoch())
   );
 
   CREATE INDEX IF NOT EXISTS idx_parties_user   ON case_parties(user_id, product);
@@ -251,6 +257,20 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_analyses_user  ON disclosure_analyses(user_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_analyses_parent ON disclosure_analyses(parent_id);
 `);
+
+// disclosure_analyses shipped before retention existed, so the live table has
+// no last_used_at. CREATE TABLE IF NOT EXISTS will not add it.
+//
+// ADD COLUMN cannot take a non-constant default, so unixepoch() is not
+// available here — the column lands as 0 and is then backfilled from
+// created_at. Without the backfill every existing row would look like it was
+// last used in 1970 and be pruned on the first sweep.
+try { db.exec(`ALTER TABLE disclosure_analyses ADD COLUMN last_used_at INTEGER NOT NULL DEFAULT 0`); } catch(e) {}
+try {
+  db.exec(`UPDATE disclosure_analyses SET last_used_at = created_at
+            WHERE last_used_at IS NULL OR last_used_at = 0`);
+} catch(e) {}
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_analyses_used ON disclosure_analyses(last_used_at)`); } catch(e) {}
 
 // ── Columns the family app's profile panel collects but these tables
 // had nowhere to put.
@@ -1418,6 +1438,42 @@ function allocatePseudonym(userId, product, realValue, prefix, kind, numbered = 
 // fetched and then checked, so a guessed or tampered id returns nothing
 // instead of someone else's brief.
 
+// How long an analysis is kept after it was last opened. PIPEDA principle 4.5
+// requires personal information not be retained longer than necessary, and
+// stored findings name complainants, witnesses and children.
+//
+// Measured from last use rather than creation, so an analysis the user is
+// still working from never expires — a superior court matter can sit inside
+// its 30-month Jordan ceiling, which a 12-month limit from creation would
+// delete out from under. Twelve months without being opened is the test of
+// "no longer necessary".
+const ANALYSIS_RETENTION_DAYS = 365;
+
+/**
+ * Delete analyses untouched for longer than the retention period.
+ *
+ * Returns the number of rows removed. Safe to call often: it is a single
+ * indexed DELETE, and on a database with nothing expired it removes nothing.
+ */
+function pruneDisclosureAnalyses() {
+  try {
+    const cutoff = Math.floor(Date.now() / 1000) - (ANALYSIS_RETENTION_DAYS * 86400);
+    const info = db.prepare(
+      'DELETE FROM disclosure_analyses WHERE last_used_at > 0 AND last_used_at < ?'
+    ).run(cutoff);
+    if (info.changes > 0) {
+      // A count, never a label or an id — these rows hold case content.
+      console.log(`[retention] removed ${info.changes} analysis/analyses untouched for ${ANALYSIS_RETENTION_DAYS} days`);
+    }
+    return info.changes;
+  } catch (e) {
+    // Never fatal. A failed sweep means data is kept longer than intended,
+    // which is a problem to fix rather than a reason to stop the server.
+    console.error('[retention] sweep failed:', e.message);
+    return 0;
+  }
+}
+
 // A malformed blob must not take the whole list down with it. Analyses hold
 // case content, so the fallback is empty, never a partial parse.
 function parseJsonColumn(text, fallback) {
@@ -1448,11 +1504,16 @@ function saveDisclosureAnalysis(userId, data = {}) {
     if (!owns) parentId = null;
   }
 
+  // last_used_at is set explicitly rather than left to the column default.
+  // On a database where the column arrived by ALTER TABLE the default is 0,
+  // because ADD COLUMN cannot take unixepoch() — and a row left at 0 would
+  // never expire, quietly defeating retention on exactly the databases that
+  // already existed.
   const row = db.prepare(
     `INSERT INTO disclosure_analyses
        (user_id, parent_id, label, charge_label, document_count, page_count,
-        documents, results, warnings, inventory)
-     VALUES (?,?,?,?,?,?,?,?,?,?)
+        documents, results, warnings, inventory, last_used_at)
+     VALUES (?,?,?,?,?,?,?,?,?,?,unixepoch())
      RETURNING id`
   ).get(
     uid,
@@ -1467,6 +1528,12 @@ function saveDisclosureAnalysis(userId, data = {}) {
     data.inventory === undefined || data.inventory === null
       ? null : JSON.stringify(data.inventory)
   );
+
+  // Swept here as well as at boot, so a container that stays up for months
+  // keeps expiring things. One indexed DELETE; it costs nothing when there is
+  // nothing to remove.
+  pruneDisclosureAnalyses();
+
   return { id: row.id };
 }
 
@@ -1479,7 +1546,7 @@ function listDisclosureAnalyses(userId, limit = 50) {
   const uid = Number(userId);
   if (!Number.isInteger(uid) || uid <= 0) return [];
   const rows = db.prepare(
-    `SELECT id, parent_id, created_at, label, charge_label,
+    `SELECT id, parent_id, created_at, last_used_at, label, charge_label,
             document_count, page_count, warnings
        FROM disclosure_analyses
       WHERE user_id = ?
@@ -1493,6 +1560,13 @@ function listDisclosureAnalyses(userId, limit = 50) {
       id: r.id,
       parentId: r.parent_id,
       createdAt: r.created_at,
+      lastUsedAt: r.last_used_at,
+      // So a list can warn before an analysis goes, rather than it vanishing
+      // without notice. A row still at 0 — pre-retention, never reopened —
+      // is not swept, so it has no expiry to show.
+      expiresAt: r.last_used_at > 0
+        ? r.last_used_at + (ANALYSIS_RETENTION_DAYS * 86400)
+        : null,
       label: r.label,
       chargeLabel: r.charge_label,
       documentCount: r.document_count,
@@ -1504,7 +1578,12 @@ function listDisclosureAnalyses(userId, limit = 50) {
   });
 }
 
-/** One analysis in full, or null. Scoped by user in the query. */
+/**
+ * One analysis in full, or null. Scoped by user in the query.
+ *
+ * Opening an analysis marks it as used, which is what resets its retention
+ * clock. An analysis someone is still working from is still necessary.
+ */
 function getDisclosureAnalysis(id, userId) {
   const uid = Number(userId), aid = Number(id);
   if (!Number.isInteger(uid) || uid <= 0) return null;
@@ -1513,6 +1592,15 @@ function getDisclosureAnalysis(id, userId) {
     'SELECT * FROM disclosure_analyses WHERE id = ? AND user_id = ?'
   ).get(aid, uid);
   if (!r) return null;
+  try {
+    db.prepare(
+      'UPDATE disclosure_analyses SET last_used_at = unixepoch() WHERE id = ? AND user_id = ?'
+    ).run(aid, uid);
+  } catch (e) {
+    // Failing to extend the clock must not fail the read. Worst case the
+    // analysis expires earlier than it should.
+    console.error('[retention] could not mark analysis as used:', e.message);
+  }
   return {
     id: r.id,
     parentId: r.parent_id,
@@ -2918,6 +3006,12 @@ const citationCache = {
 // does nothing and logs nothing.
 backfillFamilyProfilesFromBlob();
 
+// Retention sweep at boot. Railway redeploys often enough that this runs
+// regularly, and saveDisclosureAnalysis sweeps too, so a long-lived container
+// does not simply stop expiring things. On a database with nothing expired it
+// removes nothing and logs nothing.
+pruneDisclosureAnalyses();
+
 module.exports = {
   db, PLANS, 
   createUser, getUserByEmail, getUserById,
@@ -3009,6 +3103,7 @@ module.exports = {
   // Disclosure analyses (results only — never the uploaded documents)
   saveDisclosureAnalysis, listDisclosureAnalyses,
   getDisclosureAnalysis, deleteDisclosureAnalysis,
+  pruneDisclosureAnalyses, ANALYSIS_RETENTION_DAYS,
   // Account deletion (permanent, irreversible)
   deleteUserAccount,
   verifyUserDataRemoved,
