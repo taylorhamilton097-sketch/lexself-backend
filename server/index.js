@@ -177,6 +177,13 @@ app.use('/api/family/analyze', require('./routes/family-analyze'));
 app.use('/api/admin',          require('./routes/admin'));
 app.use('/api/chat',           require('./routes/criminal-chat'));
 app.use('/api/analyze',        require('./routes/analyze'));
+// Stored analyses: list, open, delete. NOT under /api/analyze, because
+// analysisLimiter is mounted there and counts every request regardless of
+// method — one per minute on free and essential. Reading your own history
+// would 429 on the second click and burn the allowance for running an
+// analysis. Express boundary-matches mount paths, so /api/analyses does not
+// match the /api/analyze mount above.
+app.use('/api/analyses',       require('./routes/analyses'));
 
 // ── HEALTH CHECK ──
 app.get('/health',     (req, res) => res.json({ status: 'ok' }));
