@@ -803,7 +803,18 @@ router.post('/', requireAuth, async (req, res) => {
             chargeLabel: chargeDetected,
             documentCount: files.length,
             pageCount: totalPages,
-            documents: documentList,
+            // Filenames are deliberately NOT stored. Crown filenames routinely
+            // carry the complainant's name — Jane_Smith_willsay.pdf — and scrub
+            // cannot catch that, because it matches names separated by spaces,
+            // not underscores. Keeping them would put back exactly the names
+            // the rest of this block exists to remove.
+            //
+            // Nothing is lost that matters: the inventory records each
+            // document's type, author and date, and that IS pseudonymised, so
+            // a reopened analysis identifies documents better than a filename
+            // did. The filenames still go to the browser in meta.documents for
+            // the report shown now.
+            documents: documentList.map(d => ({ label: d.label, pages: d.pages })),
             results: storedResults,
             warnings,
             inventory: storedInventory,
